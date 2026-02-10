@@ -1,7 +1,10 @@
-	#include <stdio.h>
+#include <stdio.h>
 
-int salary = 180001;
-int capital = 0;
+// typedef int RUB // C
+using RUB = long long int; // C++
+
+RUB salary = 180001;
+RUB capital = 0;
 void my_salary(const int month, const int year) {
   if ((month == 8) && (year == 2026)) { // Promotion
     salary = salary * 1.5;
@@ -29,6 +32,6 @@ int main()
     }
   }
 
-  printf("Salary = %d\n", salary);
-  printf("Capital = %d", capital);
+  printf("Salary = %lld\n", salary);
+  printf("Capital = %lld", capital);
 }
