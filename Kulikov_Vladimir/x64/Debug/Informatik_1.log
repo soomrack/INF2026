@@ -1,1 +1,4 @@
-﻿  Informatik_1.vcxproj -> H:\Visual Studio 2026\Projects\Informatik_1\x64\Debug\Informatik_1.exe
+﻿  Practise2.cpp
+H:\Visual Studio 2026\Projects\Informatik_1\Informatik_1\Practise2.cpp(8,25): warning C4244: =: преобразование "double" в "int", возможна потеря данных
+H:\Visual Studio 2026\Projects\Informatik_1\Informatik_1\Practise2.cpp(22,28): warning C4244: +=: преобразование "double" в "int", возможна потеря данных
+  Informatik_1.vcxproj -> H:\Visual Studio 2026\Projects\Informatik_1\x64\Debug\Informatik_1.exe
