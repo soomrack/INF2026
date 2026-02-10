@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+// typedef int RUB // C
+
 using RUB = long long int; // C++
 
 struct Car {
