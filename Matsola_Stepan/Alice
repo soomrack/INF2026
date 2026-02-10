@@ -1,0 +1,136 @@
+#include <stdio.h>
+
+//typedef int RUB;
+using RUB = long long int;
+using inflation = double;
+using prirost = double;
+
+struct Car {
+    RUB value;
+    RUB gas;
+    inflation gas_inflation;
+};
+
+struct dog
+{
+    RUB value;
+    RUB zatraty;
+    inflation zatraty_inflation;
+};
+
+struct hamster
+{
+    RUB value;
+    RUB zatraty;
+    inflation zatraty_inflation;
+};
+
+struct Person { // создали свой тип данных
+    RUB salary;
+    RUB capital;
+    RUB food;
+    inflation food_inflation;
+    prirost salary_prirost;
+    Car car;
+    dog dog;
+    hamster hamster;
+};
+
+struct Person Alice; // создали переменную типа данных Person
+
+void alice_car() {
+    Alice.car.gas *=(Alice.car.gas_inflation+100)/100;
+    Alice.capital -= Alice.car.gas;
+}
+
+void alice_salary(const int month, const int year) {
+    Alice.salary *= (Alice.salary_prirost + 100) / 100;
+    if ((month == 8) && (year == 2026)) { // Promotion
+        Alice.capital += Alice.salary * 1.5;
+    }
+    else Alice.capital += Alice.salary;
+}
+
+void print_results() {
+
+    printf("Salary = %lld\n", Alice.salary);
+    printf("Capital = %lld", Alice.capital);
+}
+
+void alice_food() {
+    Alice.food *= (Alice.food_inflation + 100) / 100;
+    Alice.capital -= Alice.food;
+}
+
+void alice_bank_interest() {
+
+
+}
+
+void my_dog() {
+    Alice.dog.zatraty *= (100 + Alice.dog.zatraty_inflation) / 100;
+    Alice.capital -= Alice.dog.zatraty;
+}
+
+void my_hamster() {
+    Alice.hamster.zatraty *= (100 + Alice.hamster.zatraty_inflation) / 100;
+    Alice.capital -= Alice.hamster.zatraty;
+}
+
+void simulation()
+{
+
+    int month = 2;
+    int year = 2026;
+    double stavka_of_year = 11;
+    Alice.capital -= Alice.car.value - Alice.dog.value - Alice.hamster.value;
+    while (!((month == 3) && (year == 2037))) {
+
+
+
+        my_dog();
+        my_hamster();
+        alice_food();
+        alice_car();
+        alice_salary(month, year);
+
+        ++month;
+        if (month == 13) {
+            month = 1;
+            ++year;
+            Alice.capital *= (100 + stavka_of_year) / 100; // Изменение счета с учетом ставки во вкладе. Учитывая, что Алиса все полученные деньги
+            //сразу вносит в депозитный счет, в котором проценты начисляются раз в год
+        }
+    }
+}
+
+void alice_init() // Присвоили значения характеристик, описывающих переменную данного типа
+{
+    Alice.capital = 5000000;
+    Alice.salary = 180000;
+    Alice.salary_prirost = 0.16;
+    Alice.food = 20000;
+    Alice.food_inflation = 2;
+
+    Alice.car.value = 2400000;
+    Alice.car.gas = 15000;
+    Alice.car.gas_inflation = 2.1;
+
+    Alice.dog.value = 5000;
+    Alice.dog.zatraty=4000;
+    Alice.dog.zatraty_inflation = 2;
+
+    Alice.hamster.value = 2000;
+    Alice.hamster.zatraty = 3000;
+    Alice.hamster.zatraty_inflation = 2.7;    
+}
+
+int main()
+{
+    alice_init();
+
+    simulation();
+
+    print_results();
+
+}
