@@ -127,8 +127,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Practise2.cpp" />
-    <ClCompile Include="task1.cpp" />
+    <ClCompile Include="Practise_2.cpp" />
+    <ClCompile Include="Practise_3.cpp" />
+    <ClCompile Include="task_1.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Lection_1.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,4 +1,4 @@
-#include <stdio.h>
+/* #include <stdio.h>
 
 int salary = 180001;
 int capital = 0;
@@ -33,3 +33,5 @@ static int rmain()
     printf("Salary = %d\n", salary);
     printf("Capital = %d", capital);
 }
+*/
+
