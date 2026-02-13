@@ -1,0 +1,110 @@
+#include <stdio.h>
+
+//typedef int RUB;  // C
+using RUB = long long int;  // C++
+
+
+struct Car {
+    RUB value;
+    RUB gas;
+};
+
+struct Bank {
+    const float inflant = 0.17;
+    const float pdn = 0.13;
+    const float prib = 1.05;
+    const float interest_rate = 0.12;
+    const float loss_of_marketable_value = 0.1;
+};
+
+struct Person {
+    RUB salary;
+    RUB food;
+    RUB capital;
+    Car car;
+};
+struct Person Alice;
+struct Bank Bank;
+
+
+void alice_salary(const int month, const int year) {
+    if ((month == 8 && year == 2026) || (month == 2 && year == 2027)) {  // Promotion
+        Alice.salary *= Bank.prib;
+    }
+
+    Alice.capital += Alice.salary * (1 - Bank.pdn);
+}
+
+
+void print_results()
+{
+    printf("Salary = %lld\n", Alice.salary);
+    printf("Capital = %lld", Alice.capital);
+}
+
+
+void alice_bank_interest()
+{
+    Alice.capital *= (1 + Bank.interest_rate);  // Bank interest
+}
+
+
+void alice_food()
+{
+    Alice.capital -= Alice.food;
+}
+
+void increase_in_cost()
+{
+    Alice.food *= (1 + Bank.inflant);
+    Alice.car.gas *= (1 + Bank.inflant);
+}
+
+void alice_car()
+{
+    Alice.capital -= Alice.car.gas;
+    Alice.car.value *= (1 - Bank.loss_of_marketable_value / 12);
+}
+
+
+void alice_init()
+{
+    Alice.capital = 0;
+    Alice.salary = 150'000;
+    Alice.food = 25'000;
+
+    Alice.car.value = 2'400'000;
+    Alice.car.gas = 15'000;
+}
+
+
+void simulation()
+{
+    int month = 2;
+    int year = 2026;
+
+    while (!((month == 3) && (year == 2027))) {
+        alice_food();
+        alice_car();
+        alice_bank_interest();
+        alice_salary(month, year);
+        //printf("%d %lld %lld %ld\n", month, Alice.salary, Alice.capital, Alice.car.value);
+
+        ++month;
+        if (month == 13) {
+            month = 1;
+            ++year;
+            increase_in_cost();
+        }
+    }
+}
+
+
+int main()
+{
+    alice_init();
+
+    simulation();
+
+    print_results();
+}
