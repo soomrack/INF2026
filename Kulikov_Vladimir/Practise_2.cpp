@@ -1,4 +1,4 @@
-/* #include <stdio.h>
+/*#include <stdio.h>
 
 int salary = 180001;
 int capital = 0;
@@ -10,7 +10,7 @@ void my_salary(const int month, const int year) {
     capital += salary;
 }
 
-static int rmain()
+static int main()
 {
     float pp = 14.5;
 

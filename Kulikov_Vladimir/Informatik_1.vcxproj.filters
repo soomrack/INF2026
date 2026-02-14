@@ -24,9 +24,15 @@
     <ClCompile Include="Practise_3.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Task_2.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Lection_1.md">
+      <Filter>Исходные файлы</Filter>
+    </None>
+    <None Include="Lection_2.md">
       <Filter>Исходные файлы</Filter>
     </None>
   </ItemGroup>

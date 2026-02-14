@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -129,10 +129,12 @@
   <ItemGroup>
     <ClCompile Include="Practise_2.cpp" />
     <ClCompile Include="Practise_3.cpp" />
-    <ClCompile Include="task_1.cpp" />
+    <ClCompile Include="Task_1.cpp" />
+    <ClCompile Include="Task_2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Lection_1.md" />
+    <None Include="Lection_2.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
