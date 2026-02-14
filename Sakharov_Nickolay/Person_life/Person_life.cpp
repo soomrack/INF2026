@@ -74,7 +74,8 @@ void print_results()
 {
 
     printf("Salary = %lld\n", Alice.work.salary);
-    printf("Capital = %lld", Alice.bank.balance);
+    printf("Capital = %lld\n", Alice.bank.balance);
+    printf("Deposit = %lld", Alice.bank.deposit);
 }
 void simulation()
 {
