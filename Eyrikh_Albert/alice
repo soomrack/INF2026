@@ -1,0 +1,181 @@
+#include <stdio.h>
+
+using RUB = long long int;
+
+struct BankAccount {
+	RUB checking; // Текущий счет
+	RUB deposit; // Депозит с процентами
+};
+struct Car {
+	RUB value;
+	RUB gas;
+	double inflation_rate; // годовая инфляция на машину
+};
+struct Person {
+	RUB salary;
+	RUB food;
+	double food_inflation_rate;
+	struct Car car;
+	struct BankAccount bank;
+};
+
+struct Person Alice;
+
+float deposit_rate = 13; // Процентная ставка по депозиту
+float inflation_rate = 8.0;  // Базовая годовая инфляция 
+
+
+void apply_inflation(int month, int year) {
+    // Инфляция применяется в начале каждого года
+    if (month == 1) {
+        
+        Alice.food = Alice.food * (1.0 + Alice.food_inflation_rate / 100.0);
+
+    
+        Alice.car.value = Alice.car.value * (1.0 + Alice.car.inflation_rate / 100.0);
+        Alice.car.gas = Alice.car.gas * (1.0 + Alice.car.inflation_rate / 100.0);
+
+        printf("Год %d: Применена инфляция\n", year);
+        printf("  Еда: %lld руб/мес\n", Alice.food);
+        printf("  Машина: %lld руб, Бензин: %lld руб/мес\n", Alice.car.value, Alice.car.gas);
+    }
+}
+
+void alice_salary(const int month, const int year) {
+    RUB salary_amount = Alice.salary;
+
+    if ((month == 8) && (year == 2026)) {  // Повышение
+        salary_amount = Alice.salary * 1.5;
+        Alice.salary = salary_amount;  // Обновляем базовую зарплату
+    }
+
+    Alice.bank.checking += salary_amount; // Зарплата приходит на текущий счет
+
+    printf("Месяц %d/%d: Получена зарплата %lld руб\n", month, year, salary_amount);
+}
+
+void print_results() {
+    printf("\n=== РЕЗУЛЬТАТЫ ===\n");
+    printf("Зарплата = %lld руб/мес\n", Alice.salary);
+    printf("Текущий счет = %lld руб\n", Alice.bank.checking);
+    printf("Депозит = %lld руб\n", Alice.bank.deposit);
+    printf("Общий капитал = %lld руб\n", Alice.bank.checking + Alice.bank.deposit);
+}
+
+void alice_deposit_interest() {
+    if (Alice.bank.deposit > 0) {
+        RUB interest = Alice.bank.deposit * (deposit_rate / 12.0 / 100.0);
+        Alice.bank.deposit += interest;
+        printf("  Начислены проценты на депозит: %lld руб\n", interest);
+    }
+}
+
+void alice_food() {
+    RUB food_cost = Alice.food;
+
+    if (Alice.bank.checking >= food_cost) {
+        Alice.bank.checking -= food_cost;
+        printf("  Потрачено на еду: %lld руб\n", food_cost);
+    }
+    else {
+        printf("  Недостаточно средств на еду!\n");
+        Alice.bank.checking -= food_cost; // Принудительно снимаем, уходим в минус
+    }
+}
+
+void alice_car() {
+    RUB gas_cost = Alice.car.gas;
+
+    if (Alice.bank.checking >= gas_cost) {
+        Alice.bank.checking -= gas_cost;
+        printf("  Потрачено на бензин: %lld руб\n", gas_cost);
+    }
+    else {
+        printf("  ОШИБКА: Недостаточно средств на бензин!\n");
+        Alice.bank.checking -= gas_cost;
+    }
+}
+
+// Функция для перевода денег на депозит
+void alice_transfer_to_deposit() {
+    // Оставляем на текущем счете минимум для следующего месяца
+    RUB min_checking = Alice.food + Alice.car.gas;
+
+    if (Alice.bank.checking > min_checking) {
+        RUB transfer = Alice.bank.checking - min_checking;
+        
+        transfer = (transfer / 1000) * 1000; // Округляем вниз до тысяч для простоты
+
+        if (transfer > 0) {
+            Alice.bank.checking -= transfer;
+            Alice.bank.deposit += transfer;
+            printf("  Переведено на депозит: %lld руб\n", transfer);
+        }
+    }
+}
+
+void alice_init() { // Инициализация банковских счетов
+    Alice.bank.checking = 0;
+    Alice.bank.deposit = 0;
+
+    // Доходы и расходы
+    Alice.salary = 180'000;
+    Alice.food = 20'000;
+    Alice.food_inflation_rate = 7.5;  // Инфляция на еду чуть ниже общей
+
+    Alice.car.value = 2'400'000; // Машина
+    Alice.car.gas = 15'000;
+    Alice.car.inflation_rate = 9.0;  // Инфляция на авто выше общей
+
+    printf("НАЧАЛЬНЫЕ УСЛОВИЯ\n");
+    printf("Зарплата: %lld руб/мес\n", Alice.salary);
+    printf("Еда: %lld руб/мес\n", Alice.food);
+    printf("Машина: %lld руб, Бензин: %lld руб/мес\n", Alice.car.value, Alice.car.gas);
+    printf("Ставка по депозиту: %.1f%%\n", deposit_rate);
+    printf("Инфляция: еда - %.1f%%, авто - %.1f%%\n\n",
+        Alice.food_inflation_rate, Alice.car.inflation_rate);
+}
+
+void simulation() {
+    int month = 2;
+    int year = 2026;
+
+    printf("НАЧАЛО СИМУЛЯЦИИ (Февраль 2026 - Март 2027)\n\n");
+
+    while (!((month == 3) && (year == 2027))) {
+        printf("\n--- Месяц %d/%d ---\n", month, year);
+
+        // Применяем инфляцию в начале года
+        apply_inflation(month, year);
+
+        // Расходы
+        alice_food();
+        alice_car();
+
+        // Начисляем проценты на депозит
+        alice_deposit_interest();
+
+        // Получаем зарплату
+        alice_salary(month, year);
+
+        // Переводим излишки на депозит
+        alice_transfer_to_deposit();
+
+        printf("  Текущий счет: %lld руб, Депозит: %lld руб\n",
+            Alice.bank.checking, Alice.bank.deposit);
+
+        ++month;
+        if (month == 13) {
+            month = 1;
+            ++year;
+        }
+    }
+}
+
+int main() {
+    alice_init();
+    simulation();
+    print_results();
+
+    return 0;
+}
