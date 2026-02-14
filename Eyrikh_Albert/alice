@@ -79,7 +79,7 @@ void alice_food() {
     }
     else {
         printf("  Недостаточно средств на еду!\n");
-        Alice.bank.checking -= food_cost; // Принудительно снимаем, уходим в минус
+        Alice.bank.checking -= food_cost; // снимаем, уходим в минус
     }
 }
 
@@ -91,7 +91,7 @@ void alice_car() {
         printf("  Потрачено на бензин: %lld руб\n", gas_cost);
     }
     else {
-        printf("  ОШИБКА: Недостаточно средств на бензин!\n");
+        printf("  Недостаточно средств на бензин!\n");
         Alice.bank.checking -= gas_cost;
     }
 }
