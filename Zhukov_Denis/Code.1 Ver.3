@@ -1,0 +1,174 @@
+#include <stdio.h>
+
+using RUB = long long int;
+using percent = float;
+
+
+struct bank
+{
+	RUB account;
+	RUB deposit;
+	percent interest;
+};
+
+
+struct Person
+{
+	bank vtb;
+	RUB salary;
+	RUB food;
+	RUB cat;
+	RUB rent;
+};
+
+
+struct Person Alex;
+struct Person Mary;
+
+
+void Alex_init()
+{
+	Alex.vtb.account = 0;
+	Alex.salary = 150'000;
+	Alex.vtb.deposit = 1'000'000;
+	Alex.vtb.interest = 14;
+
+	Alex.food = 20'000;
+	Alex.rent = 30'000;
+	Alex.cat = 0; // кота нет
+}
+
+
+void Mary_init()
+{
+	Mary.vtb.account = 0;
+	Mary.salary = 80'000;
+	Mary.vtb.deposit = 300'000;
+	Mary.vtb.interest = 14;
+
+	Mary.food = 20'000;
+	Mary.cat = 10'000;
+	Mary.rent = 25'000;
+}
+
+
+void Alex_salary(const int month, const int year)
+{
+	if (month == 12)
+	{
+		Alex.vtb.account += Alex.salary; // 13-я зарплата
+	}
+
+	if (month == 5 and year == 2044)
+	{
+		Alex.salary += 30'000; // повышение
+	}
+	Alex.vtb.account += Alex.salary;
+}
+
+
+void Mary_salary(const int month, const int year)
+{
+	if (month == 12)
+	{
+		Mary.vtb.account += Mary.salary; // 13-я зарплата
+	}
+
+	if (month == 5 and year == 2040)
+	{
+		Mary.salary += 20'000; // повышение
+	}
+	Mary.vtb.account += Mary.salary;
+}
+
+
+void Alex_wastes()
+{
+	Alex.vtb.account -= Alex.food;
+	Alex.vtb.account -= Alex.rent;
+	// кота нет
+}
+
+
+void Mary_wastes()
+{
+	Mary.vtb.account -= Mary.food;
+	Mary.vtb.account -= Mary.cat;
+	Mary.vtb.account -= Mary.rent;
+}
+
+
+void Alex_deposite(const int month, const int year)
+{
+	if (year > 2045) Alex.vtb.interest = 13;
+	else if (year > 2040) Alex.vtb.interest = 14.5;
+	else Alex.vtb.interest = 14;
+
+	Alex.vtb.deposit += Alex.vtb.deposit * (Alex.vtb.interest / 12 / 100.0);
+
+	Alex.vtb.deposit += 20'000;
+	Alex.vtb.account -= 20'000;
+}
+
+
+void Mary_deposite(const int month, const int year)
+{
+	if (year > 2045) Mary.vtb.interest = 13;
+	else if (year > 2040) Mary.vtb.interest = 14.5;
+	else Mary.vtb.interest = 14;
+
+	Mary.vtb.deposit += Mary.vtb.deposit * (Mary.vtb.interest / 12 / 100.0);
+
+	Mary.vtb.deposit += 10'000;
+	Mary.vtb.account -= 10'000;
+}
+
+
+void result()
+{
+	printf("Alex salary on 2050 = %lld\n", Alex.salary);
+
+	// накопления Алекса
+	RUB capital = 0;
+	capital += Alex.vtb.account;
+	capital += Alex.vtb.deposit;
+	printf("Alex capital on 2050 = %lld\n\n", capital);
+
+	printf("Mary salary on 2050 = %lld\n", Mary.salary);
+
+	// накопления Мэри
+	capital = 0;
+	capital += Mary.vtb.account;
+	capital += Mary.vtb.deposit;
+	printf("Mary capital on 2050 = %lld\n", capital);
+}
+
+
+int main()
+{
+	int month = 3;
+	int year = 2030;
+
+	Alex_init();
+	Mary_init();
+
+	while (not (month == 3 and year == 2050))
+	{
+		Alex_salary(month, year);
+		Alex_wastes();
+		Alex_deposite(month, year);
+
+		Mary_salary(month, year);
+		Mary_wastes();
+		Mary_deposite(month, year);
+
+		month++;
+		if (month == 13)
+		{
+			year++;
+			month = 1;
+		}
+	}
+
+	result();
+}
