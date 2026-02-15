@@ -1,133 +1,160 @@
 ﻿#include <stdio.h>
 
 
-using RUB = long long int;
-using USD = long long int;
+//ТИПЫ ДАННЫХ
 
-using Percent = float;
+using RUB = long long int;      //тип данных для операций в рублях
+using USD = long long int;      //тип данных для операций в долларах
+
+using Percent = float;          //тип данных для процентов (1-100%)
 
 
-struct Bank {
+//СТРУКТУРЫ
+
+/*struct Rate {                   //структура ставок по годам (2026-2030гг)
+    Percent rate2026 = 14.5;
+    Percent rate2027 = 12.5;
+    Percent rate2028 = 10.5;
+    Percent rate2029 = 7;
+    Percent rate2030 = 4;
+    Percent rate2031 = 4.5;
+};*/
+
+
+struct Bank {                   //структура банка
     RUB account;
     RUB deposite;
-    Percent interest;
-
     USD account_usd;
     float rate_usd_rub;
+
+    Percent interest;
+    Rate rate;
+   
 };
 
 
-struct Car {
+struct Car {                    //структура автомобиля
     RUB gas;
     RUB value;
 };
 
 
-struct Person {
-    Bank vtb;
+struct Person {                 //структура Персонажа (главная!!!)
+    Bank zoobank;
     Car car;
     RUB salary;
     RUB food;
 };
-struct Person alice;
-//struct Person bob;
+struct Person judy;             //Создание Персонажа Джуди;
+struct Person nick;             //Создание Персонажа Ник;
 
 
-void alice_init()
+//ФУНКЦИИ
+
+void judy_init()                            //функция инициализации Джуди
 {
-    alice.vtb.account = 0;
-    alice.vtb.deposite = 1'000'000;
-    alice.vtb.interest = 14.5;
-    alice.salary = 180'000;
+    judy.zoobank.account = 0;
+    judy.zoobank.deposite = 1'000'000;
+    judy.zoobank.interest;
+    judy.salary = 180'000;
 
-    alice.vtb.account_usd = 1'000;
-    alice.vtb.rate_usd_rub = 78.5;
+    judy.zoobank.account_usd = 1'000;
+    judy.zoobank.rate_usd_rub = 78.5;
 
-    alice.food = 20'000;
+    judy.food = 20'000;
 
-    alice.car.value = 2'400'000;
-    alice.car.gas = 15'000;
+    judy.car.value = 2'400'000;
+    judy.car.gas = 15'000;
 }
 
 
-void alice_salary(const int month, const int year)
+void judy_salary(const int month, const int year)           //функция зарплаты Джуди
 {
     if (month == 12) {
-        alice.vtb.account += alice.salary;  // 13th salary
+        judy.zoobank.account += judy.salary;  // 13th salary
     }
 
-    if (month == 1 and year == 2027) {
-        alice.salary *= 1.5;  // promotion
+    if (month == 1) {
+        judy.salary *= (judy.zoobank.interest + 100)/100;  //увеличение зарплаты на ставку (индексация)
     }
 
-    alice.vtb.account += alice.salary;
+    judy.zoobank.account += judy.salary;
 }
 
 
-void alice_food()
+void judy_food()                            //функция еды Джуди
 {
-    alice.vtb.account -= alice.food;
+    judy.zoobank.account -= judy.food;
 }
 
 
-void alice_car()
+void judy_car()                             //функция машины Джуди
 {
-    alice.vtb.account -= alice.car.gas;
+    judy.zoobank.account -= judy.car.gas;
 }
 
 
-void alice_deposite(const int month, const int year)
+
+
+
+
+
+
+void judy_deposite(const int month, const int year)         //функция депозита Джуди в банке
 {
-    if (year == 2026) alice.vtb.interest = 14.5;
-    if (year == 2027) alice.vtb.interest = 13.5;
-    if (year == 2028) alice.vtb.interest = 12.5;
-    if (year == 2029) alice.vtb.interest = 11.5;
+    if (year == 2026) judy.zoobank.interest = 14.5;
+    if (year == 2027) judy.zoobank.interest = 13.5;
+    if (year == 2028) judy.zoobank.interest = 12.5;
+    if (year == 2029) judy.zoobank.interest = 11.5;
+    if (year == 2030) judy.zoobank.interest = 11.5;
+    if (year == 2031) judy.zoobank.interest = 11.5;
 
-    alice.vtb.deposite += alice.vtb.deposite * (alice.vtb.interest / 12.0 / 100.0);
+    judy.zoobank.deposite += judy.zoobank.deposite * (judy.zoobank.interest / 12.0 / 100.0);
 
-    alice.vtb.deposite += alice.vtb.account;
-    alice.vtb.account = 0;
+    judy.zoobank.deposite += judy.zoobank.account;
+    judy.zoobank.account = 0;
 }
 
 
-void alice_freelance(const int month, const int year)
+void judy_freelance(const int month, const int year)            //функция подработки Джуди
 {
     if (month == 3 and year == 2027) {
-        alice.vtb.account_usd += 3'000;
+        judy.zoobank.account_usd += 3'000;
     }
 }
 
 
-void print_results()
+void print_results()                            //функция вывода результатов
 {
-    printf("Salary = %lld\n", alice.salary);
+    printf("Salary = %lld  ", judy.salary);
 
     RUB capital = 0;
-    capital += alice.vtb.account;
-    capital += alice.car.value;
-    capital += alice.vtb.deposite;
-    capital += alice.vtb.account_usd * alice.vtb.rate_usd_rub;
-    printf("Capital = %lld", capital);
+    capital += judy.zoobank.account;
+    capital += judy.car.value;
+    capital += judy.zoobank.deposite;
+    capital += judy.zoobank.account_usd * judy.zoobank.rate_usd_rub;
+    printf("Capital = %lld\n", capital);
 }
 
 
-void simulation()
+void simulation()                               //функция всей симуляции
 {
     int month = 2;
     int year = 2026;
 
-    while (not (month == 3 and year == 2028)) {
-        alice_salary(month, year);
-        alice_freelance(month, year);
-        alice_food();
-        alice_car();
+    while (not (month == 3 and year == 2030)) {
+        judy_salary(month, year);
+        judy_freelance(month, year);
+        judy_food();
+        judy_car();
         // my_cat();
         // my_medine();
         // my_home();
-        alice_deposite(month, year);
+        judy_deposite(month, year);
 
         ++month;
         if (month == 13) {
+            print_results();
             ++year;
             month = 1;
         }
@@ -135,9 +162,11 @@ void simulation()
 }
 
 
+//ПРОГРАММА
+
 int main()
 {
-    alice_init();
+    judy_init();
 
     simulation();
 
