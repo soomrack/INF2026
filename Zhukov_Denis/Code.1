@@ -1,0 +1,60 @@
+#include <stdio.h>
+
+using RUB = long long int;
+
+struct Person // все функции, связанные с персонами
+{
+	RUB capital;
+	RUB salary;
+	RUB food;
+	RUB cat;
+	RUB rent;
+
+
+	void salary_bill(int month) // подсчёт зарплаты
+	{
+		if (month == 12)
+		{
+			capital += salary; // 13-я зарплата
+		}
+		capital += salary;
+	}
+
+
+	void wastes() // подсчёт затрат
+	{
+		capital -= food;
+		capital -= cat;
+		capital -= rent;
+	}
+};
+
+
+int main()
+{
+	int month = 3;
+	int year = 2030;
+	Person Alex{ 0, 150'000, 20'000, 0, 30'000 }; // капитал, зарплата, затраты на еду, кота (кота нет), аренду жилья.
+	Person Mary{ 0, 80'000, 18'000, 10'000, 25'000 };
+
+	while (not (month == 3 and year == 2050))
+	{
+		Alex.salary_bill(month);
+		Alex.wastes();
+
+		Mary.salary_bill(month);
+		Mary.wastes();
+
+		month++;
+		if (month == 13)
+		{
+			year++;
+			month = 1;
+		}
+	}
+
+	printf("Alex capital on 2050 = %lld\n", Alex.capital);
+	printf("Alex salary on 2050 = %lld\n", Alex.salary);
+	printf("Mary capital on 2050 = %lld\n", Mary.capital);
+	printf("Mary salary on 2050 = %lld\n", Mary.salary);
+}
