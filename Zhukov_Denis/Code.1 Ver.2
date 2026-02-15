@@ -1,0 +1,108 @@
+#include <stdio.h>
+
+using RUB = long long int;
+using persent = float;
+
+
+struct bank
+{
+	RUB account;
+	RUB deposit;
+	persent interest;
+};
+
+
+struct Person
+{
+	bank vtb;
+	RUB salary;
+	RUB food;
+	RUB cat;
+	RUB rent;
+};
+
+
+struct Person Alex;
+
+
+void Alex_init()
+{
+	Alex.vtb.account = 0;
+	Alex.salary = 150'000;
+	Alex.vtb.deposit = 1'000'000;
+	Alex.vtb.interest;
+
+	Alex.food = 20'000;
+	Alex.rent = 30'000;
+	// кота нет
+}
+
+
+void Alex_salary(const int month, const int year)
+{
+	if (month == 12)
+	{
+		Alex.vtb.account += Alex.salary; // 13-я зарплата
+	}
+
+	if (month == 5 and year == 2044)
+	{
+		Alex.salary += 30'000; // повышение
+	}
+	Alex.vtb.account += Alex.salary;
+}
+
+
+void Alex_wastes()
+{
+	Alex.vtb.account -= Alex.food;
+	Alex.vtb.account -= Alex.rent;
+}
+
+
+void Alex_deposite(const int month, const int year)
+{
+	if (year > 2045) Alex.vtb.interest = 13;
+	else if (year > 2040) Alex.vtb.interest = 14.5;
+	else Alex.vtb.interest = 14;
+
+	Alex.vtb.deposit += Alex.vtb.deposit * (Alex.vtb.interest / 100);
+
+	Alex.vtb.deposit += 20'000;
+	Alex.vtb.account -= 20'000;
+}
+
+
+void result()
+{
+	printf("Alex salary on 2050 = %lld\n", Alex.salary);
+
+	RUB Alex_capital = 0;
+	Alex_capital += Alex.vtb.account;
+	Alex_capital += Alex.vtb.deposit;
+	printf("Alex capital on 2050 = %lld\n", Alex_capital);
+}
+
+
+int main()
+{
+	int month = 3;
+	int year = 2030;
+
+	Alex_init();
+
+	while (not (month == 3 and year == 2050))
+	{
+		Alex_salary(month, year);
+		Alex_wastes();
+
+		month++;
+		if (month == 13)
+		{
+			year++;
+			month = 1;
+		}
+	}
+
+	result();
+}
