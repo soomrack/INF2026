@@ -207,6 +207,7 @@ void print_results()
     }
 }
 
+// --- MAIN FUNCTION ---
 int main()
 {
     alice_init();
