@@ -1,0 +1,145 @@
+#include <stdio.h>
+
+using RUB = long long int; 
+
+struct Car {
+    RUB value;
+    RUB gas;
+};
+
+struct Cat {
+    RUB cat_food;
+    RUB cat_vet;
+    RUB cat_toys;
+};
+
+struct Person { 
+    RUB salary;
+    RUB capital;
+    RUB food;
+    RUB account;
+    RUB deposit;
+    struct Car car;
+    struct Cat cat;
+};
+struct Person Alice;
+
+float pp = 14.5; 
+
+void alice_salary(const int month, const int year) 
+{ 
+    if ((month == 8) && (year == 2026)) { 
+        Alice.salary *= 1.5; 
+    } 
+
+    Alice.capital += Alice.salary;
+    Alice.capital += Alice.deposit * (pp / 12.0 / 100.0);
+    Alice.account += Alice.salary;
+
+}
+
+void print_result() 
+{ 
+    printf("Salary = %lld\n", Alice.salary);
+    printf("Capital = %lld\n", Alice.capital);
+    printf("Deposit = %lld\n", Alice.deposit);
+    printf("Account = %lld", Alice.account);
+}
+
+// void  alice_bank_interest() 
+// {
+//     Alice.capital += Alice.capital * (pp / 12.0 / 100.0); 
+// }
+
+void alice_bank_account()
+{
+    Alice.deposit += Alice.account;
+    Alice.deposit += Alice.deposit * (pp / 12.0 / 100.0);
+    Alice.account = 0;
+}
+
+void alice_food() 
+{
+    Alice.account -= Alice.food;
+}
+
+void alice_cat()
+{
+    Alice.account -= Alice.cat.cat_food;
+    Alice.account -= Alice.cat.cat_toys;
+    Alice.account -= Alice.cat.cat_vet;
+}
+
+void alice_car()
+{
+    Alice.account -= Alice.car.gas;
+}
+
+void inflation() 
+{
+    Alice.food *= 1.06;
+
+    Alice.car.value *= 1.06;
+    Alice.car.gas *= 1.06;
+
+    Alice.cat.cat_food *= 1.06;
+    Alice.cat.cat_toys *= 1.06;
+    Alice.cat.cat_vet *= 1.06; 
+}
+
+void indexation()
+{
+    Alice.salary *= 1.07;
+}
+
+void alice_innit() 
+{
+    Alice.account = 0;
+    Alice.capital = 0;
+    Alice.salary = 180'000;
+    Alice.food = 20'000;
+
+    Alice.car.value = 2'400'000;
+    Alice.car.gas = 15'000;
+
+    Alice.cat.cat_food = 10'000;
+    Alice.cat.cat_toys = 7'000;
+    Alice.cat.cat_vet = 5'000;
+
+}
+
+void simulation() 
+{
+    
+    int month = 2;
+    int year = 2026;
+
+    while ( !((month == 3) && (year == 2057)) ) {
+
+        alice_salary(month, year);
+        // alice_bank_interest();
+        alice_cat();
+        alice_food();
+        alice_car();
+        alice_bank_account();
+
+        ++month;
+        if (month == 12) {
+            inflation();
+            indexation();
+            month = 1;
+            ++year;
+        }
+    }
+}
+
+int main()
+{
+
+    alice_innit();
+
+    simulation();
+
+    print_result();
+    
+}
