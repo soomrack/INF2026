@@ -9,18 +9,6 @@ using USD = long long int;      //тип данных для операций в
 using Percent = float;          //тип данных для процентов (1-100%)
 
 
-//СТРУКТУРЫ
-
-/*struct Rate {                   //структура ставок по годам (2026-2030гг)
-    Percent rate2026 = 14.5;
-    Percent rate2027 = 12.5;
-    Percent rate2028 = 10.5;
-    Percent rate2029 = 7;
-    Percent rate2030 = 4;
-    Percent rate2031 = 4.5;
-};*/
-
-
 struct Bank {                   //структура банка
     RUB account;
     RUB deposite;
@@ -28,7 +16,6 @@ struct Bank {                   //структура банка
     float rate_usd_rub;
 
     Percent interest;
-    //Rate rate;
    
 };
 
@@ -56,7 +43,7 @@ void judy_init()                            //функция инициализ�
     judy.zoobank.account = 0;
     judy.zoobank.deposite = 1'000'000;
     judy.zoobank.interest;
-    judy.salary = 180'000;
+    //judy.salary = 180'000;
 
     judy.zoobank.account_usd = 1'000;
     judy.zoobank.rate_usd_rub = 78.5;
@@ -94,23 +81,38 @@ void judy_car()                             //функция машины Джу
 }
 
 
+float key_rate(const int month, const int year)              //функция ключевой ставки
+{
+    Percent percents_rate;
+    if (year == 2026) percents_rate = 14.5;
+    if (year == 2027) percents_rate = 12.5;
+    if (year == 2028) percents_rate = 10;
+    if (year == 2029) percents_rate = 7.5;
+    if (year == 2030) percents_rate = 4;
+    if (year == 2031) percents_rate = 4.5;
+    return (percents_rate);
+}
 
-
-
-
+float delta(const int month, const int year)              //функция (ставка - % по депозиту или предложение по кредиту - ставка, 2026-2030гг)
+{
+    Percent percents_delta;
+    if (year == 2026) percents_delta = 2.5;
+    if (year == 2027) percents_delta = 2.5;
+    if (year == 2028) percents_delta = 2;
+    if (year == 2029) percents_delta = 1.5;
+    if (year == 2030) percents_delta = 1;
+    if (year == 2031) percents_delta = 1.5;
+    return (percents_delta);
+}
 
 
 void judy_deposite(const int month, const int year)         //функция депозита Джуди в банке
 {
-    if (year == 2026) judy.zoobank.interest = 14.5;
-    if (year == 2027) judy.zoobank.interest = 13.5;
-    if (year == 2028) judy.zoobank.interest = 12.5;
-    if (year == 2029) judy.zoobank.interest = 11.5;
-    if (year == 2030) judy.zoobank.interest = 11.5;
-    if (year == 2031) judy.zoobank.interest = 11.5;
+    judy.zoobank.interest = key_rate(month, year) - delta(month, year);     //ключевая ставка - дельта ("комиссия" банка)
 
-    judy.zoobank.deposite += judy.zoobank.deposite * (judy.zoobank.interest / 12.0 / 100.0);
+    judy.zoobank.deposite += judy.zoobank.deposite * (judy.zoobank.interest / 12.0 / 100.0);    //сложный процент
 
+    printf("depos123 = %lld  ", judy.zoobank.deposite);
     judy.zoobank.deposite += judy.zoobank.account;
     judy.zoobank.account = 0;
 }
@@ -127,6 +129,7 @@ void judy_freelance(const int month, const int year)            //функция
 void print_results()                            //функция вывода результатов
 {
     printf("Salary = %lld  ", judy.salary);
+    printf("depos = %lld  ", judy.zoobank.deposite);
 
     RUB capital = 0;
     capital += judy.zoobank.account;
@@ -139,14 +142,15 @@ void print_results()                            //функция вывода р
 
 void simulation()                               //функция всей симуляции
 {
-    int month = 2;
+    int month = 1;
     int year = 2026;
 
     while (not (month == 3 and year == 2030)) {
-        judy_salary(month, year);
-        judy_freelance(month, year);
-        judy_food();
-        judy_car();
+        //judy_salary(month, year);
+        //judy_freelance(month, year);
+        //judy_food();
+        //judy_car();
+        //
         // my_cat();
         // my_medine();
         // my_home();
