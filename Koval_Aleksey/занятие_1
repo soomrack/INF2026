@@ -1,45 +1,211 @@
 #include <iostream>
 using namespace std;
 
-int capital = 0;
-int food = 3000;
+
+using Percent = float;
+
+using RUB = long long int;
+using USD = long long int;
 
 
-void food_cost(const int month)
+struct Taxes {
+    RUB NDFL;
+    RUB NDS;
+    RUB NPD;
+    RUB strah;
+    RUB car_log;
+};
+
+
+struct Car {
+    RUB value;
+    RUB gas;
+};
+
+
+struct Bank {
+    RUB account_rub;
+    RUB deposit;
+    USD account_usd;
+    
+    float rate_usd_rub;
+};
+
+
+struct Person {
+    Bank vtb;
+    RUB salary;
+    RUB food;
+    RUB utilities;
+    RUB rent;
+    RUB cat;
+    RUB emotions;
+    USD trip;
+    Car car;
+    Taxes tax;
+};
+struct Person alice;
+
+
+void alice_init()
 {
-	if (month == 12) {
-		capital -= 2000;
-	}
-	capital -= food;
+    alice.vtb.rate_usd_rub = 78.76;
+    alice.vtb.account_rub = 0;
+    alice.vtb.account_usd = 1'000;
+
+    alice.salary = 180'000;
+    alice.vtb.deposit = 0;
+    alice.food = 3'000;
+    alice.utilities = 3'500;
+    alice.rent = 120'000;
+    alice.cat = 3'000;
+    alice.trip = 8'000;
+    alice.emotions = 10'000;
+
+    alice.tax.car_log = 5'000;
+    alice.car.value = 2'400'000;
+    alice.car.gas = 15'000;
+}
+
+
+float inflation(int year) {
+    switch (year) {
+    case 2026: return (12.5);
+    case 2027: return (14.0); 
+    case 2028: return (13.0); 
+    case 2029: return (11.5); 
+    }
+}
+
+
+void alice_food(const int month, const int year)
+{
+    if (month == 12) alice.vtb.account_rub -= 2000;
+    alice.food += alice.food * (inflation(year) / 100. / 12.);
+
+    alice.vtb.account_rub -= alice.food;
+}
+
+
+void alice_utilities(const int month, const int year)
+{
+    if (month == 2) alice.vtb.account_rub -= alice.utilities - (3'500 / 30) * 2;
+    alice.utilities += alice.utilities * (inflation(year) / 100. / 12.);
+
+    alice.vtb.account_rub -= alice.utilities;
+}
+
+
+void alice_rent(const int year){
+    alice.rent += alice.rent * (inflation(year) / 100. / 12.);
+
+    alice.vtb.account_rub -= alice.rent;
+}
+
+
+void alice_trip(const int month,const int year)
+{
+    if (year == 2026 && month == 11) alice.vtb.account_usd -= 10'000; return;
+
+    alice.vtb.account_usd -= alice.trip;
+}
+
+
+void alice_cat(const int month, const int year)
+{
+    if (month == 1 && year == 2027) alice.vtb.account_rub -= 10'000; //cat got sick
+    alice.cat += alice.cat * (inflation(year) / 100. / 12.);
+
+    alice.vtb.account_rub -= alice.cat;
+}
+
+
+void alice_salary(const int month, const int year)
+{
+    if (month == 3) {
+        alice.salary *= 1.5;
+    }
+
+    if (month == 2 && year == 2026) {
+        alice.vtb.account_rub += 5000;
+    }
+
+    alice.vtb.account_rub += alice.salary;
+}
+
+
+void alice_deposit(const int month)
+{
+    if (month == 1) {
+        alice.vtb.deposit *= 1.2;
+        alice.vtb.deposit += 20'000;
+        alice.vtb.account_rub -= 20'000;
+    }
+}
+
+
+void alice_emotions() {
+    int ver = 7;
+    if (rand() % 7 == 0) {
+        alice.vtb.account_rub += alice.emotions;
+        return;
+    }
+    alice.vtb.account_rub -= alice.emotions;
+}
+
+
+void print_results()
+{
+    printf("Salary = %lld\n", alice.salary);
+
+    RUB capital = 0;
+    capital += alice.vtb.account_rub;
+    capital += alice.vtb.deposit;
+    capital += alice.vtb.account_usd * alice.vtb.rate_usd_rub;
+    capital += alice.car.value;
+    printf("Capital = %lld", capital);
+}
+
+
+void alice_car(int month)
+{   
+    if (month == 1) alice.vtb.account_rub -= alice.tax.car_log;
+
+    alice.vtb.account_rub -= alice.car.gas;
+}
+
+
+void simulation()
+{
+    int year = 2026;
+    int month = 2;
+
+    while (!(year == 2029 && month == 2)) {
+        alice_salary(month, year);
+        alice_car(month);
+        alice_utilities(month, year);
+        alice_cat(month, year);
+        alice_trip(month, year);
+        alice_rent(year);
+        alice_deposit(month);
+        alice_emotions();
+        alice_food(month, year);
+
+        ++month;
+        if (month == 13) {
+            ++year;
+            month = 1;
+        }
+    }
 }
 
 
 int main()
 {
-	int year = 2026;
-	int month = 2;
-
-	int salary = 10'001;
-
-	while (!(year == 2027 and month == 2)) {
-		if (month == 3) {
-			salary *= 1.5;
-		}
-		if (year == 2026 && month == 2) {
-			capital += 5000;
-		}
-
-		capital += salary;
-
-		food_cost(month);
-
-		month++;
-		if (month == 13) {
-			++year;
-			month = 1;
-		}
-	}
-
+    alice_init();
+    simulation();
+    print_results();
+}
 	cout << "Salary = " << salary << endl;
 	cout << "Capital = " << capital << endl;
 }
