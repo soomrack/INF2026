@@ -30,7 +30,7 @@ struct Work
 };
 
 
-struct Bank
+struct VTB
 {
     RUB balance;
     RUB deposit;
@@ -42,7 +42,7 @@ struct Person
     Work work;
     RUB food;
     Car car;
-    Bank bank;
+    VTB VTB;
     RUB deposit_sum;
     Cat Pushok;
 };
@@ -50,14 +50,14 @@ struct Person
 Person Alice;
 void alice_cat()
 {
-    Alice.bank.balance -= Alice.Pushok.cat_food;
-    Alice.bank.balance -= Alice.Pushok.cat_veterinar;
+    Alice.VTB.balance -= Alice.Pushok.cat_food;
+    Alice.VTB.balance -= Alice.Pushok.cat_veterinar;
 }
 
 
 void alice_car()
 {
-    Alice.bank.balance -= Alice.car.gas;
+    Alice.VTB.balance -= Alice.car.gas;
 }
 
 void alice_salary(const int month, const int year)
@@ -66,26 +66,26 @@ void alice_salary(const int month, const int year)
     {
         Alice.work.salary = Alice.work.salary * Alice.work.raising;
     }
-    Alice.bank.balance += Alice.work.salary;
+    Alice.VTB.balance += Alice.work.salary;
 }
 
 
 void alice_food()
 {
-    Alice.bank.balance -= Alice.food;
+    Alice.VTB.balance -= Alice.food;
 }
 
 
-void alice_bank_interest()
+void alice_VTB_interest()
 {
-    Alice.bank.deposit += Alice.deposit_sum;
-    Alice.bank.balance -= Alice.deposit_sum;
+    Alice.VTB.deposit += Alice.deposit_sum;
+    Alice.VTB.balance -= Alice.deposit_sum;
 }
 
 
 void alice_deposit_percent()
 {
-    Alice.bank.deposit += Alice.bank.deposit * (Alice.bank.percent / 12 / 100);
+    Alice.VTB.deposit += Alice.VTB.deposit * (Alice.VTB.percent / 12 / 100);
 }
 
 
@@ -93,8 +93,8 @@ void print_results()
 {
 
     printf("Salary = %lld\n", Alice.work.salary);
-    printf("Capital = %lld\n", Alice.bank.balance);
-    printf("Deposit = %lld", Alice.bank.deposit);
+    printf("Capital = %lld\n", Alice.VTB.balance);
+    printf("Deposit = %lld", Alice.VTB.deposit);
 }
 
 
@@ -116,7 +116,7 @@ void simulation()
             alice_deposit_percent();
         }
         firstIteration = false;
-        alice_bank_interest();
+        alice_VTB_interest();
         ++month;
         if (month == 13)
         {
@@ -134,14 +134,14 @@ void simulation()
 
 void alice_init()
 {
-    Alice.bank.balance = 0;
-    Alice.bank.deposit = 0;
+    Alice.VTB.balance = 0;
+    Alice.VTB.deposit = 0;
     Alice.work.salary = 180000;
     Alice.food = 30000;
     Alice.car.value = 2400000;
     Alice.work.raising = 1.2;
     Alice.deposit_sum = 40000;
-    Alice.bank.percent = 14;
+    Alice.VTB.percent = 14;
     Alice.Pushok.cat_food = 6000;
     Alice.Pushok.cat_veterinar = 3000;
     Alice.Pushok.age = 3;
