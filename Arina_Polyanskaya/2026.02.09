@@ -1,35 +1,141 @@
 #include <stdio.h>
 
-int salary = 180001;
-int capital = 0;
+//typedef int RUB; // Ключевое слово, зарезервировано под функции языка, используют в С
+using RUB = long long int; // Используют в С++, можно из одного места поменять типы данных многих переменных
 
-void my_salary(const int month, const int year) {
-  if ((month == 8) && (year == 2026)) { // Promotion
-    salary = salary * 1.5;
-  }
-  capital += salary;  
+struct Car {
+	RUB value;
+	RUB gas;
+};
+
+struct Animal {
+	RUB food;
+	RUB vet;
+};
+
+struct Person { // создали свой тип данных
+	RUB salary;
+	RUB bank_account;
+	RUB food;
+	RUB contrebution;
+	Car car;
+	Animal animal;
+	RUB travel;
+	RUB flat;
+	RUB clothe;
+	RUB medicine;
+};
+
+struct Person Alice; // создали переменную типа данных Person
+
+float pp = 9.8;
+float month_inf = 1.01;
+
+int month = 2;
+int year = 2026;
+
+void passing_of_time() { // функция для того, чтобы время менялось глобально во всей симуляции
+	++month;
+	if (month == 13) {
+		month = 1;
+		++year;
+	}
 }
 
-int main()
+void inflation() {
+	Alice.food *= month_inf;
+	Alice.car.gas *= month_inf;
+	Alice.animal.food *= month_inf;
+	Alice.animal.vet *= month_inf;
+	Alice.travel *= month_inf;
+	Alice.flat *= month_inf;
+	Alice.clothe *= month_inf;
+	Alice.medicine *= month_inf;
+}
+
+void alice_car() {
+	Alice.bank_account -= Alice.car.gas;
+}
+
+void alice_turtle(){ 
+	Alice.bank_account -= Alice.animal.food;
+	if (month % 6 == 0) {
+		Alice.bank_account -= Alice.animal.food;
+	}
+}
+
+void alice_travel() {
+	if (month == 8) {
+		Alice.contrebution -= Alice.travel;
+	}
+}
+
+void alice_salary() {
+	if ((month == 8) && ((year % 5) == 0)) { // Повышение зарплаты каждые 5 лет
+		Alice.salary *= 1.3;
+	}
+	Alice.bank_account += Alice.salary;
+}
+
+void alice_payments() {
+	Alice.bank_account -= Alice.food;
+	Alice.bank_account -= Alice.flat;
+	Alice.bank_account -= Alice.clothe;
+	Alice.bank_account -= Alice.medicine;
+}
+
+void alice_bank_interest() {
+	Alice.contrebution += Alice.bank_account;
+	Alice.bank_account = 0;
+	Alice.contrebution += Alice.contrebution * (pp / 12.0 / 100.0); // Проценты по вкладу
+}
+
+void print_results() {
+	printf("Salary = %lld\n", Alice.salary);
+	printf("Capital = %lld", Alice.contrebution);
+}
+
+
+void simulation() {
+
+	for (; year < 2057; ) {
+
+		alice_salary();
+		alice_turtle();
+		alice_travel();
+		alice_payments();
+		alice_car();
+		alice_bank_interest();
+		inflation();
+
+		passing_of_time();
+	}	
+
+}
+
+void alice_init() // Присвоили значения характеристик, описывающих переменную данного типа
 {
-  float pp = 14.5;
-
-  int month = 2;
-  int year = 2026;
-
-//  for (int month = 1; month < 19; ++month) {
-  while (!((month == 3) && (year == 2027))) {
-    capital += capital * (pp / 12.0 / 100.0); // Bank interest
-
-    my_salary(month, year);
-
-    ++month;
-    if (month == 13) {
-      month = 1;
-      ++year;
-    }  
-  }
-
-  printf("Salary = %d\n", salary);
-  printf("Capital = %d", capital);
+	Alice.contrebution = 0;
+	Alice.bank_account = 0;
+	Alice.salary = 150000;
+	Alice.food = 20000;
+	Alice.car.value = 2400000;
+	Alice.car.gas = 15000;
+	Alice.animal.food = 1500;
+	Alice.animal.vet = 3000;
+	Alice.travel = 60000;
+	Alice.flat = 5000;
+	Alice.clothe = 2000;
+	Alice.medicine = 1500;
 }
+
+int main() { 
+
+	alice_init();
+
+	simulation();
+	
+	print_results();
+}
+
+// long int - int хранит 4 байта, а не 2, в принте надо менять отдельно
