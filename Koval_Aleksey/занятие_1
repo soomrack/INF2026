@@ -12,7 +12,7 @@ struct Taxes {
     RUB NDFL;
     RUB NDS;
     RUB NPD;
-    RUB strah;
+    RUB insurance;
     RUB car_log;
 };
 
@@ -35,6 +35,7 @@ struct Bank {
 struct Person {
     Bank vtb;
     RUB salary;
+    RUB self_work;
     RUB food;
     RUB utilities;
     RUB rent;
@@ -54,6 +55,7 @@ void alice_init()
     alice.vtb.account_usd = 1'000;
 
     alice.salary = 180'000;
+    alice.self_work = 15'000;
     alice.vtb.deposit = 0;
     alice.food = 3'000;
     alice.utilities = 3'500;
@@ -63,6 +65,8 @@ void alice_init()
     alice.emotions = 10'000;
 
     alice.tax.car_log = 5'000;
+    alice.tax.NPD = 1'500;
+    alice.tax.car_log = 200;
     alice.car.value = 2'400'000;
     alice.car.gas = 15'000;
 }
@@ -154,6 +158,16 @@ void alice_emotions() {
 }
 
 
+void alice_SW(int month, int year) {
+    if (month >= 2 and year >= 2027) {
+        alice.vtb.account_rub -= alice.tax.NPD;
+        alice.vtb.deposit += alice.self_work;
+    }
+
+    alice.vtb.account_rub -= alice.tax.insurance;
+}
+
+
 void print_results()
 {
     printf("Salary = %lld\n", alice.salary);
@@ -188,6 +202,7 @@ void simulation()
         alice_trip(month, year);
         alice_rent(year);
         alice_deposit(month);
+        alice_SW(month, year);
         alice_emotions();
         alice_food(month, year);
 
@@ -205,7 +220,4 @@ int main()
     alice_init();
     simulation();
     print_results();
-}
-	cout << "Salary = " << salary << endl;
-	cout << "Capital = " << capital << endl;
 }
