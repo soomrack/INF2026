@@ -4,29 +4,37 @@
 using namespace std;
 
 using RUB = long long int;
+using Percent = float;
 double inflation;
+
 struct Cat
 {
     string color;
     int age;
     RUB cat_food;
+    RUB cat_veterinar;
 };
+
 
 struct Car
 {
     RUB value;
     RUB gas;
 };
+
+
 struct Work
 {
     RUB salary;
     float raising;
 };
+
+
 struct Bank
 {
     RUB balance;
     RUB deposit;
-    float percent;
+    Percent percent;
 };
 
 struct Person
@@ -43,7 +51,10 @@ Person Alice;
 void alice_cat()
 {
     Alice.bank.balance -= Alice.Pushok.cat_food;
+    Alice.bank.balance -= Alice.Pushok.cat_veterinar;
 }
+
+
 void alice_car()
 {
     Alice.bank.balance -= Alice.car.gas;
@@ -57,19 +68,27 @@ void alice_salary(const int month, const int year)
     }
     Alice.bank.balance += Alice.work.salary;
 }
+
+
 void alice_food()
 {
     Alice.bank.balance -= Alice.food;
 }
+
+
 void alice_bank_interest()
 {
     Alice.bank.deposit += Alice.deposit_sum;
     Alice.bank.balance -= Alice.deposit_sum;
 }
+
+
 void alice_deposit_percent()
 {
     Alice.bank.deposit += Alice.bank.deposit * (Alice.bank.percent / 12 / 100);
 }
+
+
 void print_results()
 {
 
@@ -77,6 +96,8 @@ void print_results()
     printf("Capital = %lld\n", Alice.bank.balance);
     printf("Deposit = %lld", Alice.bank.deposit);
 }
+
+
 void simulation()
 {
 
@@ -109,6 +130,8 @@ void simulation()
         }
     }
 }
+
+
 void alice_init()
 {
     Alice.bank.balance = 0;
@@ -120,9 +143,12 @@ void alice_init()
     Alice.deposit_sum = 40000;
     Alice.bank.percent = 14;
     Alice.Pushok.cat_food = 6000;
+    Alice.Pushok.cat_veterinar = 3000;
     Alice.Pushok.age = 3;
     Alice.Pushok.color = "white";
 }
+
+
 int main()
 {
     alice_init();
