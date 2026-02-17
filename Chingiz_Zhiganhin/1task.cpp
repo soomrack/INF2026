@@ -8,6 +8,7 @@ using USD = long long int;
 struct Car {
 	RUB value;
 	RUB gas;
+	RUB inshurance;
 };
 
 
@@ -19,6 +20,7 @@ struct Bank {
 
 
 struct Person {
+	RUB pets;
 	RUB lottery;
 	Bank vtb;
 	RUB food;
@@ -42,14 +44,15 @@ void alice_init()
 
 	alice.car.value = 2'400'000;
 	alice.car.gas = 15'000;
+	alice.car.inshurance = 20'000;
 
-	alice.lottery = 20'000;
+	alice.lottery = 10'000;
 }
 
 
 void alice_lottery()
 {
-	int prizes[25] = {500'000, 100'000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // prizes list
+	int prizes[25] = {500'000, 100'000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};  // Список выйгрышей
 
 	int prize_num = rand() % 25;
 	
@@ -65,11 +68,11 @@ void alice_lottery()
 void alice_salary(const int month, const int year)
 {
 	if (month == 2 && year == 2026) {
-		alice.vtb.account_rub += 5000; // bonus
+		alice.vtb.account_rub += 5000;  // Премия
 	}
 
 	if (month == 3) {
-		alice.salary *= 1.5; // promotion
+		alice.salary *= 1.5;  // Повышение
 	}
 	alice.vtb.account_rub += alice.salary;
 }
@@ -77,7 +80,7 @@ void alice_salary(const int month, const int year)
 
 void alice_food(const int month,const int year)
 {
-	if (month == 12) alice.vtb.account_rub -= 2000; // christmas party
+	if (month == 12) alice.vtb.account_rub -= 2000;  // Новогодняя вечеринка
 
 	float inflation = 0.12;
 	switch (year) {
@@ -95,6 +98,7 @@ void alice_food(const int month,const int year)
 void alice_car()
 {
 	alice.vtb.account_rub -= alice.car.gas;
+	alice.vtb.account_rub -= alice.car.inshurance;
 }
 
 
