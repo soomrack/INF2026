@@ -5,6 +5,7 @@ using namespace std;
 
 using RUB = long long int;
 using Percent = float;
+double inflation;
 
 struct Cat
 {
@@ -25,11 +26,11 @@ struct Car
 struct Work
 {
     RUB salary;
-    float promotion;
+    float raising;
 };
 
 
-struct VTB
+struct Bank
 {
     RUB balance;
     RUB deposit;
@@ -41,7 +42,7 @@ struct Person
     Work work;
     RUB food;
     Car car;
-    VTB VTB;
+    Bank VTB;
     RUB deposit_sum;
     Cat Pushok;
 };
@@ -49,28 +50,21 @@ struct Person
 Person Alice;
 void alice_cat()
 {
-    double min = 10.5, max = 11.3;
-    double inflation_on_cat_food = (double)rand() / RAND_MAX * (max - min) + min;
-    Alice.VTB.balance -= Alice.Pushok.cat_food*(1+inflation_on_cat_food/100/12);
-    min = 11.5, max = 12.2;
-    double inflation_on_cat_doctor= (double)rand() / RAND_MAX * (max - min) + min;
-    Alice.VTB.balance -= Alice.Pushok.cat_veterinar*(1+inflation_on_cat_doctor/100/12);
+    Alice.VTB.balance -= Alice.Pushok.cat_food;
+    Alice.VTB.balance -= Alice.Pushok.cat_veterinar;
 }
 
 
-void alice_car_gas()
+void alice_car()
 {
-    double min = 9.8, max = 10.6;
-    double inflation_on_gas= (double)rand() / RAND_MAX * (max - min) + min;
-    Alice.VTB.balance -= Alice.car.gas*(1+inflation_on_gas/100/12);   
-    
+    Alice.VTB.balance -= Alice.car.gas;
 }
 
 void alice_salary(const int month, const int year)
 {
     if ((month == 8) && (year == 2026))
     {
-        Alice.work.salary = Alice.work.salary * Alice.work.promotion;
+        Alice.work.salary = Alice.work.salary * Alice.work.raising;
     }
     Alice.VTB.balance += Alice.work.salary;
 }
@@ -78,13 +72,11 @@ void alice_salary(const int month, const int year)
 
 void alice_food()
 {
-    double min = 10.5, max = 11.3;
-    double inflation_on_food = (double)rand() / RAND_MAX * (max - min) + min;
-    Alice.VTB.balance -= Alice.food*(1+inflation_on_food/100/12);
+    Alice.VTB.balance -= Alice.food;
 }
 
 
-void alice_VTB_deposit()
+void alice_VTB_interest()
 {
     Alice.VTB.deposit += Alice.deposit_sum;
     Alice.VTB.balance -= Alice.deposit_sum;
@@ -105,9 +97,18 @@ void print_results()
     printf("Deposit = %lld", Alice.VTB.deposit);
 }
 
+void inflation_in_year(){
+    double min = 5.5, max = 6.4;
+    inflation = (double)rand() / RAND_MAX * (max - min) + min;
+    Alice.food *= inflation / 100;
+    Alice.car.gas *= inflation / 100;
+    Alice.Pushok.cat_food *= inflation / 100;
+}
+
 
 void simulation()
 {
+
     int month = 2;
     int year = 2026;
     bool firstIteration = true;
@@ -115,13 +116,19 @@ void simulation()
     {
         alice_cat();
         alice_food();
-        alice_car_gas();
-        alice_deposit_percent();
+        alice_car();
         alice_salary(month, year);
-        alice_VTB_deposit();
+
+        if (!firstIteration)
+        {
+            alice_deposit_percent();
+        }
+        firstIteration = false;
+        alice_VTB_interest();
         ++month;
         if (month == 13)
         {
+            inflation_in_year();
             month = 1;
             ++year;
         }
@@ -131,12 +138,12 @@ void simulation()
 
 void alice_init()
 {
-    Alice.VTB.balance = 60000;
+    Alice.VTB.balance = 0;
     Alice.VTB.deposit = 0;
     Alice.work.salary = 180000;
     Alice.food = 30000;
     Alice.car.value = 2400000;
-    Alice.work.promotion = 1.2;
+    Alice.work.raising = 1.2;
     Alice.deposit_sum = 40000;
     Alice.VTB.percent = 14;
     Alice.Pushok.cat_food = 6000;
@@ -148,7 +155,6 @@ void alice_init()
 
 int main()
 {
-    srand(time(NULL));
     alice_init();
     simulation();
     print_results();
