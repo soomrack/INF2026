@@ -61,7 +61,7 @@ void alice_salary(const int month, const int year)
     if ((month == 8) && (year == 2026)) {
         Alice.salary = (RUB)((double)Alice.salary * 1.5);
     }
-    Alice.bank.account += Alice.salary; // зарплата на счёт
+    Alice.bank.account += Alice.salary; // зарплата на счет
 }
 
 void alice_bank_interest()
@@ -72,12 +72,12 @@ void alice_bank_interest()
 
 void alice_food()
 {
-    Alice.bank.account -= Alice.food; // еда со счёта
+    Alice.bank.account -= Alice.food; // еда со счета
 }
 
 void alice_car()
 {
-    Alice.bank.account -= Alice.car.gas; // бензин со счёта
+    Alice.bank.account -= Alice.car.gas; // бензин со счета
 }
 
 // --- OTHER ACTIONS ---
@@ -101,7 +101,7 @@ static void alice_pet()
 
 static void alice_transfer_to_deposit()
 {
-    // оставляем на счёте расходы этого месяца, остальное на вклад
+    // оставляем на счете расходы этого месяца, остальное на вклад
     RUB reserve = Alice.food + Alice.car.gas + (Alice.dog.enabled ? Alice.dog.feed : 0);
     RUB extra = Alice.bank.account - reserve;
 
@@ -114,7 +114,7 @@ static void alice_transfer_to_deposit()
 // --- DEPOSIT ---
 static void alice_cover_account_from_deposit()
 {
-    // если после расходов счёт в минусе — закрываем минус со вклада
+    // если после расходов счет в минусе — закрываем минус со вклада
     if (Alice.bank.account >= 0) return;
 
     RUB need = -Alice.bank.account;
@@ -161,18 +161,18 @@ void simulation()
         // 1) цены выросли (инфляция отдельно на еду/машину/бензин/питомца)
         alice_inflation();
 
-        // 2) зарплата на счёт
+        // 2) зарплата на счет
         alice_salary(month, year);
 
         // 3) переводим лишнее на вклад
         alice_transfer_to_deposit();
 
-        // 4) списываем расходы со счёта
+        // 4) списываем расходы со счета
         alice_food();
         alice_car();
         alice_pet();
 
-        // 5) если счёт ушёл в минус, берём со вклада
+        // 5) если счет ушел в минус, берем со вклада
         alice_cover_account_from_deposit();
 
         // 6) проценты на вклад
