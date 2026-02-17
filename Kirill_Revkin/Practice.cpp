@@ -1,6 +1,6 @@
-﻿#include <cstdio>
+﻿#include <stdio.h>
 
-using RUB = long long;
+using RUB = long long int;
 
 struct Cat {
     RUB value;
@@ -13,31 +13,29 @@ struct Car {
 };
 
 struct Bank {
-	RUB checking; 
+	RUB salary;
+	RUB card; 
 	RUB deposit;  
 	double deposit_apr; 
 };
 
 
-struct Person {
-    RUB salary; 
+struct Person { 
     RUB food;   
 	Car car;    
 	Cat cat;    
-	Bank bank;  
+	Bank Tbank;  
 };
 
 Person Alice;
 
-const double inflation_apr = 5.0; // Годовая инфляция 5%
-const RUB checking_buffer = 250'000; // Минимальная сумма, которая должна оставаться на расчетном счете для покрытия расходов
+const RUB emergency_fund = 250'000; // Сумма, которую Алиса считает достаточной для покрытия непредвиденных расходов
 
-double inflation_month = (inflation_apr / 100.0 / 12.0); // Месячная инфляция
-double deposit_month = (Alice.bank.deposit_apr / 100.0 / 12.0); // Месячные проценты по вкладу
+double inflation_month = (10 / 100.0 / 12.0); // Месячная инфляция
+double deposit_month = (14.5 / 100.0 / 12.0); // Месячные проценты по вкладу
 
-void alice_init() // Инициализация данных Алисы
-{
-	Alice.salary = 100'000; 
+void alice_init() { // Инициализация данных Алисы
+	Alice.Tbank.salary = 100'000; 
 
 	Alice.food = 20'000; 
 
@@ -47,13 +45,11 @@ void alice_init() // Инициализация данных Алисы
 	Alice.cat.value = 25'000; 
 	Alice.cat.food = 5'000; 
 
-	Alice.bank.checking = 0; 
-	Alice.bank.deposit = 0; 
-	Alice.bank.deposit_apr = 14.5; 
+	Alice.Tbank.card = 0;
+	Alice.Tbank.deposit = 0;
 }
 
-void alice_inflation_tick() // Инфляция повышает цены на все товары и услуги
-{
+void alice_inflation_tick() { // Инфляция повышает цены на все товары и услуги
 	Alice.food *= (1.0 + inflation_month); 
 	Alice.car.gas *= (1.0 + inflation_month); 
 	Alice.car.value *= (1.0 + inflation_month); 
@@ -62,67 +58,63 @@ void alice_inflation_tick() // Инфляция повышает цены на �
 	Alice.cat.value *= (1.0 + inflation_month); 
 }
 
-void alice_deposit_interest() // Алиса получает проценты по вкладу
-{
-	Alice.bank.deposit += Alice.bank.deposit * deposit_month; 
+void alice_deposit_interest() { // Алиса получает проценты по вкладу
+	Alice.Tbank.deposit += Alice.Tbank.deposit * deposit_month;
 }
 
-void alice_salary(int month, int year) // Алиса получает зарплату
-{
+void alice_salary(const int month, const int year) { // Алиса получает зарплату
 	if ((month == 8) && (year == 2026)) 
 	{
-		Alice.salary *= 1.5; 
+		Alice.Tbank.salary *= 1.5;
 	}
 
-	Alice.bank.checking += Alice.salary;
+	Alice.Tbank.card += Alice.Tbank.salary;
 }
 
-void alice_expenses_monthly() // Алиса оплачивает ежемесячные расходы
-{
-	if (Alice.bank.checking >= Alice.food)
-	{
-		Alice.bank.checking -= Alice.food;
-	}
-	else
-	{
-		Alice.bank.checking = 0;
+void alice_pay_food() { // Алиса платит за еду
+	if (Alice.Tbank.card >= Alice.food) {
+		Alice.Tbank.card -= Alice.food;
 	}
 
-	if (Alice.bank.checking >= Alice.car.gas)
-	{
-		Alice.bank.checking -= Alice.car.gas;
-	}
-	else
-	{
-		Alice.bank.checking = 0;
-	}
-
-	if (Alice.bank.checking >= Alice.cat.food)
-	{
-		Alice.bank.checking -= Alice.cat.food;
-	}
-	else
-	{
-		Alice.bank.checking = 0;
+	else {
+		printf("Alice cannot pay for food! Card balance: %lld, Food cost: %lld\n", Alice.Tbank.card, Alice.food);
 	}
 }
 
-void alice_move_money_to_deposit() // Алиса переводит избыточные средства с расчетного счета на вклад
-{
-	if (Alice.bank.checking > checking_buffer) 
-	{
-		RUB amount = Alice.bank.checking - checking_buffer;
-		Alice.bank.checking -= amount;
-		Alice.bank.deposit += amount;
+void alice_pay_gas() { // Алиса платит за бензин
+	if (Alice.Tbank.card >= Alice.car.gas) {
+		Alice.Tbank.card -= Alice.car.gas;
+	}
+
+	else {
+		printf("Alice cannot pay for gas! Card balance: %lld, Gas cost: %lld\n", Alice.Tbank.card, Alice.car.gas);
 	}
 }
 
-void print_results() // Вывод результатов после моделирования
-{
-	printf("Salary = %lld\n", Alice.salary); 
-	printf("Checking (bank) = %lld\n", Alice.bank.checking);
-	printf("Deposit = %lld\n", Alice.bank.deposit); 
-	printf("Total = %lld\n", (Alice.bank.checking + Alice.bank.deposit)); 
+void alice_pay_cat_food() { // Алиса платит за еду для кота
+	if (Alice.Tbank.card >= Alice.cat.food) {
+		Alice.Tbank.card -= Alice.cat.food;
+	}
+
+	else {
+		printf("Alice cannot pay for cat food! Card balance: %lld, Cat food cost: %lld\n", Alice.Tbank.card, Alice.cat.food);
+	}
+}
+
+void alice_move_money_to_deposit() { // Алиса переводит деньги с карты на вклад, если на карте больше, чем emergency_fund
+	if (Alice.Tbank.card > emergency_fund) {
+		RUB amount = Alice.Tbank.card;
+		Alice.Tbank.card -= amount;
+		Alice.Tbank.deposit += amount;
+	}	
+}
+
+void print_results() { // Вывод результатов после моделирования
+
+	printf("Salary = %lld\n", Alice.Tbank.salary);
+	printf("Deposit = %lld\n", Alice.Tbank.deposit);
+	printf("Card = %lld\n", Alice.Tbank.card);
+	printf("Total = %lld\n", Alice.Tbank.deposit + Alice.Tbank.card + Alice.car.value + Alice.cat.value);
 
 	printf("Food = %lld\n", Alice.food); 
 	printf("Gas = %lld\n", Alice.car.gas); 
@@ -132,17 +124,17 @@ void print_results() // Вывод результатов после модел�
 	printf("Cat value = %lld\n", Alice.cat.value); 
 }
 
-void simulation() // Моделирование финансовой жизни Алисы с февраля 2026 по март 2027
-{
+void simulation() { // Моделирование финансовой жизни Алисы с февраля 2026 по март 2027
 	int month = 2;
 	int year = 2026;
 
-	while (!((month == 3) && (year == 2027)))
-	{
+	while (!((month == 3) && (year == 2027))) {
 		alice_inflation_tick();
 		alice_deposit_interest();
 		alice_salary(month, year);
-		alice_expenses_monthly();
+		alice_pay_food();
+		alice_pay_gas();
+		alice_pay_cat_food();
 		alice_move_money_to_deposit();
 
 		++month;
@@ -153,9 +145,8 @@ void simulation() // Моделирование финансовой жизни 
 	}
 }
 
-int main() 
-{
-	alice_init();
-	simulation(); 
-	print_results(); 
+int main() {
+	alice_init(); // Инициализация данных Алисы
+	simulation(); // Моделирование финансовой жизни Алисы
+	print_results(); // Вывод результатов после моделирования
 }
