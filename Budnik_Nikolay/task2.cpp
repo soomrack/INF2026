@@ -22,7 +22,7 @@ struct Inflation {
 };
 
 struct Pet {
-    bool enabled; // 0-1
+    bool enabled; // 0/1
     RUB feed;    // ежемесячные расходы
 };
 
@@ -101,7 +101,7 @@ static void alice_pet()
 
 static void alice_transfer_to_deposit()
 {
-    // оставляем на счёте расходы этого месяца, остальное — на вклад
+    // оставляем на счёте расходы этого месяца, остальное на вклад
     RUB reserve = Alice.food + Alice.car.gas + (Alice.dog.enabled ? Alice.dog.feed : 0);
     RUB extra = Alice.bank.account - reserve;
 
