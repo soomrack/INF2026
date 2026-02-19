@@ -110,7 +110,7 @@ struct Property {
     bool owns_apartment;
     RUB apartment_value;
 };
-//l
+
 struct FoodExpenses {
     RUB groceries;
     RUB eating_out;
@@ -1528,10 +1528,5 @@ int main() {
     // print_history(Alice);
     // print_history(Bob);
     return 0;
-<<<<<<< HEAD
-}//k
-=======
 }
 
-//ll
->>>>>>> 55fd9e0 (=v8)
