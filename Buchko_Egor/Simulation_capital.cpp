@@ -1,0 +1,159 @@
+#include <stdio.h>
+#include <iostream>
+
+using RUB = long long int;
+using USD = long long int;
+
+//расходы на авто
+struct Car { 
+    RUB value;
+    RUB gas;
+    RUB wash;
+};
+
+//банковский счет
+struct Bank {
+    RUB account_rub;
+    USD account_usd;
+    float rate_usd_rub;
+};
+
+//подписки на онлайн платформы
+struct Sub {
+    RUB yandex_music;
+    RUB vpn;
+    RUB boosty;
+    USD spotify;
+};
+
+//все составляющие капитала человека
+struct Person {
+    Bank vtb;
+    RUB capital;
+    RUB salary_job;
+    RUB food;
+    RUB salary_freelance;
+    Car car;
+    Sub sub;
+};
+struct Person alice;
+
+//иницилизация глобальных данных
+void alice_init()
+{
+    alice.vtb.rate_usd_rub = 78.76;
+    alice.vtb.account_rub = 0;
+    alice.vtb.account_usd = 0;
+
+    alice.salary_job = 100'000;
+    alice.food = 7'000;
+    alice.salary_freelance = 0;
+
+    alice.car.value = 2'400'000;
+    alice.car.gas = 15'000;
+
+    alice.sub.yandex_music = 450;
+    alice.sub.vpn = 100;
+    alice.sub.boosty = 150;
+    alice.sub.spotify = 5.5;
+}
+
+//траты на подписки
+void alice_subs()
+{
+    alice.vtb.account_rub -= alice.sub.yandex_music;
+    alice.vtb.account_rub -= alice.sub.vpn;
+    alice.vtb.account_rub -= alice.sub.boosty;
+    alice.vtb.account_usd -= alice.sub.spotify;
+}
+
+//траты на еду
+void alice_food(const int month)
+{
+    if (month == 12) {
+        alice.capital -= 2000;
+    }
+    alice.capital -= alice.food;
+}
+
+//траты на машину
+void alice_car(const int month)
+{
+    alice.vtb.account_rub -= alice.car.gas;
+    if (month % 2 == 0){
+        alice.vtb.account_rub -= alice.car.wash;
+    }
+}
+
+//начисление зп
+void alice_salary(const int month, const int year)
+{
+    if (month == 3){
+        alice.salary_job = (alice.salary_job * 1.5);
+    }
+    if (year == 2027 && month == 2){
+        alice.vtb.account_rub += 5000;
+    }
+    alice.vtb.account_rub += alice.salary_job;
+}
+
+//заработок с фриланса
+void alice_freelance(const int month)
+{
+    int time_freelance = 0;
+    int bet_freelance = 0;
+
+    time_freelance = rand() % 100;
+    bet_freelance = rand() % 10;
+
+    if (month == 12 || month == 1 || month == 5){
+        time_freelance *= 2;
+    }
+    int salary_freelance = time_freelance * bet_freelance;
+    alice.salary_freelance = salary_freelance * alice.vtb.rate_usd_rub;
+    alice.vtb.account_usd += salary_freelance;
+}
+
+//симуляция нескольких лет
+void simulation(const int delta_year, const int delta_month)
+{
+    int now_year = 2026;
+    int now_month = 2;
+    int year = now_year;
+    int month = now_month;
+    while ( !(year - now_year == delta_year  && month - now_month == delta_month)) {
+        alice_salary(month, year);
+        alice_food(month);
+        alice_car(month);
+        alice_subs();
+        alice_freelance(month);
+        ++month;
+        if (month == 13){
+            ++year;
+            month = 1;
+        }
+    }  
+}
+
+
+void print_resullts()
+{
+    RUB capital = 0;
+    
+    printf("Salary = %lld\n", alice.salary_job + alice.salary_freelance);
+    printf("VTB RUB = %lld\n", alice.vtb.account_rub);
+    printf("VTB USD = %lld\n", alice.vtb.account_usd);
+    
+    capital += alice.vtb.account_rub;
+    capital += alice.vtb.account_usd * alice.vtb.rate_usd_rub;
+    capital += alice.car.value;
+
+    printf("Capital = %lld\n", capital);
+}
+
+
+int main(){
+   alice_init();
+   simulation(0, 1);
+   print_resullts();
+}
