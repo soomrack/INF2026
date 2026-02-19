@@ -2144,6 +2144,6 @@ int main()
     print_results(Alice);
     print_results(Bob);
     print_history(Alice);
-    // print_history(Bob);
+    print_history(Bob);
     return 0;
 }
