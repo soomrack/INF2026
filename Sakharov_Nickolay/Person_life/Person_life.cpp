@@ -110,7 +110,7 @@ struct Property {
     bool owns_apartment;
     RUB apartment_value;
 };
-
+//l
 struct FoodExpenses {
     RUB groceries;
     RUB eating_out;
