@@ -1528,4 +1528,10 @@ int main() {
     // print_history(Alice);
     // print_history(Bob);
     return 0;
+<<<<<<< HEAD
 }//k
+=======
+}
+
+//ll
+>>>>>>> 55fd9e0 (=v8)
