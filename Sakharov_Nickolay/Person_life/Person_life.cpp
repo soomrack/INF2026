@@ -2133,6 +2133,7 @@ void print_results(const Person &p)
     printf("Married: %s, Children: %d\n", p.married ? "Yes" : "No", p.children_count);
 }
 
+
 int main()
 {
     srand(time(NULL));
