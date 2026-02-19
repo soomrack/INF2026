@@ -2143,7 +2143,7 @@ int main()
     simulate_bob();
     print_results(Alice);
     print_results(Bob);
-    // print_history(Alice);
+    print_history(Alice);
     // print_history(Bob);
     return 0;
 }
