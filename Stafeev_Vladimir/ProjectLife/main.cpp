@@ -7,7 +7,6 @@ const float price_reduction = 0.17;  //car price reduction 17%
 
 using RUB = long long int;
 using USD = long long int;
-
 using Percent = float;
 
 
@@ -58,7 +57,6 @@ struct Male {
 };
 
 Female Kate;
-
 Male Henry;
 
 
@@ -79,6 +77,29 @@ void Kate_init()
     Kate.matiz.car_insurance = 5'000;
 }
 
+void Henry_init()
+{
+    Henry.sber.account = 0;
+    Henry.sber.deposite = 2'000'000;  // start deposite
+    Henry.sber.interest = 15.0;
+    Henry.salary = 180'000;
+    Henry.sber.account_usd = 1000;
+    Henry.sber.rate_usd_rub = 78.5;
+
+    Henry.food = 25'000;
+    Henry.education = 30'000;
+
+    Henry.volga.price = 850'000;
+    Henry.volga.gas = 15'000;
+    Henry.volga.car_insurance = 25'000;
+
+    Henry.house.usage = 10'000;
+    Henry.house.home_insurance = 8'000;
+
+    Henry.stash = 0;
+    Henry.dream_car = 3'500'000;
+}
+
 
 void Kate_salary(const int month, const int year)
 {
@@ -93,31 +114,79 @@ void Kate_salary(const int month, const int year)
     Kate.tbank.account += Kate.salary;
 }
 
+void Henry_salary(const int month, const int year)
+{
+    if (month == 12) {
+        Henry.sber.account += Henry.salary;  // 13th salary
+    }
+
+    if (month == 6 and year == 2027) {
+        Henry.salary *= 1.3;  // promotion
+    }
+
+    Henry.sber.account += Henry.salary;
+}
+
 
 void Kate_food(const int month, const int year)
 {
-    if (month == 12)
-        Kate.tbank.account -= 10'000;
     Kate.tbank.account -= Kate.food;
+    if (month == 12)
+        Kate.tbank.account -= 10'000;  // new year
 }
 
 void Henry_food(const int month, const int year)
 {
-    if (month == 12)
-        Henry.sber.account -= 30'000;
-    if (month == 5)
-        Henry.sber.account -= Henry.food;
     Henry.sber.account -= Henry.food;
+
+    if (month == 12)
+        Henry.sber.account -= 30'000;  // new year
+    if (month == 5)
+        Henry.sber.account -= 20'000;  // mayskie
+}
+
+void Henry_education(const int month, const int year)
+{
+    if (month == 9) {
+        Henry.sber.account -= Henry.education;
+    }
 }
 
 
 void Kate_car(const int month, const int year)
 {
     Kate.tbank.account -= Kate.matiz.gas;
+
     if (month == 12)
         Kate.matiz.price -= Kate.matiz.price * price_reduction;
+
     if (month == 1)
         Kate.tbank.account -= Kate.matiz.car_insurance;
+}
+
+void Henry_car(const int month, const int year)
+{
+    Henry.sber.account -= Henry.volga.gas;
+
+    if (month == 12)
+        Henry.volga.price -= Henry.volga.price * price_reduction;
+
+    if (month == 2)  // insurance in february
+        Henry.sber.account -= Henry.volga.car_insurance;
+}
+
+
+void Kate_home(const int month, const int year)
+{
+    Kate.tbank.account -= 7'000;  // flat usage
+}
+
+void Henry_home(const int month, const int year)
+{
+    Henry.sber.account -= Henry.house.usage;
+
+    if (month == 6)  // house insurance
+        Henry.sber.account -= Henry.house.home_insurance;
 }
 
 
@@ -126,10 +195,22 @@ void Kate_deposite(const int month, const int year)
     if (month == 12)
         Kate.tbank.interest -= 0.1;
 
-    Kate.tbank.deposite += Kate.tbank.deposite * (Kate.tbank.interest  / 12.0 / 100.0);
+    Kate.tbank.deposite += Kate.tbank.deposite * (Kate.tbank.interest / 12.0 / 100.0);
 
     Kate.tbank.deposite += Kate.tbank.account;
     Kate.tbank.account = 0;
+}
+
+void Henry_deposite(const int month, const int year)
+{
+    if (month == 12)
+        Henry.sber.interest -= 0.05;
+
+    Henry.sber.deposite += Henry.sber.deposite * (Henry.sber.interest / 12.0 / 100.0);
+
+    RUB transfer = Henry.sber.account * 0.9;
+    Henry.sber.deposite += transfer;
+    Henry.sber.account -= transfer;
 }
 
 
@@ -140,17 +221,61 @@ void Kate_freelance(const int month, const int year)
     }
 }
 
+void Henry_investments(const int month, const int year)
+{
+    if (month == 6 and year == 2028) {
+        Henry.sber.account_usd += 5'000;
+    }
+}
+
+void Henry_dream_savings(const int month, const int year)
+{
+    if (Henry.sber.account > 100'000) {
+        RUB saving = Henry.sber.account * 0.2;
+        Henry.stash += saving;
+        Henry.sber.account -= saving;
+    }
+
+    if (Henry.stash >= Henry.dream_car) {
+        Henry.volga.price = Henry.dream_car;
+        Henry.stash -= Henry.dream_car;
+        Henry.dream_car = 5'000'000;
+    }
+}
+
 
 void print_results()
 {
-    printf("Salary = %lld\n", Kate.salary);
+    printf("Kate\n");
+    printf("Salary = %lld RUB\n", Kate.salary);
+    printf("Bank account = %lld RUB\n", Kate.tbank.account);
+    printf("Deposit = %lld RUB\n", Kate.tbank.deposite);
+    printf("Car price = %lld RUB\n", Kate.matiz.price);
+    printf("USD account = %lld USD (%.1f RUB)\n",
+           Kate.tbank.account_usd,
+           (float)(Kate.tbank.account_usd * Kate.tbank.rate_usd_rub));
 
-    RUB capital = 0;
-    capital += Kate.tbank.account;
-    capital += Kate.matiz.price;
-    capital += Kate.tbank.deposite;
-    capital += Kate.tbank.account_usd * Kate.tbank.rate_usd_rub;
-    printf("Capital = %lld", capital);
+    RUB kate_capital = Kate.tbank.account + Kate.matiz.price +
+                       Kate.tbank.deposite +
+                       Kate.tbank.account_usd * Kate.tbank.rate_usd_rub;
+    printf("Total capital = %lld RUB\n", kate_capital);
+
+    printf("\nHenry\n");
+    printf("Salary = %lld RUB\n", Henry.salary);
+    printf("Bank account = %lld RUB\n", Henry.sber.account);
+    printf("Deposit = %lld RUB\n", Henry.sber.deposite);
+    printf("Car price = %lld RUB\n", Henry.volga.price);
+    printf("USD account = %lld USD (%.1f RUB)\n",
+           Henry.sber.account_usd,
+           (float)(Henry.sber.account_usd * Henry.sber.rate_usd_rub));
+    printf("Stash for dream = %lld RUB\n", Henry.stash);
+
+    RUB henry_capital = Henry.sber.account + Henry.volga.price +
+                        Henry.sber.deposite + Henry.stash +
+                        Henry.sber.account_usd * Henry.sber.rate_usd_rub;
+    printf("Total capital = %lld RUB\n", henry_capital);
+
+    printf("\nCombined capital = %lld RUB\n", kate_capital + henry_capital);
 }
 
 
@@ -164,10 +289,17 @@ void simulation()
         Kate_freelance(month, year);
         Kate_food(month, year);
         Kate_car(month, year);
-        // my_cat();
-        // my_medine();
-        // my_home();
+        Kate_home(month, year);
         Kate_deposite(month, year);
+
+        Henry_salary(month, year);
+        Henry_investments(month, year);
+        Henry_food(month, year);
+        Henry_education(month, year);
+        Henry_car(month, year);
+        Henry_home(month, year);
+        Henry_dream_savings(month, year);
+        Henry_deposite(month, year);
 
         ++month;
         if (month == 13) {
@@ -181,6 +313,7 @@ void simulation()
 int main()
 {
     Kate_init();
+    Henry_init();
 
     simulation();
 
