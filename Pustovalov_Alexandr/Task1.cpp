@@ -113,7 +113,7 @@ void init()
     alice.vtb.mortgage.is_active = true;
     alice.vtb.mortgage.body_debt = 8'000'000;
     alice.vtb.mortgage.monthly_payment = 90'000;
-    alice.vtb.mortgage.interest_rate = 0.08;
+    alice.vtb.mortgage.interest_rate = 8.0;
 
     alice.crypto_account.balance = 0.0;
     alice.crypto_account.exchange_rate_usd = BTC_RATES[0];
@@ -167,12 +167,56 @@ void update_crypto_rates() {
     alice.crypto_account.exchange_rate_usd = current_rate + noise;
     bogdan.crypto_account.exchange_rate_usd = current_rate + noise;
 }
+bool try_spend(Person& p, RUB amount) {
+    if (amount <= 0) return true;
+
+    if (p.vtb.account_rub >= amount) {
+        p.vtb.account_rub -= amount;
+        return true;
+    }
+
+    RUB deficit = amount - p.vtb.account_rub;
+    double usd_needed_dbl = (double)deficit / russia.rate_usd_rub;
+    USD usd_needed = (USD)ceil(usd_needed_dbl);
+
+    if (p.vtb.account_usd >= usd_needed) {
+        p.vtb.account_usd -= usd_needed;
+        p.vtb.account_rub += (RUB)(usd_needed * russia.rate_usd_rub);
+        p.vtb.account_rub -= amount;
+        return true;
+    }
+    else {
+        if (p.vtb.account_usd > 0) {
+            p.vtb.account_rub += (RUB)(p.vtb.account_usd * russia.rate_usd_rub);
+            p.vtb.account_usd = 0;
+        }
+    }
+    deficit = amount - p.vtb.account_rub;
+    double crypto_rub_value = p.crypto_account.balance * p.crypto_account.exchange_rate_usd * russia.rate_usd_rub;
+
+    if (crypto_rub_value >= deficit) {
+        double btc_to_sell = deficit / (p.crypto_account.exchange_rate_usd * russia.rate_usd_rub);
+        p.crypto_account.balance -= btc_to_sell;
+        p.vtb.account_rub += deficit;
+        p.vtb.account_rub -= amount;
+        return true;
+    }
+
+    // Bankrupt
+    p.vtb.account_rub -= amount;
+    return false;
+}
 
 void alice_expenses(const int month, const int year, const Economy rus_economy)
 {
-    if (month == 12) alice.vtb.account_rub -= 2000;  // christmas party
+    RUB extra = (month == 12) ? 2000 : 0;
     RUB children_cost = alice.family.children_amount * 30'000;
-    alice.vtb.account_rub -= (alice.monthly_food_cost + alice.monthly_lifestyle_cost + alice.home.monthly_utilities + children_cost);
+    RUB total_cost = alice.monthly_food_cost + alice.monthly_lifestyle_cost + alice.home.monthly_utilities + children_cost + extra;
+
+    if (!try_spend(alice, total_cost)) {
+        alice.health.is_alive = false; // Died
+        printf("Alice went bankrupt and died at age %d\n", alice.health.age);
+    }
 }
 
 void do_inflation() {
@@ -210,20 +254,40 @@ void bogdan_salary(const int month, const int year)
         if (bogdan.health.stress > 100) bogdan.health.stress = 100;
     }
 
+
     bogdan.vtb.account_rub += bogdan.salary;
 }
 
 void bogdan_life_prolongation()
 {
-    bogdan.vtb.account_usd -= 100'000;
-    bogdan.health.max_age += 3;
+    if (bogdan.health.max_age >= 115) return;
+
+    if (bogdan.health.max_age - bogdan.health.age > 3) return;
+
+    RUB cost = (RUB)(100'000.0 * russia.rate_usd_rub);
+
+    double total_wealth = bogdan.vtb.account_rub +
+        (bogdan.vtb.account_usd * russia.rate_usd_rub) +
+        (bogdan.crypto_account.balance * bogdan.crypto_account.exchange_rate_usd * russia.rate_usd_rub);
+
+    if (total_wealth >= cost) {
+        if (try_spend(bogdan, cost)) {
+            bogdan.health.max_age += 2;
+        }
+    }
 }
 
 void bogdan_expenses(const int month, const int year)
 {
-    if (month == 12) bogdan.vtb.account_rub -= 2000;
+    RUB extra = (month == 12) ? 2000 : 0;
     RUB children_cost = bogdan.family.children_amount * 40'000;
-    bogdan.vtb.account_rub -= (bogdan.monthly_food_cost + bogdan.monthly_lifestyle_cost + bogdan.home.monthly_utilities + children_cost + bogdan.home.rent);
+    RUB total_cost = bogdan.monthly_food_cost + bogdan.monthly_lifestyle_cost + bogdan.home.monthly_utilities + children_cost + bogdan.home.rent + extra;
+
+    if (!try_spend(bogdan, total_cost)) {
+        bogdan.health.is_alive = false; // Died
+        printf("Bogdan went bankrupt and died at age %d\n", bogdan.health.age);
+        return;
+    }
 
     if (bogdan.vtb.account_rub > 100'000) {
         double investment_rub = 50'000.0;
@@ -237,11 +301,11 @@ void print_results()
 {
     printf("Simulation ended in year %d. Alice died in age of %d. Bogdan died in age of %d\n", year, alice.health.max_age, bogdan.health.max_age);
     printf("Alice Salary at the end of her life was %lld\nMeanwile Bogdan salary was %lld\n", alice.salary, bogdan.salary);
-    int capital_bogdan = bogdan.car.value + bogdan.crypto_account.balance * bogdan.crypto_account.exchange_rate_usd * russia.rate_usd_rub + bogdan.home.value +
+    long long int capital_bogdan = bogdan.car.value + bogdan.crypto_account.balance * bogdan.crypto_account.exchange_rate_usd * russia.rate_usd_rub + bogdan.home.value +
         bogdan.vtb.account_rub + bogdan.vtb.account_usd * russia.rate_usd_rub;
-    int capital_alice = alice.car.value + alice.crypto_account.balance * alice.crypto_account.exchange_rate_usd * russia.rate_usd_rub + alice.home.value +
+    long long int capital_alice = alice.car.value + alice.crypto_account.balance * alice.crypto_account.exchange_rate_usd * russia.rate_usd_rub + alice.home.value +
         alice.vtb.account_rub + alice.vtb.account_usd * russia.rate_usd_rub;
-    printf("Alice finished with great capital of %d\nAnd Bogdan's capital wasn't small too: %d\n", capital_alice, capital_bogdan);
+    printf("Alice finished with great capital of %lld\nAnd Bogdan's capital wasn't small too: %lld\n", capital_alice, capital_bogdan);
     printf("Alice had %d children\nBogdan had %d children\n", alice.family.children_amount, bogdan.family.children_amount);
     printf("But who was really happy in the end of his life Alice: %d or Bogdan: %d?\n", alice.health.happines, bogdan.health.happines);
 }
@@ -359,8 +423,8 @@ void simulation()
             //       if (alice.family.has_partner && (25 < alice.health.age && alice.health.age  < 50)) alice.family.children_amount += (int)(get_random(1,100)>98);
             //       if (bogdan.family.has_partner && (25 < bogdan.health.age && bogdan.health.age < 50)) bogdan.family.children_amount += (int)(get_random(1, 100) > 98);
 
-            if (alice.health.age == alice.health.max_age) alice.health.is_alive = false;
-            if (bogdan.health.age == bogdan.health.max_age) bogdan.health.is_alive = false;
+            if (alice.health.age >= alice.health.max_age) alice.health.is_alive = false;
+            if (bogdan.health.age >= bogdan.health.max_age) bogdan.health.is_alive = false;
         }
     }
 }
