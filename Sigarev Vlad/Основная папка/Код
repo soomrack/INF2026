@@ -1,0 +1,198 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+//typedef int RUB; // Ключевое слово, зарезервировано под функции языка, используют в С
+using RUB = long long int; // Используют в С++, можно из одного места поменять типы данных многих переменных
+
+struct Car {
+    RUB value;
+    RUB gas;
+};
+
+struct Burthdays {
+    RUB her_burthday;
+    RUB mother_burthday;
+    RUB father_burthday;
+    RUB friends_burthday;
+    RUB son_burthday;
+};
+
+struct Holidays {
+    RUB christmas;
+    Burthdays burthday;
+    RUB march8th;
+    RUB february23;
+};
+
+struct Person { // создали свой тип данных
+    RUB salary;
+    RUB bank;
+    RUB deposit;
+    RUB food;
+    Holidays holidays;
+    Car car;
+    RUB vacation;
+};
+
+struct Person Alice; // создали переменную типа данных Person
+
+
+void alice_car(const int month, const int year) {
+    if ((month == 12) && (year == 2028)) {
+        Alice.car.gas = Alice.car.gas * 1.3;
+    }
+    Alice.bank -= Alice.car.gas;
+    Alice.car.gas = Alice.car.gas * 1.005;
+}
+
+void alice_salary(const int month, const int year) {
+    if ((month == 8) && (year == 2026)) { // Promotion
+        Alice.bank += Alice.salary * 0.5;
+    }
+    if ((month == 12) && (year == 2028)) {
+        Alice.salary = Alice.salary * 0.4;
+    }
+    if ((month == 12) && (year == 2030)) {
+        Alice.salary = Alice.salary * 2.5;
+    }
+    Alice.bank += Alice.salary;
+}
+
+void alice_holidays(const int month, const int year) {
+    if (month == 1) {
+        Alice.bank -= Alice.holidays.christmas;
+    }
+    else {
+        if (month == 2) {
+            Alice.bank -= Alice.holidays.february23;
+        }
+        else {
+            if (month == 3) {
+                Alice.bank -= Alice.holidays.march8th;
+            }
+            else {
+                if (month == 5) {
+                    Alice.bank -= Alice.holidays.burthday.father_burthday;
+                }
+                else {
+                    if (month == 6) {
+                        Alice.bank -= Alice.holidays.burthday.friends_burthday;
+                    }
+                    else {
+                        if (month == 8) {
+                            Alice.bank -= Alice.holidays.burthday.her_burthday;
+                        }
+                        else {
+                            if (month == 9) {
+                                Alice.bank -= Alice.holidays.burthday.mother_burthday;
+                            }
+                            else {
+                                if ((month == 10) && (year >= 2028))
+                                    Alice.bank -= Alice.holidays.burthday.son_burthday;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+
+}
+
+void alice_vacation(const int month) {
+    if (month == 7) {
+        Alice.deposit -= Alice.vacation;
+        Alice.vacation = Alice.vacation * 1.1;
+    }
+}
+
+void print_results() {
+
+    printf("Salary = %lld\n", Alice.salary);
+    printf("Deposit = %lld\n", Alice.deposit);
+}
+
+void alice_food(const int month, const int year) {
+    if ((month == 10) && (year == 2028)) {
+        Alice.food = Alice.food * 2;
+    }
+    Alice.bank -= Alice.food;
+    Alice.food = Alice.food * 1.012;
+}
+
+void alice_bank_deposit(const int month, const int year) {
+    float pp = 14.5;
+
+    if ((month == 10) && (year == 2026)) {
+        pp = 10;
+    }
+    Alice.deposit += Alice.bank;
+    Alice.bank = 0;
+    Alice.deposit += Alice.deposit * (pp / 100.0 / 12.0);
+}
+
+void simulation()
+{
+
+    int month = 2;
+    int year = 2026;
+
+    //  for (int month = 1; month < 19; ++month) {
+    while (!((month == 3) && (year == 2040))) {
+
+
+        // my_cat() 
+        // my_trip()
+        alice_salary(month, year);
+        alice_holidays(month, year);
+        alice_vacation(month);
+        alice_food(month, year);
+        alice_car(month, year);
+        alice_bank_deposit(month, year);
+
+
+
+
+        ++month;
+        if (month == 13) {
+            month = 1;
+            ++year;
+        }
+    }
+}
+
+void alice_init() // Присвоили значения характеристик, описывающих переменную данного типа
+{
+    Alice.bank = 0;
+    Alice.deposit = 0;
+    Alice.salary = 180000;
+    Alice.food = 20000;
+    Alice.car.value = 2400000;
+    Alice.car.gas = 15000;
+    Alice.holidays.burthday.father_burthday = 6000;
+    Alice.holidays.burthday.friends_burthday = 4000;
+    Alice.holidays.burthday.mother_burthday = 7000;
+    Alice.holidays.burthday.her_burthday = 10000;
+    Alice.holidays.christmas = 10000;
+    Alice.holidays.february23 = 3000;
+    Alice.holidays.march8th = 2000;
+    Alice.vacation = 150000;
+    Alice.holidays.burthday.son_burthday = 10000;
+}
+
+
+int main()
+{
+    alice_init();
+
+    simulation();
+
+    print_results();
+
+}
+
+
+// long int - int хранит 4 байта, а не 2, в принте надо менять отдельно
+
