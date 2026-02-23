@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <Windows.h>
 #include <clocale>
+#include <fstream>
 
 using RUB = long long int;
 using percent = float;
@@ -18,6 +19,9 @@ struct transport
 {
 	RUB gaz;
 	RUB value;
+	RUB service;
+	RUB tires;
+	RUB oil;
 };
 
 
@@ -70,6 +74,9 @@ void Biba_init()
 
 	Biba.car.value = 2'400'000;
 	Biba.car.gaz = 8'000;
+	Biba.car.service = 3'000;
+	Biba.car.tires = 25'000;
+	Biba.car.oil = 5'000;
 
 	Biba.House.has_house = false;
 	Biba.House.has_credit = false;
@@ -128,8 +135,22 @@ void Biba_wastes()
 	Biba.vtb.account -= Biba.rent;
 	// кота нет
 	Biba.vtb.account -= Biba.dog;
+}
 
+
+void Biba_car(const int month, const int year)
+{
 	Biba.vtb.account -= Biba.car.gaz;
+	if (month == 3 or month == 9)
+	{
+		Biba.vtb.account -= Biba.car.oil;
+		Biba.vtb.account -= Biba.car.service; // сервис и замена масла 2 раза в год
+	}
+
+	if (year % 4 == 0 and month == 10)
+	{
+		Biba.vtb.account -= Biba.car.tires; // покупка новых шин
+	}
 }
 
 
@@ -228,6 +249,28 @@ void Boba_deposite(const int month, const int year)
 }
 
 
+void save_to_csv(const char* filename, int year, int month,
+				const char* person, RUB account, RUB deposit, RUB capital)
+{
+	std::ofstream file(filename, std::ios::app);
+
+	// Проверка новый ли файл
+	static bool first = true;
+	if (first) {
+		file.seekp(0, std::ios::end);
+		if (file.tellp() == 0) {
+			file << "Год;Месяц;Персонаж;Счет;Депозит;Капитал\n";
+		}
+		first = false;
+	}
+
+	file << year << ";" << month << ";" << person << ";"
+		<< account << ";" << deposit << ";" << capital << "\n";
+
+	file.close();
+}
+
+
 void five_year_result(const int year, const int month)
 {
 	if (year % 5 == 0 and month == 12)
@@ -289,6 +332,7 @@ int main()
 	{
 		Biba_salary(month, year);
 		Biba_wastes();
+		Biba_car(month, year);
 
 		Biba_buy_house(month, year);
 		Biba_credit();
@@ -298,6 +342,16 @@ int main()
 		Boba_salary(month, year);
 		Boba_wastes();
 		Boba_deposite(month, year);
+
+		RUB biba_capital = Biba.vtb.account + Biba.vtb.deposit + Biba.car.value +
+			(Biba.House.has_house ? Biba.House.h_price - Biba.House.debt : 0);
+
+		// сохранение данных в таблицу
+		save_to_csv("simulation.csv", year, month, "Биба",
+			Biba.vtb.account, Biba.vtb.deposit, biba_capital);
+		save_to_csv("simulation.csv", year, month, "Боба",
+			Boba.vtb.account, Boba.vtb.deposit,
+			Boba.vtb.account + Boba.vtb.deposit);
 
 		month++;
 		if (month == 13)
