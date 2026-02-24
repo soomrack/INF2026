@@ -264,7 +264,6 @@ struct MiscExpenses
     RUB cloud_storage;                         // Облачное хранилище
     RUB domain_hosting;                        // Домен и хостинг
     RUB dating_sites;                          // Сайты знакомств
-    RUB adult_content;                         // Платный взрослый контент
 };
 
 struct Person
@@ -857,7 +856,14 @@ void bob_car_wash(int month)
     double inf = random_inflation(6.0, 7.0);
     Bob.bank.balance -= apply_monthly_inflation(Bob.car.washing_month, inf);
 }
-
+void bob_car_tolls(int month)
+{
+    double inf = random_inflation(5.0, 6.0);
+    if (random_event(0.5))
+    {
+        Bob.bank.balance -= apply_monthly_inflation(Bob.car.tolls_month, inf);
+    }
+}
 void bob_car_insurance_tax(int month)
 {
     double inf_ins = random_inflation(6.2, 7.4);
@@ -877,7 +883,14 @@ void bob_car_tires(int month)
         Bob.bank.balance -= apply_yearly_inflation(Bob.car.tires_year, inf);
     }
 }
-
+void bob_car_diagnostics(int month)
+{
+    double inf = random_inflation(5.5, 6.5);
+    if (month == 4)
+    {
+        Bob.bank.balance -= apply_yearly_inflation(Bob.car.diagnostics_year, inf);
+    }
+}
 void bob_car_fines()
 {
     if (random_event(0.03))
@@ -1301,14 +1314,18 @@ void bob_entertainment(int month)
         Bob.bank.balance -= apply_monthly_inflation(Bob.entertainment.bar, inf);
     }
 }
-
+void alice_monthly_events(){
+    double inf = random_inflation(8.5, 9.7);
+    Alice.bank.balance -= apply_monthly_inflation(Alice.misc.education, inf);
+    Alice.bank.balance -= apply_monthly_inflation(Alice.misc.atm_fee, inf);
+    Alice.bank.balance -= apply_monthly_inflation(Alice.misc.bank_fee, inf);
+    Alice.bank.balance -= apply_monthly_inflation(Alice.misc.electronics, inf);
+    Alice.bank.balance -= apply_monthly_inflation(Alice.misc.cloud_storage, inf);
+    Alice.bank.balance -= apply_monthly_inflation(Alice.misc.domain_hosting, inf);
+}
 void alice_misc()
 {
     double inf = random_inflation(8.5, 9.7);
-    if (random_event(0.1))
-    {
-        Alice.bank.balance -= apply_monthly_inflation(Alice.misc.education, inf);
-    }
     if (random_event(0.2))
     {
         Alice.bank.balance -= apply_monthly_inflation(Alice.misc.charity, inf);
@@ -1337,11 +1354,7 @@ void alice_misc()
     {
         Alice.bank.balance -= apply_monthly_inflation(Alice.misc.notary, inf);
     }
-    Alice.bank.balance -= apply_monthly_inflation(Alice.misc.bank_fee, inf);
-    if (random_event(0.2))
-    {
-        Alice.bank.balance -= apply_monthly_inflation(Alice.misc.atm_fee, inf);
-    }
+
     if (random_event(0.05))
     {
         Alice.bank.balance -= apply_monthly_inflation(Alice.misc.postal, inf);
@@ -1349,10 +1362,6 @@ void alice_misc()
     if (random_event(0.02))
     {
         Alice.bank.balance -= apply_monthly_inflation(Alice.misc.furniture, inf);
-    }
-    if (random_event(0.03))
-    {
-        Alice.bank.balance -= apply_monthly_inflation(Alice.misc.electronics, inf);
     }
     if (random_event(0.01))
     {
@@ -1407,31 +1416,26 @@ void alice_misc()
     {
         Alice.bank.balance -= apply_monthly_inflation(Alice.misc.software, inf);
     }
-    if (random_event(0.05))
-    {
-        Alice.bank.balance -= apply_monthly_inflation(Alice.misc.cloud_storage, inf);
-    }
     if (random_event(0.01))
     {
-        Alice.bank.balance -= apply_monthly_inflation(Alice.misc.domain_hosting, inf);
+
     }
     if (random_event(0.02))
     {
         Alice.bank.balance -= apply_monthly_inflation(Alice.misc.dating_sites, inf);
     }
-    if (random_event(0.01))
-    {
-        Alice.bank.balance -= apply_monthly_inflation(Alice.misc.adult_content, inf);
-    }
 }
-
+void bob_monthly_events(){
+    double inf = random_inflation(8.5, 9.7);
+    Bob.bank.balance -= apply_monthly_inflation(Bob.misc.education, inf);
+    Bob.bank.balance -= apply_monthly_inflation(Bob.misc.bank_fee, inf);
+    Bob.bank.balance -= apply_monthly_inflation(Bob.misc.electronics, inf);
+    Bob.bank.balance -= apply_monthly_inflation(Bob.misc.subscriptions_other, inf);
+    Bob.bank.balance -= apply_monthly_inflation(Bob.misc.software, inf);
+}
 void bob_misc()
 {
     double inf = random_inflation(7.1, 8.3);
-    if (random_event(0.05))
-    {
-        Bob.bank.balance -= apply_monthly_inflation(Bob.misc.education, inf);
-    }
     if (random_event(0.1))
     {
         Bob.bank.balance -= apply_monthly_inflation(Bob.misc.charity, inf);
@@ -1448,7 +1452,7 @@ void bob_misc()
     {
         Bob.bank.balance -= apply_monthly_inflation(Bob.misc.fines, inf);
     }
-    Bob.bank.balance -= apply_monthly_inflation(Bob.misc.bank_fee, inf);
+    
     if (random_event(0.1))
     {
         Bob.bank.balance -= apply_monthly_inflation(Bob.misc.atm_fee, inf);
@@ -1457,10 +1461,6 @@ void bob_misc()
     {
         Bob.bank.balance -= apply_monthly_inflation(Bob.misc.postal, inf);
     }
-    if (random_event(0.01))
-    {
-        Bob.bank.balance -= apply_monthly_inflation(Bob.misc.electronics, inf);
-    }
     if (random_event(0.05))
     {
         Bob.bank.balance -= apply_monthly_inflation(Bob.misc.gifts, inf);
@@ -1468,11 +1468,6 @@ void bob_misc()
     if (random_event(0.02))
     {
         Bob.bank.balance -= apply_monthly_inflation(Bob.misc.flowers, inf);
-    }
-    Bob.bank.balance -= apply_monthly_inflation(Bob.misc.subscriptions_other, inf);
-    if (random_event(0.05))
-    {
-        Bob.bank.balance -= apply_monthly_inflation(Bob.misc.software, inf);
     }
 }
 
@@ -1770,7 +1765,6 @@ void alice_init()
     Alice.misc.cloud_storage = 200;
     Alice.misc.domain_hosting = 100;
     Alice.misc.dating_sites = 300;
-    Alice.misc.adult_content = 200;
 
     Alice.deposit_month = 40000;
     Alice.emergency_fund = 50000;
@@ -1998,11 +1992,11 @@ void bob_init()
     Bob.misc.cloud_storage = 100;
     Bob.misc.domain_hosting = 50;
     Bob.misc.dating_sites = 0;
-    Bob.misc.adult_content = 100;
 
     Bob.deposit_month = 30000;
     Bob.emergency_fund = 20000;
 }
+
 
 void alice_car(int month)
 {
@@ -2018,6 +2012,19 @@ void alice_car(int month)
     alice_car_repair();
 }
 
+void bob_car(int month)
+{
+    bob_car_gas(month);
+    bob_car_maintenance(month);
+    bob_car_parking(month);
+    bob_car_wash(month);
+    bob_car_tolls(month);
+    bob_car_insurance_tax(month);
+    bob_car_tires(month);
+    bob_car_diagnostics(month);
+    bob_car_fines();
+    bob_car_repair();
+}
 void simulate_alice()
 {
     int month = 2;
@@ -2035,6 +2042,7 @@ void simulate_alice()
         alice_car(month);
         alice_health();
         alice_transport();
+        alice_monthly_events();
         alice_clothing();
         alice_entertainment(month);
         alice_misc();
@@ -2063,19 +2071,12 @@ void simulate_bob()
         bob_property(month);
         bob_food();
         bob_cat();
-        bob_car_gas(month);
-        bob_car_maintenance(month);
-        bob_car_parking(month);
-        bob_car_wash(month);
-        bob_car_insurance_tax(month);
-        bob_car_tires(month);
-        bob_car_fines();
-        bob_car_repair();
         bob_health();
         bob_transport();
+        bob_monthly_events();
         bob_clothing();
         bob_entertainment(month);
-        bob_misc();
+        bob_misc();// случайные события
         bob_personal_events(month, year);
         bob_record_history(month, year);
         ++month;
