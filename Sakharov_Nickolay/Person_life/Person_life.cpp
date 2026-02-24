@@ -2141,8 +2141,10 @@ int main()
     srand(time(NULL));
     alice_init();
     bob_init();
+    
     simulate_alice();
     simulate_bob();
+
     print_results(Alice);
     print_results(Bob);
     print_history(Alice);
