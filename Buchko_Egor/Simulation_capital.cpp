@@ -75,7 +75,7 @@ void alice_steam(const int month)
     int random_salary = rand()%100;
 
     if (random_salary % 9 == 0){
-        random_salary *= 10;
+        random_salary *= 50;
     }
     
     // рандомные траты берутся от пакупки игр, зимой и летом скидки, 
@@ -181,21 +181,27 @@ void print_resullts()
 {
     RUB capital = 0;
     
+    printf("--------различные зп--------\n");
+    printf("\tMain salary = %lld\n", alice.salary_job);
+    printf("\tFreelance = %lld\n", alice.salary_freelance);
+    printf("\tSteam salary = %lld\n", alice.steam.account_rub);
 
-    printf("Salary = %lld\n", alice.salary_job + alice.salary_freelance);
-    printf("VTB RUB = %lld\n", alice.vtb.account_rub);
-    printf("VTB USD = %lld\n", alice.vtb.account_usd);
+    printf("-----различные кошельки-----\n");
+    printf("\tVTB RUB = %lld\n", alice.vtb.account_rub);
+    printf("\tVTB USD = %lld\n", alice.vtb.account_usd);
+    printf("\tSteam RUB = %lld\n", alice.steam.account_rub);
     
     capital += alice.vtb.account_rub;
     capital += alice.vtb.account_usd * alice.vtb.rate_usd_rub;
     capital += alice.car.value;
 
-    printf("Capital = %lld\n", capital);
+    printf("----------капитал-----------\n");
+    printf("\tCapital = %lld\n", capital);
 }
 
 
 int main(){
    alice_init();
-   simulation(0, 1);
+   simulation(10, 5);
    print_resullts();
 }
