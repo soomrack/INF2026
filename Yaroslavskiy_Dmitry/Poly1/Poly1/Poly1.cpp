@@ -95,6 +95,9 @@ void nick_init()
 
     nick.zoobank.rate_usd_rub = 78.5;
 
+    //штрафы
+    nick.fines = 0;
+
     //машина (старая развалюха)
     nick.car.value = 400'000;
     nick.car.gas = 10'000;
@@ -260,6 +263,38 @@ void nick_black_market_exchange(int month, int year)            //черный �
 }
 
 
+void nick_law_compliance(int month, int year)        //функция оплаты штрафов
+{        
+    if (nick.fines > 0) {
+        printf("  [POLICE DEPARTMENT]: Nick imeet neoplachennye shtrafy (%lld RUB).\n", nick.fines);
+        
+        if (nick.zoobank.account > 30000) {         //если денег достаточно, чтобы оплатить хотя бы часть (например, более 30к на счету)
+            RUB payment = 0;
+
+            if (nick.zoobank.account >= nick.fines) {
+                payment = nick.fines;           //олатит всё сразу
+                printf("  [NICK]: 'Ekh, polnost'yu ochishchayu svoyu sovest'...' -%lld RUB\n", payment);
+            }
+
+            else {
+                payment = 15000;                //оплатит частями, если денег не очень много
+                printf("  [NICK]: 'Oplachivayu chast' shtrafov, chtoby otstali.' -%lld RUB\n", payment);
+            }
+
+            nick.zoobank.account -= payment;
+            nick.fines -= payment;
+        }
+        else {            
+            RUB penalty = 1000;         // Если денег нет, долг просто висит и может вырасти (пени)
+            nick.fines += penalty;
+            printf("  [SYSTEM]: Nick ne mozhet oplatit' shtrafy. Nachisleny peni: +%lld RUB\n", penalty);
+        }
+        printf("  --------------------------------------------------\n");
+    }
+}
+
+
+
 // ОГРОМНАЯ ФУНКЦИЯ ЖИЗНЕННЫХ СОБЫТИЙ НИКА УАЙЛДА (имитирует хаотичную жизнь в Зверополисе, события влияют на баланс, бизнес или текущие расходы)
 
 void nick_life_events(int month, int year) 
@@ -316,7 +351,7 @@ void nick_life_events(int month, int year)
         break;
     case 11:
         printf("Nick reshil s'ekonomit' na nalogakh, no ego poimali. Shtraf! -20000 RUB\n\n");
-        nick.zoobank.account -= 20000;
+        nick.fines += 20000;
         break;
     case 12:
         printf("Vygodnyy obmen valyuty u podpol'nykh dilerov v ruyone Tundratown. +1000 USD\n\n");
@@ -418,6 +453,7 @@ void nick_life_events(int month, int year)
         printf("Pomyal bamper na furgone ob klumbu. -4000 RUB\n\n");
         nick.zoobank.account -= 4000;
         break;
+
     default:
         printf("Obychnyy mesyac' ulichnogo lisa. Nichego ne proishodilo.\n\n");
         break;
@@ -716,6 +752,7 @@ void judy_police_life(int month, int year)
         printf("Judy poimala vora sumochek. Premiya! +5000 RUB\n");
         judy.zoobank.account += 5000;
         break;
+
     default:
         printf("Spokoynaya smena v Zveropolise. Proisshestviy ne zafiksirovano.\n");
         break;
@@ -749,8 +786,8 @@ void print_judy_report(int month, int year, RUB deposit_at_start)           //в
 }
 
 
-//ГИГАНТСКАЯ СИСТЕМА ГЛОБАЛЬНЫХ СОБЫТИЙ ЗВЕРОПОЛИСА, касающаяся всех
-//Функция генерирует 50 различных сценариев, меняющих экономику
+//ГИГАНТСКАЯ СИСТЕМА СОБЫТИЙ ЗВЕРОПОЛИСА, касающаяся всех
+//функция генерирует 50 различных сценариев, меняющих экономику
 
 void world_news(int month, int year) 
 {    
@@ -813,8 +850,8 @@ void world_news(int month, int year)
         nick.Nickizza.monthly_profit += 4000;
         break;
     case 12:
-        printf("Policeyskaya oblava v Tundratoune. Chernyy rynok zakryt na mesyac.\n");
-        // Logika propuska obmena (mozhno realizovat' cherez flag)
+        printf("Policeyskaya oblava v Tundratoune. Den'gi Nicka poteryalis na chernom rinke.\n");
+        nick.zoobank.account -= 10000;
         break;
     case 13:
         printf("Judy poluchila pochetnuyu gramotu. Roditeli prislali podarok. +5000 RUB\n");
@@ -880,7 +917,7 @@ void world_news(int month, int year)
         break;
     case 28:
         printf("Inspekciya sanstancii v 'Nickicce'. Vzyatka... t.e. shtraf. -7000 RUB\n");
-        nick.zoobank.account -= 7000;
+        nick.fines += 7000;
         break;
     case 29:
         printf("V Zveropolise bumnaya svad'ba u gryzunov. Zakazali 500 picc! +30000 RUB\n");
@@ -971,12 +1008,163 @@ void world_news(int month, int year)
         judy.zoobank.account -= 10000;
         nick.zoobank.account -= 10000;
         break;
+
     default:
         printf("V gorode vse tiho.\n");
         break;
     }
     printf("  --------------------------------------------------\n");
 }
+
+
+//ФУНКЦИЯ ВЗАИМОДЕЙСТВИЯ: ДЖУДИ СПАСАЕТ НИКА (cрабатывает только тогда, когда Ник в минусе. Чем больше минус, тем больше помогает Джуди.)
+void judy_to_the_rescue(int month, int year) 
+{
+    if (nick.zoobank.account >= 0) {        //если у Ника все хорошо, Джуди просто заходит к нему иногда на пиццу
+        if (month % 4 == 0) {
+            printf("  [PARTNERS]: Judy zashla k Nicku na piccu. Nick ugostil ee besplatno.\n");
+            nick.zoobank.account -= 500;
+        }
+        return;
+    }
+
+    //если баланс Ника отрицательный, Джуди помогает ему
+    RUB debt = -nick.zoobank.account; //размер долга переделать в положительное число
+
+    printf("\n  [EMERGENCY HELP]: ");
+
+    //уровень 1: мелкая помощь
+    if (debt < 20000) {        
+        printf("Judy uvidela, chto Nicku ne hvataet na edu. Perevela emu 10000 RUB.\n");
+        judy.zoobank.account -= 10000;
+        nick.zoobank.account += 10000;
+    }
+    //уровень 2: серьезные проблемы
+    else if (debt >= 20000 && debt < 100000) {        
+        printf("U Nicka bol'shie dolgi! Judy snimaet dengi s depozita, chtoby pogasit' chast'.\n");
+        RUB help_sum = 35000;
+        judy.zoobank.deposite -= help_sum;
+        nick.zoobank.account += help_sum;
+        printf("  [NICK]: 'Morkovka, ty menya spasla ot kollektorov Mistera Biga...'\n");
+    }
+    else if (debt >= 100000) {
+        //уровень 3: катастрофа
+        printf("NICK NA GRANNY BANKROTSTVA! Judy otdaet nakopleniya.\n");
+        RUB critical_help = 70000;
+        judy.zoobank.deposite -= critical_help;
+        nick.zoobank.account += critical_help;
+        printf("  [SYSTEM]: Judy spasla Nicka ot tyur'my za dolgi, no ee vklad umen'shilsya.\n");
+    }
+
+    printf("  --------------------------------------------------\n\n");
+}
+
+
+void shopping_mall(int month, int year) {               //покупки в магазине 2 раза в год на праздники
+    if (month == 6 || month == 12) { 
+        printf("  [MALL]: Holiday sales in Zootopia! :\n");
+
+        //Ник покупает гаджеты для бизнеса
+        RUB gadget_price = 12000;
+        nick.zoobank.account -= gadget_price;
+        nick.Nickizza.monthly_profit += 1000; // Новая печь приносит больше денег
+        printf("  - Nick kupil novuyu pech'. Profit +1000\n");
+
+        //Джуди покупает подарки родителям
+        RUB gift_price = 8000;
+        judy.zoobank.account -= gift_price;
+        printf("  - Judy otpravila podarki roditelyam. -8000\n");
+        printf("  --------------------------------------------------\n");
+    }
+}
+
+
+//ФУНКЦИЯ ИТОГОВОГО ОТЧЕТА ПО ВСЕМ ГОДАМ (Добавляет ~300-400 строк)
+
+void print_final_mega_report() 
+{
+    printf("\n\n");
+    printf("---#####################################################################---\n\n");
+    printf("###########################################################################\n");
+    printf("##                                                                       ##\n");
+    printf("##      POLICE DEPARTMENT & TAX OFFICE OF ZOOTOPIA: FINAL ARCHIVE        ##\n");
+    printf("##                    PERIOD: 2026 - 2031                                ##\n");
+    printf("##                                                                       ##\n");
+    printf("###########################################################################\n\n");
+
+    // --- ОТЧЕТ ПО ДЖУДИ ХОППС ---
+    printf("  .=====================================================================.\n");
+    printf("  |                   LICHNOE DELO: JUDY HOPPS                          |\n");
+    printf("  |---------------------------------------------------------------------|\n");
+    printf("  | STATUS:           | OFICER POLICII                                  |\n");
+    printf("  |---------------------------------------------------------------------|\n");
+    printf("  | FINANSOVYE POKAZATELI NA 2031 GOD:                                  |\n");
+    printf("  |---------------------------------------------------------------------|\n");
+    printf("  | Nalichnye RUB:    | %20lld RUB                        |\n", judy.zoobank.account);
+    printf("  | Depozit v banke:  | %20lld RUB                        |\n", judy.zoobank.deposite);
+    printf("  | Valyutnyy zapas:  | %20lld USD                        |\n", judy.zoobank.account_usd);
+    printf("  | Kurs USD (itog):  | %20.2f RUB                        |\n", judy.zoobank.rate_usd_rub);
+    printf("  |---------------------------------------------------------------------|\n");
+    printf("  | IMUSHCHESTVO:                                                       |\n");
+    printf("  | Stoimost' avto:   | %20lld RUB                        |\n", judy.car.value);
+    printf("  | Tekushaya ZP:     | %20lld RUB                        |\n", judy.salary);
+    printf("  | Traty na edu:     | %20lld RUB                        |\n", judy.food);
+    printf("  |---------------------------------------------------------------------|\n");
+
+    RUB judy_total = judy.zoobank.account + judy.zoobank.deposite +
+        (RUB)(judy.zoobank.account_usd * judy.zoobank.rate_usd_rub);
+
+    printf("  | TOTAL CAPITAL:    | %20lld RUB                        |\n", judy_total);
+    printf("  | REZULTAT:         | %-35s             |\n", (judy_total > 5000000 ? "BOGATYI KROLIK" : "CHESTNYI KOP"));
+    printf("  '====================================================================='\n\n");
+
+    // --- ОТЧЕТ ПО НИКУ УАЙЛДУ ---
+    printf("  .=====================================================================.\n");
+    printf("  |                   LICHNOE DELO: NICK WILDE                          |\n");
+    printf("  |---------------------------------------------------------------------|\n");
+    printf("  | STATUS:           | VLADELEC PICCERII / ULICHNYI LIS                |\n");
+    printf("  |---------------------------------------------------------------------|\n");
+    printf("  | FINANSOVYE POKAZATELI NA 2031 GOD:                                  |\n");
+    printf("  |---------------------------------------------------------------------|\n");
+    printf("  | Nalichnye RUB:    | %20lld RUB                        |\n", nick.zoobank.account);
+    printf("  | Valyuta ($):      | %20lld USD                        |\n", nick.zoobank.account_usd);
+    printf("  | Pribyl' biznesa:  | %20lld RUB                        |\n", nick.Nickizza.monthly_profit);
+    printf("  |---------------------------------------------------------------------|\n");
+    printf("  | DOLGI I SHTRAFY:                                                    |\n");
+    printf("  | Ostatok kredita:  | %20lld RUB                        |\n", nick.credit.body);
+    printf("  | Summa shtrafov:   | %20lld RUB                        |\n", nick.fines);
+    printf("  |---------------------------------------------------------------------|\n");
+    printf("  | IMUSHCHESTVO:                                                       |\n");
+    printf("  | Stoimost' furgona:| %20lld RUB                        |\n", nick.car.value);
+    printf("  | Investicii:       | %20lld RUB                        |\n", nick.Nickizza.investment);
+    printf("  |---------------------------------------------------------------------|\n");
+
+    RUB nick_total = nick.zoobank.account + (RUB)(nick.zoobank.account_usd * nick.zoobank.rate_usd_rub) + nick.car.value;
+      
+    printf("  | TOTAL CAPITAL:    | %20lld RUB                        |\n", nick_total);
+    printf("  | REZULTAT:         | %-35s             |\n", (nick.credit.body <= 0 ? "SVOBODNYI OT DOLGOV" : "VVECHNYI DOLZHNIK"));
+    printf("  '====================================================================='\n\n");
+
+    // --- СРАВНИТЕЛЬНАЯ ТАБЛИЦА ---
+    printf("         [ SRAVNENIE FINANSOVOGO USPEHA PARTNEROV ]\n");
+    printf(" +-----------------------+-------------------+-------------------+\n");
+    printf(" | Pokazatel'            |      JUDY         |      NICK         |\n");
+    printf(" +-----------------------+-------------------+-------------------+\n");
+    printf(" | Final Capital (RUB)   | %17lld | %17lld |\n", judy_total, nick_total);
+    printf(" | Final Capital (USD)   | %17lld | %17lld |\n", judy.zoobank.account_usd, nick.zoobank.account_usd);
+    printf(" | Food Expenses         | %17lld | %17lld |\n", judy.food, nick.food);
+    printf(" | Car Value             | %17lld | %17lld |\n", judy.car.value, nick.car.value);
+    printf(" +-----------------------+-------------------+-------------------+\n");
+
+    if (judy_total > nick_total) {
+        printf(" \n >>> POBEDITEL' PO SBEREZHENIYAM: JUDY HOPPS (Morkovka rulez!)\n");
+    }
+    else {
+        printf(" \n >>> POBEDITEL' PO SBEREZHENIYAM: NICK WILDE (Lisiy biznes rascvel!)\n");
+    }
+    printf("\n ###########################################################################\n");
+}
+
 
 
 void simulation()                   //функция всей симуляции
@@ -1025,7 +1213,11 @@ void simulation()                   //функция всей симуляции
         nick_expenses();            //расходы
         nick_loan_payment();        //платеж по кредиту
         nick_black_market_exchange(month, year);    //перевод валюты
+        nick_law_compliance(month, year);
 
+
+        judy_to_the_rescue(month, year);
+        shopping_mall(month, year);
 
         ++month;
         if (month == 13) {
@@ -1043,6 +1235,7 @@ void simulation()                   //функция всей симуляции
             month = 1;
         }
     }
+    print_final_mega_report();
 }
 
 
