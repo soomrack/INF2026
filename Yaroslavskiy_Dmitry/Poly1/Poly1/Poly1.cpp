@@ -46,6 +46,17 @@ struct Person {                 //структура Персонажа (гла�
     Car car;
     RUB salary;
     RUB food;
+
+    //СЧЕТЧИКИ СТАТИСТИКИ
+
+    int total_months;           //сколько месяцев прожито
+    int food_payments_count;    //сколько раз покупала еду
+    int gas_payments_count;     //сколько раз заправлялась
+    int salary_payments_count;  //сколько зарплат получено
+    int police_events_count;    //сколько событий на службе было
+    int medicine_events_count;  //сколько раз лечилась
+    RUB total_earned;           //общая сумма заработка
+    RUB total_spent;            //общая сумма трат
 };
 
 struct NickPerson {      // отдельная структура для Персонажа Ник (главная!!!)
@@ -54,7 +65,18 @@ struct NickPerson {      // отдельная структура для Пер�
     Business Nickizza;   // бизнес пиццы "никицца"
     Loan credit;         // долги банку/Джуди
     RUB food;
-    RUB fines;           // штрафы от полиции 
+    RUB fines;           // штрафы от полиции
+    
+    //СЧЕТЧИКИ СТАТИСТИКИ
+
+    int business_events_count;  //сколько событий в бизнесе
+    int black_market_count;     //сколько раз был на черном рынке
+    int rescue_events_count;    //сколько раз Джуди спасала
+    int fines_count;            //сколько штрафов прилетело
+    int loan_payments_count;    //сколько платежей по кредиту сделал
+    RUB total_business_income;  //сколько принес бизнес всего
+    RUB total_earned;           //общая сумма заработка
+    RUB total_spent;            //общая сумма трат
 };
 struct Person judy;             //Создание Персонажа Джуди;
 struct NickPerson nick;             //Создание Персонажа Ник;
@@ -83,6 +105,17 @@ void judy_init()                            //функция инициализ�
     //машина (хорошая)
     judy.car.value = 2'400'000;
     judy.car.gas = 15'000;
+
+    //счётчики
+    judy.total_months = 0;
+    judy.food_payments_count = 0;
+    judy.total_earned = 0;
+    judy.total_spent = 0;
+    judy.gas_payments_count = 0;
+    judy.salary_payments_count = 0;
+    judy.police_events_count = 0;
+    judy.medicine_events_count = 0;
+
 }
 
 
@@ -114,6 +147,16 @@ void nick_init()
     nick.credit.body = 600'000;
     nick.credit.interest = 18.0;         //высокий процент по кредиту (18%)
     nick.credit.months_left = 36;        //кредит на 3 года
+
+    //счетчики
+    nick.business_events_count = 0;  //сколько событий в бизнесе
+    nick.black_market_count = 0;     //сколько раз был на черном рынке
+    nick.rescue_events_count = 0;    //сколько раз Джуди спасала
+    nick.fines_count = 0;            //сколько штрафов прилетело
+    nick.loan_payments_count = 0;    //сколько платежей по кредиту сделал
+    nick.total_business_income = 0  ;  //сколько принес бизнес всего
+    nick.total_earned = 0;           //общая сумма заработка
+    nick.total_spent = 0;            //общая сумма трат
 }
 
 
@@ -144,6 +187,7 @@ void calculate_taxes(int year) {                        //ПЛОТИ НОЛОГ�
 
     RUB judy_car_tax = (RUB)(judy.car.value * 0.02);        //налог на машину Джуди, зависящий от стоимости
     judy.zoobank.account -= judy_car_tax;
+    judy.total_spent += judy_car_tax;
     printf("Judy zaplatila nalog na avto: %lld RUB\n", judy_car_tax);
 
 
@@ -154,6 +198,7 @@ void calculate_taxes(int year) {                        //ПЛОТИ НОЛОГ�
     
     if (nick.zoobank.account < 0) {         //штраф за незаконную торговлю (если Ник в минусе)
         nick.fines += 20000;
+        nick.fines_count++;
         printf("Nick poluchil dopolnitel'nyy shtraf za dolgi.\n");
     }
     printf("--------------------------------------------------\n\n");
@@ -183,8 +228,10 @@ void update_currency_rate(int month, int year)          //обновление �
 
 void nick_business_logic(const int month, const int year)         //Ник зарабатывает на пицце
 {
-    // можно добавить rand() для изменения прибыли
     nick.zoobank.account += nick.Nickizza.monthly_profit;
+    nick.total_business_income += nick.Nickizza.monthly_profit;     //счетчик прибыли
+    nick.business_events_count++;       //счетчик рабочих смен
+    nick.total_earned += nick.Nickizza.monthly_profit;
 }
 
 void nick_loan_payment()            //платежи Ника по кредиту
@@ -197,10 +244,13 @@ void nick_loan_payment()            //платежи Ника по кредит�
 
         
         nick.zoobank.account -= total_monthly_payment;          //списывание денег у Ника
+        nick.total_spent += total_monthly_payment;          //счетчик заработка
+        nick.loan_payments_count++;                     //счетчик = плюс один успешный платеж
         nick.credit.body -= principal_payment;                  //уменьшение самого долга перед банком
         nick.credit.months_left--;              //уменьшение количества оставшихся месяцев
 
         if (nick.zoobank.account < 0) {         //штрафы в случае невыплаты
+            nick.fines_count++;
             RUB bank_fine = 5000;
 
             nick.credit.body += bank_fine;      //долг растет, если не заплатил
@@ -219,7 +269,10 @@ void nick_loan_payment()            //платежи Ника по кредит�
 void nick_expenses()        //расходы Ника
 {
     nick.zoobank.account -= nick.food;
+    nick.total_earned += nick.food;
+
     nick.zoobank.account -= nick.car.gas;
+    nick.total_earned += nick.car.gas;
 }
 
 
@@ -227,11 +280,14 @@ void nick_shadow_expenses(int month)        //"теневые" расходы Н
 {              
     RUB protection_fee = 8000;             //ник платит 'долю' Мистеру Бигу за ведение бизнеса в его районе
     nick.zoobank.account -= protection_fee;
+    nick.business_events_count++;
+    nick.total_spent += protection_fee;
     
     
     if (month % 4 == 0) {           //дополнительный риск: иногда бизнес работает в ноль или минус
         RUB spoiled_pizza = 3500; //продукты испортились
         nick.zoobank.account -= spoiled_pizza;
+        nick.total_spent += spoiled_pizza;
         printf("  [NICK TROUBLE]: Produkty isportilis'! Poteryano %lld RUB\n", spoiled_pizza);
     }
 }
@@ -241,7 +297,7 @@ void nick_black_market_exchange(int month, int year)            //черный �
 {
     if (nick.zoobank.account > 20000 && month % 4 == 0) {       //Ник пытается провернуть сделку, если у него больше 20000 рублей на счету
         int risk = (month * year) % 10;
-
+        nick.black_market_count++;              //счетчик попыток сделок
         printf("  [BLACK MARKET]: Nik pytaetsya obmenyat' valyutu... ");
 
         if (risk > 2) {                     //70% шанс на успех
@@ -256,7 +312,9 @@ void nick_black_market_exchange(int month, int year)            //черный �
         }
         else {                              //30% шанс, что Ника кинули или накрыла полиция
             RUB penalty = 10000;
+            nick.fines_count++;
             nick.zoobank.account -= penalty;
+            nick.total_spent += penalty;
             printf("PROVAL! Nik natknulsya na moshennikov. Poteryano %lld RUB.\n", penalty);
         }
     }
@@ -308,150 +366,223 @@ void nick_life_events(int month, int year)
     case 0:
         printf("Nick prodal partiyu 'Lapo-ledentsov' slonam. +15000 RUB\n\n");
         nick.zoobank.account += 15000;
+        nick.total_earned += 15000;
+        nick.business_events_count++;
         break;
     case 1:
         printf("Noviy kontrakt s Politehom na postavku picci. +5000 RUB\n\n");
         nick.Nickizza.monthly_profit += 5000;
+        nick.business_events_count++;
         break;
     case 2:
         printf("Mister Big prigrozil za starye dolgi. Prishlos' otdat' 'protsent za uvazhenie'. -10000 RUB\n\n");
         nick.zoobank.account -= 10000;
+        nick.total_spent += 10000;
+        nick.business_events_count++;
         break;
     case 3:
         printf("Judy pomogla zakryt' shtrafy Nicka po staroy druzhbe. +5000 RUB\n\n");
         nick.zoobank.account += 5000;
+        nick.total_earned += 5000;
+        nick.rescue_events_count++;
+        nick.business_events_count++;
         break;
     case 4:
         printf("Nick nashel skidku na syr dlya pitstsy. Pribyl' 'Nickiccy' rastet!\n\n");
         nick.Nickizza.monthly_profit += 2000;
+        nick.business_events_count++;
         break;
     case 5:
         printf("Furgon slomalsya pryamo posredi dorogi. Srochnyy remont dvigatelya. -25000 RUB\n\n");
         nick.zoobank.account -= 25000;
+        nick.total_spent += 25000;
+        nick.business_events_count++;
         break;
     case 6:
         printf("Nick pereprodal bilet v operu baranu-mafiose. +18500 RUB\n\n");
         nick.zoobank.account += 18500;
+        nick.total_earned += 18500;
+        nick.business_events_count++;
         break;
     case 7:
         printf("Nalogovaya inspektsiya proverila scheta 'Nickiccy'. Prishlos' zaplatit' nalog. -15000 RUB\n\n");
         nick.zoobank.account -= 15000;
+        nick.total_spent += 15000;
+        nick.fines_count++;
+        nick.business_events_count++;
         break;
     case 8:
         printf("Vypala nevidannaya udacha v ulichnuyu lotereyu 'Hvost Udachi'! +10000 RUB\n\n");
         nick.zoobank.account += 10000;
+        nick.total_earned += 10000;
+        nick.business_events_count++;
         break;
     case 9:
         printf("Nick kupil novyy dorogoy galstuk dlya vstrechi s investorami. -4500 RUB\n\n");
         nick.zoobank.account -= 4500;
+        nick.total_spent += 4500;
+        nick.business_events_count++;
         break;
     case 10:
         printf("doch' Mistera Biga stala postoyannym klientom. Pribyl' rastet! +5000 RUB\n\n");
         nick.Nickizza.monthly_profit += 5000;
+        nick.business_events_count++;
         break;
     case 11:
         printf("Nick reshil s'ekonomit' na nalogakh, no ego poimali. Shtraf! -20000 RUB\n\n");
         nick.fines += 20000;
+        nick.fines_count++;
+        nick.business_events_count++;
         break;
     case 12:
         printf("Vygodnyy obmen valyuty u podpol'nykh dilerov v ruyone Tundratown. +1000 USD\n\n");
         nick.zoobank.account_usd += 1000;
+        nick.black_market_count++;
+        nick.business_events_count++;
         break;
     case 13:
         printf("Nick kupil stil'nye ochki, chtoby vyglyadet' solidnee. -6000 RUB\n\n");
         nick.zoobank.account -= 6000;
+        nick.total_spent += 6000;
+        nick.business_events_count++;
         break;
     case 14:
         printf("Sosedi pozhalovalis' na shum ot pechi dlya pitstsy. Vzyatka inspektoru. -4000 RUB\n\n");
         nick.zoobank.account -= 4000;
+        nick.total_spent += 4000;
+        nick.business_events_count++;
         break;
     case 15:
         printf("Judy zabyla obed, i Nick ugostil ee koronnoiy pitstsey. -1000 RUB.\n\n");
         nick.zoobank.account -= 1000;
+        nick.total_spent += 1000;
+        nick.business_events_count++;
         break;
     case 16:
         printf("Nick nashel novogo postavshchika muki. Zatraty snizilis'.\n\n");
         nick.Nickizza.monthly_profit += 3000;
+        nick.business_events_count++;
         break;
     case 17:
         printf("Vystavka malogo biznesa v Zveropolise. Nick poluchil pochetnyy grant! +50000 RUB\n\n");
         nick.zoobank.account += 50000;
+        nick.total_earned += 50000;
+        nick.business_events_count++;
         break;
     case 18:
         printf("Kto-to skrutil zerkala s furgona Nicka noch'yu. -4000 RUB\n\n");
         nick.zoobank.account -= 4000;
+        nick.total_spent += 4000;
+        nick.business_events_count++;
         break;
     case 19:
         printf("Glavnyy povar 'Nickiccy' ushel v otpusk. Ubytki. -6000 RUB\n\n");
         nick.zoobank.account -= 6000;
+        nick.total_spent += 6000;
+        nick.business_events_count++;
         break;
     case 20:
         printf("Nick zaregistriroval novyy brend 'Wild Pizza'. Investitsii v marketing. -15000 RUB\n\n");
         nick.Nickizza.investment += 15000;
+        nick.zoobank.account -= 15000;
+        nick.total_spent += 15000;
+        nick.business_events_count++;
         break;
     case 21:
         printf("Krysha garazha protekla vo vremya dozhdya. Nuzhen remont. -5000 RUB\n\n");
         nick.zoobank.account -= 5000;
+        nick.total_spent += 5000;
+        nick.business_events_count++;
         break;
     case 22:
         printf("Selfi Nicka s pitstsey stalo virusnym v setyakh. Reklama! +10000 RUB\n\n");
         nick.zoobank.account += 10000;
+        nick.total_earned += 10000;
+        nick.business_events_count++;
         break;
     case 23:
         printf("Nick popal v probku iz-za lenivtsev. Opovzdal na vazhnuyu sdelku. -3000 RUB\n\n");
         nick.zoobank.account -= 3000;
+        nick.total_spent += 3000;
+        nick.business_events_count++;
         break;
     case 24:
         printf("Mister Big podaril Nicku staryy antikvarnyy shkaf. Tam byl tayNick! +25000 RUB\n\n");
         nick.zoobank.account += 25000;
+        nick.total_earned += 25000;
+        nick.business_events_count++;
         break;
     case 25:
         printf("Zabastovka fermerov. Produkty dlya lichnoy zhizni podorozhali. -4000 RUB\n\n");
         nick.food += 4000;
+        nick.business_events_count++;
         break;
     case 26:
         printf("Nick vyigral v kosti u odnogo upyortogo barana. +15000 RUB\n\n");
         nick.zoobank.account += 15000;
+        nick.total_earned += 15000;
+        nick.black_market_count++;
+        nick.business_events_count++;
         break;
     case 27:
         printf("Nochnoe ograblenie furgona! Vorishki vskryli seyf. -11000 RUB\n\n");
         nick.zoobank.account -= 11000;
+        nick.total_spent += 11000;
+        nick.business_events_count++;
         break;
     case 28:
         printf("Nick reshil stat' fud-blogerom i kupil doroguyu kameru. -30000 RUB\n\n");
         nick.zoobank.account -= 30000;
+        nick.total_spent += 30000;
+        nick.business_events_count++;
         break;
     case 29:
         printf("Bol'shoy zakaz dlya morskikh svinok. 100 mini-pitsts! +10000 RUB\n\n");
         nick.zoobank.account += 10000;
+        nick.total_earned += 10000;
+        nick.business_events_count++;
         break;
     case 30:
         printf("Nick nashel na svalke rariternuyu zapchast' i prodal ee kollektsioneru. +7000 RUB\n\n");
         nick.zoobank.account += 7000;
+        nick.total_earned += 7000;
+        nick.business_events_count++;
         break;
     case 31:
         printf("Odin iz kuryerov Nicka poteryal sumku s den'gami. -5000 RUB\n\n");
         nick.zoobank.account -= 5000;
+        nick.total_spent += 5000;
+        nick.business_events_count++;
         break;
     case 32:
         printf("Nick organizoval ulichnyy kvest dlya turistov. +9000 RUB\n\n");
         nick.zoobank.account += 9000;
+        nick.total_earned += 9000;
+        nick.business_events_count++;
         break;
     case 33:
         printf("Kholodil'nik v 'Nickicce' vyshel iz stroya. Produkty isportilis'. -8000 RUB\n\n");
         nick.zoobank.account -= 8000;
+        nick.total_spent += 8000;
+        nick.business_events_count++;
         break;
     case 34:
         printf("Nick sluchayno pomog staromu slonu pereyti dorogu. Poluchil chaevye. +1000 RUB\n\n");
         nick.zoobank.account += 1000;
+        nick.total_earned += 1000;
+        nick.business_events_count++;
         break;
     case 35:
         printf("Vstretil Blica na pochte. Poteryal ves' den' v ocheredi. Business prostoial. -3000 RUB\n\n");
         nick.zoobank.account -= 3000;
+        nick.total_spent += 3000;
+        nick.business_events_count++;
         break;
     case 36:
         printf("Pomyal bamper na furgone ob klumbu. -4000 RUB\n\n");
         nick.zoobank.account -= 4000;
+        nick.total_spent += 4000;
+        nick.business_events_count++;
         break;
 
     default:
@@ -491,18 +622,24 @@ void judy_salary(const int month, const int year)           //функция з�
     }
 
     judy.zoobank.account += judy.salary;
+    judy.total_earned += judy.salary; //считаем деньги
+    judy.salary_payments_count++;      //считаем разы
 }
 
 
 void judy_food()                            //функция еды Джуди
 {
     judy.zoobank.account -= judy.food;
+    judy.total_spent += judy.food;       //счетчик общих трат
+    judy.food_payments_count++;          //счетчик количества покупок
 }
 
 
 void judy_car()                             //функция машины Джуди
 {
     judy.zoobank.account -= judy.car.gas;
+    judy.total_spent += judy.car.gas;    //счетчик общих трат
+    judy.gas_payments_count++;           //счетчик заездов на заправку
 }
 
 
@@ -584,19 +721,35 @@ void judy_medine(int month, int year) {     //медицина Джуди
     switch (med_id) {
     case 0:
         printf("Judy proshla planovuyu dispanserizaciyu. -2000 RUB\n");
-        judy.zoobank.account -= 2000; break;
+        judy.zoobank.account -= 2000;
+        judy.medicine_events_count++;
+        judy.total_spent += 2000;
+        break;
     case 1:
         printf("Kupila vitaminy dlya bystrogo bega. -3500 RUB\n");
-        judy.zoobank.account -= 3500; break;
+        judy.zoobank.account -= 3500;
+        judy.medicine_events_count++;
+        judy.total_spent += 2000;
+        judy.total_earned += 3500;
+        break;
     case 2:
         printf("Zaboleli ushi iz-za vetra. Pokupka kapel'. -1500 RUB\n");
-        judy.zoobank.account -= 1500; break;
+        judy.zoobank.account -= 1500;
+        judy.medicine_events_count++; 
+        judy.total_spent += 1500;
+        break;
     case 3:
         printf("Stomatolog v Zveropolise - eto dorogo! -15000 RUB\n");
-        judy.zoobank.account -= 15000; break;
+        judy.zoobank.account -= 15000;
+        judy.medicine_events_count++; 
+        judy.total_spent += 15000;
+        break;
     case 4:
         printf("Oplatila medicinskuyu strahovku na polgoda. -25000 RUB\n");
-        judy.zoobank.account -= 25000; break;
+        judy.zoobank.account -= 25000; 
+        judy.medicine_events_count++; 
+        judy.total_spent += 25000;
+        break;
     default:
         printf("Judy chuvstvuet sebya prekrasno! Zdorov'e v norme.\n");
         break;
@@ -607,6 +760,7 @@ void judy_medine(int month, int year) {     //медицина Джуди
 void judy_police_life(int month, int year) 
 {
     
+    judy.police_events_count++;
     int duty_id = (month * 11 + year * 5) % 40;     //просто формула для выбора события (без использования rand()), имитирует "случайные" события
     printf("  [JUDY POLICE DUTY]: ");
 
@@ -614,143 +768,211 @@ void judy_police_life(int month, int year)
     case 0:
         printf("Judy vistupila s lekciey v Polytehe. Respect + 2000 RUB\n");
         judy.zoobank.account += 2000;
+        judy.total_earned += 2000;
+        judy.police_events_count++;
         break;
     case 1:
         printf("Celyy den' na postu pod dozhdem. Kupila goryachiy chaj i lekarstva. -1500 RUB\n");
         judy.zoobank.account -= 1500;
+        judy.total_spent += 1500;    
+        judy.police_events_count++;
         break;
     case 2:
         printf("Uspeshno rascryto delo o propazhe zebry. Blagodarnost' ot Shefa Bogo.\n");
+        judy.police_events_count++;
         break;
     case 3:
         printf("Judy sluchaino razbila raciyu. Vychet iz zarplaty. -3000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account -= 3000;
+        judy.total_spent += 3000;
         break;
     case 4:
         printf("Kupila ogromnuyu korobku ponchikov dlya Kogtyauzera. -2000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account -= 2000;
+        judy.total_spent += 2000;
         break;
     case 5:
         printf("Nochnoe dezhurstvo v Tundratoune. Nadbavka za nochnye smeny. +4000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account += 4000;
+        judy.total_earned += 4000;
         break;
     case 6:
         printf("Judy kupila novye krossovki. -6000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account -= 6000;
+        judy.total_spent += 6000;
         break;
     case 7:
         printf("Pobeda v konkurse 'Luchshiy policeyskiy mesyaca'. Gran-pri! +15000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account += 15000;
+        judy.total_earned += 15000;
         break;
     case 8:
         printf("Zapravila sluzhebnyy motocikl za svoy schet po oshibke. -2500 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account -= 2500;
+        judy.total_spent += 2500;
         break;
     case 9:
         printf("Pomogla pozhiloy slonikhe nayti dorogu. Poluchila morkovnyy pirog (ekonomiya na ede). +1000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account += 1000;
+        judy.total_earned += 1000;
         break;
     case 10:
         printf("Uchastie v specoperacii v tropicheskom rayone. Komandirovochnye. +7000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account += 7000;
+        judy.total_earned += 7000;
         break;
     case 11:
         printf("Judy vyvernula lapu pri zaderzhanii. Platnaya klinika. -4500 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account -= 4500;
+        judy.total_spent += 4500;
         break;
     case 12:
         printf("Shtraf za prevyshenie skorosti na sluzhebnom avto. -2000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account -= 2000;
+        judy.total_spent += 2000;
         break;
     case 13:
         printf("Podarok dlya roditeley. Otpravila posylku. -5000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account -= 5000;
+        judy.total_spent += 5000;
         break;
     case 14:
         printf("Denezhnyy perevod ot roditeley. +3500 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account += 3500;
+        judy.total_earned += 3500;
         break;
     case 15:
         printf("Kupila novyy fonarik dlya osmotra temnykh pereulkov. -1200 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account -= 1200;
+        judy.total_spent += 1200;
         break;
     case 16:
         printf("Zaderzhala bandu morkovnykh vorov. Gorodskaya nagrada! +10000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account += 10000;
+        judy.total_earned += 10000;
         break;
     case 17:
         printf("Sluzhebnoe obuchenie ekstremal'nomu vozhdeniyu.\n");
+        judy.police_events_count++;
         break;
     case 18:
         printf("Poteryala kvitanciyu na vyplatu strahovki. Ubytki. -3000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account -= 3000;
+        judy.total_spent += 3000;
         break;
     case 19:
         printf("Obed s Merom Zlatogrivym. Prishlos' sootvetstvovat' dress-kodu. -8000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account -= 8000;
+        judy.total_spent += 8000;
         break;
     case 20:
         printf("Sdala examen v policii na otlichno. Povyshenie klassnosti! +2000 RUB k okladu.\n");
+        judy.police_events_count++;
         judy.salary += 2000;
         break;
     case 21:
         printf("Zabyla vyklyuchit' mayachok, sel akkumulyator. Remont. -2500 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account -= 2500;
+        judy.total_spent += 2500;
         break;
     case 22:
         printf("Blagotvoritel'nyy marafon policii. Pozhertvovanie. -1500 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account -= 1500;
+        judy.total_spent += 1500;
         break;
     case 23:
         printf("Judy nashla uliku v starom dele. Dosrochnaya premiya. +6000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account += 6000;
+        judy.total_earned += 6000;
         break;
     case 24:
         printf("Sluzhebnaya forma porvalas'. Novyy komplekt. -4000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account -= 4000;
+        judy.total_spent += 4000;
         break;
     case 25:
         printf("Den' otkrytykh dverey v policii. Kupila vozdushnye shary dlya detey. -1000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account -= 1000;
+        judy.total_spent += 1000;
         break;
     case 26:
         printf("Vypolnila plan po shtrafam za mesyac. Bonus ot departamenta. +5000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account += 5000;
+        judy.total_earned += 5000;
         break;
     case 27:
         printf("Popytka podkupa! Judy chestnaya, no prishlos' pisat' otchety ves' den'.\n");
+        judy.police_events_count++;
         break;
     case 28:
         printf("Kupila morkovnyy sok dlya vsey smeny. Podnyala boevoy duh. -2000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account -= 2000;
+        judy.total_spent += 2000;
         break;
     case 29:
         printf("Zaderzhanie opasnogo prestupnika. Riskovye vyplaty. +12000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account += 12000;
+        judy.total_earned += 12000;
         break;
     case 30:
         printf("Remont sluzhebnoiy mashiny posle tarana. Chastichnaya oplata. -7000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account -= 7000;
+        judy.total_spent += 7000;
         break;
     case 31:
         printf("Judy priglashena lektorom v akademiyu. Gonorar. +8000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account += 8000;
+        judy.total_earned += 8000;
         break;
     case 32:
         printf("Poteryala lyubimuyu ruchku-morkovku s diktofonom. Novaya stoit dorogo. -3000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account -= 3000;
+        judy.total_spent += 3000;
         break;
     case 33:
         printf("Prorvalo trubu v kvartire. Prishlos' spat' v otele. -4500 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account -= 4500;
+        judy.total_spent += 4500;
         break;
     case 34:
         printf("Judy nashla poteryannyy koshelek i vernula vladel'cu. Nakladnye raskhody. -500 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account -= 500;
+        judy.total_spent += 500;
         break;
     case 35:
         printf("Judy poimala vora sumochek. Premiya! +5000 RUB\n");
+        judy.police_events_count++;
         judy.zoobank.account += 5000;
+        judy.total_earned += 5000;
         break;
 
     default:
@@ -799,21 +1021,27 @@ void world_news(int month, int year)
     case 0:
         printf("Zabastovka lenivcev v departamente transporta! Logistika vstala.\n");
         nick.car.gas += 3000;
+
         judy.car.gas += 3000;
         break;
     case 1:
         printf("Gazelle vypustila novyy albom. Vse tratyat dengi na bilety. -2000 RUB\n");
         nick.zoobank.account -= 2000;
+        nick.total_spent += 2000;
+
         judy.zoobank.account -= 2000;
+        judy.total_spent += 2000;
         break;
     case 2:
         printf("Anomalnaya zhara. Eda dorozhaet na 20%%.\n");
-        judy.food = (RUB)(judy.food * 1.2); 
+        judy.food = (RUB)(judy.food * 1.2);
+
         nick.food = (RUB)(nick.food * 1.2);
         break;
     case 3:
         printf("Mer Zlatogriv ob'yavil nalogovye kanikuly dlya picceriy! +5000 RUB\n");
         nick.zoobank.account += 5000;
+        nick.total_earned += 5000;
         break;
     case 4:
         printf("V Tundratoune morozy. Zatraty na obogrev furgona vyrosli. -4000 RUB\n");
@@ -830,20 +1058,28 @@ void world_news(int month, int year)
     case 7:
         printf("Epidemiya!!! Vse pokupayut lekarstva. -5000 RUB\n");
         judy.zoobank.account -= 5000;
+        judy.total_spent += 5000;
+
         nick.zoobank.account -= 3000;
+        nick.total_spent += 3000;
         break;
     case 8:
         printf("Zveropolis prinimaet festival' morkovki! Turisty v gorode. +15000 RUB\n");
         nick.zoobank.account += 15000;
+        nick.total_earned += 15000;
         break;
     case 9:
         printf("Vveden nalog na hvosty. Kazhdyy zaplatil po 1500 rubley.\n");
         judy.zoobank.account -= 1500;
+        judy.total_spent += 1500;
+
+        nick.total_spent += 1500;
         nick.zoobank.account -= 1500;
         break;
     case 10:
         printf("Sboy v bankovskoy sisteme. Depozity prinesli menshe deneg.\n");
         judy.zoobank.deposite -= 5000;
+        judy.total_spent += 5000;
         break;
     case 11:
         printf("Nik nashel optovogo postavshchika syra. Picca deshevle v proizvodstve.\n");
@@ -852,31 +1088,40 @@ void world_news(int month, int year)
     case 12:
         printf("Policeyskaya oblava v Tundratoune. Den'gi Nicka poteryalis na chernom rinke.\n");
         nick.zoobank.account -= 10000;
+        nick.total_spent += 10000;
         break;
     case 13:
         printf("Judy poluchila pochetnuyu gramotu. Roditeli prislali podarok. +5000 RUB\n");
         judy.zoobank.account += 5000;
+        judy.total_earned += 5000;
         break;
     case 14:
         printf("Udorozhanie morkovnogo topliva. Benzin +15%%.\n");
         judy.car.gas = (RUB)(judy.car.gas * 1.15);
+
         nick.car.gas = (RUB)(nick.car.gas * 1.15);
         break;
     case 15:
         printf("Mister Big rasshiryaet vliyanie. 'Nalog na bezopasnost' dlya Nicka. -10000 RUB\n");
         nick.zoobank.account -= 10000;
+        nick.total_spent += 10000;
         break;
     case 16:
-        printf("Vystavka rariternykh avto. Mashina Judy podorozhala! +50000 RUB\n");
+        printf("Vystavka avto. Mashina Judy podorozhala! +50000 RUB\n");
         judy.car.value += 50000;
         break;
     case 17:
         printf("Sosedi Nicka ustroili potop. Remont furgona. -12000 RUB\n");
         nick.zoobank.account -= 12000;
+        nick.total_spent += 12000;
         break;
     case 18:
         printf("Blagotvoritel'nyy fons 'Lapa Pomoshchi'. Dobrovol'noe pozhertvovanie.\n");
         judy.zoobank.account -= 2000;
+        judy.total_spent += 2000;
+
+        nick.zoobank.account -= 1000;
+        nick.total_spent += 1000;
         break;
     case 19:
         printf("V Zveropolise poyavilsya novyy konkurent 'Mishizza'. Pribyl' padaet.\n");
@@ -885,63 +1130,80 @@ void world_news(int month, int year)
     case 20:
         printf("Zolotaya osen'. Produkty desheveyut na 10%%.\n");
         judy.food = (RUB)(judy.food * 0.9);
+
         nick.food = (RUB)(nick.food * 0.9);
         break;
     case 21:
         printf("Nick vyigral v kosti u barana. +25000 RUB nalichnymi!\n");
         nick.zoobank.account += 25000;
+        nick.total_earned += 25000;
         break;
     case 22:
         printf("Judy sluchayno udarila sluzhebnuyu mashinu. Strahovka podorozhala.\n");
         judy.zoobank.account -= 4000;
+        judy.total_spent += 4000;
         break;
     case 23:
-        printf("V gorode proshli ucheniya po GO. Vse magaziny zakryty.\n");
+        printf("V gorode proshli voennie ucheniya. Vse magaziny zakryty.\n");
         nick.zoobank.account -= nick.Nickizza.monthly_profit / 30;
+        nick.total_spent += nick.Nickizza.monthly_profit / 30;
         break;
     case 24:
         printf("Roditeli Judy priehali v gosti. Traty na priem rodni. -15000 RUB\n");
         judy.zoobank.account -= 15000;
+        judy.total_spent += 15000;
         break;
     case 25:
-        printf("Nick reshil investirovat' v kripovalyutu 'Morkovkoin'. Proigral. -20000 RUB\n");
+        printf("Nick reshil investirovat' v kriptovalyutu 'Morkovkoin'. Proigral. -20000 RUB\n");
         nick.zoobank.account -= 20000;
+        nick.total_spent += 20000;
         break;
     case 26:
         printf("Den' ponchika! Besplatnyy zavtrak v uchastke. +500 RUB Judy.\n");
         judy.zoobank.account += 500;
+        judy.total_earned += 500;
         break;
     case 27:
-        printf("Staryy drug Nicka vernul dolg. +8000 RUB\n");
+        printf("Staryy friend Nicka vernul dolg. +8000 RUB\n");
         nick.zoobank.account += 8000;
+        nick.total_earned += 8000;
         break;
     case 28:
         printf("Inspekciya sanstancii v 'Nickicce'. Vzyatka... t.e. shtraf. -7000 RUB\n");
+        nick.zoobank.account -= 7000;
+        nick.total_spent += 7000;
         nick.fines += 7000;
         break;
     case 29:
         printf("V Zveropolise bumnaya svad'ba u gryzunov. Zakazali 500 picc! +30000 RUB\n");
         nick.zoobank.account += 30000;
+        nick.total_earned += 30000;
         break;
     case 30:
         printf("U Judy slomalas' kofemashina. Pokupka novoy. -4500 RUB\n");
         judy.zoobank.account -= 4500;
+        judy.total_spent += 4500;
         break;
     case 31:
         printf("Inflaciya okazalas' vyshe prognozov. Ceny skachut.\n");
-        judy.food += 1000; nick.food += 1000;
+        judy.food += 1000;
+
+        nick.food += 1000;
         break;
     case 32:
         printf("Nick kupil rariternuyu plastinku dlya Mistera Biga. -6000 RUB\n");
         nick.zoobank.account -= 6000;
+        nick.total_spent += 6000;
         break;
     case 33:
         printf("Snegopad v Tundratoune. Judy rabotala sverykhurochno. +6000 RUB\n");
         judy.zoobank.account += 6000;
+        judy.total_earned += 6000;
         break;
     case 34:
         printf("Krysy peregryzli provoda v piccerii. Remont. -9000 RUB\n");
         nick.zoobank.account -= 9000;
+        nick.total_spent += 9000;
         break;
     case 35:
         printf("Judy nashla 5000 rubley na trotuare i sdala v byuro nahodok.\n");
@@ -952,7 +1214,10 @@ void world_news(int month, int year)
         break;
     case 37:
         printf("U Nicka den' rozhdeniya! Judy podarila galstuk. -5000 RUB Judy.\n");
-        judy.zoobank.account -= 5000; 
+        judy.zoobank.account -= 5000;
+        judy.total_spent += 5000;
+
+        nick.total_earned += 5000;
         nick.zoobank.account += 5000;
         break;
     case 38:
@@ -962,14 +1227,17 @@ void world_news(int month, int year)
     case 39:
         printf("Novyy proekt Judy po svyazyam s obshchestvennostyu. Premiya +4000 RUB\n");
         judy.zoobank.account += 4000;
+        judy.total_earned += 4000;
         break;
     case 40:
         printf("V piccerii sluchilsya pozhar. Chastichnoe vosstanovlenie. -40000 RUB\n");
         nick.zoobank.account -= 40000;
+        nick.total_spent += 40000;
         break;
     case 41:
         printf("Judy vyigrala konkurs po strel'be. +7000 RUB\n");
         judy.zoobank.account += 7000;
+        judy.total_earned += 7000;
         break;
     case 42:
         printf("Udorozhanie arendy garazha dlya furgona. -2000 RUB v mesyac.\n");
@@ -978,35 +1246,53 @@ void world_news(int month, int year)
     case 43:
         printf("Mery Zveropolisa vydelyayut subsidii na mashiny. +10000 RUB\n");
         judy.zoobank.account += 10000;
+        judy.total_earned += 10000;
+
         nick.zoobank.account += 10000;
+        nick.total_earned += 10000;
         break;
     case 44:
-        printf("Nick popalsya na krazhe morkovnogo soka. Judy prishlos' oshtrafovat' ego, poluchila premiyu -5000 / +1000 '\n");
+        printf("Nick popalsya na krazhe morkovnogo soka. Judy oshtrafovala ego. -5000 / +1000\n");
         nick.zoobank.account -= 5000;
-        judy.zoobank.account -= 5000;
+        nick.total_spent += 5000;
+        nick.fines_count++;
+
+        judy.zoobank.account += 1000;
+        judy.total_earned += 1000;
         break;
     case 45:
         printf("Gazelle ustraivaet morkovnyy marafon. Vse tratyat na sport. -2000 RUB\n");
-        judy.zoobank.account -= 2000; 
+        judy.zoobank.account -= 2000;        
+        judy.total_spent += 2000;
+
         nick.zoobank.account -= 2000;
+        nick.total_spent += 2000;
         break;
     case 46:
         printf("Uspeshnyy barter: Nik obmenyal staruyu pech na novye kolesa.\n");
         nick.car.value += 25000;
+        // Бартер — это обмен активами, нал не меняется
         break;
     case 47:
         printf("Policeyskiy bal. Traty na plate i kostyum. -15000 RUB oboim.\n");
-        judy.zoobank.account -= 15000; 
+        judy.zoobank.account -= 15000;        
+        judy.total_spent += 15000;
+
         nick.zoobank.account -= 15000;
+        nick.total_spent += 15000;
         break;
     case 48:
         printf("Nik otkryl dlya sebya dostavku dronom. Pribyl' +7000 RUB\n");
         nick.Nickizza.monthly_profit += 7000;
+        nick.business_events_count++;
         break;
     case 49:
         printf("Global'nyy krizis edy! Vse tratyat zapasy. -10000 RUB\n");
-        judy.zoobank.account -= 10000;
+        judy.zoobank.account -= 10000;        
+        judy.total_spent += 10000;
+
         nick.zoobank.account -= 10000;
+        nick.total_spent += 10000;
         break;
 
     default:
@@ -1038,6 +1324,9 @@ void judy_to_the_rescue(int month, int year)
         printf("Judy uvidela, chto Nicku ne hvataet na edu. Perevela emu 10000 RUB.\n");
         judy.zoobank.account -= 10000;
         nick.zoobank.account += 10000;
+        nick.total_earned += 10000;
+        judy.total_spent += 10000;    
+        nick.rescue_events_count++;
     }
     //уровень 2: серьезные проблемы
     else if (debt >= 20000 && debt < 100000) {        
@@ -1045,6 +1334,9 @@ void judy_to_the_rescue(int month, int year)
         RUB help_sum = 35000;
         judy.zoobank.deposite -= help_sum;
         nick.zoobank.account += help_sum;
+        nick.total_earned += help_sum;
+        judy.total_spent += help_sum;
+        nick.rescue_events_count++;
         printf("  [NICK]: 'Morkovka, ty menya spasla ot kollektorov Mistera Biga...'\n");
     }
     else if (debt >= 100000) {
@@ -1053,6 +1345,9 @@ void judy_to_the_rescue(int month, int year)
         RUB critical_help = 70000;
         judy.zoobank.deposite -= critical_help;
         nick.zoobank.account += critical_help;
+        nick.total_earned += critical_help;
+        judy.total_spent += critical_help;
+        nick.rescue_events_count++;
         printf("  [SYSTEM]: Judy spasla Nicka ot tyur'my za dolgi, no ee vklad umen'shilsya.\n");
     }
 
@@ -1073,15 +1368,45 @@ void shopping_mall(int month, int year) {               //покупки в ма
         //Джуди покупает подарки родителям
         RUB gift_price = 8000;
         judy.zoobank.account -= gift_price;
+        judy.total_spent += 8000;
         printf("  - Judy otpravila podarki roditelyam. -8000\n");
         printf("  --------------------------------------------------\n");
     }
 }
 
 
+void character_thoughts(int month, int year) {          //функция мыслей персонажей
+    printf("  [LICHNYE MYSLI]:\n");
+
+    //мысли Джуди
+    printf("  Judy: ");
+    if (judy.zoobank.deposite > 1000000)
+        printf("'Ogo, s moimi nakopleniyami mozhno kupit' morkovnuyu fermu!'\n");
+    else if (judy.zoobank.deposite < 50000)
+        printf("'Nuzhno brat' bol'she smen, scheta sami sebya ne oplatyat...'\n");
+    else if (month == 12)
+        printf("'Skoro Novyy God, nuzhno kupit' podarki vsem 275 brat'yam i sestram.'\n");
+    else
+        printf("'Eshche odin den' na strazhe poryadka v Zveropolise.'\n");
+
+    //мысли Ника
+    printf("  Nick: ");
+    if (nick.zoobank.account < 0)
+        printf("'Esli Mister Big uznaet o dolgakh, mne kryshka... Morkovka, vyruchay!'\n");
+    else if (nick.Nickizza.monthly_profit > 10000)
+        printf("'Picca prodaetsya otlichno, pora rasshiryat' set'!'\n");
+    else if (nick.black_market_count > 5)
+        printf("'Pora zavyazyvat' s temnymidelami, poka Judy ne dohadalas'.'\n");
+    else
+        printf("'Hitryy lis vsegda naydet sposob zarabotat' paru monet.'\n");
+
+    printf("  --------------------------------------------------\n");
+}
+
+
 //ФУНКЦИЯ ИТОГОВОГО ОТЧЕТА ПО ВСЕМ ГОДАМ (Добавляет ~300-400 строк)
 
-void print_final_mega_report() 
+void print_final_mega_report()
 {
     printf("\n\n");
     printf("---#####################################################################---\n\n");
@@ -1092,11 +1417,22 @@ void print_final_mega_report()
     printf("##                                                                       ##\n");
     printf("###########################################################################\n\n");
 
-    // --- ОТЧЕТ ПО ДЖУДИ ХОППС ---
+    // --- ОТЧЕТ ДЖУДИ ХОППС ---
     printf("  .=====================================================================.\n");
     printf("  |                   LICHNOE DELO: JUDY HOPPS                          |\n");
     printf("  |---------------------------------------------------------------------|\n");
     printf("  | STATUS:           | OFICER POLICII                                  |\n");
+    printf("  |---------------------------------------------------------------------|\n");
+    printf("  | ARHIVNAYA STATISTIKA ZA 5 LET:                                      |\n");
+    printf("  |---------------------------------------------------------------------|\n");
+    printf("  | Prozhito mesyatsev:             | %10d                        |\n", judy.total_months);
+    printf("  | Polucheno zarplat (raz):        | %10d                        |\n", judy.salary_payments_count);
+    printf("  | Zapravok avtomobilya:           | %10d                        |\n", judy.gas_payments_count);
+    printf("  | Pokupok produktov:              | %10d                        |\n", judy.food_payments_count);
+    printf("  | Vizitov k vrachu:               | %10d                        |\n", judy.medicine_events_count);
+    printf("  | Incidentov na sluzhbe:          | %10d                        |\n", judy.police_events_count);
+    printf("  | OBSHCHIY ZARABOTOK (RUB):       | %15lld RUB               |\n", judy.total_earned);
+    printf("  | OBSHCHIE TRATY (RUB):           | %15lld RUB               |\n", judy.total_spent);
     printf("  |---------------------------------------------------------------------|\n");
     printf("  | FINANSOVYE POKAZATELI NA 2031 GOD:                                  |\n");
     printf("  |---------------------------------------------------------------------|\n");
@@ -1104,12 +1440,6 @@ void print_final_mega_report()
     printf("  | Depozit v banke:  | %20lld RUB                        |\n", judy.zoobank.deposite);
     printf("  | Valyutnyy zapas:  | %20lld USD                        |\n", judy.zoobank.account_usd);
     printf("  | Kurs USD (itog):  | %20.2f RUB                        |\n", judy.zoobank.rate_usd_rub);
-    printf("  |---------------------------------------------------------------------|\n");
-    printf("  | IMUSHCHESTVO:                                                       |\n");
-    printf("  | Stoimost' avto:   | %20lld RUB                        |\n", judy.car.value);
-    printf("  | Tekushaya ZP:     | %20lld RUB                        |\n", judy.salary);
-    printf("  | Traty na edu:     | %20lld RUB                        |\n", judy.food);
-    printf("  |---------------------------------------------------------------------|\n");
 
     RUB judy_total = judy.zoobank.account + judy.zoobank.deposite +
         (RUB)(judy.zoobank.account_usd * judy.zoobank.rate_usd_rub);
@@ -1118,32 +1448,36 @@ void print_final_mega_report()
     printf("  | REZULTAT:         | %-35s             |\n", (judy_total > 5000000 ? "BOGATYI KROLIK" : "CHESTNYI KOP"));
     printf("  '====================================================================='\n\n");
 
-    // --- ОТЧЕТ ПО НИКУ УАЙЛДУ ---
+    // --- ОТЧЕТ НИКА УАЙЛДА ---
     printf("  .=====================================================================.\n");
     printf("  |                   LICHNOE DELO: NICK WILDE                          |\n");
     printf("  |---------------------------------------------------------------------|\n");
     printf("  | STATUS:           | VLADELEC PICCERII / ULICHNYI LIS                |\n");
+    printf("  |---------------------------------------------------------------------|\n");
+    printf("  | ARHIVNAYA STATISTIKA ZA 5 LET:                                      |\n");
+    printf("  |---------------------------------------------------------------------|\n");
+    printf("  | Rabochikh smen v piccerii:      | %10d                        |\n", nick.business_events_count);
+    printf("  | Sdelok na chernom rynke:        | %10d                        |\n", nick.black_market_count);
+    printf("  | Polucheno shtrafov (vsego):     | %10d                        |\n", nick.fines_count);
+    printf("  | Platezhey po kreditu:           | %10d                        |\n", nick.loan_payments_count);
+    printf("  | Spaseno morkovkoy (raz):        | %10d                        |\n", nick.rescue_events_count);
+    printf("  | OBSHCHIY DOKHOD BIZNESA:        | %15lld RUB               |\n", nick.total_earned);
+    printf("  | OBSHCHIE LICHNYE TRATY:         | %15lld RUB               |\n", nick.total_spent);
     printf("  |---------------------------------------------------------------------|\n");
     printf("  | FINANSOVYE POKAZATELI NA 2031 GOD:                                  |\n");
     printf("  |---------------------------------------------------------------------|\n");
     printf("  | Nalichnye RUB:    | %20lld RUB                        |\n", nick.zoobank.account);
     printf("  | Valyuta ($):      | %20lld USD                        |\n", nick.zoobank.account_usd);
     printf("  | Pribyl' biznesa:  | %20lld RUB                        |\n", nick.Nickizza.monthly_profit);
-    printf("  |---------------------------------------------------------------------|\n");
-    printf("  | DOLGI I SHTRAFY:                                                    |\n");
     printf("  | Ostatok kredita:  | %20lld RUB                        |\n", nick.credit.body);
     printf("  | Summa shtrafov:   | %20lld RUB                        |\n", nick.fines);
-    printf("  |---------------------------------------------------------------------|\n");
-    printf("  | IMUSHCHESTVO:                                                       |\n");
-    printf("  | Stoimost' furgona:| %20lld RUB                        |\n", nick.car.value);
-    printf("  | Investicii:       | %20lld RUB                        |\n", nick.Nickizza.investment);
-    printf("  |---------------------------------------------------------------------|\n");
 
     RUB nick_total = nick.zoobank.account + (RUB)(nick.zoobank.account_usd * nick.zoobank.rate_usd_rub) + nick.car.value;
-      
+
     printf("  | TOTAL CAPITAL:    | %20lld RUB                        |\n", nick_total);
-    printf("  | REZULTAT:         | %-35s             |\n", (nick.credit.body <= 0 ? "SVOBODNYI OT DOLGOV" : "VVECHNYI DOLZHNIK"));
+    printf("  | REZULTAT:         | %-35s             |\n", (nick.credit.body <= 0 ? "SVOBODNIY OT DOLGOV" : "VVECHNYI DOLZHNIK"));
     printf("  '====================================================================='\n\n");
+
 
     // --- СРАВНИТЕЛЬНАЯ ТАБЛИЦА ---
     printf("         [ SRAVNENIE FINANSOVOGO USPEHA PARTNEROV ]\n");
@@ -1151,18 +1485,69 @@ void print_final_mega_report()
     printf(" | Pokazatel'            |      JUDY         |      NICK         |\n");
     printf(" +-----------------------+-------------------+-------------------+\n");
     printf(" | Final Capital (RUB)   | %17lld | %17lld |\n", judy_total, nick_total);
+    printf(" | Obshchiy dokhod (RUB) | %17lld | %17lld |\n", judy.total_earned, nick.total_earned);
+    printf(" | Obshchie traty (RUB)  | %17lld | %17lld |\n", judy.total_spent, nick.total_spent);
+    printf(" | Kolichestvo sobytiy   | %17d | %17d |\n", judy.police_events_count, nick.business_events_count);
     printf(" | Final Capital (USD)   | %17lld | %17lld |\n", judy.zoobank.account_usd, nick.zoobank.account_usd);
-    printf(" | Food Expenses         | %17lld | %17lld |\n", judy.food, nick.food);
-    printf(" | Car Value             | %17lld | %17lld |\n", judy.car.value, nick.car.value);
+    printf(" | Food Expenses (Final) | %17lld | %17lld |\n", judy.food, nick.food);
     printf(" +-----------------------+-------------------+-------------------+\n");
 
     if (judy_total > nick_total) {
-        printf(" \n >>> POBEDITEL' PO SBEREZHENIYAM: JUDY HOPPS (Morkovka rulez!)\n");
+        printf(" \n >>> REZULTAT: Judy bogache Nika na %lld RUB! (Morkovka rulez!)\n", judy_total - nick_total);
     }
     else {
-        printf(" \n >>> POBEDITEL' PO SBEREZHENIYAM: NICK WILDE (Lisiy biznes rascvel!)\n");
+        printf(" \n >>> REZULTAT: Nick bogache Judy na %lld RUB! (Lisiy biznes rascvel!)\n", nick_total - judy_total);
     }
+
     printf("\n ###########################################################################\n");
+}
+
+
+void print_official_disclaimer()                //функция описания программы (в начале работы)
+{
+    printf("\n\n");
+    printf("  ###########################################################################\n");
+    printf("  ##                                                                       ##\n");
+    printf("  ##              ZOOTOPIA MULTI-AGENT ECONOMIC SYSTEM v3.0                ##\n");
+    printf("  ##           OFFICIAL TECHNICAL DOCUMENTATION & TERMS OF USE             ##\n");
+    printf("  ##                                                                       ##\n");
+    printf("  ###########################################################################\n\n");
+
+    printf("  1. (SYSTEM OVERVIEW):\n");
+    printf("     Dannaya programma prednaznachena dlya kompleksnoy emulyacii denezhnyh\n");
+    printf("     potokov v usloviyah rynochnoy ehkonomiki goroda Zveropolis.\n");
+    printf("     Model' uchityvaet vliyanie makroehkonomicheskih faktorov na\n");
+    printf("     mikroehkonomicheskoe sostoyanie otdel'nyh agentov (Judy i Nick).\n\n");
+
+    printf("  2. (TERMS OF USE):\n");
+    printf("     - Agent 'JUDY' deystvuet v ramkah gosudarstvennogo kontrakta.\n");
+    printf("     - Agent 'NICK' yavlyaetsya sub'ektom malogo predprinimatel'stva.\n");
+    printf("     - Vse raschety v RUB osushchestvlyayutsya v formate long long int.\n");
+    printf("     - Konvertaciya USD proishodit po tekushchemu rynochnomu kursu.\n");
+    printf("     - Nalogovye otchisleniya yavlyayutsya obyazatel'nymi dlya vseh.\n\n");
+
+    printf("  3. (SYSTEM MODULES):\n");
+    printf("     - [CORE]: Glavnyy dvizhok simulyacii (Simulation Loop).\n");
+    printf("     - [ECON]: Modul' inflyacii i klyuchevoy stavki (Inflation Engine).\n");
+    printf("     - [NEWS]: Generator sluchaynyh rynochnyh sobytiy (World News).\n");
+    printf("     - [RESCUE]: Algoritm social'noy vzaimopomoshchi agentov.\n");
+    printf("     - [BANK]: Modul' depozitnyh i kreditnyh operaciy.\n\n");
+
+    printf("  4. (OPERATIONAL MODE):\n");
+    printf("     Simulyaciya zapuskaetsya s yanvarya 2026 goda i prodolzhaetsya\n");
+    printf("     do marta 2031 goda. Kazhdyy shag simulyacii raven odnomu mesyacu.\n");
+    printf("     Sushchestvennye izmeneniya vnosyatsya raz v kvartal i raz v god.\n\n");
+
+    printf("  5. (DISCLAIMER):\n");
+    printf("     Razrabotchik ne neset otvetstvennosti za bankrotstvo Nika Wilde'a\n");
+    printf("     v sluchae chrezmernyh trat na chernom rynke ili neudachi v biznese.\n");
+    printf("     Vse sovpadeniya s real'nymi krolikami i lisami sluchayny.\n\n");
+
+    printf("  ###########################################################################\n");
+    printf("  >> SISTEMA GOTOVA K RABOTE.\n");
+    printf("  >> NAZHMITE [ENTER] DLYA PODTVERZHDENIYA SOGLASIYA I ZAPUSKA...\n");
+    printf("  ###########################################################################\n");
+
 }
 
 
@@ -1182,9 +1567,13 @@ void simulation()                   //функция всей симуляции
         inflation(month, year);
         update_currency_rate(month, year);
         world_news(month, year);
+        character_thoughts(month, year);
 
         //--- Для Джуди ---//
-        
+         
+        //счетчик месяцев
+        judy.total_months++;
+
         //получение зарплаты и "случайные" события
         judy_salary(month, year);
         judy_police_life(month, year);
@@ -1243,6 +1632,8 @@ void simulation()                   //функция всей симуляции
 
 int main()
 {
+    print_official_disclaimer();
+
     judy_init();
 
     nick_init();
