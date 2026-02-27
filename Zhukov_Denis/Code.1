@@ -60,6 +60,34 @@ struct Person Biba;
 struct Person Boba;
 
 
+struct MonthlyStats
+{
+	// Доходы
+	RUB total_income;
+	RUB salary_income;
+	RUB deposit_income;
+
+	// Расходы
+	RUB total_expenses;
+	RUB food_expense;
+	RUB pets_expense;
+	RUB rent_expense;
+
+	// Транспорт
+	RUB transport_total;
+	RUB gaz_expense;
+	RUB service_expense;
+
+	// Дом
+	RUB house_total;
+	RUB house_payment;
+	RUB house_interest;
+
+	// Капитал
+	RUB capital;
+};
+
+
 void Biba_init()
 {
 	Biba.vtb.account = 0;
@@ -181,6 +209,8 @@ void Biba_buy_house(int month, int year) // покупка дома
 		Biba.House.has_credit = true;
 		Biba.House.debt = Biba.House.h_price - Biba.House.down_payment;
 
+		Biba.rent = 6'000; // расход на ренту превращается в коммунальные платежи за дом
+
 		// вычисление процента по кредиту
 		Biba.House.credit = 14;
 		Biba.House.rate = Biba.House.credit / 12.0 / 100.0;
@@ -249,23 +279,125 @@ void Boba_deposite(const int month, const int year)
 }
 
 
-void save_to_csv(const char* filename, int year, int month,
-				const char* person, RUB account, RUB deposit, RUB capital)
+MonthlyStats calculate_biba_stats(int month, int year)
 {
-	std::ofstream file(filename, std::ios::app);
+	MonthlyStats s;
+
+	// доходы
+	s.salary_income = (month == 12) ? Biba.salary * 2 : Biba.salary;
+	s.deposit_income = Biba.vtb.deposit * (Biba.vtb.interest / 12.0 / 100.0);
+	s.total_income = s.salary_income + s.deposit_income;
+
+	// расходы (базовые)
+	s.food_expense = Biba.food;
+	s.pets_expense = Biba.dog;
+	s.rent_expense = Biba.rent;
+	RUB base_expenses = s.food_expense + s.pets_expense + s.rent_expense;
+
+	// транспорт
+	s.gaz_expense = Biba.car.gaz;
+	s.service_expense = 0;
+	if (month == 3 || month == 9) {
+		s.service_expense = Biba.car.service + Biba.car.oil;
+	}
+	if (year % 4 == 0 && month == 10) {
+		s.service_expense += Biba.car.tires;
+	}
+	s.transport_total = s.gaz_expense + s.service_expense;
+
+	// дом (если есть ипотека)
+	s.house_payment = Biba.House.has_credit ? Biba.House.payment : 0;
+	s.house_interest = 0;
+	s.house_total = 0;
+	if (Biba.House.has_credit) {
+		s.house_interest = Biba.House.debt * (Biba.House.credit / 12.0 / 100.0);
+		s.house_total = s.house_payment;
+	}
+
+	// общие расходы
+	s.total_expenses = base_expenses + s.transport_total + s.house_total;
+
+	// капитал
+	s.capital = Biba.vtb.account + Biba.vtb.deposit + Biba.car.value;
+	if (Biba.House.has_house) {
+		s.capital += (Biba.House.h_price - Biba.House.debt);
+	}
+
+	return s;
+}
+
+
+MonthlyStats calculate_boba_stats(int month, int year)
+{
+	MonthlyStats s;
+
+	// доходы
+	s.salary_income = (month == 12) ? Boba.salary * 2 : Boba.salary;
+	s.deposit_income = Boba.vtb.deposit * (Boba.vtb.interest / 12.0 / 100.0);
+	s.total_income = s.salary_income + s.deposit_income;
+
+	// расходы
+	s.food_expense = Boba.food;
+	s.pets_expense = Boba.cat;
+	s.rent_expense = Boba.rent;
+	s.gaz_expense = Boba.metro.gaz;
+	s.service_expense = 0;
+
+	s.transport_total = s.gaz_expense;
+	s.total_expenses = s.food_expense + s.pets_expense + s.rent_expense + s.transport_total;
+
+	// дом (нет)
+	s.house_payment = 0;
+	s.house_interest = 0;
+	s.house_total = 0;
+
+	// капитал
+	s.capital = Boba.vtb.account + Boba.vtb.deposit;
+
+	return s;
+}
+
+
+void save_to_csv(int year, int month, const char* person,
+	RUB account, RUB deposit, const MonthlyStats& s)
+{
+	std::ofstream file("simulation.csv", std::ios::app);
 
 	// Проверка новый ли файл
 	static bool first = true;
 	if (first) {
 		file.seekp(0, std::ios::end);
 		if (file.tellp() == 0) {
-			file << "Год;Месяц;Персонаж;Счет;Депозит;Капитал\n";
+			file << "Год;Месяц;Персонаж;"
+				<< "Счет;Депозит;"
+				<< "Доход_всего;Зарплата;Доход_депозит;"
+				<< "Расходы_всего;Еда;Животные;Аренда;"
+				<< "Транспорт_всего;Бензин;Обслуживание;"
+				<< "Дом_всего;Платеж;Проценты;"
+				<< "Капитал\n";
 		}
 		first = false;
 	}
 
-	file << year << ";" << month << ";" << person << ";"
-		<< account << ";" << deposit << ";" << capital << "\n";
+	file << year << ";" 
+		<< month << ";" 
+		<< person << ";"
+		<< account << ";" 
+		<< deposit << ";"
+		<< s.total_income << ";" 
+		<< s.salary_income << ";" 
+		<< s.deposit_income << ";"
+		<< s.total_expenses << ";" 
+		<< s.food_expense << ";" 
+		<< s.pets_expense << ";" 
+		<< s.rent_expense << ";"
+		<< s.transport_total << ";" 
+		<< s.gaz_expense << ";" 
+		<< s.service_expense << ";"
+		<< s.house_total << ";" 
+		<< s.house_payment << ";" 
+		<< s.house_interest << ";"
+		<< s.capital << "\n";
 
 	file.close();
 }
@@ -346,12 +478,16 @@ int main()
 		RUB biba_capital = Biba.vtb.account + Biba.vtb.deposit + Biba.car.value +
 			(Biba.House.has_house ? Biba.House.h_price - Biba.House.debt : 0);
 
-		// сохранение данных в таблицу
-		save_to_csv("simulation.csv", year, month, "Биба",
-			Biba.vtb.account, Biba.vtb.deposit, biba_capital);
-		save_to_csv("simulation.csv", year, month, "Боба",
+		// расчёт и сохранение данных в таблицу
+		MonthlyStats biba_stats = calculate_biba_stats(month, year);
+		save_to_csv(year, month, "Биба",
+			Biba.vtb.account, Biba.vtb.deposit,
+			biba_stats);
+
+		MonthlyStats boba_stats = calculate_boba_stats(month, year);
+		save_to_csv(year, month, "Боба",
 			Boba.vtb.account, Boba.vtb.deposit,
-			Boba.vtb.account + Boba.vtb.deposit);
+			boba_stats);
 
 		month++;
 		if (month == 13)
