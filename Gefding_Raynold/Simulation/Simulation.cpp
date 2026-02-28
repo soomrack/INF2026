@@ -22,16 +22,26 @@ struct Car {
     RUB value; // стоимость машины
 };
 
+
 struct RentApartment {
     RUB rent; // стоимость аренды
     RUB housingservices; // стоимость жилищно-коммунальных услуг
 };
+
 
 struct OwnApartment {
     RUB flat; // стоимость квартиры 
     Percent mortgage; // процент по ипотеке
     RUB mortgageterm; // срок ипотеки в месяцах
     RUB housingservices; // стоимость жилищно-коммунальных услуг
+};
+
+
+struct Pet {
+    RUB food; // стоимость топлива
+    RUB health; // стоимость машины
+    RUB toilet; // стоимость наполнителя
+    RUB toys; // стоимость развлечений
 };
 
 
@@ -45,12 +55,19 @@ struct Person {
 
     // Транспорт
     Car car;
+    RUB socialtransport;
 
     // Доходы
     RUB salary;
 
     // Расходы
     RUB food;
+    RUB net;
+    RUB healthinsurance;
+
+    // Питомец
+    Pet pet;
+
 };
 
 struct Person alice;
@@ -73,9 +90,15 @@ void alice_init()
     alice.rentflat.housingservices = 10'000;
 
     alice.food = 20'000;
+    alice.net = 1000;
 
     alice.car.value = 2'400'000;
     alice.car.gas = 15'000;
+
+    alice.pet.food = 5'000;
+    alice.pet.health= 5'000;
+    alice.pet.toilet = 5'000;
+    alice.pet.toys = 5'000;
 }
 
 
@@ -93,9 +116,19 @@ void alice_salary(const int month, const int year)
 }
 
 
-void alice_food()
+void alice_expences()
 {
     alice.vtb.account -= alice.food;
+    alice.vtb.account -= alice.net;
+}
+
+
+void alice_pet()
+{
+    alice.vtb.account -= alice.pet.food;
+    alice.vtb.account -= alice.pet.health;
+    alice.vtb.account -= alice.pet.toilet;
+    alice.vtb.account -= alice.pet.toys;
 }
 
 
@@ -155,14 +188,14 @@ void simulation()
     int year = 2026;
 
     while (not (month == 3 and year == 2028)) {
-        alice_salary(month, year);
-        alice_freelance(month, year);
-        alice_food();
-        alice_car();
-        // my_cat();
-        // my_medine();
-        // my_home();
-        alice_deposite(month, year);
+        alice_salary(month, year); // Начисление зарплаты
+        alice_freelance(month, year); // Начисление фрилансов
+        alice_expences(); // Мелкие расходы
+        alice_car(); // Расходы на машину
+        alice_pet(); // Расходы на питомца
+        // alice_medicine();
+        alice_home(); // Расходы на дом
+        alice_deposite(month, year); // Откладывание на депозит
 
         ++month;
         if (month == 13) {
