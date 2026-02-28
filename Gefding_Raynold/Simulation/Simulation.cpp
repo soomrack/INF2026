@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 
 
 using RUB = long long int;
@@ -8,30 +8,56 @@ using Percent = float;
 
 
 struct Bank {
-    RUB account;
-    RUB deposite;
-    Percent interest;
+    RUB account; // сумма на счету
+    RUB deposite; // сумма на депозите
+    Percent interest; // процент по депозиту
 
-    USD account_usd;
-    float rate_usd_rub;
+    USD account_usd; // сумма на долларовом счету
+    float rate_usd_rub; // курс доллара к рублю
 };
 
 
 struct Car {
-    RUB gas;
-    RUB value;
+    RUB gas; // стоимость топлива
+    RUB value; // стоимость машины
+};
+
+struct RentApartment {
+    RUB rent; // стоимость аренды
+    RUB housingservices; // стоимость жилищно-коммунальных услуг
+};
+
+struct OwnApartment {
+    RUB flat; // стоимость квартиры 
+    Percent mortgage; // процент по ипотеке
+    RUB mortgageterm; // срок ипотеки в месяцах
+    RUB housingservices; // стоимость жилищно-коммунальных услуг
 };
 
 
 struct Person {
+    // Банки и накопления
     Bank vtb;
+
+    // Недвижимость
+    RentApartment rentflat;
+    OwnApartment ownflat;
+
+    // Транспорт
     Car car;
+
+    // Доходы
     RUB salary;
+
+    // Расходы
     RUB food;
 };
+
 struct Person alice;
+
 //struct Person bob;
 
+// Блок инициализации доходов и расходов alice - начало
 
 void alice_init()
 {
@@ -42,6 +68,9 @@ void alice_init()
 
     alice.vtb.account_usd = 1'000;
     alice.vtb.rate_usd_rub = 78.5;
+
+    alice.rentflat.rent = 30'000;
+    alice.rentflat.housingservices = 10'000;
 
     alice.food = 20'000;
 
@@ -67,6 +96,13 @@ void alice_salary(const int month, const int year)
 void alice_food()
 {
     alice.vtb.account -= alice.food;
+}
+
+
+void alice_home()
+{
+    alice.vtb.account -= alice.rentflat.rent;
+    alice.vtb.account -= alice.rentflat.housingservices;
 }
 
 
@@ -96,6 +132,8 @@ void alice_freelance(const int month, const int year)
         alice.vtb.account_usd += 3'000;
     }
 }
+
+// Блок инициализации доходов и расходов alice - конец
 
 
 void print_results()
