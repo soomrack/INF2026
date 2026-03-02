@@ -8,13 +8,13 @@
 using RUB = long long int;
 using percent = float;
 
-// рандомайзер от 1 до 15 для инфляции
 std::random_device rd;
 std::mt19937 gen(rd());     // генератор Вихрь Мерсенна
-std::uniform_real_distribution<> inf_dis(1.0, 15.0);
+std::uniform_real_distribution<> inflation(0.1, 10.0);
+std::uniform_real_distribution<> food(70, 130);
 
 
-struct bank
+struct Bank
 {
 	RUB account;
 	RUB deposit;
@@ -22,7 +22,7 @@ struct bank
 };
 
 
-struct transport
+struct Car
 {
 	RUB gaz;
 	RUB value;
@@ -32,35 +32,61 @@ struct transport
 };
 
 
-struct house
+struct Public_Transport
 {
-	RUB h_price; // цена дома
-	percent credit;
-	double rate;
+	RUB price;
+};
+
+
+struct House
+{
+	RUB price;
+	percent mortgage;
 	bool has_house;
-	bool has_credit; // условия для покупки дома и выплаты кредита
+	bool has_mortgage; // условия для покупки дома и выплаты кредита
 	RUB payment;
-	RUB down_payment;
+	RUB first_payment;
 	RUB debt;
 };
 
 
+struct Taxes
+{
+	percent key_rate;
+	percent VAT_rate; // НДС
+
+	RUB income_tax;
+	RUB deposit_tax;
+	RUB property_tax;
+	RUB car_tax;
+	RUB luxury_tax;
+
+	RUB food_VAT;
+	RUB internet_VAT;
+	RUB pets_VAT;
+	RUB car_VAT;
+	RUB total;
+	RUB annual_total;
+};
+
 
 struct Person
 {
-	bank vtb;
+	Bank vtb;
 
 	RUB salary;
 	RUB food;
+	RUB internet;
 	RUB cat;
 	RUB dog;
 	RUB rent;
 
 	bool has_car;
-	transport car;
-	transport metro;
+	Car car;
+	Public_Transport metro;
 
-	house House;
+	House house;
+	Taxes tax;
 };
 
 
@@ -105,20 +131,24 @@ void Biba_init()
 	Biba.vtb.deposit = 1'000'000;
 	Biba.vtb.interest = 8.0f;
 
-	Biba.food = 20'000;
-	Biba.rent = 30'000;
+	Biba.food = 30'000;
+	Biba.internet = 1'500;
+	Biba.rent = 40'000;
 	Biba.cat = 0; // кота нет
-	Biba.dog = 10'000;
+	Biba.dog = 15'000;
 
 	Biba.has_car = true;
 	Biba.car.value = 2'400'000;
-	Biba.car.gaz = 8'000;
-	Biba.car.service = 3'000;
+	Biba.car.gaz = 10'000;
+	Biba.car.service = 4'000;
 	Biba.car.tires = 25'000;
-	Biba.car.oil = 5'000;
+	Biba.car.oil = 7'000;
 
-	Biba.House.has_house = false;
-	Biba.House.has_credit = false;
+	Biba.tax.key_rate = 0.13;
+	Biba.tax.VAT_rate = 0.20;
+
+	Biba.house.has_house = false;
+	Biba.house.has_mortgage = false;
 }
 
 
@@ -130,6 +160,7 @@ void Boba_init()
 	Boba.vtb.interest = 8;
 
 	Boba.food = 20'000;
+	Boba.internet = 1'000;
 	Boba.cat = 10'000;
 	Boba.dog = 0; // пса нет
 	Boba.rent = 25'000;
@@ -141,7 +172,10 @@ void Boba_init()
 	Boba.car.tires = 20'000;
 	Boba.car.oil = 5'000;
 
-	Boba.metro.gaz = 3'000;
+	Boba.metro.price = 3'000;
+	Boba.tax.VAT_rate = 0.20;
+
+	Boba.tax.key_rate = 0.13;
 }
 
 
@@ -150,41 +184,14 @@ double apply_inflation(int year, int month)
 	// инфляция применяется только в январе, первый год инфляции нет
 	if (month == 1 and year > 2030)
 	{
-		double inflation_rate = inf_dis(gen);
+		double inflation_rate = inflation(gen);
 		double multiplier = 1.0 + inflation_rate / 100.0;
 
 		printf("Инфляция в %d году: +%.2f%%\n\n", year, inflation_rate);
 
-		// базовые расходы Бибы
-		Biba.food = (RUB)(Biba.food * multiplier);
-		Biba.rent = (RUB)(Biba.rent * multiplier);
-		Biba.cat = (RUB)(Biba.cat * multiplier);
-		Biba.dog = (RUB)(Biba.dog * multiplier);
-
-		// транспорт
-		Biba.car.gaz = (RUB)(Biba.car.gaz * multiplier);
-		Biba.car.service = (RUB)(Biba.car.service * multiplier);
-		Biba.car.tires = (RUB)(Biba.car.tires * multiplier);
-		Biba.car.oil = (RUB)(Biba.car.oil * multiplier);
-
-		// базовые расходы Бобы
-		Boba.food = (RUB)(Boba.food * multiplier);
-		Boba.rent = (RUB)(Boba.rent * multiplier);
-		Boba.cat = (RUB)(Boba.cat * multiplier);
-		Boba.dog = (RUB)(Boba.dog * multiplier);
-
-		// транспорт
-		Boba.car.gaz = (RUB)(Boba.car.gaz * multiplier);
-		Boba.car.service = (RUB)(Boba.car.service * multiplier);
-		Boba.car.tires = (RUB)(Boba.car.tires * multiplier);
-		Boba.car.oil = (RUB)(Boba.car.oil * multiplier);
-
-		// метро
-		Boba.metro.gaz = (RUB)(Boba.metro.gaz * multiplier);
-
-		return inflation_rate;
+		return multiplier;
 	}
-	return 0.0;
+	return 1.0;
 }
 
 
@@ -195,54 +202,218 @@ void Biba_salary(const int month, const int year)
 		Biba.vtb.account += Biba.salary; // 13-я зарплата
 	}
 	Biba.vtb.account += Biba.salary;
+
+	if (month == 1 and year > 2030) {
+		double salary_index = inflation(gen) * 0.8;
+		Biba.salary = (RUB)(Biba.salary * (1 + salary_index / 100));
+	}
 }
 
 
 void Boba_salary(const int month, const int year)
 {
-	if (month == 12)
-	{
+	if (month == 12) {
 		Boba.vtb.account += Boba.salary; // 13-я зарплата
 	}
+
 	Boba.vtb.account += Boba.salary;
+
+	if (month == 1 and year > 2030) {
+		double salary_index = inflation(gen) * 0.8;
+		Boba.salary = (RUB)(Boba.salary * (1 + salary_index / 100));
+	}
 }
 
 
-void Biba_wastes()
+void Biba_food(double multiplier)
 {
-	Biba.vtb.account -= Biba.food;
-	Biba.vtb.account -= Biba.rent;
-	// кота нет
+	Biba.food = (RUB)(Biba.food * multiplier);
+	
+	Biba.vtb.account -= (RUB)(Biba.food * food(gen) / 100);
+}
+
+
+void Biba_internet(double multiplier)
+{
+	Biba.internet = (RUB)(Biba.internet * multiplier);
+
+	Biba.vtb.account -= Biba.internet;
+}
+
+
+void Biba_pets(double multiplier)
+{
+	Biba.cat = (RUB)(Biba.cat * multiplier);
+	Biba.dog = (RUB)(Biba.dog * multiplier);
+
+	Biba.vtb.account -= Biba.cat;
 	Biba.vtb.account -= Biba.dog;
 }
 
 
-void Biba_car(const int month, const int year)
+void Biba_car(const int month, const int year, double multiplier)
 {
+	Biba.car.gaz = (RUB)(Biba.car.gaz * multiplier);
+	Biba.car.service = (RUB)(Biba.car.service * multiplier);
+	Biba.car.tires = (RUB)(Biba.car.tires * multiplier);
+	Biba.car.oil = (RUB)(Biba.car.oil * multiplier);
+
 	Biba.vtb.account -= Biba.car.gaz;
-	if (month == 3 or month == 9)
-	{
+
+	if (month == 3 or month == 9) {
 		Biba.vtb.account -= Biba.car.oil;
 		Biba.vtb.account -= Biba.car.service; // сервис и замена масла 2 раза в год
 	}
 
-	if (year % 4 == 0 and month == 10)
-	{
+	if (year % 4 == 0 and month == 10) {
 		Biba.vtb.account -= Biba.car.tires; // покупка новых шин
 	}
 }
 
 
-void Boba_wastes()
+void Biba_taxes(const int month, const int year)
 {
-	Boba.vtb.account -= Boba.food;
-	Boba.vtb.account -= Boba.cat;
-	// пса нет
-	Boba.vtb.account -= Boba.rent;
+	Biba.tax.income_tax = (RUB)(Biba.salary * Biba.tax.key_rate);
+	Biba.vtb.account -= Biba.tax.income_tax;
+
+	if (Biba.vtb.deposit > 1'000'000) {
+		Biba.tax.deposit_tax = (RUB)(Biba.vtb.deposit * Biba.vtb.interest / 100.0 * Biba.tax.key_rate);
+		Biba.vtb.deposit -= Biba.tax.deposit_tax;
+	}
+	
+	if (Biba.house.has_house) {
+		Biba.tax.property_tax = (RUB)(Biba.house.price * 0.001); // 0.1% от кадастровой стоимости
+		Biba.vtb.deposit -= Biba.tax.property_tax;
+	}
+
+	if (Biba.has_car and month == 12) {
+		Biba.tax.car_tax = (RUB)(Biba.car.value * 0.01);
+		Biba.vtb.deposit -= Biba.tax.car_tax;
+	}
+
+	RUB capital = Biba.vtb.deposit + Biba.house.price + Biba.car.value;
+	if (capital > 50'000'000) {
+		Biba.tax.luxury_tax = (RUB)(capital * 0.01);
+		Biba.vtb.deposit -= Biba.tax.luxury_tax;
+	}
+
+	Biba.tax.food_VAT = (RUB)(Biba.food * Biba.tax.VAT_rate);
+	Biba.vtb.account -= Biba.tax.food_VAT;
+
+	Biba.tax.internet_VAT = (RUB)(Biba.internet * Biba.tax.VAT_rate);
+	Biba.vtb.account -= Biba.tax.internet_VAT;
+
+	Biba.tax.pets_VAT = (RUB)((Biba.cat + Biba.dog) * Biba.tax.VAT_rate);
+	Biba.vtb.account -= Biba.tax.pets_VAT;
+
+	if (Boba.has_car) {
+		Biba.tax.car_VAT = Biba.car.gaz;
+		if (month == 3 or month == 9) {
+			Biba.tax.car_VAT += Biba.car.service + Biba.car.oil;
+		}
+		if (year % 4 == 0 and month == 10) {
+			Biba.tax.car_VAT += Biba.car.tires;
+		}
+		Biba.tax.car_VAT = (RUB)(Biba.tax.car_VAT * Biba.tax.VAT_rate);
+		Biba.vtb.account -= Biba.tax.car_VAT;
+	}
+
+	Biba.tax.total = Biba.tax.food_VAT + Biba.tax.pets_VAT + Biba.tax.car_VAT + Biba.tax.income_tax + Biba.tax.deposit_tax + Biba.tax.property_tax + Biba.tax.car_tax;
+	Biba.tax.annual_total += Biba.tax.total;
+	if (month == 1) Biba.tax.annual_total = 0;
 }
 
 
-void Boba_car(const int month, const int year)
+void Boba_taxes(const int month, const int year)
+{
+	Boba.tax.income_tax = (RUB)(Boba.salary * Boba.tax.key_rate);
+	Boba.vtb.account -= Boba.tax.income_tax;
+
+	if (Boba.vtb.deposit > 1'000'000) {
+		Boba.tax.deposit_tax = (RUB)(Boba.vtb.deposit * Boba.vtb.interest / 100.0 * Boba.tax.key_rate);
+		Boba.vtb.deposit -= Boba.tax.deposit_tax;
+	}
+
+	if (Boba.house.has_house) {
+		Boba.tax.property_tax = (RUB)(Boba.house.price * 0.001); // 0.1% от кадастровой стоимости
+		Boba.vtb.deposit -= Boba.tax.property_tax;
+	}
+
+	if (Boba.has_car and month == 12) {
+		Boba.tax.car_tax = (RUB)(Boba.car.value * 0.01);
+		Boba.vtb.deposit -= Boba.tax.car_tax;
+	}
+
+	RUB capital = Boba.vtb.deposit + Boba.house.price + Boba.car.value;
+	if (capital > 50'000'000) {
+		Boba.tax.luxury_tax = (RUB)(capital * 0.01);
+		Boba.vtb.deposit -= Boba.tax.luxury_tax;
+	}
+
+	Boba.tax.food_VAT = (RUB)(Boba.food * Boba.tax.VAT_rate);
+	Boba.vtb.account -= Boba.tax.food_VAT;
+
+	Boba.tax.internet_VAT = (RUB)(Boba.internet * Boba.tax.VAT_rate);
+	Boba.vtb.account -= Boba.tax.internet_VAT;
+
+	Boba.tax.pets_VAT = (RUB)((Boba.cat + Boba.dog) * Boba.tax.VAT_rate);
+	Boba.vtb.account -= Boba.tax.pets_VAT;
+
+	if (Boba.has_car) {
+		Boba.tax.car_VAT = Boba.car.gaz;
+		if (month == 3 or month == 9) {
+			Boba.tax.car_VAT += Boba.car.service + Boba.car.oil;
+		}
+		if (year % 4 == 0 and month == 10) {
+			Boba.tax.car_VAT += Boba.car.tires;
+		}
+		Boba.tax.car_VAT = (RUB)(Boba.tax.car_VAT * Boba.tax.VAT_rate);
+		Boba.vtb.account -= Boba.tax.car_VAT;
+	}
+
+	if (month == 1) Boba.tax.annual_total = 0;
+	Boba.tax.total = Boba.tax.food_VAT + Boba.tax.internet_VAT + Boba.tax.pets_VAT + Boba.tax.car_VAT 
+		+ Boba.tax.income_tax + Boba.tax.deposit_tax + Boba.tax.property_tax + Boba.tax.car_tax;
+	Boba.tax.annual_total += Boba.tax.total;
+}
+
+
+void Boba_food(double multiplier)
+{
+	Boba.food = (RUB)(Boba.food * multiplier);
+
+	Boba.vtb.account -= (RUB)(Boba.food * food(gen) / 100);
+}
+
+
+void Boba_internet(double multiplier)
+{
+	Boba.internet = (RUB)(Boba.internet * multiplier);
+
+	Boba.vtb.account -= Boba.internet;
+}
+
+
+void Boba_pets(double multiplier)
+{
+	Boba.cat = (RUB)(Boba.cat * multiplier);
+	Boba.dog = (RUB)(Boba.dog * multiplier);
+
+	Boba.vtb.account -= Boba.cat;
+	Boba.vtb.account -= Boba.dog;
+}
+
+
+void Boba_metro(double multiplier)
+{
+	if (Boba.has_car) return;
+
+	Boba.metro.price = (RUB)(Boba.metro.price * multiplier);
+	Boba.vtb.account -= Boba.metro.price;
+}
+
+
+void Boba_car(const int month, const int year, double multiplier)
 {
 	// покупка машины
 	if (!Boba.has_car and Boba.vtb.deposit >= 3'000'000)
@@ -256,83 +427,78 @@ void Boba_car(const int month, const int year)
 	}
 
 	// Если есть машина
-	if (Boba.has_car)
-	{
-		Boba.vtb.account -= Boba.car.gaz;
+	if (!Boba.has_car) return;
 
-		if (month == 3 or month == 9)
-		{
-			Boba.vtb.account -= Boba.car.oil;
-			Boba.vtb.account -= Boba.car.service; // сервис и замена масла 2 раза в год
-		}
+	Boba.car.gaz = (RUB)(Boba.car.gaz * multiplier);
+	Boba.car.service = (RUB)(Boba.car.service * multiplier);
+	Boba.car.tires = (RUB)(Boba.car.tires * multiplier);
+	Boba.car.oil = (RUB)(Boba.car.oil * multiplier);
 
-		if (year % 4 == 0 and month == 10)
-		{
-			Boba.vtb.account -= Boba.car.tires; // покупка новых шин
-		}
+	Boba.vtb.account -= Boba.car.gaz;
+
+	if (month == 3 or month == 9) {
+		Boba.vtb.account -= Boba.car.oil;
+		Boba.vtb.account -= Boba.car.service; // сервис и замена масла 2 раза в год
 	}
-	else
-	{
-		// если нет машины, Боба ездит на метро
-		Boba.vtb.account -= Boba.metro.gaz;
+
+	if (year % 4 == 0 and month == 10) {
+		Boba.vtb.account -= Boba.car.tires; // покупка новых шин
 	}
 }
 
 
-void Biba_buy_house(int month, int year) // покупка дома
+void Biba_house(int month, int year, double multiplier) // покупка дома
 {
-	if (!Biba.House.has_house and 
-		Biba.vtb.deposit >= 6'000'000)
-	{
+	Biba.rent = (RUB)(Biba.rent * multiplier);
+	Biba.vtb.account -= Biba.rent;
+	
+	if (!Biba.house.has_house and Biba.vtb.deposit >= 5'000'000) {
 		// покупка дома
-		Biba.House.h_price = 15'000'000;
-		Biba.House.down_payment = 2'000'000;
+		Biba.house.price = 15'000'000;
+		Biba.house.first_payment = 2'000'000;
 
-		// первый взнос с депозита
-		Biba.vtb.deposit -= Biba.House.down_payment;
+		Biba.vtb.deposit -= Biba.house.first_payment;
 
-		Biba.House.has_house = true;
-		Biba.House.has_credit = true;
+		Biba.house.has_house = true;
+		Biba.house.has_mortgage = true;
+
 		printf("==========================\n");
 		printf("   Биба купил дом!\n");
 		printf("остаток на депозите: %lld\n", Biba.vtb.deposit);
 		printf("==========================\n\n");
 
-		Biba.House.debt = Biba.House.h_price - Biba.House.down_payment;
+		Biba.house.debt = (Biba.house.price - Biba.house.first_payment) * (1 + Biba.house.mortgage / 100);
 
 		Biba.rent = 6'000; // расход на ренту превращается в коммунальные платежи за дом
 
-		// вычисление процента по кредиту
-		Biba.House.credit = 14;
-		Biba.House.rate = Biba.House.credit / 12.0 / 100.0;
+		Biba.house.mortgage = 14;
 
-		double k = 1;
-		for (int i = 0; i < 30*12; i++) // кредит на 30 лет
-		{
-			k *= 1 + Biba.House.rate;
-		}
-		Biba.House.payment = (Biba.House.debt * Biba.House.rate * k) / (k - 1);
+		Biba.house.payment = (RUB)(Biba.house.debt / 30 / 12.0);
 	}
 }
 
 
-void Biba_credit()
+void Boba_house(double multiplier)
 {
-	if (Biba.House.has_credit and Biba.House.debt > 0)
-	{
-		if (Biba.vtb.deposit >= Biba.House.payment)
+	Boba.rent = (RUB)(Boba.rent * multiplier);
+	Boba.vtb.account -= Boba.rent;
+}
+
+
+void Biba_mortgage()
+{
+	if (!Biba.house.has_mortgage) return;
+	
+		if (Biba.vtb.deposit >= Biba.house.payment)
 		{
-			Biba.vtb.deposit -= Biba.House.payment;
+			Biba.vtb.deposit -= Biba.house.payment;
+			Biba.house.debt -= Biba.house.payment;
 
-			// уменьшение долга на сумму основного долга (платеж минус проценты)
-			Biba.House.debt -= Biba.House.payment -
-				(Biba.House.debt * (Biba.House.credit / 12.0 / 100.0));
+			if (Biba.house.debt < 0) Biba.house.debt = 0;
 
-			if (Biba.House.debt < 0) Biba.House.debt = 0;
-
-			if (Biba.House.debt <= 0)
+			if (Biba.house.debt <= 0)
 			{
-				Biba.House.has_credit = false;
+				Biba.house.has_mortgage = false;
 				printf("Ипотека выплачена!\n\n");
 			}
 		}
@@ -341,27 +507,51 @@ void Biba_credit()
 		{
 			//здесь можно добавить штраф за просрочку
 		}
+	
+}
+
+
+void Biba_random_ivents()
+{
+	int random_balance = 0;
+	RUB events_net = 0;
+
+	int roll = rand() % 100;
+	if (roll < 15) {
+		Biba.vtb.account += 20'000; // премия
+		random_balance++;
+		events_net += 20'000;
+	}
+
+	roll = rand() % 100;
+	if (roll < 15 and Biba.has_car) {
+		Biba.vtb.account -= 5'000;    // штраф
+		random_balance--;
+		events_net -= 5'000;
 	}
 }
 
+
 void Biba_deposite(const int month, const int year)
 {
-	if (year > 2045) Biba.vtb.interest = 8;
-	else if (year > 2040) Biba.vtb.interest = 7.5;
-	else Biba.vtb.interest = 7.8;
+	if (year < 2035) Boba.vtb.interest = 8;
+	else if (year < 2040) Boba.vtb.interest = 7.5;
+	else if (year < 2045) Boba.vtb.interest = 8;
+	else if (year < 2050) Boba.vtb.interest = 7.8;
 
 	Biba.vtb.deposit += Biba.vtb.deposit * (Biba.vtb.interest / 12 / 100.0);
 
-	Biba.vtb.deposit += Biba.vtb.account; //остаток положил в депозит
+	Biba.vtb.deposit += Biba.vtb.account;
 	Biba.vtb.account = 0;
 }
 
 
 void Boba_deposite(const int month, const int year)
 {
-	if (year > 2045) Boba.vtb.interest = 8;
-	else if (year > 2040) Boba.vtb.interest = 7.5;
-	else Boba.vtb.interest = 7.8;
+	if (year < 2035) Boba.vtb.interest = 8;
+	else if (year < 2040) Boba.vtb.interest = 7.8;
+	else if (year < 2045) Boba.vtb.interest = 8.1;
+	else if (year < 2050) Boba.vtb.interest = 7.6;
 
 	Boba.vtb.deposit += Boba.vtb.deposit * (Boba.vtb.interest / 12 / 100.0);
 
@@ -370,192 +560,44 @@ void Boba_deposite(const int month, const int year)
 }
 
 
-MonthlyStats calculate_biba_stats(int month, int year)
+void print_annual_result(const int year, const int month)
 {
-	MonthlyStats s;
+	if (!(month == 12)) return;
 
-	// доходы
-	s.salary_income = (month == 12) ? Biba.salary * 2 : Biba.salary;
-	s.deposit_income = Biba.vtb.deposit * (Biba.vtb.interest / 12.0 / 100.0);
-	s.total_income = s.salary_income + s.deposit_income;
+	printf("Год: %d\n\n", year);
 
-	// расходы (базовые)
-	s.food_expense = Biba.food;
-	s.pets_expense = Biba.dog;
-	s.rent_expense = Biba.rent;
-	RUB base_expenses = s.food_expense + s.pets_expense + s.rent_expense;
-
-	// транспорт
-	s.gaz_expense = Biba.car.gaz;
-	s.service_expense = 0;
-	if (month == 3 || month == 9) {
-		s.service_expense = Biba.car.service + Biba.car.oil;
-	}
-	if (year % 4 == 0 && month == 10) {
-		s.service_expense += Biba.car.tires;
-	}
-	s.transport_total = s.gaz_expense + s.service_expense;
-
-	// дом (если есть ипотека)
-	s.house_payment = Biba.House.has_credit ? Biba.House.payment : 0;
-	s.house_interest = 0;
-	s.house_total = 0;
-	if (Biba.House.has_credit) {
-		s.house_interest = Biba.House.debt * (Biba.House.credit / 12.0 / 100.0);
-		s.house_total = s.house_payment;
-	}
-
-	// общие расходы
-	s.total_expenses = base_expenses + s.transport_total + s.house_total;
-
-	// капитал
-	s.capital = Biba.vtb.account + Biba.vtb.deposit + Biba.car.value;
-	if (Biba.House.has_house) {
-		s.capital += (Biba.House.h_price - Biba.House.debt);
-	}
-
-	return s;
-}
-
-
-MonthlyStats calculate_boba_stats(int month, int year)
-{
-	MonthlyStats s;
-
-	// доходы
-	s.salary_income = (month == 12) ? Boba.salary * 2 : Boba.salary;
-	s.deposit_income = Boba.vtb.deposit * (Boba.vtb.interest / 12.0 / 100.0);
-	s.total_income = s.salary_income + s.deposit_income;
-
-	// расходы
-	s.food_expense = Boba.food;
-	s.pets_expense = Boba.cat;
-	s.rent_expense = Boba.rent;
-	s.gaz_expense = Boba.metro.gaz;
-	s.service_expense = 0;
-
-	// транспорт
-	if (Boba.has_car) {
-		s.gaz_expense = Boba.car.gaz;
-		s.service_expense = 0;
-		if (month == 3 || month == 9) {
-			s.service_expense = Boba.car.service + Boba.car.oil;
-		}
-		if (year % 4 == 0 && month == 10) {
-			s.service_expense += Boba.car.tires;
-		}
-		s.transport_total = s.gaz_expense + s.service_expense;
-	}
-	else {
-		s.gaz_expense = Boba.metro.gaz;
-		s.service_expense = 0;
-		s.transport_total = s.gaz_expense;
-	}
-
-	s.total_expenses = s.food_expense + s.pets_expense + s.rent_expense + s.transport_total;
-
-	// дом (нет)
-	s.house_payment = 0;
-	s.house_interest = 0;
-	s.house_total = 0;
-
-	// капитал
-	s.capital = Boba.vtb.account + Boba.vtb.deposit;
-	if (Boba.has_car) 
+	printf("Депозит Бибы: %lld\n", Biba.vtb.deposit);
+	printf("Зарплата Бибы: %lld\n", Biba.salary);
+	RUB wastes = Biba.food + Biba.internet + Biba.cat + Biba.dog + Biba.rent;
+	printf("Расходы Бибы: %lld\n", wastes);
+	printf("Биба заплатил налогов за год: %lld\n\n", Biba.tax.annual_total);
+	if (Biba.house.has_mortgage)
 	{
-		s.capital += Boba.car.value;
+		printf("Остаток долга: %lld\n\n", Biba.house.debt);
 	}
-
-	return s;
+	
+	printf("Депозит Бобы: %lld\n", Boba.vtb.deposit);
+	printf("Зарплата Бобы: %lld\n", Boba.salary);
+	wastes = Boba.food + Boba.internet + Boba.cat + Boba.dog + Boba.rent;
+	printf("Расходы Бобы: %lld\n", wastes);
+	printf("Боба заплатил налогов за год: %lld\n\n", Boba.tax.annual_total);
 }
 
 
-void save_to_csv(int year, int month, const char* person,
-	RUB deposit, const MonthlyStats& s)
-{
-	std::ofstream file("simulation.csv", std::ios::app);
-
-	static bool first = true;
-	if (first) {
-		file.seekp(0, std::ios::end);
-		if (file.tellp() == 0) {
-			file << "Год;Месяц;Персонаж;"
-				<< "Депозит;"
-				<< "Доход_всего;Зарплата;Доход_депозит;"
-				<< "Расходы_всего;Еда;Животные;Аренда;"
-				<< "Транспорт_всего;Бензин;Обслуживание;"
-				<< "Дом_всего;Платеж;Проценты;"
-				<< "Капитал;Инфляция\n";
-		}
-		first = false;
-	}
-
-	file << year << ";"
-		<< month << ";"
-		<< person << ";"
-		<< deposit << ";"
-		<< s.total_income << ";"
-		<< s.salary_income << ";"
-		<< s.deposit_income << ";"
-		<< s.total_expenses << ";"
-		<< s.food_expense << ";"
-		<< s.pets_expense << ";"
-		<< s.rent_expense << ";"
-		<< s.transport_total << ";"
-		<< s.gaz_expense << ";"
-		<< s.service_expense << ";"
-		<< s.house_total << ";"
-		<< s.house_payment << ";"
-		<< s.house_interest << ";"
-		<< s.capital << ";";
-
-	if (s.inflation_rate == 0.0) {
-		file << "\n";  // пустая ячейка
-	}
-	else {
-		file << std::fixed << std::setprecision(2) << s.inflation_rate << "\n";
-	}
-
-	file.close();
-}
-
-
-void five_year_result(const int year, const int month)
-{
-	if (year % 5 == 0 and month == 12)
-	{
-		printf("Год: %d\n\n", year);
-		printf("Депозит Бибы: %lld\n", Biba.vtb.deposit);
-		if (Biba.House.has_credit)
-		{
-			printf("Остаток долга: %lld\n\n", Biba.House.debt);
-		}
-		else
-		{
-			printf("Дом не куплен\n\n");
-		}
-
-		printf("Депозит Бобы: %lld\n\n", Boba.vtb.deposit);
-	}
-}
-
-
-void result()
+void print_result()
 {
 	printf("=== РЕЗУЛЬТАТ ===\n\n");
 	printf("Зарплата Бибы на 2050: %lld\n", Biba.salary);
 
-	// накопления Бибы
 	RUB capital = 0;
 	capital += Biba.vtb.account;
 	capital += Biba.vtb.deposit;
 	capital += Biba.car.value;
-	capital += (Biba.House.h_price - Biba.House.debt);
+	capital += (Biba.house.price - Biba.house.debt);
 	printf("Капитал Бибы на 2050: %lld\n\n", capital);
 
 	printf("Зарплата Бобы на 2050: %lld\n", Boba.salary);
 
-	// накопления Бобы
 	capital = 0;
 	capital += Boba.vtb.account;
 	capital += Boba.vtb.deposit;
@@ -569,6 +611,36 @@ void result()
 }
 
 
+void simulation(int month, int year) 
+{
+	double multiplier = apply_inflation(year, month);
+
+	Biba_salary(month, year);
+
+	Biba_food(multiplier);
+	Biba_internet(multiplier);
+	Biba_pets(multiplier);
+	Biba_car(month, year, multiplier);
+	Biba_taxes(month, year);
+	Biba_house(month, year, multiplier);
+	Biba_mortgage();
+
+	Biba_deposite(month, year);
+
+	Boba_salary(month, year);
+
+	Boba_food(multiplier);
+	Biba_internet(multiplier);
+	Boba_pets(multiplier);
+	Boba_metro(multiplier);
+	Boba_car(month, year, multiplier);
+	Boba_taxes(month, year);
+	Boba_house(multiplier);
+
+	Boba_deposite(month, year);
+}
+
+
 int main()
 {
 	SetConsoleCP(1251);
@@ -576,7 +648,6 @@ int main()
 	setlocale(LC_ALL, "Russian");
 
 	printf("=== НАЧАЛО СИМУЛЯЦИИ ===\n\n");
-
 	int month = 3;
 	int year = 2030;
 
@@ -585,37 +656,7 @@ int main()
 
 	while (not (month == 3 and year == 2050))
 	{
-		double current_inflation = 0.0;
-		if (month == 1 && year > 2030) {
-			current_inflation = apply_inflation(year, month);
-		}
-
-		Biba_salary(month, year);
-		Biba_wastes();
-		Biba_car(month, year);
-
-		Biba_buy_house(month, year);
-		Biba_credit();
-
-		Biba_deposite(month, year);
-
-		Boba_salary(month, year);
-		Boba_wastes();
-		Boba_car(month, year);
-		Boba_deposite(month, year);
-
-		RUB biba_capital = Biba.vtb.account + Biba.vtb.deposit + Biba.car.value + (Biba.House.has_house ? Biba.House.h_price - Biba.House.debt : 0);
-
-		// расчёт и сохранение данных в таблицу
-		MonthlyStats biba_stats = calculate_biba_stats(month, year);
-		biba_stats.inflation_rate = current_inflation;
-		save_to_csv(year, month, "Биба", 
-					Biba.vtb.deposit, biba_stats);
-
-		MonthlyStats boba_stats = calculate_boba_stats(month, year);
-		boba_stats.inflation_rate = current_inflation;
-		save_to_csv(year, month, "Боба", 
-					Boba.vtb.deposit, boba_stats);
+		simulation(month, year);
 
 		month++;
 		if (month == 13)
@@ -624,10 +665,10 @@ int main()
 			month = 1;
 		}
 
-		five_year_result(year, month);
+		print_annual_result(year, month);
 	}
 
-	result();
+	print_result();
 
 	return 0;
 }
