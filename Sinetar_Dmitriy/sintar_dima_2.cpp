@@ -1,7 +1,7 @@
 ﻿#include <stdio.h>
 #include <iostream>
 #include <cmath>
-
+//проверить на все ли существует инфляция(?), возмооожно заморочиться с налогами
 using RUB = float;
 using EUR = float;
 using Percent = float;
@@ -26,6 +26,14 @@ struct Car {
 
     RUB gas;
     RUB value;
+	RUB wash;
+	RUB penalty;
+    RUB osago;
+	RUB kasko;
+    RUB washer_fluid;
+    RUB antifreez;
+    RUB tires;
+	RUB tax_for_a_car;
 
 };
 
@@ -33,6 +41,7 @@ struct Car {
 struct Car_service {
 
     RUB service;
+	RUB repair;
 
 };
 
@@ -54,8 +63,28 @@ struct Flat {
 
 
 struct Friends {
-
+    
+	//davis friends
     RUB beer;
+	RUB fast_food;
+	RUB cinema;
+	RUB games;
+	RUB bowling;
+	RUB karaoke;
+	RUB concerts;
+	RUB billiard;
+
+    //lisas girlfriends
+	RUB coffe;
+	RUB brunch;
+	RUB cinema_lisa;
+	RUB fotosession;
+	RUB shopping;
+	RUB spa;
+	RUB massage;
+	RUB restaurant;
+	RUB taxi;
+	RUB club;
 
 };
 
@@ -94,9 +123,60 @@ struct Gifts
 };
 
 
-//struct Hobbies {
-//RUB hobbies;
-//};
+struct Hobbies 
+{
+
+	//davis hobbies
+
+	RUB guitar;
+    RUB hobbies;
+	RUB golf;
+	RUB skiing;
+	RUB tennis;
+	RUB fishing;
+	RUB hiking;
+	RUB books;
+	RUB video_games;
+	RUB machines;
+
+	//lisa hobbies
+    
+	RUB dancing;
+	RUB painting;
+    RUB art;
+	RUB fashion;
+	RUB sewing;
+	RUB jewelry;
+	RUB cooking;
+	RUB baking;
+	RUB photography;
+    RUB music;
+
+};
+
+struct Clothes {
+    RUB shoes;
+	RUB pants;
+	RUB shirt;
+    RUB jacket;
+	RUB hat;
+	RUB socks;
+	RUB underwear;
+	RUB accessories;
+	RUB coat;
+	RUB gloves;
+	RUB scarf;
+	RUB swimsuit;
+	RUB dress;
+	RUB t_shirt;
+	RUB sweatshirt;
+    RUB swimwear;
+	RUB sportswear;
+	RUB dresses;
+	RUB skirts;
+	RUB blouses;
+
+};
 
 
 struct Medicine {
@@ -165,6 +245,36 @@ struct Food {
     RUB hummus;
     RUB oat_milk;
 
+    RUB dark_chocolate_75;
+    RUB protein_bar;
+    RUB honey;
+    RUB marshmallow_sugar_free;
+    RUB peanut_butter;
+    RUB salmon_fillet;
+    RUB beef_steak;
+    RUB sweet_potato;
+    RUB bell_pepper_red;
+    RUB cauliflower;
+    RUB chia_seeds;
+    RUB coconut_oil;
+    RUB green_tea_bags;
+    RUB coffee_beans;
+
+    RUB vegan_chocolate;
+    RUB fruit_leather;
+    RUB coconut_chips;
+    RUB agave_syrup;
+    RUB vegan_cookies;
+    RUB tofu_smoked;
+    RUB tempeh;
+    RUB seitan;
+    RUB edamame;
+    RUB nutritional_yeast;
+    RUB soy_sauce;
+    RUB coconut_yogurt;
+    RUB matcha_powder;
+    RUB dates;
+    RUB cacao_nibs;
 };
 
 
@@ -182,6 +292,9 @@ struct Person {
     Gifts gifts;
     Food food;
 	Medicine medicine;
+	Hobbies hobbies;
+	Clothes clothing;
+
 
     RUB boyfriend;
     RUB holiday;
@@ -200,7 +313,7 @@ void davis_init()
     davis.tb.account = 0;
     davis.tb.deposite = 10'000;
     davis.tb.interest = 14.5;
-    davis.salary = 150'000;
+    davis.salary = 300'000;
 
     davis.tb.account_eur = 5000;
     davis.tb.rate_eur_rub = 90.45;
@@ -226,11 +339,35 @@ void davis_init()
     davis.food.olive_oil = 66;
     davis.food.bread = 20;
     davis.food.frozen_berries = 30;
+
+    davis.food.dark_chocolate_75 = 90;
+    davis.food.protein_bar = 120;
+    davis.food.honey = 40;
+    davis.food.marshmallow_sugar_free = 35;
+    davis.food.peanut_butter = 60;
+    davis.food.salmon_fillet = 80;
+    davis.food.beef_steak = 70;
+    davis.food.sweet_potato = 8;
+    davis.food.bell_pepper_red = 15;
+    davis.food.cauliflower = 14;
+    davis.food.chia_seeds = 100;
+    davis.food.coconut_oil = 50;
+    davis.food.green_tea_bags = 200;
+    davis.food.coffee_beans = 150;
     
     davis.car.value = 1'800'000;
     davis.car.gas = 15'000;
+	davis.car.wash = 500;
+	davis.car.penalty = 5'000;
+	davis.car.osago = 10'000;
+	davis.car.kasko = 20'000;
+	davis.car.washer_fluid = 300;
+	davis.car.antifreez = 500;
+	davis.car.tires = 20'000;
+	davis.car.tax_for_a_car = 12'000;
     
     davis.car_service.service = 10'000;
+	davis.car_service.repair = 20'000;
 
     davis.girlfriend.date = 10'000;
 
@@ -244,6 +381,13 @@ void davis_init()
     davis.cat.toilet_for_cat = 500;
 
     davis.friends.beer = 2'000;
+	davis.friends.fast_food = 1'500;
+	davis.friends.cinema = 1'000;
+	davis.friends.games = 1'500;
+	davis.friends.bowling = 1'000;
+	davis.friends.karaoke = 1'000;
+	davis.friends.concerts = 2'000;
+	davis.friends.billiard = 1'000;
 
     davis.gifts.gifts = 15'000;
     
@@ -269,6 +413,18 @@ void davis_init()
     davis.medicine.antacid_chewable = 250;
     davis.medicine.cough_syrup_100ml = 380;
     davis.medicine.bandage_elastic = 150;
+
+	davis.hobbies.guitar = 1'000;
+	davis.hobbies.hobbies = 1'500;
+	davis.hobbies.golf = 2'000;
+	davis.hobbies.skiing = 3'000;
+	davis.hobbies.tennis = 2'000;
+	davis.hobbies.fishing = 1'500;
+	davis.hobbies.hiking = 1'000;
+	davis.hobbies.books = 1'500;
+	davis.hobbies.video_games = 2'000;
+	davis.hobbies.machines = 3'000;
+
 }
 
 
@@ -276,7 +432,16 @@ void lisa_init()
 {
 
     lisa.car.value = 0;
-
+	lisa.car.gas = 10'000;
+	lisa.car.wash = 500;
+	lisa.car.penalty = 5'000;
+	lisa.car.osago = 10'000;
+	lisa.car.kasko = 20'000;
+	lisa.car.washer_fluid = 300;
+	lisa.car.antifreez = 500;
+	lisa.car.tires = 20'000;
+	lisa.car.tax_for_a_car = 12'000;
+    
     lisa.food.oatmeal = 20;
     lisa.food.frozen_berries = 30;
     lisa.food.almonds = 80;
@@ -300,6 +465,21 @@ void lisa_init()
     lisa.food.hummus = 50;
     lisa.food.oat_milk = 15;
 
+    lisa.food.vegan_chocolate = 85;
+    lisa.food.fruit_leather = 40;
+    lisa.food.coconut_chips = 70;
+    lisa.food.agave_syrup = 50;
+    lisa.food.vegan_cookies = 45;
+    lisa.food.tofu_smoked = 45;
+    lisa.food.tempeh = 60;
+    lisa.food.seitan = 50;
+    lisa.food.edamame = 35;
+    lisa.food.nutritional_yeast = 120;
+    lisa.food.soy_sauce = 15;
+    lisa.food.coconut_yogurt = 25;
+    lisa.food.matcha_powder = 300;
+    lisa.food.dates = 30;
+    lisa.food.cacao_nibs = 90;
 
     lisa.flat.rent = 10'000;
 
@@ -307,7 +487,7 @@ void lisa_init()
     lisa.tb.account = 0;
     lisa.tb.deposite = 5'000;
     lisa.tb.interest = 14.5;
-    lisa.salary = 30'000;
+    lisa.salary = 100'000;
 
     lisa.boyfriend = 15'000;
 
@@ -340,6 +520,27 @@ void lisa_init()
     lisa.medicine.cough_syrup_100ml = 380;
     lisa.medicine.bandage_elastic = 150;
 
+	lisa.friends.coffe = 500;
+	lisa.friends.brunch = 1'000;
+	lisa.friends.cinema_lisa = 1'000;
+	lisa.friends.fotosession = 2'000;
+	lisa.friends.shopping = 5'000;
+	lisa.friends.spa = 3'000;
+	lisa.friends.massage = 2'000;
+	lisa.friends.restaurant = 2'000;
+	lisa.friends.taxi = 1'000;
+	lisa.friends.club = 2'000;
+
+	lisa.hobbies.dancing = 1'000;
+    lisa.hobbies.painting = 1'500;
+    lisa.hobbies.art = 2'000;
+    lisa.hobbies.fashion = 3'000;
+    lisa.hobbies.sewing = 1'500;
+    lisa.hobbies.jewelry = 2'000;
+    lisa.hobbies.cooking = 1'000;
+    lisa.hobbies.baking = 1'500;
+    lisa.hobbies.photography = 2'000;
+	lisa.hobbies.music = 3'000;
 
 }
 
@@ -491,11 +692,354 @@ void davis_inflation(const int month, const int year)
 }
 
 
-void davis_friends()
+void davis_friends(const int month, const int year)
 {
-    davis.tb.account -= davis.friends.beer;
+
+	if (month == 2 or month == 5 or month == 9)
+    {
+        davis.tb.account -= davis.friends.beer;
+
+    }
 
     davis.friends.beer += davis.friends.beer * inflation / 12;
+
+
+    if (month == 3 or month == 6 or month == 10)
+    {
+        davis.tb.account -= davis.friends.fast_food;
+
+	}
+
+	davis.friends.fast_food += davis.friends.fast_food * inflation / 12;
+
+
+    if (month == 4 or month == 7 or month == 11)
+    {
+        davis.tb.account -= davis.friends.cinema;
+
+    }
+
+	davis.friends.cinema += davis.friends.cinema * inflation / 12;
+
+
+    if (month == 1 or month == 8 or month == 12)
+    {
+        davis.tb.account -= davis.friends.games;
+
+	}
+
+	davis.friends.games += davis.friends.games * inflation / 12;
+
+
+    if (month == 2 or month == 4 or month == 6 or month == 8 or month == 10 or month == 12)
+    {
+        davis.tb.account -= davis.friends.bowling;
+
+	}
+
+	davis.friends.bowling += davis.friends.bowling * inflation / 12;
+
+
+    if (month == 3 or month == 6 or month == 9 or month == 12)
+    {
+        davis.tb.account -= davis.friends.karaoke;
+
+    }
+
+	davis.friends.karaoke += davis.friends.karaoke * inflation / 12;
+
+
+    if (month == 1 or month == 4 or month == 7 or month == 10)
+    {
+        davis.tb.account -= davis.friends.concerts;
+
+    }
+
+	davis.friends.concerts += davis.friends.concerts * inflation / 12;
+
+
+    if (month == 2 or month == 5 or month == 8 or month == 11)
+    {
+        davis.tb.account -= davis.friends.billiard;
+
+    }
+
+	davis.friends.billiard += davis.friends.billiard * inflation / 12;
+
+}
+
+
+void lisa_friends(const int month, const int year)
+{
+    if (month == 1 or month == 4 or month == 7 or month == 10)
+    {
+        lisa.tb.account -= lisa.friends.coffe;
+	}
+
+	lisa.friends.coffe += lisa.friends.coffe * inflation / 12;
+
+
+    if (month == 2 or month == 5 or month == 8 or month == 11)
+    {
+        lisa.tb.account -= lisa.friends.brunch;
+	}
+
+    lisa.friends.brunch += lisa.friends.brunch * inflation / 12;
+
+
+    if (month == 3 or month == 6 or month == 9 or month == 12)
+    {
+        lisa.tb.account -= lisa.friends.cinema_lisa;
+	}
+
+    lisa.friends.cinema_lisa += lisa.friends.cinema_lisa * inflation / 12;
+
+
+    if (month == 1 or month == 5 or month == 9)
+    {
+        lisa.tb.account -= lisa.friends.fotosession;
+    }
+    lisa.friends.fotosession += lisa.friends.fotosession * inflation / 12;
+
+
+    if (month == 2 or month == 6 or month == 10)
+    {
+        lisa.tb.account -= lisa.friends.shopping;
+    }
+
+    lisa.friends.shopping += lisa.friends.shopping * inflation / 12;
+
+
+    if (month == 3 or month == 7 or month == 11)
+    {
+        lisa.tb.account -= lisa.friends.spa;
+    }
+
+    lisa.friends.spa += lisa.friends.spa * inflation / 12;
+
+
+    if (month == 4 or month == 8 or month == 12)
+    {
+        lisa.tb.account -= lisa.friends.massage;
+    }
+
+    lisa.friends.massage += lisa.friends.massage * inflation / 12;
+
+
+    if (month == 1 or month == 5 or month == 9)
+    {
+        lisa.tb.account -= lisa.friends.restaurant;
+    }
+
+    lisa.friends.restaurant += lisa.friends.restaurant * inflation / 12;
+
+
+    if (month == 2 or month == 6 or month == 10)
+    {
+        lisa.tb.account -= lisa.friends.taxi;
+    }
+
+    lisa.friends.taxi += lisa.friends.taxi * inflation / 12;
+
+
+    if (month == 3 or month == 7 or month == 11)
+    {
+        lisa.tb.account -= lisa.friends.club;
+    }
+
+	lisa.friends.club += lisa.friends.club * inflation / 12;
+
+}
+
+
+void davis_hobbies(const int month, const int year)
+{
+
+    if (month == 1 or month == 4 or month == 7 or month == 10)
+    {
+        davis.tb.account -= davis.hobbies.guitar;
+
+    }
+
+	davis.hobbies.guitar += davis.hobbies.guitar * inflation / 12;
+
+
+    if (month == 2 or month == 5 or month == 8 or month == 11)
+    {
+        davis.tb.account -= davis.hobbies.hobbies;
+
+	}
+
+    davis.hobbies.hobbies += davis.hobbies.hobbies * inflation / 12;
+
+
+    if (month == 3 or month == 6 or month == 9 or month == 12)
+    {
+        davis.tb.account -= davis.hobbies.golf;
+
+	}
+
+	davis.hobbies.golf += davis.hobbies.golf * inflation / 12;
+
+
+    if (month == 1 or month == 6 or month == 11)
+    {
+        davis.tb.account -= davis.hobbies.skiing;
+
+	}
+
+    davis.hobbies.skiing += davis.hobbies.skiing * inflation / 12;
+
+
+    if (month == 2 or month == 7 or month == 12)
+    {
+        davis.tb.account -= davis.hobbies.tennis;
+
+	}
+
+    davis.hobbies.tennis += davis.hobbies.tennis * inflation / 12;
+
+
+    if (month == 3 or month == 8 or month == 1)
+    {
+        davis.tb.account -= davis.hobbies.fishing;
+
+    }
+
+    davis.hobbies.fishing += davis.hobbies.fishing * inflation / 12;
+
+
+    if (month == 4 or month == 9 or month == 2)
+    {
+        davis.tb.account -= davis.hobbies.hiking;
+
+    }
+
+    davis.hobbies.hiking += davis.hobbies.hiking * inflation / 12;
+
+
+    if (month == 5 or month == 10 or month == 3)
+    {
+        davis.tb.account -= davis.hobbies.books;
+
+    }
+
+    davis.hobbies.books += davis.hobbies.books * inflation / 12;
+
+
+    if (month == 6 or month == 11 or month == 4)
+    {
+        davis.tb.account -= davis.hobbies.video_games;
+
+    }
+
+    davis.hobbies.video_games += davis.hobbies.video_games * inflation / 12;
+
+
+    if (month == 7 or month == 12 or month == 5)
+    {
+        davis.tb.account -= davis.hobbies.machines;
+
+	}
+
+	davis.hobbies.machines += davis.hobbies.machines * inflation / 12;
+
+
+}
+
+
+void lisa_hobbies(const int month, const int year)
+{
+
+    if (month == 1 or month == 4 or month == 7 or month == 10)
+    {
+        lisa.tb.account -= lisa.hobbies.dancing;
+
+    }
+
+	lisa.hobbies.dancing += lisa.hobbies.dancing * inflation / 12;
+
+
+    if (month == 2 or month == 5 or month == 8 or month == 11)
+    {
+        lisa.tb.account -= lisa.hobbies.painting;
+
+	}
+
+    lisa.hobbies.painting += lisa.hobbies.painting * inflation / 12;
+
+
+    if (month == 3 or month == 6 or month == 9 or month == 12)
+    {
+        lisa.tb.account -= lisa.hobbies.art;
+
+	}
+
+    lisa.hobbies.art += lisa.hobbies.art * inflation / 12;
+
+
+    if (month == 1 or month == 5 or month == 9)
+    {
+        lisa.tb.account -= lisa.hobbies.fashion;
+
+    }
+
+    lisa.hobbies.fashion += lisa.hobbies.fashion * inflation / 12;
+
+
+    if (month == 2 or month == 6 or month == 10)
+    {
+        lisa.tb.account -= lisa.hobbies.sewing;
+
+    }
+
+    lisa.hobbies.sewing += lisa.hobbies.sewing * inflation / 12;
+
+
+    if (month == 3 or month == 7 or month == 11)
+    {
+        lisa.tb.account -= lisa.hobbies.jewelry;
+
+    }
+
+	lisa.hobbies.jewelry += lisa.hobbies.jewelry * inflation / 12;
+
+
+    if (month == 4 or month == 8 or month == 12)
+    {
+        lisa.tb.account -= lisa.hobbies.cooking;
+
+    }
+
+    lisa.hobbies.cooking += lisa.hobbies.cooking * inflation / 12;
+
+
+    if (month == 1 or month == 5 or month == 9)
+    {
+        lisa.tb.account -= lisa.hobbies.baking;
+
+    }
+
+    lisa.hobbies.baking += lisa.hobbies.baking * inflation / 12;
+
+
+    if (month == 2 or month == 6 or month == 10)
+    {
+        lisa.tb.account -= lisa.hobbies.photography;
+
+    }
+
+    lisa.hobbies.photography += lisa.hobbies.photography * inflation / 12;
+
+
+    if (month == 3 or month == 7 or month == 11)
+    {
+        lisa.tb.account -= lisa.hobbies.music;
+
+	}
+
+	lisa.hobbies.music += lisa.hobbies.music * inflation / 12;
+
 
 }
 
@@ -535,7 +1079,21 @@ void davis_food()
     davis.tb.account -= davis.food.olive_oil * 1.4;
     davis.tb.account -= davis.food.bread * 3.5;
     davis.tb.account -= davis.food.frozen_berries * 7;
-
+        
+    davis.tb.account -= davis.food.dark_chocolate_75 * 3;
+    davis.tb.account -= davis.food.protein_bar * 6;
+    davis.tb.account -= davis.food.honey * 5;
+    davis.tb.account -= davis.food.marshmallow_sugar_free * 4;
+    davis.tb.account -= davis.food.peanut_butter * 5;
+    davis.tb.account -= davis.food.salmon_fillet * 15;
+    davis.tb.account -= davis.food.beef_steak * 15;
+    davis.tb.account -= davis.food.sweet_potato * 20;
+    davis.tb.account -= davis.food.bell_pepper_red * 10;
+    davis.tb.account -= davis.food.cauliflower * 10;
+    davis.tb.account -= davis.food.chia_seeds * 3;
+    davis.tb.account -= davis.food.coconut_oil * 4;
+    davis.tb.account -= davis.food.green_tea_bags * 1.2;
+    davis.tb.account -= davis.food.coffee_beans * 1.5;
 
 }
 
@@ -564,6 +1122,20 @@ void davis_food_inflation()
     davis.food.bread += davis.food.bread * inflation / 12;
     davis.food.frozen_berries += davis.food.frozen_berries * inflation / 12;
 
+	davis.food.dark_chocolate_75 += davis.food.dark_chocolate_75 * inflation / 12;
+	davis.food.protein_bar += davis.food.protein_bar * inflation / 12;
+	davis.food.honey += davis.food.honey * inflation / 12;
+	davis.food.marshmallow_sugar_free += davis.food.marshmallow_sugar_free * inflation / 12;
+	davis.food.peanut_butter += davis.food.peanut_butter * inflation / 12;
+	davis.food.salmon_fillet += davis.food.salmon_fillet * inflation / 12;
+	davis.food.beef_steak += davis.food.beef_steak * inflation / 12;
+	davis.food.sweet_potato += davis.food.sweet_potato * inflation / 12;
+	davis.food.bell_pepper_red += davis.food.bell_pepper_red * inflation / 12;
+	davis.food.cauliflower += davis.food.cauliflower * inflation / 12;
+	davis.food.chia_seeds += davis.food.chia_seeds * inflation / 12;
+	davis.food.coconut_oil += davis.food.coconut_oil * inflation / 12;
+	davis.food.green_tea_bags += davis.food.green_tea_bags * inflation / 12;
+	davis.food.coffee_beans += davis.food.coffee_beans * inflation / 12;
 }
 
 
@@ -593,6 +1165,23 @@ void lisa_food()
     lisa.tb.account -= lisa.food.hummus * 3.5;
     lisa.tb.account -= lisa.food.oat_milk * 14;
 
+	lisa.tb.account -= lisa.food.vegan_chocolate * 4;
+	lisa.tb.account -= lisa.food.fruit_leather * 5;
+	lisa.tb.account -= lisa.food.coconut_chips * 3;
+	lisa.tb.account -= lisa.food.agave_syrup * 6;
+	lisa.tb.account -= lisa.food.vegan_cookies * 10;
+	lisa.tb.account -= lisa.food.tofu_smoked * 8;
+	lisa.tb.account -= lisa.food.tempeh * 8;
+	lisa.tb.account -= lisa.food.seitan * 8;
+	lisa.tb.account -= lisa.food.edamame * 6;
+	lisa.tb.account -= lisa.food.nutritional_yeast * 2;
+	lisa.tb.account -= lisa.food.soy_sauce * 5;
+	lisa.tb.account -= lisa.food.coconut_yogurt * 15;
+	lisa.tb.account -= lisa.food.matcha_powder * 1;
+	lisa.tb.account -= lisa.food.dates * 5;
+	lisa.tb.account -= lisa.food.cacao_nibs * 2;
+
+
 }
 
 
@@ -621,15 +1210,88 @@ void lisa_food_inflation()
     lisa.food.hummus += lisa.food.hummus * inflation / 12;
     lisa.food.oat_milk += lisa.food.oat_milk * inflation / 12;
 
+	lisa.food.vegan_chocolate += lisa.food.vegan_chocolate * inflation / 12;
+	lisa.food.fruit_leather += lisa.food.fruit_leather * inflation / 12;
+	lisa.food.coconut_chips += lisa.food.coconut_chips * inflation / 12;
+	lisa.food.agave_syrup += lisa.food.agave_syrup * inflation / 12;
+	lisa.food.vegan_cookies += lisa.food.vegan_cookies * inflation / 12;
+	lisa.food.tofu_smoked += lisa.food.tofu_smoked * inflation / 12;
+	lisa.food.tempeh += lisa.food.tempeh * inflation / 12;
+	lisa.food.seitan += lisa.food.seitan * inflation / 12;
+	lisa.food.edamame += lisa.food.edamame * inflation / 12;
+	lisa.food.nutritional_yeast += lisa.food.nutritional_yeast * inflation / 12;
+	lisa.food.soy_sauce += lisa.food.soy_sauce * inflation / 12;
+	lisa.food.coconut_yogurt += lisa.food.coconut_yogurt * inflation / 12;
+	lisa.food.matcha_powder += lisa.food.matcha_powder * inflation / 12;
+	lisa.food.dates += lisa.food.dates * inflation / 12;
+	lisa.food.cacao_nibs += lisa.food.cacao_nibs * inflation / 12;
+
+
 }
 
 
-void davis_car()
+void davis_car(const int month, const int year)
 {
     davis.tb.account -= davis.car.gas;
-
     davis.car.gas += davis.car.gas * inflation / 12;
 
+    davis.tb.account -= davis.car.wash;
+	davis.car.wash += davis.car.wash * inflation / 12;
+
+    davis.tb.account -= davis.car.penalty;
+	davis.car.penalty += davis.car.penalty * inflation / 12;
+
+	davis.tb.account -= davis.car.tax_for_a_car;
+	davis.car.tax_for_a_car += davis.car.tax_for_a_car * inflation / 12;
+     
+    if (month == 2 or month == 4 or month == 8 or month == 10 or month == 12) 
+    {
+
+        davis.tb.account -= davis.car.washer_fluid;
+        
+	}
+
+	davis.car.washer_fluid += davis.car.washer_fluid * inflation / 12;
+
+
+    if (month == 2 or month == 10) 
+    {
+
+        davis.tb.account -= davis.car.antifreez;
+        
+    }
+
+    davis.car.antifreez += davis.car.antifreez * inflation / 12;
+
+
+    if (month == 3 or month == 11) 
+    {
+
+        davis.tb.account -= davis.car.tires;
+        
+    }
+
+    davis.car.tires += davis.car.tires * inflation / 12;
+
+
+	if (month == 1) 
+    {
+
+        davis.tb.account -= (davis.car.osago);
+    }
+
+    davis.car.osago += davis.car.osago * inflation / 12;
+
+
+     if (month == 1) 
+     {
+
+        davis.tb.account -= (davis.car.kasko);
+
+     }
+
+	 davis.car.kasko += davis.car.kasko * inflation / 12;
+    
 }
 
 
@@ -691,45 +1353,261 @@ void davis_car_servise(const int month, const int year)
 
     }
 
+    davis.car_service.service += davis.car_service.service * inflation / 12;
+
 
     if (month == 1 and year == 2030) {
 
-        davis.tb.account -= (davis.car_service.service * 10);
+        davis.tb.account -= davis.car_service.repair;
 
     }
 
-    davis.car_service.service += davis.car_service.service * inflation / 12;
+	davis.car_service.repair += davis.car_service.repair * inflation / 12;
 
 }
 
 
+void lisa_car_servise(const int month, const int year)
+{
+    if (month == 6)
+    {
+        lisa.tb.account -= lisa.car_service.service;
+
+    }
+
+    lisa.car_service.service += lisa.car_service.service * inflation / 12;
+
+
+    if (month == 1 and year == 2030)
+    {
+        lisa.tb.account -= lisa.car_service.repair;
+
+    }
+
+    lisa.car_service.repair += lisa.car_service.repair * inflation / 12;
+
+}
+
+
+void davis_clothing(const int month, const int year)
+{
+    if (month == 3 or month == 9) 
+    {
+        davis.tb.account -= davis.clothing.shoes;
+
+    }
+
+	davis.clothing.shoes += davis.clothing.shoes * inflation / 12;
+
+
+    if (month == 4 or month == 10) 
+    {
+        davis.tb.account -= davis.clothing.jacket;
+
+	}
+
+    davis.clothing.jacket += davis.clothing.jacket * inflation / 12;
+
+
+    if (month == 5 or month == 11) 
+    {
+        davis.tb.account -= davis.clothing.pants;
+
+	}
+
+    davis.clothing.pants += davis.clothing.pants * inflation / 12;
+
+
+    if (month == 6 or month == 12) 
+    {
+        davis.tb.account -= davis.clothing.t_shirt;
+
+    }
+
+	davis.clothing.t_shirt += davis.clothing.t_shirt * inflation / 12;
+
+
+    if (month == 7 or month == 1) 
+    {
+        davis.tb.account -= davis.clothing.sweatshirt;
+
+    }
+
+    davis.clothing.sweatshirt += davis.clothing.sweatshirt * inflation / 12;
+
+
+    if (month == 8 or month == 2) 
+    {
+        davis.tb.account -= davis.clothing.underwear;
+
+	}
+
+	davis.clothing.underwear += davis.clothing.underwear * inflation / 12;
+
+
+    if (month == 9 or month == 3) 
+    {
+        davis.tb.account -= davis.clothing.socks;
+
+	}
+
+
+	davis.clothing.socks += davis.clothing.socks * inflation / 12;
+    if (month == 10 or month == 4) 
+    {
+        davis.tb.account -= davis.clothing.accessories;
+
+	}
+
+    davis.clothing.accessories += davis.clothing.accessories * inflation / 12;
+
+    if (month == 11 or month == 5) 
+    {
+        davis.tb.account -= davis.clothing.swimwear;
+
+	}
+
+    davis.clothing.swimwear += davis.clothing.swimwear * inflation / 12;
+
+
+    if (month == 12 or month == 6) 
+    {
+        davis.tb.account -= davis.clothing.sportswear;
+
+	}
+
+	davis.clothing.sportswear += davis.clothing.sportswear * inflation / 12;
+
+}
+
+void lisa_clothing(const int month, const int year)
+{
+
+    if (month == 3 or month == 9) 
+    {
+        lisa.tb.account -= lisa.clothing.dresses;
+
+    }
+
+	lisa.clothing.dresses += lisa.clothing.dresses * inflation / 12;
+
+
+    if (month == 4 or month == 10) 
+    {
+        lisa.tb.account -= lisa.clothing.skirts;
+
+	}
+
+    lisa.clothing.skirts += lisa.clothing.skirts * inflation / 12;
+
+
+    if (month == 5 or month == 11) 
+    {
+        lisa.tb.account -= lisa.clothing.blouses;
+
+    }
+
+    lisa.clothing.blouses += lisa.clothing.blouses * inflation / 12;
+
+
+    if (month == 6 or month == 12) 
+    {
+        lisa.tb.account -= lisa.clothing.t_shirt;
+
+	}
+
+    lisa.clothing.t_shirt += lisa.clothing.t_shirt * inflation / 12;
+
+
+    if (month == 7 or month == 1) 
+    {
+        lisa.tb.account -= lisa.clothing.sweatshirt;
+
+    }
+
+    lisa.clothing.sweatshirt += lisa.clothing.sweatshirt * inflation / 12;
+
+
+    if (month == 8 or month == 2) 
+    {
+        lisa.tb.account -= lisa.clothing.underwear;
+
+	}
+
+    lisa.clothing.underwear += lisa.clothing.underwear * inflation / 12;
+
+
+    if (month == 9 or month == 3) 
+    {
+        lisa.tb.account -= lisa.clothing.socks;
+
+    }
+
+    lisa.clothing.socks += lisa.clothing.socks * inflation / 12;
+
+
+    if (month == 10 or month == 4) 
+    {
+        lisa.tb.account -= lisa.clothing.accessories;
+
+    }
+
+    lisa.clothing.accessories += lisa.clothing.accessories * inflation / 12;
+
+
+    if (month == 11 or month == 5) 
+    {
+        lisa.tb.account -= lisa.clothing.swimwear;
+
+    }
+
+    lisa.clothing.swimwear += lisa.clothing.swimwear * inflation / 12;
+
+
+    if (month == 12 or month == 6) 
+    {
+        lisa.tb.account -= lisa.clothing.sportswear;
+
+    }
+
+	lisa.clothing.sportswear += lisa.clothing.sportswear * inflation / 12;
+
+
+}
+ 
+
 void davis_deposite(const int month, const int year)
 {
-    if (year == 2026) {
+    if (year == 2026) 
+    {
         
         davis.tb.interest = 14.5;
 
     }
 
-    if (year == 2027) {
+    if (year == 2027) 
+    {
 
         davis.tb.interest = 13.5;
 
     }
 
-    if (year == 2028) {
+    if (year == 2028) 
+    {
 
         davis.tb.interest = 12.5;
 
     }
 
-    if (year == 2029) {
+    if (year == 2029) 
+    {
 
         davis.tb.interest = 11.5;
 
     }
 
-    if (year >= 2030) {
+    if (year >= 2030) 
+    {
 
         davis.tb.interest = 9.5;
 
@@ -751,6 +1629,8 @@ void davis_medicine(const int month, const int year)
 
     }
 
+	davis.medicine.visit_to_a_doctor += davis.medicine.visit_to_a_doctor * inflation / 12;
+
 
     davis.tb.account -= davis.medicine.whey_protein_isolate;
     davis.tb.account -= davis.medicine.creatine_monohydrate;
@@ -770,6 +1650,24 @@ void davis_medicine(const int month, const int year)
     davis.tb.account -= davis.medicine.cough_syrup_100ml;
     davis.tb.account -= davis.medicine.bandage_elastic;
 
+	davis.medicine.whey_protein_isolate += davis.medicine.whey_protein_isolate * inflation / 12;
+	davis.medicine.creatine_monohydrate += davis.medicine.creatine_monohydrate * inflation / 12;
+	davis.medicine.bcaa_powder += davis.medicine.bcaa_powder * inflation / 12;
+	davis.medicine.joint_support_complex += davis.medicine.joint_support_complex * inflation / 12;
+	davis.medicine.electrolyte_tabs += davis.medicine.electrolyte_tabs * inflation / 12;
+	davis.medicine.caffeine_pills_200mg += davis.medicine.caffeine_pills_200mg * inflation / 12;
+    
+    davis.medicine.ibuprofen_200mg += davis.medicine.ibuprofen_200mg * inflation / 12;
+    davis.medicine.paracetamol_500mg += davis.medicine.paracetamol_500mg * inflation / 12;
+    davis.medicine.vitamin_c_effervescent += davis.medicine.vitamin_c_effervescent * inflation / 12;
+    davis.medicine.multivitamin_daily += davis.medicine.multivitamin_daily * inflation / 12;
+    davis.medicine.magnesium_glycinate += davis.medicine.magnesium_glycinate * inflation / 12;
+    davis.medicine.melatonin_3mg += davis.medicine.melatonin_3mg * inflation / 12;
+    davis.medicine.probiotic_capsules += davis.medicine.probiotic_capsules * inflation / 12;
+    davis.medicine.antacid_chewable += davis.medicine.antacid_chewable * inflation / 12;
+    davis.medicine.cough_syrup_100ml += davis.medicine.cough_syrup_100ml * inflation / 12;
+	davis.medicine.bandage_elastic += davis.medicine.bandage_elastic * inflation / 12;
+
 }
 
 
@@ -780,6 +1678,8 @@ void lisa_medicine(const int month, const int year)
         lisa.tb.account -= lisa.medicine.visit_to_a_doctor;
 
     }
+
+	lisa.medicine.visit_to_a_doctor += lisa.medicine.visit_to_a_doctor * inflation / 12;
 
 
     lisa.tb.account -= lisa.medicine.vitamin_b12_sublingual;
@@ -798,6 +1698,20 @@ void lisa_medicine(const int month, const int year)
     lisa.tb.account -= lisa.medicine.cough_syrup_100ml;
     lisa.tb.account -= lisa.medicine.bandage_elastic;
 
+	lisa.medicine.vitamin_b12_sublingual += lisa.medicine.vitamin_b12_sublingual * inflation / 12;
+	lisa.medicine.iron_complex_vegan += lisa.medicine.iron_complex_vegan * inflation / 12;
+	lisa.medicine.algae_omega3 += lisa.medicine.algae_omega3 * inflation / 12;
+    lisa.medicine.plant_protein_powder += lisa.medicine.plant_protein_powder * inflation / 12;
+
+    lisa.medicine.ibuprofen_200mg += lisa.medicine.ibuprofen_200mg * inflation / 12;
+    lisa.medicine.paracetamol_500mg += lisa.medicine.paracetamol_500mg * inflation / 12;
+    lisa.medicine.vitamin_c_effervescent += lisa.medicine.vitamin_c_effervescent * inflation / 12;
+    lisa.medicine.multivitamin_daily += lisa.medicine.multivitamin_daily * inflation / 12;
+    lisa.medicine.magnesium_glycinate += lisa.medicine.magnesium_glycinate * inflation / 12;
+    lisa.medicine.melatonin_3mg += lisa.medicine.melatonin_3mg * inflation / 12;
+    lisa.medicine.probiotic_capsules += lisa.medicine.probiotic_capsules * inflation / 12;
+    lisa.medicine.antacid_chewable += lisa.medicine.antacid_chewable * inflation / 12;
+	lisa.medicine.cough_syrup_100ml += lisa.medicine.cough_syrup_100ml * inflation / 12;
 }
 
 
@@ -868,40 +1782,6 @@ void pair_holiday(const int month, const int year)
 }
 
 
-void pair_newcar(const int month, const int year)
-{
-    if (month == 12) {
-
-		// every year car loses 15% of its value
-
-        davis.car.value -= davis.car.value * 0.15;
-        lisa.car.value -= lisa.car.value * 0.15;
-
-    }
-
-
-	if (davis.tb.deposite > 8'000'000) { 
-        
-        // if he has a lot of money, he can buy a new car
-
-        davis.tb.deposite -= 4'000'000;
-        davis.car.value += 4'000'000;
-
-    }
-
-
-	if (year == 2039) { 
-        
-        // its just a gift for his wife
-
-        davis.tb.deposite -= 4'000'000;
-        lisa.car.value += 4'000'000;
-
-    }
-
-}
-
-
 void pair_marriage(const int month, const int year)
 {
     if (month == 7 and year == 2035) { 
@@ -916,7 +1796,8 @@ void pair_marriage(const int month, const int year)
 
 
 void mortgage()
-{
+{  
+	// mortgage payment is calculated using annuity formula
     newflat += newflat * 0.22 / 12;
     float years = 15;
     float total_months = years * 12;
@@ -937,7 +1818,7 @@ void pair_ownflat(const int month, const int year)
 {
     if (month == 1 and year == 2032) {
 
-        newflat -= 5'000'000;
+		newflat -= 5'000'000; // first payment for the flat
         newflat_own = true;
         mortgage();
     }
@@ -955,6 +1836,111 @@ void pair_ownflat(const int month, const int year)
     }
 
 }
+
+
+void pair_newcar(const int month, const int year)
+{
+    if (month == 12) {
+
+        // every year car loses 15% of its value
+
+        davis.car.value -= davis.car.value * 0.15;
+        lisa.car.value -= lisa.car.value * 0.15;
+
+    }
+
+
+    if (davis.tb.deposite > 8'000'000) {
+
+        // if he has a lot of money, he can buy a new car
+
+        davis.tb.deposite -= 4'000'000;
+        davis.car.value += 4'000'000;
+
+    }
+
+
+    if (year == 2039) {
+
+        // its just a gift for his wife
+
+        davis.tb.deposite -= 4'000'000;
+        lisa.car.value += 4'000'000;
+
+    }
+
+}
+
+
+void lisa_car(const int month, const int year)
+{
+    if (lisa.car.value > 0) 
+    {
+
+        lisa.tb.account -= lisa.car.gas;
+        davis.car.gas += davis.car.gas * inflation / 12;
+
+        lisa.tb.account -= lisa.car.wash;
+        lisa.car.wash += lisa.car.wash * inflation / 12;
+
+		lisa.tb.account -= lisa.car.penalty;
+		lisa.car.penalty += lisa.car.penalty * inflation / 12;
+
+		lisa.tb.account -= lisa.car.tax_for_a_car;
+        lisa.car.tax_for_a_car += lisa.car.tax_for_a_car * inflation / 12;
+
+        if (month == 2 or month == 4 or month == 8 or month == 10 or month == 12) 
+        {
+
+            lisa.tb.account -= lisa.car.washer_fluid;
+        
+        }
+
+        lisa.car.washer_fluid += lisa.car.washer_fluid * inflation / 12;
+
+
+        if (month == 2 or month == 10) 
+        {
+
+            lisa.tb.account -= lisa.car.antifreez;
+        
+        }
+
+        lisa.car.antifreez += lisa.car.antifreez * inflation / 12;
+
+
+        if (month == 3 or month == 11) 
+        {
+
+            lisa.tb.account -= lisa.car.tires;
+        
+        }
+
+		lisa.car.tires += lisa.car.tires * inflation / 12;
+
+
+        if (month == 1) 
+        {
+
+            lisa.tb.account -= lisa.car.osago;
+
+		}
+
+        lisa.car.osago += lisa.car.osago * inflation / 12;
+
+
+        if (month == 1) 
+        {
+
+            lisa.tb.account -= lisa.car.kasko;
+
+		}
+		
+		lisa.car.kasko += lisa.car.kasko * inflation / 12;
+
+    }
+}
+
 
 
 void print_results()
@@ -999,7 +1985,7 @@ void simulation()
     {
 
         davis_salary(month, year);
-        davis_car();
+        davis_car(month, year);
         davis_gym();
         davis_girlfriend();
         davis_flat(month, year);
@@ -1008,7 +1994,7 @@ void simulation()
         davis_cat();
         davis_food();
         davis_food_inflation();
-        davis_friends();
+        davis_friends(month, year);
         davis_medicine(month, year);
 
         lisa_salary(month, year);
@@ -1016,7 +2002,7 @@ void simulation()
         lisa_food();
         lisa_food_inflation();
         lisa_medicine(month, year);
-
+        lisa_car(month, year);
         
         pair_gifts(month, year);
         pair_holiday(month, year);
