@@ -8,23 +8,28 @@ struct Car {
     RUB gas;
 };
 
+
 struct Cat {
     RUB feed;
 };
+
 
 struct Apartment {
     RUB value;
     RUB payment;
 };
 
+
 struct RentApartment {
     RUB rent;
 };
+
 
 struct Bank {
     RUB account;
     float deposit_interest;
 };
+
 
 struct Person {
     std::string name;
@@ -60,7 +65,6 @@ struct Person {
 };
 
 
-
 struct Person Alice;
 
 const float pp = 14.5;
@@ -68,10 +72,12 @@ const float cash_interest_per_month = 1.0125; // 15%
 const float apartment_interest_per_month = 1.0142; // 17%
 const float salary_interest_per_month = 1.01; // 12%
 
+
 void pet(Person& person) {
     person.pet.feed = person.pet.feed * cash_interest_per_month;
     person.VTB.account -= person.pet.feed;
 }
+
 
 void car(Person& person, int month, int year) {
     if (!person.is_having_car && person.VTB.account > person.car.value){
@@ -85,6 +91,7 @@ void car(Person& person, int month, int year) {
     if (person.is_having_car) person.VTB.account -= person.car.gas;
 }
 
+
 void salary(Person& person, const int month, const int year) {
     person.salary = person.salary * salary_interest_per_month;
     if ((month == 8) && (year == 2026)) { // Promotion
@@ -96,10 +103,12 @@ void salary(Person& person, const int month, const int year) {
     person.capital = person.poket_money_target;
 }
 
+
 void food(Person& person) {
     person.food = person.food * cash_interest_per_month;
     person.VTB.account -= person.food;
 }
+
 
 void apartment(Person& person, int month, int year){
     if (person.is_having_apartment) {
@@ -123,9 +132,11 @@ void apartment(Person& person, int month, int year){
     person.rent_apartment.rent *= apartment_interest_per_month;
 }
 
+
 void bank(Person& person) {
     person.VTB.account += person.VTB.account * (pp / 12.0 / 100.0);
 }
+
 
 void holidays(Person& person, const int month) {
     if (month == 2) person.VTB.account -= person.feb23th_cost;
@@ -136,6 +147,7 @@ void holidays(Person& person, const int month) {
     if (month == person.best_friend_birthday_month) person.VTB.account -= person.best_friend_birthday_cost;
     if (month == 12) person.VTB.account -= person.newyear_cost;
 }
+
 
 void alice_init() {
     Alice.name = "Alice";
@@ -173,6 +185,7 @@ void alice_init() {
     Alice.partner_birthday_month = 2;
 }
 
+
 void print_results(Person& person) {
     printf("%s's account:\n", person.name.c_str());
     printf("  Bank account = %ld\n", person.VTB.account);
@@ -183,6 +196,7 @@ void print_results(Person& person) {
     printf("  Car value = %ld\n", person.car.value);
     printf("  Car gas = %ld\n", person.car.gas);
 }
+
 
 void simulation(Person& person) {
     int month = 2;
@@ -205,6 +219,7 @@ void simulation(Person& person) {
         }
     }
 }
+
 
 int main() { 
     alice_init();
