@@ -1,0 +1,189 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+using Percent = float;
+using RUB = long long int;
+using USD = long long int;
+
+
+struct Car {
+    RUB value;
+    RUB gas;
+};
+
+
+struct Bank {
+    RUB account_rub;
+    USD account_usd;
+    float rate_usd_rub;
+};
+
+
+struct Disease {
+    const char* name;
+    Percent probability_per_month; 
+    int min_duration;              
+    int max_duration;              
+};
+
+
+struct Health {
+    bool is_sick;
+    int disease_id;
+    int severity;        
+    int start_day;       
+    int start_month;
+    int start_year;
+    int recovery_day;
+    int recovery_month;
+    int recovery_year;
+};
+
+
+struct Person {
+    Bank vtb;
+    RUB salary;
+    RUB food;
+    Car car;
+    Health health;
+};
+
+struct Person alice;
+
+#include <array>
+std::array<Disease, 5> disease;
+
+Disease diseases[] = {
+    {"Gripp (Flu)", 20.0, 1, 2},      
+    {"ORVI", 25.0, 1, 1},             
+    {"Chickenpox", 0.5, 2, 3},         
+    {"Measles", 0.2, 2, 3},  
+    {"Mononucleosis", 0.1, 3, 6}     
+};
+const int DISEASE_COUNT = sizeof(diseases) / sizeof(diseases[0]);
+
+
+void alice_init(){
+    alice.vtb.rate_usd_rub = 78.76;
+    alice.vtb.account_rub = 0;
+    alice.vtb.account_usd = 1'000;
+
+    alice.salary = 180'000;
+    alice.food = 3'000;
+
+    alice.car.value = 2'400'000;
+    alice.car.gas = 15'000;
+
+    alice.health.is_sick = false;
+    alice.health.disease_id = -1;
+}
+
+
+void alice_check_health(int month, int year){
+    for (int i = 0; i < DISEASE_COUNT; ++i) {
+        float roll = (float)rand() / RAND_MAX * 100.0f;
+        if (roll >= diseases[i].probability_per_month) continue;
+        
+        alice.health.is_sick = true;
+        alice.health.disease_id = i;
+        alice.health.severity = rand() % 3 + 1; 
+
+           
+        alice.health.start_day = rand() % 28 + 1;
+        alice.health.start_month = month;
+        alice.health.start_year = year;
+
+
+        int duration = diseases[i].min_duration + rand() %
+            (diseases[i].max_duration - diseases[i].min_duration + 1);
+
+
+        int total_months = month + duration - 1;
+        alice.health.recovery_month = total_months % 12;
+        if (alice.health.recovery_month == 0) alice.health.recovery_month = 12;
+        alice.health.recovery_year = year + (total_months - 1) / 12;
+
+            
+        alice.health.recovery_day = rand() % 28 + 1;
+
+        break;
+    }
+}
+
+
+void alice_food(const int month, const int year){
+    if (month == 12) alice.vtb.account_rub -= 2000;  
+
+    Percent inflation = 12.0f;
+    switch (year) {
+    case 2026: inflation = 12.5f; break;
+    case 2027: inflation = 14.0f; break;
+    case 2028: inflation = 13.0f; break;
+    case 2029: inflation = 11.5f; break;
+    }
+    alice.food += alice.food * (inflation / 100.0f / 12.0f);
+    alice.vtb.account_rub -= alice.food;
+}
+
+
+void alice_salary(const int month, const int year){
+    if (month == 3) alice.salary *= 1.5f;
+    if (month == 2 && year == 2026) alice.vtb.account_rub += 5000; 
+    alice.vtb.account_rub += alice.salary;
+}
+
+
+void alice_car()
+{
+    alice.vtb.account_rub -= alice.car.gas;
+}
+
+
+void print_results(){
+    printf("Salary = %lld\n", alice.salary);
+
+    RUB capital = 0;
+    capital += alice.vtb.account_rub;
+    capital += alice.vtb.account_usd * alice.vtb.rate_usd_rub;
+    capital += alice.car.value;
+    printf("Capital = %lld\n", capital);
+
+    if (alice.health.is_sick) {
+        printf("Alice got sick with: %s\n", diseases[alice.health.disease_id].name);
+        printf("Severity level: %d\n", alice.health.severity);
+        printf("Got sick: %d/%d/%d\n", alice.health.start_day, alice.health.start_month, alice.health.start_year);
+        printf("Recovered: %d/%d/%d\n", alice.health.recovery_day, alice.health.recovery_month, alice.health.recovery_year);
+    }
+    else {
+        printf("Alice did not get sick.\n");
+    }
+}
+
+
+void simulation()
+{
+    int year = 2026;
+    int month = 2;
+
+    while (!(year == 2028 && month == 2)) {
+        alice_salary(month, year);
+        alice_car();
+        alice_food(month, year);
+        alice_check_health(month, year);
+
+        ++month;
+        if (month == 13) {
+            ++year;
+            month = 1;
+        }
+    }
+}
+
+
+int main(){
+    alice_init();
+    simulation();
+    print_results();
+    
+}
