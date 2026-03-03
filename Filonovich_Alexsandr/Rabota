@@ -175,9 +175,8 @@ void simulation()
 
 
 int main(){
-    srand(time(NULL));
     alice_init();
     simulation();
     print_results();
-    return 0;
+    
 }
