@@ -1,80 +1,104 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 
 using RUB = long long int;
 
-struct Pet
-{
+//Структуры
+
+struct Pet{
     RUB value;
     RUB food;
     RUB filler;
 };
 
-struct Car 
-{
+struct Car {
     RUB value;
     RUB gas;
 };
 
-
-struct Person 
+struct Bank
 {
-    RUB flat;
     RUB bankcard;
     RUB salary;
     RUB deposit;
-    RUB food;
     RUB capital;
+};
+
+
+struct Person {
+    RUB flat;
+    RUB food;
+    struct Bank vtb;
     struct Car car;
     struct Pet pet;
 };
+
 struct Person Alice;
+struct Person Bob;
 
 
 float pp = 14.5;
 
+// Объявление функций
+// Alice
+void alice_salary(const int month, const int year);
+void alice_deposit();
+void alice_capital();
+void alice_food();
+void alice_car();
+void inflation();
+void alice_pet();
+void alice_init();
+
+// Bob
+void bob_init();
+
+// other
+void simulation();
+
+
+
+
 
 void alice_salary(const int month, const int year) 
 {
-    if ((month == 8) && (year == 2026)) 
-    {
-        Alice.salary *= 1.5;
+    if ((month == 8) && (year == 2026)){
+        Alice.vtb.salary *= 1.5;
     }
 
-    Alice.bankcard += Alice.salary;
+    Alice.vtb.bankcard += Alice.vtb.salary;
 }
 
 void alice_deposit()
 {
-    Alice.deposit += Alice.deposit * pp / 12 / 100;
-    Alice.deposit += Alice.salary / 10;
-    Alice.bankcard = Alice.bankcard - Alice.salary / 10;
+    Alice.vtb.deposit += Alice.vtb.deposit * pp / 12 / 100;
+    RUB money = Alice.vtb.salary / 10;
+    Alice.vtb.deposit += money; 
+    Alice.vtb.bankcard -= money;
 }
 
 void alice_capital()
 {
-    if (Alice.capital == 0)
-    {
-        Alice.capital = Alice.flat + Alice.car.value + Alice.pet.value + Alice.bankcard;
+    if (Alice.vtb.capital == 0){
+        Alice.vtb.capital = Alice.flat + Alice.car.value + Alice.pet.value + Alice.vtb.bankcard;
     }
-    Alice.capital += Alice.bankcard + Alice.deposit;
+    Alice.vtb.capital += Alice.vtb.bankcard + Alice.vtb.deposit;
 }
-
 
 void alice_food()
 {
-    Alice.bankcard -= Alice.food;
+    Alice.vtb.bankcard -= Alice.food;
 }
 
 void alice_car()
 {
-    Alice.bankcard -= Alice.car.gas;
+    Alice.vtb.bankcard -= Alice.car.gas;
 }
 
 void inflation()
 {
-    Alice.flat *= 1.04;
+    Alice.flat *= 0.09 / 12 / 100;
     Alice.food *= 1.04;
-    Alice.car.gas *= 1.03;
+    Alice.car.gas *= 1.03;  //поделить на проценты
     Alice.car.value *= 1.03;
     Alice.pet.filler *= 1.01;
     Alice.pet.food *= 1.02;
@@ -82,18 +106,33 @@ void inflation()
 
 void alice_pet()
 {
-    Alice.bankcard = Alice.bankcard - Alice.pet.filler - Alice.pet.food;
+    Alice.vtb.bankcard += Alice.pet.filler + Alice.pet.food;
 }
 
+void bob_init()
+{
+    Bob.flat = 0;
+    Bob.vtb.bankcard = 0;
+    Bob.vtb.deposit = 0;
+    Bob.vtb.salary = 2910;
+    Bob.food = 20'000;
+    Bob.vtb.capital = 0;
+
+    Bob.car.value = 2'400'000;
+    Bob.car.gas = 15'000;
+
+    Bob.pet.filler = 3000;
+    Bob.pet.food = 5000;
+}
 
 void alice_init()
 {
     Alice.flat = 8'000'000;
-    Alice.bankcard = 0;
-    Alice.deposit = 0;
-    Alice.salary = 180'000;
+    Alice.vtb.bankcard = 0;
+    Alice.vtb.deposit = 0;
+    Alice.vtb.salary = 180'000;
     Alice.food = 20'000;
-    Alice.capital = 0;
+    Alice.vtb.capital = 0;
 
     Alice.car.value = 2'400'000;
     Alice.car.gas = 15'000;
@@ -108,8 +147,7 @@ void simulation()
     int month = 2;
     int year = 2026;
 
-    while (!((month == 3) && (year == 2027))) 
-    {
+    while (!((month == 3) && (year == 2027))) {
         alice_capital();
         alice_pet();
         alice_food();
@@ -129,9 +167,9 @@ void simulation()
 
 void print_results()
 {
-    printf("bank acc = %lld\n", Alice.bankcard);
-    printf("deposit = %lld\n", Alice.deposit);
-    printf("capital = %lld", Alice.capital);
+    printf("bank acc = %lld\n", Alice.vtb.bankcard);
+    printf("deposit = %lld\n", Alice.vtb.deposit);
+    printf("capital = %lld", Alice.vtb.capital);
 }
 
 int main()
