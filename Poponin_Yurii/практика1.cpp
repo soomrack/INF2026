@@ -36,28 +36,34 @@ struct Person Alice;
 struct Person Bob;
 
 
-float pp = 14.5;
+float pp = 14.5; // пересмотреть
+
 
 // Объявление функций
+
+
 // Alice
 void alice_salary(const int month, const int year);
 void alice_deposit();
 void alice_capital();
 void alice_food();
 void alice_car();
-void inflation();
+void alice_inflation();
 void alice_pet();
 void alice_init();
 
 // Bob
 void bob_init();
+void bob_inflation();
 
 // other
 void simulation();
 
 
 
+// Определение функций
 
+// Alice
 
 void alice_salary(const int month, const int year) 
 {
@@ -78,7 +84,7 @@ void alice_deposit()
 
 void alice_capital()
 {
-    if (Alice.vtb.capital == 0){
+    if (Alice.vtb.capital == 0){//пересмотреть
         Alice.vtb.capital = Alice.flat + Alice.car.value + Alice.pet.value + Alice.vtb.bankcard;
     }
     Alice.vtb.capital += Alice.vtb.bankcard + Alice.vtb.deposit;
@@ -94,35 +100,9 @@ void alice_car()
     Alice.vtb.bankcard -= Alice.car.gas;
 }
 
-void inflation()
-{
-    Alice.flat *= 0.09 / 12 / 100;
-    Alice.food *= 1.04;
-    Alice.car.gas *= 1.03;  //поделить на проценты
-    Alice.car.value *= 1.03;
-    Alice.pet.filler *= 1.01;
-    Alice.pet.food *= 1.02;
-}
-
 void alice_pet()
 {
     Alice.vtb.bankcard += Alice.pet.filler + Alice.pet.food;
-}
-
-void bob_init()
-{
-    Bob.flat = 0;
-    Bob.vtb.bankcard = 0;
-    Bob.vtb.deposit = 0;
-    Bob.vtb.salary = 2910;
-    Bob.food = 20'000;
-    Bob.vtb.capital = 0;
-
-    Bob.car.value = 2'400'000;
-    Bob.car.gas = 15'000;
-
-    Bob.pet.filler = 3000;
-    Bob.pet.food = 5000;
 }
 
 void alice_init()
@@ -141,6 +121,38 @@ void alice_init()
     Alice.pet.food = 5000;
 }
 
+void alice_inflation() {
+    Alice.flat *= 0.09 / 12 / 100;
+    Alice.food *= 1.04;
+    Alice.car.gas *= 1.03;  //добавить рандом
+    Alice.car.value *= 1.03;
+    Alice.pet.filler *= 1.01;
+    Alice.pet.food *= 1.02;
+}
+
+
+
+// Bob
+
+void bob_init()
+{
+    Bob.flat = 0;
+    Bob.vtb.bankcard = 0;
+    Bob.vtb.deposit = 0;
+    Bob.vtb.salary = 2910;
+    Bob.food = 20'000;
+    Bob.vtb.capital = 0;
+
+    Bob.car.value = 2'400'000;
+    Bob.car.gas = 15'000;
+
+    Bob.pet.filler = 3000;
+    Bob.pet.food = 5000;
+}
+
+
+
+// others
 
 void simulation()
 {
@@ -153,8 +165,8 @@ void simulation()
         alice_food();
         alice_car();
         alice_deposit();
-        inflation();
-        alice_salary(month, year);
+        alice_inflation();
+        alice_salary(month, year); //добавить боба
 
         ++month;
         if (month == 13) 
@@ -165,6 +177,9 @@ void simulation()
     }
 }
 
+
+// Финальная часть
+
 void print_results()
 {
     printf("bank acc = %lld\n", Alice.vtb.bankcard);
@@ -174,6 +189,8 @@ void print_results()
 
 int main()
 {
+    bob_init();
+
     alice_init();
 
     simulation();
