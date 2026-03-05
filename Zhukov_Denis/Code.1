@@ -70,6 +70,18 @@ struct Taxes
 };
 
 
+struct Random
+{
+	int balance;
+	RUB events_net;
+
+	// случайные травмы
+	RUB treatment;
+	int recovery;
+};
+
+
+
 struct Person
 {
 	Bank vtb;
@@ -77,6 +89,8 @@ struct Person
 	RUB salary;
 	RUB food;
 	RUB internet;
+	bool has_cat;
+	bool has_dog;
 	RUB cat;
 	RUB dog;
 	RUB rent;
@@ -87,6 +101,8 @@ struct Person
 
 	House house;
 	Taxes tax;
+
+	Random random;
 };
 
 
@@ -129,13 +145,15 @@ void Biba_init()
 	Biba.vtb.account = 0;
 	Biba.salary = 150'000;
 	Biba.vtb.deposit = 1'000'000;
-	Biba.vtb.interest = 8.0f;
+	Biba.vtb.interest = 8.0;
 
 	Biba.food = 30'000;
 	Biba.internet = 1'500;
 	Biba.rent = 40'000;
-	Biba.cat = 0; // кота нет
-	Biba.dog = 15'000;
+	Biba.has_cat = false;
+	Biba.has_dog = true;
+	Biba.cat = 10'000;
+	Biba.dog = 12'000;
 
 	Biba.has_car = true;
 	Biba.car.value = 2'400'000;
@@ -144,11 +162,18 @@ void Biba_init()
 	Biba.car.tires = 25'000;
 	Biba.car.oil = 7'000;
 
+	Biba.metro.price = 4'000;
+
 	Biba.tax.key_rate = 0.13;
 	Biba.tax.VAT_rate = 0.20;
 
 	Biba.house.has_house = false;
 	Biba.house.has_mortgage = false;
+
+	Biba.random.events_net = 0;
+	Biba.random.balance = 0;
+	Biba.random.recovery = 0;
+	Biba.random.treatment = 0;
 }
 
 
@@ -161,8 +186,10 @@ void Boba_init()
 
 	Boba.food = 20'000;
 	Boba.internet = 1'000;
+	Boba.has_cat = true;
+	Boba.has_dog = false;
 	Boba.cat = 10'000;
-	Boba.dog = 0; // пса нет
+	Boba.dog = 8'000;
 	Boba.rent = 25'000;
 
 	Boba.has_car = false;
@@ -173,15 +200,19 @@ void Boba_init()
 	Boba.car.oil = 5'000;
 
 	Boba.metro.price = 3'000;
-	Boba.tax.VAT_rate = 0.20;
 
+	Boba.tax.VAT_rate = 0.20;
 	Boba.tax.key_rate = 0.13;
+
+	Boba.random.events_net = 0;
+	Boba.random.balance = 0;
+	Boba.random.recovery = 0;
+	Boba.random.treatment = 0;
 }
 
 
 double apply_inflation(int year, int month)
 {
-	// инфляция применяется только в январе, первый год инфляции нет
 	if (month == 1 and year > 2030)
 	{
 		double inflation_rate = inflation(gen);
@@ -241,13 +272,26 @@ void Biba_internet(double multiplier)
 }
 
 
-void Biba_pets(double multiplier)
+void Biba_pets(const int month, double multiplier)
 {
+	if (Biba.cat == 0 or Biba.dog == 0) return;
+
 	Biba.cat = (RUB)(Biba.cat * multiplier);
 	Biba.dog = (RUB)(Biba.dog * multiplier);
 
 	Biba.vtb.account -= Biba.cat;
 	Biba.vtb.account -= Biba.dog;
+
+	if (month == 6) Biba.vtb.account -= 5'000; // плановый осмотр у ветеринара
+}
+
+
+void Biba_metro(double multiplier)
+{
+	if (Biba.has_car and Biba.random.recovery == 0) return;
+
+	Biba.metro.price = (RUB)(Biba.metro.price * multiplier);
+	Biba.vtb.account -= Biba.metro.price;
 }
 
 
@@ -258,15 +302,15 @@ void Biba_car(const int month, const int year, double multiplier)
 	Biba.car.tires = (RUB)(Biba.car.tires * multiplier);
 	Biba.car.oil = (RUB)(Biba.car.oil * multiplier);
 
-	Biba.vtb.account -= Biba.car.gaz;
+	if (Biba.random.recovery == 0) Biba.vtb.account -= Biba.car.gaz;
 
 	if (month == 3 or month == 9) {
 		Biba.vtb.account -= Biba.car.oil;
-		Biba.vtb.account -= Biba.car.service; // сервис и замена масла 2 раза в год
+		Biba.vtb.account -= Biba.car.service;
 	}
 
 	if (year % 4 == 0 and month == 10) {
-		Biba.vtb.account -= Biba.car.tires; // покупка новых шин
+		Biba.vtb.account -= Biba.car.tires;
 	}
 }
 
@@ -306,7 +350,7 @@ void Biba_taxes(const int month, const int year)
 	Biba.tax.pets_VAT = (RUB)((Biba.cat + Biba.dog) * Biba.tax.VAT_rate);
 	Biba.vtb.account -= Biba.tax.pets_VAT;
 
-	if (Boba.has_car) {
+	if (Biba.has_car) {
 		Biba.tax.car_VAT = Biba.car.gaz;
 		if (month == 3 or month == 9) {
 			Biba.tax.car_VAT += Biba.car.service + Biba.car.oil;
@@ -394,19 +438,23 @@ void Boba_internet(double multiplier)
 }
 
 
-void Boba_pets(double multiplier)
+void Boba_pets(const int month, double multiplier)
 {
+	if (Boba.cat == 0 or Boba.dog == 0) return;
+
 	Boba.cat = (RUB)(Boba.cat * multiplier);
 	Boba.dog = (RUB)(Boba.dog * multiplier);
 
 	Boba.vtb.account -= Boba.cat;
 	Boba.vtb.account -= Boba.dog;
+
+	if (month == 4) Boba.vtb.account -= 5'000; // плановый осмотр у ветеринара
 }
 
 
 void Boba_metro(double multiplier)
 {
-	if (Boba.has_car) return;
+	if (Boba.has_car and Boba.random.recovery == 0) return;
 
 	Boba.metro.price = (RUB)(Boba.metro.price * multiplier);
 	Boba.vtb.account -= Boba.metro.price;
@@ -434,20 +482,20 @@ void Boba_car(const int month, const int year, double multiplier)
 	Boba.car.tires = (RUB)(Boba.car.tires * multiplier);
 	Boba.car.oil = (RUB)(Boba.car.oil * multiplier);
 
-	Boba.vtb.account -= Boba.car.gaz;
+	if (Boba.random.recovery == 0) Boba.vtb.account -= Boba.car.gaz;
 
 	if (month == 3 or month == 9) {
 		Boba.vtb.account -= Boba.car.oil;
-		Boba.vtb.account -= Boba.car.service; // сервис и замена масла 2 раза в год
+		Boba.vtb.account -= Boba.car.service;
 	}
 
 	if (year % 4 == 0 and month == 10) {
-		Boba.vtb.account -= Boba.car.tires; // покупка новых шин
+		Boba.vtb.account -= Boba.car.tires;
 	}
 }
 
 
-void Biba_house(int month, int year, double multiplier) // покупка дома
+void Biba_house(int month, int year, double multiplier)
 {
 	Biba.rent = (RUB)(Biba.rent * multiplier);
 	Biba.vtb.account -= Biba.rent;
@@ -511,24 +559,359 @@ void Biba_mortgage()
 }
 
 
-void Biba_random_ivents()
+void Biba_random_prize(const int month)
 {
-	int random_balance = 0;
-	RUB events_net = 0;
+	if (month % 3 != 0) return;
+
+	RUB prize = 0;
 
 	int roll = rand() % 100;
 	if (roll < 15) {
-		Biba.vtb.account += 20'000; // премия
-		random_balance++;
-		events_net += 20'000;
+		prize = 10'000;
+		Biba.random.balance++;
+		printf("Биба получил премию в размере %lld\n\n", prize);
+	}
+	else if (roll < 25) {
+		prize = 20'000;
+		Biba.random.balance++;
+		printf("Биба получил премию в размере %lld\n\n", prize);
+	}
+	else if (roll < 30) {
+		prize = 30'000;
+		Biba.random.balance++;
+		printf("Биба получил премию в размере %lld\n\n", prize);
+	}
+	Biba.vtb.account += prize;
+	Biba.random.events_net += prize;
+}
+
+
+void Biba_random_fines()
+{
+	RUB fine = 0;
+
+	int roll = rand() % 100;
+	if (roll < 5 and Biba.has_car) {
+		fine = 10'000;
+		Biba.random.balance--;
+		printf("Биба получил штраф в размере %lld\n\n", fine);
+	}
+	else if (roll < 10 and Biba.has_car) {
+		fine = 5'000;
+		Biba.random.balance--;
+		printf("Биба получил штраф в размере %lld\n\n", fine);
+	}
+	else if (roll < 15 and Biba.has_car) {
+		fine = 2'000;
+		Biba.random.balance--;
+		printf("Биба получил штраф в размере %lld\n\n", fine);
+	}
+
+	Biba.vtb.account -= fine;
+	Biba.random.events_net -= fine;
+}
+
+
+void Biba_random_medicine(const int month)
+{
+	RUB dentistry = 0; // лечение зубов
+	int roll = rand() % 100;
+	if (roll < 1) {
+		dentistry = 50'000;
+		Biba.random.balance--;
+		printf("У Бибы глубокий кариес, цена лечения: %lld\n\n", dentistry);
+	}
+	else if (roll < 2) {
+		dentistry = 20'000;
+		Biba.random.balance--;
+		printf("У Бибы кариес, цена лечения: %lld\n\n", dentistry);
+	}
+	else if (roll < 5) {
+		dentistry = 10'000;
+		Biba.random.balance--;
+	}
+	else if (roll < 9) {
+		dentistry = 5'000;
+		Biba.random.balance--;
+	}
+	Biba.random.events_net -= dentistry;
+	Biba.vtb.deposit -= dentistry;
+
+	 // травмы
+	roll = rand() % 100;
+	if (roll < 1) {
+		Biba.random.recovery = 3;
+		Biba.random.treatment = 10'000;
+		Biba.random.balance--;
+		printf("Биба сломал ногу!\n\n");
+	}
+	else if (roll < 2) {
+		Biba.random.recovery = 1;
+		Biba.random.treatment = 5'000;
+		Biba.random.balance--;
+		printf("Биба повредил колено!\n\n");
+	}
+	else if (roll < 6) {
+		Biba.vtb.account -= 2'000;
+		Biba.random.events_net -= 2'000;
+		Biba.random.balance--;
+	}
+
+	if (Biba.random.recovery > 0) {
+		Biba.vtb.account -= Biba.random.treatment;
+		Biba.random.events_net -= Biba.random.treatment;
+		Biba.random.recovery--;
+	}
+}
+
+
+void Biba_random_pets() {
+	int roll = rand() % 100;
+	if (!Biba.has_dog and !Biba.has_cat and roll < 7) {
+		if (rand() % 2 == 0) {
+			Biba.has_dog = true;
+			printf("Биба завёл собаку!\n\n");
+			Biba.random.balance++;
+		}
+		else {
+			Biba.has_cat = true;
+			printf("Биба завёл кота!\n\n");
+			Biba.random.balance++;
+		}
+	}
+
+	if (!Biba.has_cat and !Biba.has_dog) return;
+
+	roll = rand() % 100;
+	if (roll < 5 and Biba.has_cat) {
+		printf("Кот Бибы заболел! ");
+		Biba.random.balance--;
+		roll = rand() % 100;
+		if (roll < 5) {
+			Biba.has_cat = false;
+			printf("Кот Бибы умер!\n\n");
+		}
+		else if (roll < 25) {
+			Biba.vtb.account -= 10'000;
+			printf("Цена лечения: %d\n\n", 10'000);
+			Biba.random.events_net -= 10'000;
+		}
+		else if (roll < 70) {
+			Biba.vtb.account -= 5'000;
+			printf("Цена лечения: %d\n\n", 5'000);
+			Biba.random.events_net -= 5'000;
+		}
+		else printf("Кот поправился сам.\n\n");
 	}
 
 	roll = rand() % 100;
-	if (roll < 15 and Biba.has_car) {
-		Biba.vtb.account -= 5'000;    // штраф
-		random_balance--;
-		events_net -= 5'000;
+	if (roll < 3 and Biba.has_dog) {
+		printf("Пёс Бибы заболел! ");
+		Biba.random.balance--;
+		roll = rand() % 100;
+		if (roll < 5) {
+			Biba.has_dog = false;
+			printf("Пёс Бибы умер!\n\n");
+		}
+		else if (roll < 25) {
+			Biba.vtb.account -= 12'000;
+			printf("Цена лечения: %d\n\n", 12'000);
+			Biba.random.events_net -= 12'000;
+		}
+		else if (roll < 70) {
+			Biba.vtb.account -= 5'000;
+			printf("Цена лечения: %d\n\n", 5'000);
+			Biba.random.events_net -= 5'000;
+		}
+		else printf("Пёс поправился сам.\n\n");
 	}
+}
+
+
+void Biba_random_ivents(const int month)
+{
+	Biba_random_prize(month);
+	Biba_random_medicine(month);
+	Biba_random_pets();
+	if (Biba.random.recovery > 0) return;
+	Biba_random_fines();
+}
+
+
+void Boba_random_prize(const int month)
+{
+	if (month % 3 != 0) return;
+
+	RUB prize = 0;
+
+	int roll = rand() % 100;
+	if (roll < 10) {
+		prize = 10'000;
+		Boba.random.balance++;
+		printf("Боба получил премию в размере %lld\n\n", prize);
+	}
+	else if (roll < 20) {
+		prize = 20'000;
+		Boba.random.balance++;
+		printf("Боба получил премию в размере %lld\n\n", prize);
+	}
+	else if (roll < 25) {
+		prize = 30'000;
+		Boba.random.balance++;
+		printf("Боба получил премию в размере %lld\n\n", prize);
+	}
+	Boba.vtb.account += prize;
+	Boba.random.events_net += prize;
+}
+
+
+void Boba_random_fines()
+{
+	RUB fine = 0;
+
+	int roll = rand() % 100;
+	if (roll < 10 and Boba.has_car) {
+		fine = 2'000;
+		Boba.random.balance--;
+		Boba.random.events_net -= 2'000;
+		printf("Боба получил штраф в размере %lld\n\n", fine);
+	}
+	else if (roll < 15 and Boba.has_car) {
+		fine = 5'000;
+		Boba.random.balance--;
+		Boba.random.events_net -= 5'000;
+		printf("Боба получил штраф в размере %lld\n\n", fine);
+	}
+	else if (roll < 20 and Boba.has_car) {
+		fine = 10'000;
+		Boba.random.balance--;
+		Boba.random.events_net -= 10'000;
+		printf("Боба получил штраф в размере %lld\n\n", fine);
+	}
+
+	Boba.vtb.account -= fine;
+}
+
+
+void Boba_random_medicine(const int month)
+{
+	RUB dentistry = 0; // лечение зубов
+	int roll = rand() % 100;
+	if (roll < 2) {
+		dentistry = 20'000;
+		Boba.random.balance--;
+		printf("У Бобы кариес, цена лечения: %lld\n\n", dentistry);
+	}
+	else if (roll < 4) {
+		dentistry = 10'000;
+		Boba.random.balance--;
+	}
+	else if (roll < 7) {
+		dentistry = 5'000;
+		Boba.random.balance--;
+	}
+	Boba.random.events_net -= dentistry;
+	Boba.vtb.deposit -= dentistry;
+
+	// травмы
+	roll = rand() % 100;
+	if (roll < 1) {
+		Boba.random.recovery = 3;
+		Boba.random.treatment = 10'000;
+		Boba.random.balance--;
+		printf("Боба сломал ногу!\n\n");
+	}
+	else if (roll < 2) {
+		Boba.random.recovery = 1;
+		Boba.random.treatment = 5'000;
+		Boba.random.balance--;
+		printf("Боба повредил колено!\n\n");
+	}
+	else if (roll < 5) {
+		Boba.vtb.account -= 2'000;
+		Boba.random.events_net -= 2'000;
+		Boba.random.balance--;
+	}
+
+	if (Boba.random.recovery > 0) {
+		Boba.vtb.account -= Boba.random.treatment;
+		Boba.random.events_net -= Boba.random.treatment;
+		Boba.random.recovery--;
+	}
+}
+
+
+void Boba_random_pets() {
+	int roll = rand() % 100;
+	if (!Boba.has_dog and !Boba.has_cat and roll < 5) {
+		if (rand() % 2 == 0) {
+			Boba.has_dog = true;
+			printf("Боба завёл собаку!\n\n");
+			Boba.random.balance++;
+		}
+		else {
+			Boba.has_cat = true;
+			printf("Боба завёл кота!\n\n");
+			Boba.random.balance++;
+		}
+	}
+
+	if (!Boba.has_cat and !Boba.has_dog) return;
+
+	roll = rand() % 100;
+	if (roll < 7 and Boba.has_cat) {
+		printf("Кот Бобы заболел! ");
+		Boba.random.balance--;
+		roll = rand() % 100;
+		if (roll < 5) {
+			Boba.has_cat = false;
+			printf("Кот Бобы умер!\n\n");
+		}
+		else if (roll < 25) {
+			Boba.vtb.account -= 10'000;
+			printf("Цена лечения: %d\n\n", 10'000);
+			Boba.random.events_net -= 10'000;
+		}
+		else if (roll < 70) {
+			Boba.vtb.account -= 5'000;
+			printf("Цена лечения: %d\n\n", 5'000);
+			Boba.random.events_net -= 5'000;
+		}
+		else printf("Кот поправился сам.\n\n");
+	}
+
+	roll = rand() % 100;
+	if (roll < 5 and Boba.has_dog) {
+		printf("Пёс Бобы заболел! ");
+		Boba.random.balance--;
+		roll = rand() % 100;
+		if (roll < 5) {
+			Boba.has_dog = false;
+			printf("Пёс Бобы умер!\n\n");
+		}
+		else if (roll < 25) {
+			Boba.vtb.account -= 12'000;
+			printf("Цена лечения: %d\n\n", 12'000);
+			Boba.random.events_net -= 12'000;
+		}
+		else if (roll < 70) {
+			Boba.vtb.account -= 5'000;
+			printf("Цена лечения: %d\n\n", 5'000);
+			Boba.random.events_net -= 5'000;
+		}
+		else printf("Пёс поправился сам.\n\n");
+	}
+}
+
+
+
+void Boba_random_ivents(const int month)
+{
+	Boba_random_prize(month);
+	Boba_random_medicine(month);
+	Boba_random_pets();
+	if (Boba.random.recovery > 0) return;
+	Boba_random_fines();
 }
 
 
@@ -564,7 +947,9 @@ void print_annual_result(const int year, const int month)
 {
 	if (!(month == 12)) return;
 
-	printf("Год: %d\n\n", year);
+	printf("-------------------------\n");
+	printf("Год: %d\n", year);
+	printf("-------------------------\n");
 
 	printf("Депозит Бибы: %lld\n", Biba.vtb.deposit);
 	printf("Зарплата Бибы: %lld\n", Biba.salary);
@@ -580,7 +965,9 @@ void print_annual_result(const int year, const int month)
 	printf("Зарплата Бобы: %lld\n", Boba.salary);
 	wastes = Boba.food + Boba.internet + Boba.cat + Boba.dog + Boba.rent;
 	printf("Расходы Бобы: %lld\n", wastes);
-	printf("Боба заплатил налогов за год: %lld\n\n", Boba.tax.annual_total);
+	printf("Боба заплатил налогов за год: %lld\n", Boba.tax.annual_total);
+
+	printf("-------------------------\n\n");
 }
 
 
@@ -594,7 +981,9 @@ void print_result()
 	capital += Biba.vtb.deposit;
 	capital += Biba.car.value;
 	capital += (Biba.house.price - Biba.house.debt);
-	printf("Капитал Бибы на 2050: %lld\n\n", capital);
+	printf("Капитал Бибы на 2050: %lld\n", capital);
+	printf("Баланс случайных событий для Бибы: %d\n", Biba.random.balance);
+	printf("Денежный баланс случайных событий для Бибы: %lld\n\n", Biba.random.events_net);
 
 	printf("Зарплата Бобы на 2050: %lld\n", Boba.salary);
 
@@ -606,6 +995,8 @@ void print_result()
 		capital += Boba.car.value;
 	}
 	printf("Капитал Бобы на 2050: %lld\n", capital);
+	printf("Баланс случайных событий для Бобы: %d\n", Boba.random.balance);
+	printf("Денежный баланс случайных событий для Бобы: %lld\n", Boba.random.events_net);
 
 	printf("\nДанные сохранены в simulation.csv\n");
 }
@@ -619,23 +1010,25 @@ void simulation(int month, int year)
 
 	Biba_food(multiplier);
 	Biba_internet(multiplier);
-	Biba_pets(multiplier);
+	Biba_pets(month, multiplier);
 	Biba_car(month, year, multiplier);
 	Biba_taxes(month, year);
 	Biba_house(month, year, multiplier);
 	Biba_mortgage();
+	Biba_random_ivents(month);
 
 	Biba_deposite(month, year);
 
 	Boba_salary(month, year);
 
 	Boba_food(multiplier);
-	Biba_internet(multiplier);
-	Boba_pets(multiplier);
+	Boba_internet(multiplier);
+	Boba_pets(month, multiplier);
 	Boba_metro(multiplier);
 	Boba_car(month, year, multiplier);
 	Boba_taxes(month, year);
 	Boba_house(multiplier);
+	Boba_random_ivents(month);
 
 	Boba_deposite(month, year);
 }
@@ -654,9 +1047,11 @@ int main()
 	Biba_init();
 	Boba_init();
 
-	while (not (month == 3 and year == 2050))
+	while (!(month == 3 and year == 2050))
 	{
 		simulation(month, year);
+
+		print_annual_result(year, month);
 
 		month++;
 		if (month == 13)
@@ -664,8 +1059,6 @@ int main()
 			year++;
 			month = 1;
 		}
-
-		print_annual_result(year, month);
 	}
 
 	print_result();
