@@ -1,4 +1,7 @@
 ﻿#include <stdio.h>
+#include <vector>
+#include <cmath>
+#include <string>
 
 
 using RUB = long long int;
@@ -8,44 +11,54 @@ using Percent = float;
 
 
 struct Bank {
-    RUB account; // сумма на счету
-    RUB deposite; // сумма на депозите
-    Percent interest; // процент по депозиту
+    RUB account; 
+    RUB deposite; 
+    Percent interest; 
 
-    USD account_usd; // сумма на долларовом счету
-    float rate_usd_rub; // курс доллара к рублю
+    USD account_usd; 
+    float rate_usd_rub; 
 };
 
 
 struct Car {
-    RUB gas; // стоимость топлива
-    RUB value; // стоимость машины
+    RUB gas; 
+    RUB value; 
 };
 
 
 struct RentApartment {
-    RUB rent; // стоимость аренды
-    RUB housingservices; // стоимость жилищно-коммунальных услуг
+    RUB rent; 
+    RUB housingservices; 
 };
 
 
 struct OwnApartment {
-    RUB flat; // стоимость квартиры 
-    Percent mortgage; // процент по ипотеке
-    RUB mortgageterm; // срок ипотеки в месяцах
-    RUB housingservices; // стоимость жилищно-коммунальных услуг
+    RUB flat; 
+    Percent mortgage; 
+    RUB mortgageterm; 
+    RUB housingservices; 
+};
+
+struct Loan {
+    RUB principal;
+    RUB remaining;
+    Percent rate;
+    RUB months_left;
+    RUB monthly_payment;
 };
 
 
 struct Pet {
-    RUB food; // стоимость топлива
-    RUB health; // стоимость машины
-    RUB toilet; // стоимость наполнителя
-    RUB toys; // стоимость развлечений
+    RUB food; 
+    RUB health; 
+    RUB toilet; 
+    RUB toys;
 };
 
 
 struct Person {
+    std::string name;
+
     // Банки и накопления
     Bank vtb;
 
@@ -62,281 +75,253 @@ struct Person {
 
     // Расходы
     RUB food;
-    RUB net;
+    RUB telecom;
     RUB healthinsurance;
 
     // Питомец
     Pet pet;
 
+    std::vector<Loan> loans;
 };
+
 
 struct Person alice;
 
 struct Person bob;
 
-// Блок инициализации доходов и расходов alice - начало
 
-void alice_init()
+void person_salary(Person &p, const int month, const int year)
 {
-    alice.vtb.account = 0;
-    alice.vtb.deposite = 1'000'000;
-    alice.vtb.interest = 14.5;
-    alice.salary = 180'000;
 
-    alice.vtb.account_usd = 1'000;
-    alice.vtb.rate_usd_rub = 78.5;
-
-    alice.rentflat.rent = 30'000;
-    alice.rentflat.housingservices = 10'000;
-
-    alice.food = 20'000;
-    alice.net = 1'000;
-    alice.healthinsurance = 20'000;
-
-    alice.car.value = 2'400'000;
-    alice.car.gas = 15'000;
-
-    alice.pet.food = 5'000;
-    alice.pet.health= 5'000;
-    alice.pet.toilet = 5'000;
-    alice.pet.toys = 5'000;
-}
-
-
-void alice_salary(const int month, const int year)
-{
     if (month == 12) {
-        alice.vtb.account += alice.salary;  // 13th salary
+        p.vtb.account += p.salary;  // 13rd salary
     }
 
-    if (month == 1 and year == 2027) {
-        alice.salary *= 1.5;  // promotion
+
+    if (p.name == "Alice" && month == 1 && year == 2027) {
+        p.salary *= 1.5;
+    }
+    if (p.name == "Bob" && month == 1 && year == 2028) { 
+        p.salary *= 1.3;
     }
 
-    alice.vtb.account += alice.salary;
+    p.vtb.account += p.salary;
 }
 
 
-void alice_expences()
+void person_expences(Person &p)
 {
-    alice.vtb.account -= alice.food;
-    alice.vtb.account -= alice.net;
-    alice.vtb.account -= alice.socialtransport;
+    p.vtb.account -= p.food;
+    p.vtb.account -= p.telecom;
+    p.vtb.account -= p.socialtransport;
 }
 
-void alice_insurance()
+void person_insurance(Person &p)
 {
-    alice.vtb.account -= alice.healthinsurance;
+    p.vtb.account -= p.healthinsurance;
 }
 
 
-void alice_pet()
+void person_pet(Person &p)
 {
-    alice.vtb.account -= alice.pet.food;
-    alice.vtb.account -= alice.pet.health;
-    alice.vtb.account -= alice.pet.toilet;
-    alice.vtb.account -= alice.pet.toys;
+    p.vtb.account -= p.pet.food;
+    p.vtb.account -= p.pet.health;
+    p.vtb.account -= p.pet.toilet;
+    p.vtb.account -= p.pet.toys;
 }
 
 
-void alice_home()
+void person_home(Person &p)
 {
-    alice.vtb.account -= alice.rentflat.rent;
-    alice.vtb.account -= alice.rentflat.housingservices;
+    if (p.name == "Alice") {
+        p.vtb.account -= p.rentflat.rent;
+        p.vtb.account -= p.rentflat.housingservices;
+    }
+    if (p.name == "Bob") {
+        p.vtb.account -= p.rentflat.housingservices;
+    }
 }
 
 
-void alice_car()
+void person_car(Person &p)
 {
-    alice.vtb.account -= alice.car.gas;
+    p.vtb.account -= p.car.gas;
 }
 
 
-void alice_deposite(const int month, const int year)
-{
-    if (year == 2026) alice.vtb.interest = 14.5;
-    if (year == 2027) alice.vtb.interest = 13.5;
-    if (year == 2028) alice.vtb.interest = 12.5;
-    if (year == 2029) alice.vtb.interest = 11.5;
-
-    alice.vtb.deposite += alice.vtb.deposite * (alice.vtb.interest / 12.0 / 100.0);
-
-    alice.vtb.deposite += alice.vtb.account;
-    alice.vtb.account = 0;
-}
-
-
-void alice_freelance(const int month, const int year)
+void person_freelance(Person &p, const int month, const int year)
 {
     if (month == 3 and year == 2027) {
-        alice.vtb.account_usd += 3'000;
+        p.vtb.account_usd += 3'000;
+    }
+    if (p.name == "Bob" && month % 6 == 0) {
+        p.vtb.account += 5'000;
     }
 }
 
-// Блок инициализации доходов и расходов alice - конец
 
-
-
-// Блок инициализации доходов и расходов bob - начало
-
-void bob_init()
+void person_deposite(Person &p, const int month, const int year)
 {
-    bob.vtb.account = 0;
-    bob.vtb.deposite = 100'000;
-    bob.vtb.interest = 14.5;
-    bob.salary = 120'000;
+    if (year == 2026) p.vtb.interest = 14.5;
+    if (year == 2027) p.vtb.interest = 13.5;
+    if (year == 2028) p.vtb.interest = 12.5;
+    if (year == 2029) p.vtb.interest = 11.5;
 
-    bob.vtb.account_usd = 5'000;
-    bob.vtb.rate_usd_rub = 78.5;
+    p.vtb.deposite += p.vtb.deposite * (p.vtb.interest / 12.0 / 100.0);
 
-    bob.ownflat.flat = 8'000'000;
-    bob.ownflat.mortgage = 9.5;
-    bob.ownflat.mortgageterm = 240;
-    bob.ownflat.housingservices = 8'000;
-
-    bob.food = 25'000;
-    bob.net = 1'500;
-    bob.healthinsurance = 15'000;
-
-    bob.car.value = 0;
-    bob.car.gas = 0;
-    bob.socialtransport = 3'000;
-
-    bob.pet.food = 0;
-    bob.pet.health = 0;
-    bob.pet.toilet = 0;
-    bob.pet.toys = 0;
+    p.vtb.deposite += p.vtb.account;
+    p.vtb.account = 0;
 }
 
 
-void bob_salary(const int month, const int year)
+RUB calculate_annuity_payment(RUB principal, Percent rate_percent, RUB months)
 {
-    if (month == 12) {
-        bob.vtb.account += bob.salary;  // 13th salary
-    }
+    double monthly_rate = rate_percent / 100.0 / 12.0;
 
-    if (month == 1 and year == 2027) {
-        bob.salary *= 1.5;  // promotion
-    }
+    double factor = monthly_rate * pow(1 + monthly_rate, months) / (pow(1 + monthly_rate, months) - 1);
 
-    bob.vtb.account += bob.salary;
+    return (RUB)(principal * factor);
 }
 
 
-void bob_expences()
-{
-    bob.vtb.account -= bob.food;
-    bob.vtb.account -= bob.net;
-    bob.vtb.account -= bob.socialtransport;
-}
+void person_loans(Person& p) {
+    for (auto& loan : p.loans) {
+        if (loan.months_left <= 0) continue;
 
-void bob_insurance()
-{
-    bob.vtb.account -= bob.healthinsurance;
-}
+        if (p.vtb.account >= loan.monthly_payment) {
+            p.vtb.account -= loan.monthly_payment;
+        }
+        else {
+            p.vtb.deposite -= loan.monthly_payment;
+        }
 
+        Percent monthly_rate = loan.rate / 100 / 12;
+        RUB interest = (RUB)(loan.remaining * monthly_rate);
+        RUB principal_part = loan.monthly_payment - interest;
 
-void bob_pet()
-{
-    bob.vtb.account -= bob.pet.food;
-    bob.vtb.account -= bob.pet.health;
-    bob.vtb.account -= bob.pet.toilet;
-    bob.vtb.account -= bob.pet.toys;
-}
+        loan.remaining -= principal_part;
+        if (loan.remaining < 0) loan.remaining = 0;
 
-
-void bob_home()
-{
-    bob.vtb.account -= bob.rentflat.rent;
-    bob.vtb.account -= bob.rentflat.housingservices;
-}
-
-
-void bob_car()
-{
-    bob.vtb.account -= bob.car.gas;
-}
-
-
-void bob_deposite(const int month, const int year)
-{
-    if (year == 2026) bob.vtb.interest = 14.5;
-    if (year == 2027) bob.vtb.interest = 13.5;
-    if (year == 2028) bob.vtb.interest = 12.5;
-    if (year == 2029) bob.vtb.interest = 11.5;
-
-    bob.vtb.deposite += bob.vtb.deposite * (bob.vtb.interest / 12.0 / 100.0);
-
-    bob.vtb.deposite += bob.vtb.account;
-    bob.vtb.account = 0;
-}
-
-
-void bob_freelance(const int month, const int year)
-{
-    if (month == 3 and year == 2027) {
-        bob.vtb.account_usd += 3'000;
+        loan.months_left--;
     }
 }
 
-// Блок инициализации доходов и расходов bob - конец
 
-
-// Блок вывода - начало
-
-void print_results()
+// инициализация персон
+void alice_init(Person &p)
 {
-    printf("Salary = %lld\n", alice.salary);
+    p.name = "Alice";
+
+
+    p.vtb.account = 0;
+    p.vtb.deposite = 1'000'000;
+    p.vtb.interest = 14.5;
+    p.salary = 180'000;
+
+    p.vtb.account_usd = 1'000;
+    p.vtb.rate_usd_rub = 78.5;
+
+    p.rentflat.rent = 30'000;
+    p.rentflat.housingservices = 10'000;
+
+    p.food = 20'000;
+    p.telecom = 1'000;
+    p.healthinsurance = 20'000;
+
+    p.car.value = 2'400'000;
+    p.car.gas = 15'000;
+
+    p.socialtransport = 0;
+
+    p.pet.food = 5'000;
+    p.pet.health = 5'000;
+    p.pet.toilet = 5'000;
+    p.pet.toys = 5'000;
+
+    p.loans.clear();
+}
+
+
+void bob_init(Person &p)
+{
+    p.name = "Bob";
+
+
+    p.vtb.account = 0;
+    p.vtb.deposite = 100'000;
+    p.vtb.interest = 14.5;
+    p.salary = 120'000;
+
+    p.vtb.account_usd = 5'000;
+    p.vtb.rate_usd_rub = 78.5;
+
+    p.ownflat.flat = 8'000'000;
+    p.ownflat.mortgage = 9.5;
+    p.ownflat.mortgageterm = 240;
+    p.ownflat.housingservices = 8'000;
+
+    p.food = 25'000;
+    p.telecom = 1'500;
+    p.healthinsurance = 15'000;
+
+    p.car.value = 0;
+    p.car.gas = 0;
+    p.socialtransport = 3'000;
+
+    p.pet.food = 0;
+    p.pet.health = 0;
+    p.pet.toilet = 0;
+    p.pet.toys = 0;
+
+    Loan mortgage;
+    mortgage.principal = p.ownflat.flat;
+    mortgage.remaining = p.ownflat.flat;
+    mortgage.rate = p.ownflat.mortgage;
+    mortgage.months_left = p.ownflat.mortgageterm;
+    mortgage.monthly_payment = calculate_annuity_payment(
+        mortgage.principal, 
+        mortgage.rate, 
+        mortgage.months_left
+    );
+
+    p.loans.clear();
+    p.loans.push_back(mortgage);
+        
+}
+
+
+void print_person_results(Person &p)
+{
+    printf("\n=== %s ===\n", p.name.c_str());
+    printf("Salary: %lld RUB\n", p.salary);
 
     RUB capital = 0;
-    capital += alice.vtb.account;
-    capital += alice.car.value;
-    capital += alice.vtb.deposite;
-    capital += alice.vtb.account_usd * alice.vtb.rate_usd_rub;
-    printf("Capital = %lld", capital);
+    capital += p.vtb.account;
+    capital += p.car.value;
+    capital += p.vtb.deposite;
+    capital += p.vtb.account_usd * p.vtb.rate_usd_rub;
+    printf("Capital = %lld RUB\n", capital);
 
-    printf("\nSalary = %lld\n", bob.salary);
-
-    capital = 0;
-    capital += bob.vtb.account;
-    capital += bob.car.value;
-    capital += bob.vtb.deposite;
-    capital += bob.vtb.account_usd * bob.vtb.rate_usd_rub;
-    printf("Capital = %lld", capital);
 }
 
-// Блок вывода - конец
 
-
-void simulation()
+void simulation(Person &p)
 {
     int month = 2;
     int year = 2026;
 
     while (not (month == 3 and year == 2050)) {
 
-        // Блок alice - начало
-        alice_salary(month, year); // Начисление зарплаты
-        alice_freelance(month, year); // Начисление фрилансов
-        alice_expences(); // Мелкие расходы
-        alice_car(); // Расходы на машину
-        alice_pet(); // Расходы на питомца
-        alice_insurance(); // Расходы на страховку
-        alice_home(); // Расходы на дом
-        alice_deposite(month, year); // Откладывание на депозит
-        // Блок alice - конец
 
-
-        // Блок bob - начало
-        bob_salary(month, year); // Начисление зарплаты
-        bob_freelance(month, year); // Начисление фрилансов
-        bob_expences(); // Мелкие расходы
-        bob_car(); // Расходы на машину
-        bob_pet(); // Расходы на питомца
-        bob_insurance(); // Расходы на страховку
-        bob_home(); // Расходы на дом
-        bob_deposite(month, year); // Откладывание на депозит
-        // Блок bob - конец
+        person_salary(p, month, year);
+        person_freelance(p, month, year);
+        person_expences(p);
+        person_car(p);
+        person_pet(p);
+        person_insurance(p);
+        person_home(p);
+        person_loans(p);
+        person_deposite(p, month, year);
 
 
         ++month;
@@ -350,10 +335,12 @@ void simulation()
 
 int main()
 {
-    alice_init();
-    bob_init();
+    alice_init(alice);
+    bob_init(bob);
 
-    simulation();
+    simulation(alice);
+    simulation(bob);
 
-    print_results();
+    print_person_results(alice);
+    print_person_results(bob);
 }
