@@ -9,6 +9,7 @@ typedef long long int RUB_k;
 typedef unsigned int days;
 typedef int age;
 typedef unsigned int people;
+typedef bool life;
 
 
 
@@ -48,6 +49,13 @@ age_start;
 people
 
 friends = 0;
+
+
+
+life
+
+you=1,
+cat_life=1;
 
 
 float
@@ -173,7 +181,7 @@ void food()
 
 
 
-void health_score()
+void health_from_balance()
 {
 	if (balance < 0)
 	{
@@ -496,7 +504,30 @@ void society()
 }
 
 
+void dead_check()
+{
+	if (health<=0)
+	{
+		you=0;
+	}
+}
 
+
+void cat()
+{
+	if (cat
+
+	        && balance>= 1200)
+	{
+
+		balance -= 1200;
+		health += 0.00001;
+	}
+	else
+	{
+		cat_life = 0;
+	}
+}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void simulation()
@@ -508,7 +539,7 @@ void simulation()
 
 	        && (day_now == day_end))
 
-	        && health>0)
+	        && you)
 
 
 	{
@@ -526,17 +557,18 @@ void simulation()
 		random_shoping();
 		sports();
 		psychology();
-		
+		cat();
+
 		new_friends();
 		society();
 
 		new_year();
 		eight_march();
 		twenty_three_february();
-
 		balance_new();
+		health_from_balance();
 		years_old();
-		health_score();
+		dead_check();
 		times();
 	}
 }
