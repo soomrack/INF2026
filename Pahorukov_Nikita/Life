@@ -2,9 +2,6 @@
 #include <string>
 #include <random>
 
-std::random_device;
-std::mt19937;
-std::uniform_int_distribution;
 using RUB = double;
 
 struct Ivan {
@@ -61,6 +58,12 @@ void grains_init() {
 void field_init() {
     field.area = 20.0; // площадь поля
     field.crop_index = -1; // пока ничего не посеяно
+}
+
+int random_year(int min, int max) {
+    static std::mt19937 gen(std::random_device{}());
+    std::uniform_int_distribution<> dist(min, max);
+    return dist(gen);
 }
 
 // Весна: посадка культуры
@@ -123,9 +126,9 @@ int main() {
     grains_init();
     field_init();
 
-    int year = rand(1820, 1856);
+    int year = random_year(1820, 1856);
     Season currentSeason = Spring;
-
+    std::cout << "Start year: " << year << "\n";
     while (year < 1847) {
 
         processSeason(currentSeason);
