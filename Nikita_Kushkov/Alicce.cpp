@@ -5,7 +5,7 @@
 // typedef int RUB;  // C
 using RUB = long long int;  // C++
 
-// НОВЫЕ СТРУКТУРЫ ДЛЯ ДОПОЛНИТЕЛЬНЫХ РАСХОДОВ И ДОХОДОВ
+
 struct MedicalInsurance {
     RUB monthly;           // Ежемесячная страховка
     RUB dentist;           // Стоматолог (раз в полгода)
@@ -1026,4 +1026,5 @@ int main()
     alice_simulation();
     print_spending_summary();
     return 0;
+
 }
