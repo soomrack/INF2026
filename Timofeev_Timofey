@@ -1,0 +1,673 @@
+#include <iostream>
+#include <stdio.h>
+#include <stdbool.h>
+#include <math.h>
+#include <time.h>
+
+using namespace std;
+using RUB = long long int;
+
+// вся семья
+struct family
+{
+	RUB capital;
+	wife alice;
+	husband stas;
+	son tim;
+	daughter lisa;
+	dreams dreamsF;
+	bool dream_sea_trip;
+	bool dream_London_trip;
+	bool dream_new_house;
+};
+
+
+family Family;
+wife alice;
+husband stas;
+son tim;
+daughter lisa;
+
+
+// члены семьи
+struct wife
+{
+	RUB salary;
+	RUB capital;
+	RUB food;
+	RUB car;
+	RUB gas;
+	RUB cloth;
+	bool dream_iphone;
+	bool dream_Korea_trip;
+	bool dream_Baikal_trip;
+	bool dream_flat_Moscow;
+};
+
+
+struct husband
+{
+	RUB salary;
+	RUB capital;
+	RUB cloth;
+	RUB foog;
+	RUB rent;
+	RUB car;
+	RUB gas;
+	bool dream_new_car;
+};
+
+
+struct son
+{
+	RUB capital;
+	RUB salary;
+	RUB stipend;
+	RUB cloth;
+	RUB food;
+	RUB rent;
+	RUB cash;
+	RUB grant;
+	bool dream_bike;
+	bool dream_laptop;
+	bool dream_Barselona_match;
+};
+
+
+struct daughter
+{
+	RUB capital;
+	RUB school_food;
+	RUB stipend;
+	RUB cloth;
+	RUB cash;
+	RUB section;
+	bool dream_sport_shoes;
+	bool dream_phone;
+	bool dream_camera;
+};
+
+
+// мечты членов семьи
+struct dreamsA
+{
+	RUB iphone;
+	RUB Korea_trip;
+	RUB Baikal_trip;
+	RUB flat_Moscow;
+};
+
+
+struct dreamsS
+{
+	RUB new_car;
+};
+struct dreamsT
+{
+	RUB bike;
+	RUB laptop;
+	RUB Barselona_match;
+};
+
+
+struct dreamsL
+{
+	RUB sports_shoes;
+	RUB phone;
+	RUB camera;
+};
+
+
+// общие мечты
+struct dreams
+{
+	RUB sea_trip;
+	RUB London_trip;
+	RUB new_house;
+};
+
+
+// функции
+void alice_init()
+{
+	alice.capital = 80'000;
+	alice.car = 1'800'000;
+	alice.salary = 130'000;
+	alice.food = 20'000;
+	alice.gas = 18'000;
+	alice.cloth = 25'000;
+	alice.dreamsA.iphone = 120'000;
+	alice.dreamsA.Korea_trip = 380'000;
+	alice.dreamsA.Baikal_trip = 180'000;
+	alice.dreamsA.flat_Moscow = 15'600'000;
+	alice.dream_iphone = false;
+	alice.dream_Korea_trip = false;
+	alice.dream_Baikal_trip = false;
+	alice.dream_flat_Moscow = false;
+}
+
+
+void stas_init()
+{
+	stas.capital = 200'000;
+	stas.salary = 200'000;
+	stas.car = 2'600'000;
+	stas.food = 22'000;
+	stas.cloth = 4'000;
+	stas.rent = 100'000;
+	stas.gas = 28'000;
+	stas.dreamsS.new_car = 4'500'000;
+	stas.dream_new_car = false;
+}
+
+
+void tim_init()
+{
+	tim.capital = 20'000;
+	tim.salary = 20'000;
+	tim.food = 15'000;
+	tim.rent = 3'000;
+	tim.cloth = 6'000;
+	tim.cash = 12'000;
+	tim.stipend = 18'000;
+	tim.grant = 150'000;
+	tim.dreamsT.bike = 40'000;
+	tim.dreamsT.laptop = 130'000;
+	tim.dreamsT.Barselona_match = 400'000;
+	tim.dream_bike = false;
+	tim.dream_laptop = false;
+	tim.dream_Barselona_match = false;
+
+}
+
+
+void lisa_init()
+{
+	lisa.capital = 1'000;
+	lisa.cash = 4'000;
+	lisa.stipend = 1'000;
+	lisa.cloth = 7'500;
+	lisa.school_food = 4'500;
+	lisa.section = 30'000;
+	lisa.dreamsL.sport_shoes = 12'500;
+	lisa.dreamsL.phone = 30'000;
+	lisa.dreamsL.camera = 25'000;
+	lisa.dream_sport_shoes = false;
+	lisa.dream_phone = false;
+	lisa.dream_camera = false;
+}
+
+
+void family_init()
+{
+	Family.capital = 250'000;
+	Family.dreamsF.London_trip = 1'000'000;
+	Family.dreamsF.sea_trip = 660'000;
+	Family.dreamsF.new_house = 12'880'000;
+	Family.dream_London_trip = false;
+	Family.dream_sea_trip = false;
+	Family.dream_new_house = false;
+}
+
+
+// зарплата алисы
+void alice_salary(const int year, const int month)
+{
+	if (month == 6 and year == 2026)
+	{
+		alice.salary *= 6 / 5;
+	}
+
+	if (month == 6 and year == 2027)
+	{
+		alice.salary *= 6 / 5;
+	}
+
+	if (month == 6 and year == 2029)
+	{
+		alice.salary *= 8 / 5;
+	}
+
+	if (month == 2 and year == 2032)
+	{
+		alice.salary *= 7 / 5;
+	}
+
+	if (month == 2 and year == 2034)
+	{
+		alice.salary *= 6 / 5;
+	}
+
+	alice.capital += 40 / 100 * alice.salary;
+	Family.capital += 60 / 100 * alice.salary;
+}
+
+
+// зарплата мужа
+void stas_salary(const int year, const int month)
+{
+	if (month == 2 and year == 2027)
+	{
+		stas.salary *= 7 / 5;
+	}
+
+	if (month == 4 and year == 2029)
+	{
+		stas.salary *= 6 / 5;
+	}
+
+	if (month == 6 and year == 2030)
+	{
+		stas.salary *= 11 / 10;
+	}
+
+	if (month == 3 and year == 2033)
+	{
+		stas.salary *= 8 / 5;
+	}
+
+	if (month == 4 and year == 2035)
+	{
+		stas.salary *= 3 / 2;
+	}
+
+	stas.capital += 35 / 100 * stas.salary;
+	Family.capital += 65 / 100 * stas.salary;
+}
+
+
+// зарплата сына
+void tim_salary(const int year, const int month)
+{
+	if (month == 9 and year == 2028)
+	{
+		tim.salary *= 9 / 5;
+	}
+
+	if (month == 10 and year == 2029)
+	{
+		tim.salary *= 3 / 2;
+	}
+
+	if (month == 3 and year == 2032)
+	{
+		tim.salary *= 5 / 2;
+	}
+
+	if (month == 3 and year == 2035)
+	{
+		tim.salary *= 8 / 5;
+	}
+
+	if (month >= 6 and year >= 2029)
+	{
+		tim.capital += 75 / 100 * tim.salary;
+		Family.capital += 25 / 100 * tim.salary;
+	}
+	else
+	{
+		tim.capital += tim.salary;
+	}
+}
+
+// деньги алисы
+void alice_food()
+{
+	alice.capital -= alice.food;
+}
+
+void alice_gas()
+{
+	alice.capital -= alice.gas;
+}
+
+void alice_cloth()
+{
+	alice.capital -= alice.cloth;
+}
+
+// деньги мужа
+void stas_food()
+{
+	stas.capital -= stas.food;
+}
+
+void stas_cloth()
+{
+	stas.capital -= stas.cloth;
+}
+
+void stas_gas()
+{
+	stas.capital -= stas.gas;
+}
+
+void stas_rent()
+{
+	stas.capital -= stas.rent;
+}
+
+
+// деньги сына
+void tim_food()
+{
+	tim.capital -= tim.food;
+}
+
+void tim_cloth()
+{
+	tim.capital -= tim.cloth;
+}
+
+void tim_rent()
+{
+	tim.capital -= tim.rent;
+}
+
+void tim_cash()
+{
+	tim.capital += tim.cash;
+	stas.capital -= tim.cash / 2;
+	alice.capital -= tim.cash / 2;
+}
+
+void tim_stipend()
+{
+	tim.capital += tim.stipend;
+}
+
+
+//  деньги дочери
+void lisa_stipend()
+{
+	lisa.capital += lisa.stipend;
+}
+
+void lisa_school_food()
+{
+	Family.capital -= lisa.school_food;
+}
+
+void lisa_cloth()
+{
+	Family.capital -= lisa.cloth * 2 / 3;
+	lisa.capital -= lisa.cloth / 3;
+}
+
+void lisa_cash()
+{
+	lisa.capital += lisa.cash;
+	stas.capital -= lisa.cash / 2;
+	alice.capital -= lisa.cash / 2;
+}
+
+void lisa_section()
+{
+	Family.capital -= lisa.section;
+}
+
+
+// исполнение мечт алисы
+void alice_dream()
+{
+	if (!alice.dream_iphone and alice.capital >= alice.dreamsA.iphone)
+	{
+		alice.capital -= alice.dreamsA.iphone;
+		alice.dream_iphone = true;
+	}
+	if (!alice.dream_Baikal_trip and alice.capital >= alice.dreamsA.Baikal_trip)
+	{
+		alice.capital -= alice.dreamsA.Baikal_trip;
+		alice.dream_Baikal_trip = true;
+	}
+	if (!alice.dream_Korea_trip and alice.capital >= alice.dreamsA.Korea_trip)
+	{
+		alice.capital -= alice.dreamsA.Korea_trip;
+		alice.dream_Korea_trip = true;
+	}
+	if (!alice.dream_flat_Moscow and alice.capital >= alice.dreamsA.flat_Moscow)
+	{
+		alice.capital -= alice.dreamsA.flat_Moscow;
+		alice.dream_flat_Moscow = true;
+	}
+}
+
+//исполнение мечт мужа
+void stas_dream()
+{
+	if (!stas.dream_new_car and stas.capital >= stas.dreamsS.new_car)
+	{
+		stas.capital -= stas.dreamsS.new_car;
+		stas.dream_new_car = true;
+	}
+}
+
+
+//исполнение мечт сына  
+void tim_dream()
+{
+	if (!tim.dream_bike and tim.capital >= tim.dreamsT.bike)
+	{
+		tim.capital -= tim.dreamsT.bike;
+		tim.dream_bike = true;
+	}
+	if (!tim.dream_laptop and tim.capital >= tim.dreamsT.laptop)
+	{
+		tim.capital -= tim.dreamsT.laptop;
+		tim.dream_laptop = true;
+	}
+	if (!tim.dream_Barselona_match and tim.capital >= tim.dreamsT.Barselona_match)
+	{
+		tim.capital -= tim.dreamsT.Barselona_match;
+		tim.dream_Barselona_match = true;
+	}
+}
+
+
+//исполнение мечт дочери  
+void lisa_dream()
+{
+	if (!lisa.dream_sports_shoes and lisa.capital >= lisa.dreamsL.sport_shoes)
+	{
+		lisa.capital -= lisa.dreamsL.sport_shoes;
+		lisa.dream_sport_shoes = true;
+	}
+	if (!lisa.dream_camera and lisa.capital >= lisa.dreamsL.camera)
+	{
+		lisa.capital -= lisa.dreamsL.camera;
+		lisa.dream_camera = true;
+	}
+	if (!lisa.dream_phone and lisa.capital >= lisa.dreamsL.phone)
+	{
+		lisa.capital -= lisa.dreamsL.phone;
+		lisa.dream_phone = true;
+	}
+}
+
+//  исполнение мечт семьи	
+void family_dream()
+{
+	if (!Family.dream_sea_trip and Family.capital >= Family.dreamsF.sea_trip)
+	{
+		Family.capital -= Family.dreamsF.sea_trip;
+		Family.dream_sea_trip = true;
+	}
+	if (!Family.dream_London_trip and Family.capital >= Family.dreamsF.London_trip)
+	{
+		Family.capital -= Family.dreamsF.London_trip;
+		Family.dream_London_trip = true;
+	}
+	if (!Family.dream_new_house and Family.capital >= Family.dreamsF.new_house)
+	{
+		Family.capital -= Family.dreamsF.new_house;
+		Family.dream_new_house = true;
+	}
+}
+
+		// вывод
+
+void print_family_status()
+{
+	setlocale(LC_ALL, "RU");
+	
+	cout << "ИТОГ СЕМЬИ В КОНЦЕ\n";
+	
+	cout << "Общий семейный капитал: " << Family.capital << " RUB\n\n";
+
+	
+	cout << " Алиса \n";
+	cout << "  Капитал: " << alice.capital << " RUB\n";
+	cout << "  Зарплата: " << alice.salary << " RUB\n";
+	cout << "  Исполненные мечты:\n";
+	
+	if (alice.dream_iphone) 
+		cout << "    - iPhone\n";
+	
+	if (alice.dream_Korea_trip) 
+		cout << "    - Поездка в Корею\n";
+	
+	if (alice.dream_Baikal_trip) 
+		cout << "    - Поездка на Байкал\n";
+	
+	if (alice.dream_flat_Moscow) 
+		cout << "    - Квартира в Москве\n";
+	
+	if (!alice.dream_iphone and !alice.dream_Korea_trip and !alice.dream_Baikal_trip and !alice.dream_flat_Moscow)
+		cout << "    (нет исполненных)\n\n";
+
+	
+	cout << " Стас \n";
+	cout << "  Капитал: " << stas.capital << " RUB\n";
+	cout << "  Зарплата: " << stas.salary << " RUB\n";
+	cout << "  Исполненные мечты:\n";
+	
+	if (stas.dream_new_car) 
+		cout << "    - Новая машина\n";
+	
+	if (!stas.dream_new_car) 
+		cout << "    (нет исполненных)\n\n";
+
+	
+	cout << " Тим \n";
+	cout << "  Капитал: " << tim.capital << " RUB\n";
+	cout << "  Зарплата: " << tim.salary << " RUB\n";
+	cout << "  Исполненные мечты:\n";
+	
+	if (tim.dream_bike) 
+		cout << "    - Велосипед\n";
+	
+	if (tim.dream_laptop)
+		cout << "    - Ноутбук\n";
+	
+	if (tim.dream_Barselona_match) 
+		cout << "    - Матч в Барселоне\n";
+	
+	if (!tim.dream_bike and !tim.dream_laptop and !tim.dream_Barselona_match)
+		cout << "    (нет исполненных)\n\n";
+
+	
+	cout << " Лиза ";
+	cout << "  Капитал: " << lisa.capital << " RUB\n";
+	cout << "  Исполненные мечты:\n";
+	
+	if (lisa.dream_sport_shoes) 
+		cout << "    - Кроссовки\n";
+	
+	if (lisa.dream_phone) 
+		cout << "    - Телефон\n";
+	
+	if (lisa.dream_camera) 
+		cout << "    - Камера\n";
+	
+	if (!lisa.dream_sport_shoes and !lisa.dream_phone and !lisa.dream_camera)
+		cout << "    (нет исполненных)\n\n";
+
+	
+	cout << " Общие семейные мечты \n";
+	
+	if (Family.dream_sea_trip)
+		cout << "  - Поездка к морю\n";
+	
+	if (Family.dream_London_trip) 
+		cout << "  - Поездка в Лондон\n";
+	
+	if (Family.dream_new_house) 
+		cout << "  - Новый дом\n";
+	
+	if (!Family.dream_sea_trip and !Family.dream_London_trip and !Family.dream_new_house)
+		cout << "  (нет исполненных)\n\n";
+}
+
+
+
+
+		//   симулятор
+void life_simulation()
+{
+
+	int year = 2026;
+	int month = 2;
+
+	while (not (year == 2036 and month == 3))
+	{
+
+
+		alice_salary(year, month);
+		stas_salary(year, month);
+		tim_salary(year, month);
+
+
+		alice_food();
+		alice_gas();
+		alice_cloth();
+		alice_dream();
+
+		stas_food();
+		stas_rent();
+		stas_cloth();
+		stas_dream();
+
+
+		tim_stipend();
+		tim_cash();
+		tim_food();
+		tim_rent();
+		tim_cloth();
+		tim_dream();
+
+
+		lisa_cash();
+		lisa_stipend();
+		lisa_school_food();
+		lisa_cloth();
+		lisa_section();
+		lisa_dream();
+
+
+	}
+	++month;
+	if (month == 13)
+	{
+
+		++year;
+		month = 1;
+
+	}
+	
+	print_family_status();
+
+}
+
+
+int main() 
+{
+	alice_init();
+	stas_init();
+	tim_init();
+	lisa_init();
+	family_init();
+
+	life_simulation();
+
+	return 0;
+}
