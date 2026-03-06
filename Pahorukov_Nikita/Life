@@ -1,0 +1,146 @@
+#include <iostream>
+#include <string>
+#include <random>
+
+std::random_device;
+std::mt19937;
+std::uniform_int_distribution;
+using RUB = double;
+
+struct Ivan {
+    std::string name;
+    double age;
+    int birth_year;
+    RUB money;
+};
+
+struct Barin {
+    double percent_obrok;
+    int forced_crop;
+};
+
+struct Grain {
+    std::string name;
+    double price_per_kg;
+    int kg_for_desyatina;
+    int storage_kg;  // сколько есть в амбаре
+};
+
+struct Field {
+    int crop_index; // индекс культуры, которая будет посеяна
+    double area;    // площадь в десятинах
+};
+
+enum Season { Spring, Summer, Autumn, Winter };
+
+Ivan ivan;
+Grain grains[4];
+Field field;
+Barin barin;
+
+void ivan_init() {
+    ivan.name = "Ivan";
+    ivan.age = 18;
+    ivan.birth_year = (1820, 1856);
+    ivan.money = 5.0;
+}
+
+void barin_init() {
+    barin.percent_obrok = 0.3;
+    barin.forced_crop = 0; // выбрал овес как культуру
+}
+
+
+void grains_init() {
+    grains[0] = { "Oats", 0.008, 190, 190 };  
+    grains[1] = { "Barley", 0.009, 150, 150 }; // ячмень
+    grains[2] = { "Rye", 0.012, 140, 140 };
+    grains[3] = { "Wheat", 0.014, 160, 160 };
+}
+
+void field_init() {
+    field.area = 20.0; // площадь поля
+    field.crop_index = -1; // пока ничего не посеяно
+}
+
+// Весна: посадка культуры
+void plant_Crop(Season season) {
+    if (season != Spring) return;
+    
+    field.crop_index = barin.forced_crop; // Иван сеет то, что приказал барин
+    std::cout << "Spring: " << grains[field.crop_index].name <<  " is planted\n";
+}
+
+// Лето: сбор урожая
+void harvest_Crop(Season season) {
+    if (season != Summer) return;
+
+    int grown_harvest = field.area * grains[field.crop_index].kg_for_desyatina;
+
+    int obrok = grown_harvest * barin.percent_obrok;
+    int ivan_part = grown_harvest - obrok;
+
+    grains[field.crop_index].storage_kg += ivan_part;
+
+    std::cout << "Summer: Harvested " << grown_harvest << " kg of "
+        << grains[field.crop_index].name << "\n";
+    std::cout << "Barin take obrok " << obrok << " kg of "
+        << grains[field.crop_index].name << "\n";
+    std::cout << "Ivan take his part " << ivan_part << " kg of "
+        << grains[field.crop_index].name << "\n";
+
+}
+
+// Осень и зима: продажа и еда
+void autumn_and_Winter(Season season) {
+    if (season == Autumn or season == Winter) {
+        for (int i = 0; i < 4; i++) {
+            if (grains[i].storage_kg > 0 and grains[i].storage_kg != grains[i].kg_for_desyatina) {
+                ivan.money += (grains[i].storage_kg - grains[i].kg_for_desyatina) * grains[i].price_per_kg;
+                std::cout << (grains[i].storage_kg - grains[i].kg_for_desyatina) << " kg of "
+                    << grains[i].name << " sold for "
+                    << (grains[i].storage_kg - grains[i].kg_for_desyatina) * grains[i].price_per_kg << " RUB\n";
+                grains[i].storage_kg = grains[i].kg_for_desyatina; // продано
+            }
+        }
+    }
+}
+
+// Основная функция обработки сезона
+void processSeason(Season season) {
+    switch (season) {
+    case Spring: plant_Crop(season); break;
+    case Summer: harvest_Crop(season); break;
+    case Autumn:
+    case Winter: autumn_and_Winter(season); break;
+    }
+}
+
+int main() {
+    std::cout << "Ivan Birth year: " << ivan.birth_year;
+    ivan_init();
+    barin_init();
+    grains_init();
+    field_init();
+
+    int year = rand(1820, 1856);
+    Season currentSeason = Spring;
+
+    while (year < 1847) {
+
+        processSeason(currentSeason);
+
+        currentSeason = static_cast<Season>((currentSeason + 1) % 4);
+
+        ivan.money -= 5; // расходы на , условно
+
+        std::cout << currentSeason + 1 << " season: Ivan spent 5 RUB on food\n";
+
+        if (currentSeason == Spring) {
+            year++;
+            ivan.age++;
+        }
+    }
+
+    std::cout << "After 2 years, Ivan has " << ivan.money << " RUB\n";
+}
