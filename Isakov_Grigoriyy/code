@@ -3,60 +3,60 @@
 #include <time.h>
 #include <string.h>
 
-// Типы данных как у друга в ds.txt
-using RUB = long long int; 
+// Типы данных 
+using RUB = long long int;
 using Percent = float;
 
-// --- СТРУКТУРЫ (АНКЕТЫ) ---
+//СТРУКТУРЫ (АНКЕТЫ
 
 struct Bank {
     RUB account;
     RUB deposite;
     Percent interest;
-    RUB credit_card; 
+    RUB credit_card;
 };
 
-struct Construction { 
+struct Construction {
     RUB beton;
     RUB armatura;
     RUB workers_salary;
     RUB equipment_rent;
-    RUB fine; 
-    RUB bribe; 
+    RUB fine;
+    RUB bribe;
 };
 
-struct Style { 
+struct Style {
     RUB cosmetics;
     RUB beauty_salon;
     RUB clothes;
-    RUB psychology; 
+    RUB psychology;
     RUB instagram_ads;
 };
 
 struct Asset {
     char name[40];
     RUB value;
-    RUB repair; 
+    RUB repair;
     int type; // 1 - hata, 2 - tachka
 };
 
 struct Person {
-    Bank vtb; 
+    Bank vtb;
     Style style;
     Construction business;
     RUB salary;
     RUB food;
-    RUB total_lost; 
+    RUB total_lost;
     RUB total_won;
 };
 
-// Глобальные переменные как в примере одногруппника
+// Глобальные переменные 
 struct Person gena;
 struct Person masha;
-Asset gena_assets[10]; 
+Asset gena_assets[10];
 int asset_count = 0;
 
-// --- ИНИЦИАЛИЗАЦИЯ ДАННЫХ ---
+//ИНИЦИАЛИЗАЦИЯ ДАННЫХ 
 
 void init() {
     // Гена
@@ -65,7 +65,7 @@ void init() {
     gena.vtb.interest = 16.0;
     gena.salary = 500000;
     gena.food = 30000;
-    
+
     gena.business.beton = 100000;
     gena.business.armatura = 150000;
     gena.business.workers_salary = 200000;
@@ -76,7 +76,7 @@ void init() {
     masha.vtb.credit_card = 500000;
     masha.salary = 50000;
     masha.food = 150000;
-    
+
     masha.style.clothes = 200000;
     masha.style.beauty_salon = 50000;
     masha.style.psychology = 0;
@@ -99,11 +99,11 @@ void init() {
     gena_assets[2].type = 2;
 }
 
-// --- ФУНКЦИИ ДОХОДОВ ---
+//ФУНКЦИИ ДОХОДОВ
 
 void gena_salary_get(int m) {
     gena.vtb.account += gena.salary;
-    if (m == 12) { // 13-я зарплата как в ds.txt
+    if (m == 12) { // 13-я зарплата 
         printf("gena poluchil premiyu v konce goda\n");
         gena.vtb.account += gena.salary;
     }
@@ -113,7 +113,7 @@ void masha_salary_get() {
     masha.vtb.account += masha.salary;
 }
 
-// --- ФУНКЦИИ БЫТОВЫХ РАСХОДОВ (РАЗДУВАЕМ ОБЪЕМ) ---
+//ФУНКЦИИ БЫТОВЫХ РАСХОДОВ 
 
 void food_costs() {
     gena.vtb.account -= gena.food;
@@ -139,7 +139,7 @@ void masha_lifestyle_monthly() {
 void masha_shopping_spree() {
     int r = rand() % 12;
     if (r == 1) {
-        printf("masha kupila sumku za 500k potomu chto nado\n");
+        printf("masha kupila sumku za 500k\n");
         masha.vtb.account -= 500000;
     }
     if (r == 5) {
@@ -160,7 +160,7 @@ void gena_car_costs() {
     RUB moyka = 5000;
     RUB parking = 15000;
     gena.vtb.account -= (benzin + moyka + parking);
-    
+
     int r = rand() % 40;
     if (r == 5) {
         printf("gena poluchil shtraf za prevyshenie\n");
@@ -174,7 +174,7 @@ void gena_assets_maintenance() {
     }
 }
 
-// --- ЛОГИКА БИЗНЕСА И СТРОЙКИ ---
+//ЛОГИКА БИЗНЕСА И СТРОЙКИ
 
 void gena_stroyka_details() {
     int r = rand() % 20;
@@ -224,18 +224,18 @@ void gena_business_events() {
     }
 }
 
-// --- ЛОГИКА МАШИ ---
+//ЛОГИКА МАШИ
 
 void masha_social_life() {
     int r = rand() % 20;
     if (r == 1) {
         printf("vystavka hudozhnika znakomstvo s direktorom\n");
         printf("gena poluchil kontrakt\n");
-        gena.salary += 50000; 
+        gena.salary += 50000;
     }
     if (r == 2) {
         printf("torgestvo plate u 3 devushek odinakovo\n");
-        masha.vtb.account -= 400000; 
+        masha.vtb.account -= 400000;
         masha.style.psychology += 100000;
         masha.vtb.account -= 100000;
     }
@@ -247,21 +247,22 @@ void masha_social_life() {
 }
 
 void masha_startups() {
-    if (rand() % 10 == 1) { 
+    if (rand() % 10 == 1) {
         RUB invest = 300000;
         masha.vtb.account -= invest;
         if (rand() % 10 == 1) {
             printf("startup labubu strelnul uspeh\n");
             masha.vtb.account += (invest * 3);
             masha.total_won += (invest * 3);
-        } else {
+        }
+        else {
             printf("startup provalilsya minus bablo\n");
             masha.total_lost += invest;
         }
     }
 }
 
-// --- СЕМЕЙНЫЕ СОБЫТИЯ ---
+//СЕМЕЙНЫЕ СОБЫТИЯ
 
 void family_events(int month) {
     if (month == 6) {
@@ -279,7 +280,7 @@ void family_events(int month) {
     }
 }
 
-// --- ЭКОНОМИКА И БАНК ---
+//ЭКОНОМИКА И БАНК
 
 void vtb_deposite_calc(int year) {
     if (year == 2026) gena.vtb.interest = 16.0;
@@ -296,7 +297,7 @@ void check_deposite_growth(int m) {
 }
 
 void apply_inflation(int year) {
-    float f = 1.08; 
+    float f = 1.08;
     gena.food *= f;
     masha.food *= f;
     for (int i = 0; i < asset_count; i++) {
@@ -304,7 +305,7 @@ void apply_inflation(int year) {
         if (gena_assets[i].type == 1) gena_assets[i].value *= 1.10;
         else gena_assets[i].value *= 0.85;
     }
-    printf("--- noviy god %d inflyaciya 8 proc ---\n", year);
+    printf("noviy god %d inflyaciya 8 proc\n", year);
 }
 
 void masha_support() {
@@ -316,7 +317,7 @@ void masha_support() {
     }
 }
 
-// --- ВЫВОД СТАТУСА ---
+//ВЫВОД СТАТУСА
 
 void print_month_status(int m, int y) {
     RUB cap = gena.vtb.account + gena.vtb.deposite + masha.vtb.account;
@@ -324,7 +325,7 @@ void print_month_status(int m, int y) {
     printf("[%02d.%d] capital: %lld | g_acc: %lld | m_acc: %lld\n", m, y, cap, gena.vtb.account, masha.vtb.account);
 }
 
-// --- ГЛАВНЫЙ ЦИКЛ СИМУЛЯЦИИ ---
+//ГЛАВНЫЙ ЦИКЛ СИМУЛЯЦИИ
 
 void simulation_full() {
     int month = 3;
@@ -332,29 +333,29 @@ void simulation_full() {
     for (int i = 0; i < 120; i++) {
         gena_salary_get(month);
         masha_salary_get();
-        
+
         food_costs();
         gena_assets_maintenance();
         masha_beauty_detalizacia();
         masha_lifestyle_monthly();
         masha_shopping_spree();
         masha_health();
-        
+
         gena_stroyka_details();
         gena_car_costs();
         gena_business_events();
-        
+
         masha_social_life();
         masha_startups();
-        
+
         family_events(month);
-        
+
         vtb_deposite_calc(year);
         check_deposite_growth(month);
         masha_support();
-        
+
         if (i % 12 == 0) print_month_status(month, year);
-        
+
         month++;
         if (month == 13) {
             month = 1;
@@ -368,14 +369,15 @@ int main() {
     srand(time(NULL));
     init();
     simulation_full();
-    
-    printf("\n--- rezultaty za 10 let ---\n");
-    printf("masha slila na fuflo: %lld\n", masha.total_lost);
-    printf("masha podnyala na temah: %lld\n", masha.total_won);
-    
+
+    printf("\n rezultaty za 10 let\n");
+    printf("masha poteryala: %lld\n", masha.total_lost);
+    printf("masha podnyala: %lld\n", masha.total_won);
+
     RUB final_cap = gena.vtb.account + gena.vtb.deposite + masha.vtb.account;
     for (int i = 0; i < asset_count; i++) final_cap += gena_assets[i].value;
     printf("itogoviy capital semyi: %lld\n", final_cap);
-    
+
     return 0;
 }
+
