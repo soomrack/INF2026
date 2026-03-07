@@ -1,1 +1,297 @@
 
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h> 
+#include <time.h>
+
+using RUB = long long int;
+
+struct Car {
+    RUB value;      
+    RUB gas;     
+    RUB tires;      
+    RUB servise; 
+    RUB parking;
+    RUB WHSD;       
+    RUB racingfees; 
+    RUB taxes;
+};
+
+struct Loan {
+    RUB Moneydebt;  
+    RUB Moneypayment; 
+    RUB Percentrate; 
+    RUB Monthsterm;
+};
+
+struct Food {
+    RUB energydrink;     
+    int count_energy;
+    RUB ciggarete;  
+    int count_ciggarete;
+    RUB restaurant;       
+    RUB homefood;
+};
+
+struct Person {
+    int health;
+    RUB salary;
+    RUB capital;
+    RUB fitness;
+    struct Car car;
+    struct Loan loan;
+    struct Food food;
+};
+
+struct Person Alice;
+struct Person Michael;
+float pp = 14.5;
+
+void michael_init() {
+    Michael.capital = 50000;
+    Michael.salary = 150000;
+    Michael.health = 100;
+
+    Michael.food.ciggarete = 250;
+    Michael.food.count_ciggarete = 0;  
+    Michael.food.energydrink = 290;
+    Michael.food.count_energy = 0;     
+    Michael.food.homefood = 12000;
+    Michael.food.restaurant = 0;       
+
+    Michael.car.gas = 6000;            
+    Michael.car.WHSD = 0;
+    Michael.car.taxes = 1500;
+    Michael.car.parking = 1000;
+    Michael.car.tires = 20000;
+    Michael.car.servise = 7000;
+}
+
+void michael_salary(const int month, const int year) {
+    if (month == 1) {
+        Michael.salary = (RUB)(Michael.salary * 1.05);
+    }
+    if ((month == 8) && (year == 2026)) {
+        Michael.salary = (RUB)(Michael.salary * 1.5);
+    }
+    if (rand() % 500 == 0) { 
+        Michael.salary = 0;
+        printf("--- СОБЫТИЕ: Майкла уволили в %d году! ---\n", year);
+    }
+    Michael.capital += Michael.salary;
+}
+
+void michael_bank_interest() {
+    Michael.capital += (RUB)(Michael.capital * (pp / 12.0 / 100.0));
+}
+
+void michael_fitness() {
+    RUB cost = 1000; 
+    int sessions = 8;
+    Michael.capital -= (sessions * cost);
+    Michael.health += (sessions / 4) * 2;
+    if (Michael.health > 100) Michael.health = 100;
+
+    if (rand() % 200 < 1) { 
+        int injury = 3 + (rand() % 7);
+        Michael.health -= injury;
+        Michael.capital -= 2000;
+        printf("--- СОБЫТИЕ: Легкая травма Майкла в зале! ---\n");
+    }
+}
+
+void michael_lifestyle_impact() {
+    if (Michael.food.count_ciggarete > 10) {
+        Michael.health -= (Michael.food.count_ciggarete - 10) / 2;
+    }
+    Michael.health -= (Michael.food.count_energy / 5);
+
+    int death_roll = rand() % 1000;
+    int threshold = (Michael.health < 30) ? 5 : 0;
+
+    if (death_roll < threshold) {
+        Michael.health = 0;
+        printf("--- СОБЫТИЕ: Остановка сердца Майкла! ---\n");
+    }
+    if (Michael.health < 0) Michael.health = 0;
+}
+
+void michael_racing() {
+}
+
+void michael_health_check() {
+    int risk = rand() % 100;
+
+        if (risk < 5) {
+            printf("\n СОБЫТИЕ: Болезнь Майкла! Траты на лечение.\n");
+            Alice.health -= 20;
+            Alice.capital -= 50000;
+        }
+        else if (risk < 15) {
+            Alice.health -= 2;
+            Alice.capital -= 3000;
+        }
+}
+
+void michael_food() {
+    RUB total_spent = 0;
+
+    total_spent += Michael.food.count_ciggarete * Michael.food.ciggarete;
+    total_spent += Michael.food.count_energy * Michael.food.energydrink;
+    total_spent += Michael.food.homefood;
+
+    Michael.capital -= total_spent;
+}
+
+void michael_car(int month) {
+    Michael.capital -= Michael.car.gas;
+    Michael.capital -= Michael.car.tires;
+    Michael.capital -= Michael.car.WHSD;
+    Michael.capital -= Michael.car.taxes;
+    Michael.capital -= Michael.car.parking;
+    Michael.capital -= Michael.car.servise;
+    if (month == 10 || month == 4) {
+        Michael.capital -= Michael.car.tires;
+        printf("--- СОБЫТИЕ: Майкл сменил резину на авто: -%lld RUB ---\n", Michael.car.tires);
+    }
+    if (month == 3) {
+        Michael.capital -= Michael.car.servise;
+        printf("--- СОБЫТИЕ: Плановое ТО автомобиля: -%lld RUB ---\n", Michael.car.servise);
+    }
+}
+
+void michael_random_events() {
+    if (rand() % 150 == 7) { 
+        RUB bonus = 10000 + (rand() % 30000);
+        Michael.capital += bonus;
+        printf("--- СОБЫТИЕ: Премия Майклу! +%lld ---\n", bonus);
+    }
+}
+
+void alice_init() {
+    Alice.capital = 50000;
+    Alice.salary = 150000;
+    Alice.health = 100;
+    Alice.food.ciggarete = 250;
+    Alice.food.count_ciggarete = 12;
+    Alice.food.energydrink = 290;
+    Alice.food.count_energy = 30;
+    Alice.food.homefood = 8000;
+    Alice.food.restaurant = 10000;
+    Alice.car.gas = 15000;
+    Alice.car.WHSD = 4000;
+    Alice.car.taxes = 2000;
+    Alice.car.parking = 4000;
+    Alice.car.tires = 20000;   
+    Alice.car.servise = 10000;
+}
+
+void alice_salary(const int month, const int year) {
+    if (month == 1) Alice.salary = (RUB)(Alice.salary * 1.05);
+    if ((month == 8) && (year == 2026)) Alice.salary = (RUB)(Alice.salary * 1.5);
+    if (rand() % 200 == 0) {
+        Alice.salary = 0;
+        printf("--- СОБЫТИЕ: Увольнение Алисы в %d году! ---\n", year);
+    }
+    Alice.capital += Alice.salary;
+}
+
+void alice_bank_interest() {
+    Alice.capital += (RUB)(Alice.capital * (pp / 12.0 / 100.0));
+}
+
+void alice_fitness() {
+    RUB cost = 5000; int sessions = 12;
+    Alice.capital -= (sessions * cost);
+    Alice.health += (sessions / 3) * 4;
+    if (Alice.health > 100) Alice.health = 100;
+    if (rand() % 100 < 3) {
+        Alice.health -= (5 + rand() % 15);
+        Alice.capital -= 10000;
+        printf("--- СОБЫТИЕ: Травма Алисы в зале! ---\n");
+    }
+}
+
+void alice_lifestyle_impact() {
+    if (Alice.food.count_ciggarete > 10) Alice.health -= (Alice.food.count_ciggarete - 10) / 2;
+    Alice.health -= (Alice.food.count_energy / 5);
+    int death_roll = rand() % 1000;
+    int threshold = (Alice.health < 30) ? 10 : 0;
+    if (Alice.food.count_energy > 40 && Alice.food.count_ciggarete > 30) threshold += 50;
+    if (death_roll < threshold) Alice.health = 0;
+    if (Alice.health < 0) Alice.health = 0;
+}
+
+void alice_racing() {
+    Alice.capital -= 25000;
+    if (rand() % 1000 < 50) {
+        RUB repair = 200000 + (rand() % 500000);
+        Alice.capital -= repair;
+        Alice.health -= (10 + rand() % 30);
+        printf("--- СОБЫТИЕ: АВАРИЯ Алисы! ---\n");
+    }
+}
+
+void alice_food() {
+    RUB total_spent = 0;
+
+    total_spent += Alice.food.count_ciggarete * Alice.food.ciggarete;
+    total_spent += Alice.food.count_energy * Alice.food.energydrink;
+    total_spent += Alice.food.homefood;
+
+    Alice.capital -= total_spent;
+}
+
+void alice_car(int month) {
+    Alice.capital -= Alice.car.gas;
+    Alice.capital -= Alice.car.tires;
+    Alice.capital -= Alice.car.WHSD;
+    Alice.capital -= Alice.car.taxes;
+    Alice.capital -= Alice.car.parking;
+    if (month == 10 || month == 5) {
+        Alice.capital -= Alice.car.tires;
+        printf("--- СОБЫТИЕ: Алиса сменила резину на авто: -%lld RUB ---\n", Alice.car.tires);
+    }
+    if (month == 5) {
+        Alice.capital -= Alice.car.servise;
+        printf("--- СОБЫТИЕ: Плановое ТО автомобиля: -%lld RUB ---\n", Alice.car.servise);
+    }
+}
+
+void simulation() {
+    int month = 2, year = 2026;
+    srand((unsigned int)time(NULL));
+
+    while (!((month == 3) && (year == 2027))) {
+        if (Alice.health > 0) {
+            if (month >= 5 && month <= 9) alice_racing();
+            alice_fitness();
+            alice_lifestyle_impact();
+            alice_food();
+            alice_car(month);
+            alice_bank_interest();
+            alice_salary(month, year);
+        }
+        if (Michael.health > 0) {
+            michael_fitness();
+            michael_lifestyle_impact();
+            michael_food();
+            michael_car(month);
+            michael_bank_interest();
+            michael_salary(month, year);
+        }
+
+        if (++month == 13) { month = 1; year++; }
+    }
+}
+
+int main() {
+    system("chcp 1251 > nul");
+    alice_init();
+    michael_init();
+    simulation();
+    printf("\n--- ИТОГИ СИМУЛЯЦИИ ---\n");
+    printf("ALICE:   Cap: %lld, HP: %d\n", Alice.capital, Alice.health);
+    printf("MICHAEL: Cap: %lld, HP: %d\n", Michael.capital, Michael.health);
+    return 0;
+}
