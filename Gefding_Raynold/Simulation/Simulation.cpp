@@ -26,18 +26,11 @@ struct Car {
 };
 
 
-struct RentApartment {
-    RUB rent; 
-    RUB housingservices; 
+struct Housing {
+    RUB rent;
+    RUB housingservices;
 };
 
-
-struct OwnApartment {
-    RUB flat; 
-    Percent mortgage; 
-    RUB mortgageterm; 
-    RUB housingservices; 
-};
 
 struct Loan {
     RUB principal;
@@ -59,26 +52,19 @@ struct Pet {
 struct Person {
     std::string name;
 
-    // Банки и накопления
     Bank vtb;
 
-    // Недвижимость
-    RentApartment rentflat;
-    OwnApartment ownflat;
+    Housing home;
 
-    // Транспорт
     Car car;
     RUB socialtransport;
 
-    // Доходы
     RUB salary;
 
-    // Расходы
     RUB food;
     RUB telecom;
     RUB healthinsurance;
 
-    // Питомец
     Pet pet;
 
     std::vector<Loan> loans;
@@ -133,12 +119,9 @@ void person_pet(Person &p)
 
 void person_home(Person &p)
 {
-    if (p.name == "Alice") {
-        p.vtb.account -= p.rentflat.rent;
-        p.vtb.account -= p.rentflat.housingservices;
-    }
-    if (p.name == "Bob") {
-        p.vtb.account -= p.rentflat.housingservices;
+    p.vtb.account -= p.home.housingservices;
+    if (p.home.rent > 0) {
+        p.vtb.account -= p.home.rent;
     }
 }
 
@@ -221,8 +204,8 @@ void alice_init(Person &p)
     p.vtb.account_usd = 1'000;
     p.vtb.rate_usd_rub = 78.5;
 
-    p.rentflat.rent = 30'000;
-    p.rentflat.housingservices = 10'000;
+    p.home.rent = 30'000;
+    p.home.housingservices = 10'000;
 
     p.food = 20'000;
     p.telecom = 1'000;
@@ -255,10 +238,8 @@ void bob_init(Person &p)
     p.vtb.account_usd = 5'000;
     p.vtb.rate_usd_rub = 78.5;
 
-    p.ownflat.flat = 8'000'000;
-    p.ownflat.mortgage = 9.5;
-    p.ownflat.mortgageterm = 240;
-    p.ownflat.housingservices = 8'000;
+    p.home.rent = 0;
+    p.home.housingservices = 8'000;
 
     p.food = 25'000;
     p.telecom = 1'500;
@@ -274,10 +255,10 @@ void bob_init(Person &p)
     p.pet.toys = 0;
 
     Loan mortgage;
-    mortgage.principal = p.ownflat.flat;
-    mortgage.remaining = p.ownflat.flat;
-    mortgage.rate = p.ownflat.mortgage;
-    mortgage.months_left = p.ownflat.mortgageterm;
+    mortgage.principal = 8'000'000;
+    mortgage.remaining = 8'000'000;
+    mortgage.rate = 9.5;
+    mortgage.months_left = 240;
     mortgage.monthly_payment = calculate_annuity_payment(
         mortgage.principal, 
         mortgage.rate, 
