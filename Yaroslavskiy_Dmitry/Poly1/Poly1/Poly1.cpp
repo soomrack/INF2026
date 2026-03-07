@@ -1,16 +1,14 @@
 ﻿#include <stdio.h>
 
-
-//|--------------------ТИПЫ ДАННЫХ-----------------------|
+//--------------------ТИПЫ ДАННЫХ-----------------------
 
 using RUB = long long int;
 using USD = long long int;
 using Percent = float;
 
+//--------------------СТРУКТУРЫ-----------------------
 
-//|--------------------СТРУКТУРЫ-----------------------|
-
-struct Bank 
+struct Bank
 {
     RUB account;
     RUB deposite;
@@ -20,14 +18,14 @@ struct Bank
 };
 
 
-struct Car 
+struct Car
 {
     RUB gas;
     RUB value;
 };
 
 
-struct Business 
+struct Business
 {
     RUB investment;
     RUB monthly_profit;
@@ -35,7 +33,7 @@ struct Business
 };
 
 
-struct Loan 
+struct Loan
 {
     RUB body;
     Percent interest;
@@ -44,7 +42,7 @@ struct Loan
 
 
 // Структура персонажа Джуди 
-struct PersonJudy 
+struct PersonJudy
 {
     Bank zoobank;
     Car car;
@@ -63,7 +61,7 @@ struct PersonJudy
 
 
 // Структура персонажа Ника 
-struct PersonNick 
+struct PersonNick
 {
     Bank zoobank;
     Car car;
@@ -83,7 +81,7 @@ struct PersonNick
 };
 
 
-struct Wedding 
+struct Wedding
 {
     RUB budget;
     RUB cafe_rent;
@@ -100,7 +98,7 @@ struct PersonNick nick;
 struct Wedding wedding;
 
 
-//|--------------------ОБЪЯВЛЕНИЯ ФУНКЦИЙ-----------------------|
+//--------------------ОБЪЯВЛЕНИЯ ФУНКЦИЙ-----------------------
 
 float key_rate(const int month, const int year);
 float delta(const int month, const int year);
@@ -129,19 +127,17 @@ void nick_law_compliance(int month, int year);
 void nick_life_events(int month, int year);
 void process_nick_month(int month, int year);
 
-
 // Общие функции
 void inflation(const int month, const int year);
 void update_currency_rate(int month, int year);
 void calculate_taxes(int year);
-void common_events(int month, int year);         
+void common_events(int month, int year);
 void judy_to_the_rescue(int month, int year);
-void shopping_mall_nick(const int month, const int year);     
-void shopping_mall_judy(const int month, const int year);     
+void shopping_mall_nick(const int month, const int year);
+void shopping_mall_judy(const int month, const int year);
 void character_thoughts(int month, int year);
 void print_judy_report(int month, int year, RUB deposit_at_start);
 void print_nick_report(int month, int year);
-void process_year_end(int* month, int* year, RUB* deposit_at_start_of_year); 
 void print_final_mega_report();
 void plan_wedding();
 void collect_wedding_gifts();
@@ -149,9 +145,9 @@ void print_official_disclaimer();
 void simulation();
 
 
-//|--------------------ОПРЕДЕЛЕНИЕ ФУНКЦИЙ-----------------------|
+//--------------------ОПРЕДЕЛЕНИЕ ФУНКЦИЙ-----------------------
 
-float key_rate(const int month, const int year) 
+float key_rate(const int month, const int year)
 {
     Percent percents_rate;
     if (year == 2026) percents_rate = 14.5;
@@ -164,7 +160,7 @@ float key_rate(const int month, const int year)
 }
 
 
-float delta(const int month, const int year) 
+float delta(const int month, const int year)
 {
     Percent percents_delta;
     if (year == 2026) percents_delta = 2.5;
@@ -201,7 +197,7 @@ void judy_init()
 }
 
 
-void nick_init() 
+void nick_init()
 {
     nick.zoobank.account = 90'000;
     nick.zoobank.deposite = 0;
@@ -249,7 +245,7 @@ void inflation(const int month, const int year)
 }
 
 
-void calculate_taxes(int year) 
+void calculate_taxes(int year)
 {
     printf("\n\n--- NALOGOVAYA INSPEKCIYA ZVEROPOLISA (GOD %d) ---\n", year);
 
@@ -272,7 +268,7 @@ void calculate_taxes(int year)
 }
 
 
-void update_currency_rate(int month, int year) 
+void update_currency_rate(int month, int year)
 {
     float base_rate = 78.5;
     if (year == 2027) base_rate = 82.0;
@@ -289,7 +285,7 @@ void update_currency_rate(int month, int year)
 
 
 // --- Функции Джуди ---
-void judy_salary(const int month, const int year) 
+void judy_salary(const int month, const int year)
 {
     if (month == 12) {
         judy.zoobank.account += judy.salary;
@@ -300,7 +296,7 @@ void judy_salary(const int month, const int year)
 }
 
 
-void judy_food() 
+void judy_food()
 {
     judy.zoobank.account -= judy.food;
     judy.total_spent += judy.food;
@@ -316,7 +312,7 @@ void judy_car()
 }
 
 
-void judy_deposite(const int month, const int year) 
+void judy_deposite(const int month, const int year)
 {
     judy.zoobank.interest = key_rate(month, year) - delta(month, year);
     judy.zoobank.deposite += (RUB)(judy.zoobank.deposite * (judy.zoobank.interest / 12.0 / 100.0));
@@ -325,7 +321,7 @@ void judy_deposite(const int month, const int year)
         judy.zoobank.deposite += judy.zoobank.account;
         judy.zoobank.account = 0;
     }
-
+    
     else if (judy.zoobank.account < 0) {
         printf("  [BANK]: Vnimanie! Otricatel'nyy balans na schetu Judy (%lld). Pogashenie iz depozita.\n", judy.zoobank.account);
         judy.zoobank.deposite += judy.zoobank.account;
@@ -334,7 +330,7 @@ void judy_deposite(const int month, const int year)
 }
 
 
-void judy_currency_exchange(int month) 
+void judy_currency_exchange(int month)
 {
     if (month % 3 == 0) {
         RUB sum_to_exchange = 10000;
@@ -349,8 +345,10 @@ void judy_currency_exchange(int month)
 }
 
 
-void judy_medicine(int month, int year) 
+void judy_medicine(int month, int year)
 {
+    if (month % 3 != 0) return;
+
     int med_id = (month * 3 + year) % 15;
     printf("  [HEALTH]: ");
 
@@ -391,7 +389,6 @@ void judy_medicine(int month, int year)
         break;
     }
 }
-
 
 void judy_police_life(int month, int year)
 {
@@ -582,7 +579,7 @@ void judy_police_life(int month, int year)
 
 
 // --- Функции Ника ---
-void nick_business_logic(const int month, const int year) 
+void nick_business_logic(const int month, const int year)
 {
     nick.zoobank.account += nick.Nickizza.monthly_profit;
     nick.total_business_income += nick.Nickizza.monthly_profit;
@@ -591,7 +588,7 @@ void nick_business_logic(const int month, const int year)
 }
 
 
-void nick_loan_payment() 
+void nick_loan_payment()
 {
     if (nick.credit.months_left > 0 && nick.credit.body > 0) {
         RUB principal_payment = nick.credit.body / nick.credit.months_left;
@@ -620,7 +617,7 @@ void nick_loan_payment()
 }
 
 
-void nick_expenses() 
+void nick_expenses()
 {
     nick.zoobank.account -= nick.food;
     nick.total_spent += nick.food;
@@ -629,7 +626,7 @@ void nick_expenses()
 }
 
 
-void nick_shadow_expenses(int month) 
+void nick_shadow_expenses(int month)
 {
     RUB protection_fee = 8000;
     nick.zoobank.account -= protection_fee;
@@ -645,7 +642,7 @@ void nick_shadow_expenses(int month)
 }
 
 
-void nick_black_market_exchange(int month, int year) 
+void nick_black_market_exchange(int month, int year)
 {
     if (nick.zoobank.account > 20000 && month % 4 == 0) {
         int risk = (month * year) % 10;
@@ -660,6 +657,7 @@ void nick_black_market_exchange(int month, int year)
             nick.zoobank.account_usd += bought;
             printf("USPEH! Obmenyal po kursu %.2f. Polucheno %lld USD.\n", lucky_rate, bought);
         }
+
         else {
             RUB penalty = 10000;
             nick.fines_count++;
@@ -1505,7 +1503,6 @@ void judy_to_the_rescue(int month, int year)
 
 void shopping_mall_nick(const int month, const int year)
 {
-    // Ник покупает гаджеты для бизнеса
     if (month == 6 || month == 12) {
         RUB gadget_price = 12000;
         nick.zoobank.account -= gadget_price;
@@ -1517,7 +1514,6 @@ void shopping_mall_nick(const int month, const int year)
 
 void shopping_mall_judy(const int month, const int year)
 {
-    // Джуди покупает подарки родителям
     if (month == 6 || month == 12) {
         RUB gift_price = 8000;
         judy.zoobank.account -= gift_price;
@@ -1527,27 +1523,32 @@ void shopping_mall_judy(const int month, const int year)
 }
 
 
-void character_thoughts(int month, int year) 
+void character_thoughts(int month, int year)
 {
     printf("  [LICHNYE MYSLI]:\n");
-
     printf("  Judy: ");
     if (judy.zoobank.deposite > 1000000)
         printf("'Ogo, s moimi nakopleniyami mozhno kupit' morkovnuyu fermu!'\n");
+    
     else if (judy.zoobank.deposite < 50000)
         printf("'Nuzhno brat' bol'she smen, scheta sami sebya ne oplatyat...'\n");
+    
     else if (month == 12)
         printf("'Skoro Novyy God, nuzhno kupit' podarki vsem 275 brat'yam i sestram.'\n");
+   
     else
         printf("'Eshche odin den' na strazhe poryadka v Zveropolise.'\n");
 
     printf("  Nick: ");
     if (nick.zoobank.account < 0)
         printf("'Esli Mister Big uznaet o dolgakh, mne kryshka... Morkovka, vyruchay!'\n");
+    
     else if (nick.Nickizza.monthly_profit > 10000)
         printf("'Picca prodaetsya otlichno, pora rasshiryat' set'!'\n");
+    
     else if (nick.black_market_count > 5)
         printf("'Pora zavyazyvat' s temnymi delami, poka Judy ne dohadalas'.'\n");
+    
     else
         printf("'Hitryy lis vsegda naydet sposob zarabotat' paru monet.'\n");
 
@@ -1555,7 +1556,7 @@ void character_thoughts(int month, int year)
 }
 
 
-void plan_wedding() 
+void plan_wedding()
 {
     wedding.guests_count = 300;
     wedding.cafe_rent = 500000;
@@ -1595,7 +1596,7 @@ void plan_wedding()
 }
 
 
-void collect_wedding_gifts() 
+void collect_wedding_gifts()
 {
     printf("\n  [ PODARKI OT DOROGIKH GOSTEY ]:\n");
 
@@ -1713,7 +1714,7 @@ void collect_wedding_gifts()
 
 
 // --- Функции для вывода отчетов ---
-void print_judy_report(int month, int year, RUB deposit_at_start) 
+void print_judy_report(int month, int year, RUB deposit_at_start)
 {
     RUB profit = judy.zoobank.deposite - deposit_at_start;
     RUB total_assets = judy.zoobank.account + judy.zoobank.deposite +
@@ -1739,7 +1740,7 @@ void print_judy_report(int month, int year, RUB deposit_at_start)
 }
 
 
-void print_nick_report(int month, int year) 
+void print_nick_report(int month, int year)
 {
     printf("\n  _______________________________________________________  \n");
     printf(" /                                                       \\ \n");
@@ -1758,7 +1759,8 @@ void print_nick_report(int month, int year)
     printf("\n");
 }
 
-void print_final_mega_report() 
+
+void print_final_mega_report()
 {
     printf("\n\n");
     printf("---#####################################################################---\n\n");
@@ -1769,6 +1771,7 @@ void print_final_mega_report()
     printf("##                                                                       ##\n");
     printf("###########################################################################\n\n");
 
+    // Отчёт Джуди
     printf("  .=====================================================================.\n");
     printf("  |                   LICHNOE DELO: JUDY HOPPS                          |\n");
     printf("  |---------------------------------------------------------------------|\n");
@@ -1799,6 +1802,7 @@ void print_final_mega_report()
     printf("  | REZULTAT:         | %-35s             |\n", (judy_total > 5000000 ? "BOGATYI KROLIK" : "CHESTNYI KOP"));
     printf("  '====================================================================='\n\n");
 
+    // Отчёт Ника
     printf("  .=====================================================================.\n");
     printf("  |                   LICHNOE DELO: NICK WILDE                          |\n");
     printf("  |---------------------------------------------------------------------|\n");
@@ -1829,6 +1833,7 @@ void print_final_mega_report()
     printf("  | REZULTAT:         | %-35s             |\n", (nick.credit.body <= 0 ? "SVOBODNIY OT DOLGOV" : "VECHNYI DOLZHNIK"));
     printf("  '====================================================================='\n\n");
 
+    // Сравнение
     printf("         [ SRAVNENIE FINANSOVOGO USPEHA PARTNEROV ]\n");
     printf(" +-----------------------+-------------------+-------------------+\n");
     printf(" | Pokazatel'            |      JUDY         |      NICK         |\n");
@@ -1851,7 +1856,7 @@ void print_final_mega_report()
 }
 
 
-void print_official_disclaimer() 
+void print_official_disclaimer()
 {
     printf("\n\n");
     printf("  ###########################################################################\n");
@@ -1861,13 +1866,11 @@ void print_official_disclaimer()
     printf("  ##                                                                       ##\n");
     printf("  ###########################################################################\n\n");
 
-
     printf("  1. (SYSTEM OVERVIEW):\n");
     printf("     Dannaya programma prednaznachena dlya kompleksnoy emulyacii denezhnyh\n");
     printf("     potokov v usloviyah rynochnoy ehkonomiki goroda Zveropolis.\n");
     printf("     Model' uchityvaet vliyanie makroehkonomicheskih faktorov na\n");
     printf("     mikroehkonomicheskoe sostoyanie otdel'nyh agentov (Judy i Nick).\n\n");
-
 
     printf("  2. (TERMS OF USE):\n");
     printf("     - Agent 'JUDY' deystvuet v ramkah gosudarstvennogo kontrakta.\n");
@@ -1876,7 +1879,6 @@ void print_official_disclaimer()
     printf("     - Konvertaciya USD proishodit po tekushchemu rynochnomu kursu.\n");
     printf("     - Nalogovye otchisleniya yavlyayutsya obyazatel'nymi dlya vseh.\n\n");
 
-
     printf("  3. (SYSTEM MODULES):\n");
     printf("     - [CORE]: Glavnyy dvizhok simulyacii (Simulation Loop).\n");
     printf("     - [ECON]: Modul' inflyacii i klyuchevoy stavki (Inflation Engine).\n");
@@ -1884,18 +1886,15 @@ void print_official_disclaimer()
     printf("     - [RESCUE]: Algoritm social'noy vzaimopomoshchi agentov.\n");
     printf("     - [BANK]: Modul' depozitnyh i kreditnyh operaciy.\n\n");
 
-
     printf("  4. (OPERATIONAL MODE):\n");
     printf("     Simulyaciya zapuskaetsya s yanvarya 2026 goda i prodolzhaetsya\n");
     printf("     do marta 2031 goda. Kazhdyy shag simulyacii raven odnomu mesyacu.\n");
     printf("     Sushchestvennye izmeneniya vnosyatsya raz v kvartal i raz v god.\n\n");
 
-
     printf("  5. (DISCLAIMER):\n");
     printf("     Razrabotchik ne neset otvetstvennosti za bankrotstvo Nika Wilde'a\n");
     printf("     v sluchae chrezmernyh trat na chernom rynke ili neudachi v biznese.\n");
     printf("     Vse sovpadeniya s real'nymi krolikami i lisami sluchayny.\n\n");
-
 
     printf("  ###########################################################################\n");
     printf("  >> SISTEMA GOTOVA K RABOTE.\n");
@@ -1904,104 +1903,98 @@ void print_official_disclaimer()
 }
 
 
-void process_judy_month(int month, int year) 
-{
-    judy.total_months++;
-    judy_salary(month, year);
-    judy_police_life(month, year);
-    judy_food();
-    judy_car();
-
-    if (month % 3 == 0) {
-        judy_medicine(month, year);
-    }
-
-    judy_currency_exchange(month);
-    judy_deposite(month, year);
-}
-
-
-void process_nick_month(int month, int year) 
-{
-    nick_business_logic(month, year);
-    nick_life_events(month, year);
-    nick_shadow_expenses(month);
-    nick_expenses();
-    nick_loan_payment();
-    nick_black_market_exchange(month, year);
-    nick_law_compliance(month, year);
-}
-
-
-void process_year_end(int* month, int* year, RUB* deposit_at_start_of_year) 
-{
-    calculate_taxes(*year);
-    printf("------------Year %d", *year);
-    printf(" Results:------------------------\n");
-    printf("\n");
-    printf("[JUDY STATUS]:\n");
-    print_judy_report(*month, *year, *deposit_at_start_of_year);
-    printf("[NICK STATUS]:\n");
-    print_nick_report(*month, *year);
-
-    *deposit_at_start_of_year = judy.zoobank.deposite;
-    (*year)++;
-    *month = 1;
-}
-
-
-void month_stat(int month, int year) 
+// --- Функция для вывода заголовков ---
+void print_month_header(int month, int year)
 {
     printf("\n>>> SYSTEM: MESYATS %02d | GOD %d <<<\n", month, year);
     printf("--------------------------------------------------\n");
-
-    // глобальные события месяца
-    inflation(month, year);
-    update_currency_rate(month, year);
-    common_events(month, year);
-    character_thoughts(month, year);
-
-    // обработка месяца для каждого персонажа
-    process_judy_month(month, year);
-    process_nick_month(month, year);
-
-    // взаимодействие персонажей
-    judy_to_the_rescue(month, year);
-    shopping_mall_nick(month, year);
-    shopping_mall_judy(month, year);
 }
 
 
-void simulation() 
+void print_year_end(int month, int year, RUB deposit_at_start_of_year)
+{
+    printf("------------Year %d", year);
+    printf(" Results:------------------------\n");
+    printf("\n");
+    printf("[JUDY STATUS]:\n");
+    print_judy_report(month, year, deposit_at_start_of_year);
+    printf("[NICK STATUS]:\n");
+    print_nick_report(month, year);
+}
+
+
+// --- Основная функция симуляции ---
+void simulation()
 {
     int month = 2;
     int year = 2026;
     RUB deposit_at_start_of_year = judy.zoobank.deposite;
 
-    while (not (month == 3 and year == 2031)) {
-        month_stat(month, year);
+    while (not (month == 3 and year == 2031))
+    {
+        print_month_header(month, year);
+        judy.total_months++;
+
+        // Глобальные события месяца
+        inflation(month, year);
+        update_currency_rate(month, year);
+        common_events(month, year);
+        character_thoughts(month, year);
+
+        
+        //Для Джуди
+        judy_salary(month, year);
+        judy_police_life(month, year);
+        judy_food();
+        judy_car();
+        judy_medicine(month, year);
+        judy_currency_exchange(month);
+        judy_deposite(month, year);
+        
+        
+        //Для Ника
+        nick_business_logic(month, year);
+        nick_life_events(month, year);
+        nick_shadow_expenses(month);
+        nick_expenses();
+        nick_loan_payment();
+        nick_black_market_exchange(month, year);
+        nick_law_compliance(month, year);
+        process_judy_month(month, year);
+        process_nick_month(month, year);
+
+
+        // Взаимодействие персонажей
+        judy_to_the_rescue(month, year);
+        shopping_mall_nick(month, year);
+        shopping_mall_judy(month, year);
 
         ++month;
-        if (month == 13) {
-            process_year_end(&month, &year, &deposit_at_start_of_year);
+        if (month == 13)
+        {
+            calculate_taxes(year);
+            print_year_end(month, year, deposit_at_start_of_year);
+            deposit_at_start_of_year = judy.zoobank.deposite;
+            year++;
+            month = 1;
         }
     }
+
     print_final_mega_report();
+
+    plan_wedding();
+    collect_wedding_gifts();
 }
 
 
-int main() 
+int main()
 {
     print_official_disclaimer();
 
-    judy_init();  
-    nick_init();  
+    judy_init();
+    nick_init();
 
     simulation();
 
-    plan_wedding();
-
-    collect_wedding_gifts();
-
-    return 0; 
+    return 0;
 }
