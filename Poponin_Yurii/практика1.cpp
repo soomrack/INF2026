@@ -92,7 +92,7 @@ void alice_capital()
     if (Alice.vtb.capital == 0){//пересмотреть
         Alice.vtb.capital = Alice.flat + Alice.car.value + Alice.pet.value + Alice.vtb.bankcard;
     }
-    Alice.vtb.capital += Alice.vtb.bankcard + Alice.vtb.deposit;
+    Alice.vtb.capital += Alice.vtb.deposit;
 }
 
 void alice_food()
@@ -107,7 +107,7 @@ void alice_car()
 
 void alice_pet()
 {
-    Alice.vtb.bankcard += Alice.pet.filler + Alice.pet.food;
+    Alice.vtb.bankcard -= Alice.pet.filler + Alice.pet.food;
 }
 
 void alice_init()
@@ -228,7 +228,7 @@ void alice_lifestyle(int month, int year) {
         break;
 
     case 16:
-        printf("[%02d.%d] Праздник: Покупка подарков на Новый Год. -30 000 руб.\n", month, year);
+        printf("[%02d.%d] Праздник: День рождения у подруги. -30 000 руб.\n", month, year);
         Alice.vtb.bankcard -= 30000;
         break;
 
@@ -303,6 +303,7 @@ void bob_lifestyle(int month, int year) {
         case 3:
             printf("[%02d.%d] Боб решил стать крипто-инвестором и купил мемкоин, который через неделю упал. -20 000 руб.\n", month, year);
             Bob.vtb.bankcard -= 20000;
+            Bob.vtb.total_waste_money += 20000;
             break;
         case 4: {
             printf("[%02d.%d] Боб уволился с работы, надеясь на фриланс. Зарплата упала на 30%%!\n", month, year);
@@ -312,6 +313,7 @@ void bob_lifestyle(int month, int year) {
         case 5: {
             printf("[%02d.%d] Боб повелся на лохотрон в парке. -3000 руб.\n", month, year);
             Bob.vtb.bankcard -= 3000;
+            Bob.vtb.total_waste_money += 3000;
             break;
         }
         case 6: {
@@ -328,12 +330,14 @@ void bob_lifestyle(int month, int year) {
         case 8:
             printf("[%02d.%d] Боб увидел рекламу и купил 'курс успешного успеха'. -30 000 руб.\n", month, year);
             Bob.vtb.bankcard -= 30000;
+            Bob.vtb.total_waste_money += 30000;
             break;
 
         case 9: {
             RUB crypto_loss = Bob.vtb.bankcard * 0.2;
             printf("[%02d.%d] Криптобиржа, где Боб хранил деньги, закрылась. Потеря: -%lld руб.\n", month, year, crypto_loss);
             Bob.vtb.bankcard -= crypto_loss;
+            Bob.vtb.total_waste_money += crypto_loss;
             break;
         }
 
@@ -374,6 +378,7 @@ void bob_lifestyle(int month, int year) {
         case 18:
             printf("[%02d.%d] Боб купил лотерейных билетов на всю сдачу. -2 000 руб.\n", month, year);
             Bob.vtb.bankcard -= 2000;
+            Bob.vtb.total_waste_money += 2000;
             break;
 
         case 19: {
@@ -519,6 +524,9 @@ void bob_lifestyle(int month, int year) {
             Bob.vtb.bankcard += 2500;
             break;
         }
+        default:
+
+            break;
         }
     }
 }
