@@ -19,12 +19,23 @@ struct Bank {
     float rate_usd_rub;
 };
 
+struct Mortgage {
+    RUB mortgage_pays;
+    RUB mortgage_SUMM;
+};
+
+struct Cat {
+    RUB cat_food;
+    RUB cat_shit;
+    RUB cat_SUMM;
+};
 
 struct Person {
     Bank vtb;
     RUB salary;
     RUB food;
-    RUB ipoteka;
+    Mortgage mortgage;
+    Cat cat;
     Car car;
 };
 struct Person Alice;
@@ -38,7 +49,9 @@ void Alice_init()
     
     Alice.salary = 180'000;
     Alice.food = 3'000;
-    Alice.ipoteka = 20'000; 
+    Alice.mortgage.mortgage_pays = 20'000; 
+    Alice.cat.cat_food = 1000;
+    Alice.cat.cat_shit = 1500;
     
     Alice.car.value = 2'400'0;
     Alice.car.gas = 15'000;
@@ -48,6 +61,7 @@ void Alice_init()
 void Alice_food(const int month, const int year)
 {
     if (month == 12) Alice.vtb.account_rub -= 2000;  // christmas party
+    if (month == 3) Alice.vtb.account_rub -= 800;  // lottery ticket
 
     Percent inflation = 12.0;
     switch (year) {
@@ -61,19 +75,12 @@ void Alice_food(const int month, const int year)
     Alice.vtb.account_rub -= Alice.food;
 }
 
-void Alice_ipoteka(const int month, const int year)
+void Alice_mortgage(const int month, const int year)
 {
     if (month == 2 && year == 2026) Alice.vtb.account_rub -= 50000;  // first pay
 
-    Percent inflation = 12.0;
-    switch (year) {
-    case 2026: inflation = 12.5; break;
-    case 2027: inflation = 14.0; break;
-    case 2028: inflation = 13.0; break;
-    case 2029: inflation = 11.5; break;
-    }
-    Alice.ipoteka += Alice.ipoteka * (inflation / 100. / 12.);
-    Alice.vtb.account_rub -= Alice.ipoteka;
+    Alice.vtb.account_rub -= Alice.mortgage.mortgage_pays;
+    Alice.mortgage.mortgage_SUMM += Alice.mortgage.mortgage_pays;
 }
 
 void Alice_salary(const int month, const int year)
@@ -85,10 +92,35 @@ void Alice_salary(const int month, const int year)
     if (month == 2 && year == 2026) {
         Alice.vtb.account_rub += 5000;  // bonus
     }
+
+    if (month == 5 && year == 2026) {
+        Alice.vtb.account_rub += 25000;  // lottery win
+    }
         
     Alice.vtb.account_rub += Alice.salary;
 }
 
+void Alice_cat(const int month, const int year)
+{
+    if (month == 9 && year == 2026) Alice.vtb.account_rub -= 5000;  // cat illness
+    if (month == 7 && year == 2026) Alice.vtb.account_rub -= 800;  // new dish
+    if (month == 3 && year == 2026) Alice.vtb.account_rub -= 1000;  // new scatching point
+
+    Percent inflation = 12.0;
+    switch (year) {
+    case 2026: inflation = 12.5; break;
+    case 2027: inflation = 14.0; break;
+    case 2028: inflation = 13.0; break;
+    case 2029: inflation = 11.5; break;
+    }
+    Alice.cat.cat_food += Alice.cat.cat_food * (inflation / 100. / 12.);
+    Alice.cat.cat_shit += Alice.cat.cat_shit * (inflation / 100. / 12.);
+        
+    Alice.vtb.account_rub -= Alice.cat.cat_food;
+    Alice.vtb.account_rub -= Alice.cat.cat_shit;
+    Alice.cat.cat_SUMM += Alice.cat.cat_food;
+    Alice.cat.cat_SUMM += Alice.cat.cat_shit;
+}
 
 void print_results()
 {
@@ -99,7 +131,8 @@ void print_results()
     capital += Alice.vtb.account_usd * Alice.vtb.rate_usd_rub;
     capital += Alice.car.value;
     printf("Capital = %lld\n", capital);
-    printf("ipoteka = %lld\n", Alice.ipoteka);
+    printf("mortgage = %lld\n", Alice.mortgage.mortgage_SUMM);
+    printf("cat = %lld\n", Alice.cat.cat_SUMM);
 
 }
 
@@ -123,7 +156,8 @@ void simulation()
         // my_rent();
         // my_mortgage();
         Alice_food(month, year);
-        Alice_ipoteka(month, year);
+        Alice_mortgage(month, year);
+        Alice_cat(month, year);
         
         ++month;
         if (month == 13) {
