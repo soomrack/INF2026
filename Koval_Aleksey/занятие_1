@@ -79,12 +79,12 @@ void alice_init()
     alice.cat = 3'000;
     alice.trip = 8'000;
     alice.emotions = 10'000;
-    alice.vtb.invest.stocks = 88;
-    alice.alfa.invest.stocks = 90;
-    alice.T.invest.stocks = 3'000;
-    alice.Gazprom.obligation = 950;
-    alice.Rosneft.obligation = 900;
-    alice.Rosatom.obligation = 1'000;
+    alice.vtb.invest.stocks = 30 * 88;
+    alice.alfa.invest.stocks =  50 * 90;
+    alice.T.invest.stocks = 5 * 3'000;
+    alice.Gazprom.obligation = 13 * 950;
+    alice.Rosneft.obligation = 11 * 900;
+    alice.Rosatom.obligation = 10 * 1'000;
 
     alice.tax.car_log = 5'000;
     alice.tax.NPD = 4;
@@ -108,9 +108,59 @@ float inflation(const int year) {
 }
 
 
+void alice_vtb_stocks (int month)
+{
+    if (month == 3) {
+        alice.vtb.account_rub += alice.vtb.invest.stocks * (12 / 100);
+    }
+}
+
+
+void alice_alfa_stocks (int month)
+{
+    if (month == 4) {
+        alice.vtb.account_rub += alice.alfa.invest.stocks * (20 / 100);
+    }
+}
+
+
+void alice_T_stocks(int month)
+{
+    if (month == 4) {
+        alice.vtb.account_rub += alice.T.invest.stocks * (15 / 100);
+    }
+}
+
+
+void alice_Gazprom_obligations(int month)
+{
+    if (month == 6) {
+        alice.vtb.account_rub += alice.Gazprom.obligation * (8 / 100);
+    }
+}
+
+
+void alice_Rosneft_obligations(int month)
+{
+    if (month == 6) {
+        alice.vtb.account_rub += alice.Rosneft.obligation * (10 / 100);
+    }
+}
+
+
+void alice_Rosatom_obligations(int month)
+{
+    if (month == 6) {
+        alice.vtb.account_rub += alice.Rosatom.obligation * (5 / 100);
+    }
+}
+
+
 void alice_food(const int month, const int year)
 {
-    if (month == 12) alice.vtb.account_rub -= 2000;
+    if (month == 12) {
+        alice.vtb.account_rub -= 2000;
+    }
 
     alice.food += alice.food * (inflation(year) / 100. / 12.);
 
@@ -151,7 +201,7 @@ void alice_trip(const int month,const int year)
 void alice_cat(const int month, const int year)
 {
     if (month == 1 && year == 2027) {
-        alice.vtb.account_rub -= 10'000;  //cat got sick
+        alice.vtb.account_rub -= 10'000;  //кот заболел
     }
 
     alice.cat += alice.cat * (inflation(year) / 100. / 12.);
@@ -210,6 +260,12 @@ void print_results()
     RUB capital = 0;
     capital += alice.vtb.account_rub;
     capital += alice.vtb.deposit;
+    capital += alice.vtb.invest.stocks;
+    capital += alice.T.invest.stocks;
+    capital += alice.alfa.invest.stocks;
+    capital += alice.Gazprom.obligation;
+    capital += alice.Rosatom.obligation;
+    capital += alice.Rosatom.obligation;
     capital += alice.vtb.account_usd * alice.vtb.rate_usd_rub;
     capital += alice.car.value;
     printf("Capital = %lld", capital);
@@ -247,6 +303,12 @@ void simulation()
         alice_trip(month, year);
         alice_rent(year);
         alice_deposit(month);
+        alice_vtb_stocks(month);
+        alice_alfa_stocks(month);
+        alice_T_stocks(month);
+        alice_Gazprom_obligations(month);
+        alice_Rosneft_obligations(month);
+        alice_Rosatom_obligations(month);
         alice_freelancing(month, year);
         alice_emotions();
         alice_food(month, year);
