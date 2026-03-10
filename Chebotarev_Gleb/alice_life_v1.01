@@ -1,0 +1,145 @@
+#include <stdio.h>
+
+using RUB = long long int;
+using USD = long long int;
+using Percent = float;
+
+
+
+struct Bank {
+    RUB account_rub;
+    USD account_usd;
+    float rate_usd_rub;
+};
+
+struct Car {
+    RUB value;
+    RUB gas;
+};
+
+struct Person {
+    Bank vtb;
+    RUB food;
+    RUB salary;
+    Car car;
+    RUB fitness;
+//    RUB clothes;
+   // RUB pets
+};
+struct Person alice;
+
+
+
+void alice_init()
+{
+    alice.vtb.rate_usd_rub = 78.76;
+    alice.vtb.account_usd = 1'000;
+    alice.food = 3'000;
+    alice.salary = 180'000;
+    alice.vtb.account_rub = 0;
+    alice.fitness = 3'000;
+
+    alice.car.value = 2'400'000;
+    alice.car.gas = 15'000;
+}
+
+void alice_food(const int month, const int year)
+{
+
+    if (month == 12) alice.vtb.account_rub -= 2000; // christmas party
+    if (month == 5) alice.vtb.account_rub -= 3000; // may holidays
+
+    Percent inflation_food;
+    switch (year) {
+        case 2026: inflation_food = 12.5; break;
+        case 2027: inflation_food = 14.0; break;
+        case 2028: inflation_food = 15.0; break;
+        case 2029: inflation_food = 16.0; break;
+        case 2030: inflation_food = 17.0; break;
+    }
+    alice.food += alice.food * (inflation_food / 100.0 / 12.0);
+
+    alice.vtb.account_rub -= alice.food;
+}
+
+void alice_salary(const int month, const int year)
+{
+    if (month == 3) {
+        alice.salary *= 1.5;
+    }
+
+    if (month == 2 && year == 2026) {
+        alice.vtb.account_rub += 5000;
+    }
+
+    alice.vtb.account_rub += alice.salary;
+}
+
+void alice_car()
+{
+    alice.vtb.account_rub -= alice.car.gas;
+}
+
+void alice_fitness(const int month, const int year)
+{
+    if (month == 1) {
+        Percent inflation_fitness;
+        switch (year) {
+            case 2027: inflation_fitness = 7.0; break;
+            case 2028: inflation_fitness = 8.0; break;
+            case 2029: inflation_fitness = 9.0; break;
+            case 2030: inflation_fitness = 10.0; break;
+        }
+        alice.fitness += alice.fitness * (inflation_fitness / 100.0);
+    }
+
+    if (month % 3 == 0) {
+        RUB sport_food = 2'150;
+        alice.vtb.account_rub -= sport_food;
+    }
+
+    alice.vtb.account_rub -= alice.fitness;
+}
+
+
+void simulation()
+{
+    int year = 2026;
+    int month = 2;
+
+    while ( !(year == 2027 && month == 2) ) {
+        alice_salary(month, year);
+        alice_food(month, year);
+        alice_car();
+        alice_fitness(month, year);
+
+        ++month;
+        if (month == 13) {
+            ++year;
+            month = 1;
+        }
+    }
+}
+
+
+
+void print_results()
+{
+    printf("Salary = %lld\n", alice.salary);
+
+    RUB capital = 0;
+    capital += alice.vtb.account_rub;
+    capital += alice.vtb.account_usd * alice.vtb.rate_usd_rub;
+    capital += alice.car.value;
+    printf("Capital = %lld\n", capital);
+    printf("ft = %lld", alice.fitness);
+}
+
+
+
+int main()
+{
+    alice_init();
+    simulation();
+    print_results();
+}
