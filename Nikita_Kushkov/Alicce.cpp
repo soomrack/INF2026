@@ -5,9 +5,52 @@
 // typedef int RUB;  // C
 using RUB = long long int;  // C++
 
+
+
+struct Electronics {
+    
+    bool has_phone;           
+    bool has_laptop;          
+    bool has_tablet;         
+    bool has_tv;              
+    bool has_headphones;      
+    bool has_smartwatch;     
+    bool has_game_console;    
+    bool has_camera;         
+    bool has_smart_home;    
+    
+    RUB new_phone_cost;       
+    RUB new_laptop_cost;      
+    RUB new_tablet_cost;      
+    RUB new_tv_cost;          
+    RUB new_headphones_cost;  
+    RUB new_smartwatch_cost;   
+    RUB new_game_console_cost; 
+    RUB new_camera_cost;       
+    RUB new_smart_home_cost;   
+
+    RUB accessories_monthly;  
+    RUB gadgets_year;         
+    RUB last_purchase_month;  
+    RUB last_purchase_year;
+};
+
+
+
 struct CounterStrike {
     RUB Cases;
     RUB Battle_pass;
+};
+
+
+
+struct Crisis {
+    bool active;           // Активен ли кризис
+    int duration;          // Длительность в месяцах
+    int months_left;       // Сколько месяцев осталось
+    RUB salary_multiplier; // Множитель зарплаты (например, 80 = -20%)
+    RUB price_multiplier;  // Множитель цен (например, 120 = +20%)
+    char description[50];  // Описание кризиса
 };
 
 
@@ -123,6 +166,16 @@ struct Cat {
 
 
 
+struct Business {
+    bool exists;           // Существует ли бизнес
+    RUB invested;          // Сколько вложено
+    RUB monthly_income;    // Ежемесячный доход
+    RUB monthly_cost;      // Ежемесячные расходы
+    int months;            // Сколько месяцев работает
+};
+    
+
+
 struct tax_servise {
     RUB salary_tax;
 };
@@ -180,6 +233,12 @@ struct Person {
     
     CapitalController capital_control;
     CounterStrike cs;
+
+    Business business;
+
+    Crisis crisis;
+
+    Electronics electronics;
 };
 
 
@@ -235,28 +294,28 @@ void alice_init()
     alice.education.books = 2'000;           
     alice.education.child_circles = 15'000;  
     
-    alice.health.pharmacy = 2'000;           // Лекарства
-    alice.health.vitamins = 1'500;            // Витамины
-    alice.health.sports_equipment = 3'000;    // Спортинвентарь
+    alice.health.pharmacy = 2'000;           
+    alice.health.vitamins = 1'500;            
+    alice.health.sports_equipment = 3'000;    
     
-    alice.gifts.birthday = 10'000;            // Подарки на ДР
-    alice.gifts.new_year = 15'000;            // Новый год
-    alice.gifts.other = 5'000;                 // Прочие подарки
+    alice.gifts.birthday = 10'000;          
+    alice.gifts.new_year = 15'000;       
+    alice.gifts.other = 5'000;             
     
     
-    alice.additional_income.freelance = 15'000;    // Фриланс
-    alice.additional_income.dividends = 5'000;      // Дивиденды
-    alice.additional_income.cashback = 2'000;       // Кэшбэк
-    alice.additional_income.birthday_gifts = 20'000; // Подарки на ДР
-    alice.additional_income.bonus = 100'000;         // Премия (раз в год)
+    alice.additional_income.freelance = 15'000; 
+    alice.additional_income.dividends = 5'000;    
+    alice.additional_income.cashback = 2'000;    
+    alice.additional_income.birthday_gifts = 20'000; 
+    alice.additional_income.bonus = 100'000;     
     
-    alice.investments.stocks = 0;             // Инвестиции в акции
-    alice.investments.crypto = 0;              // Криптовалюта
+    alice.investments.stocks = 0;             
+    alice.investments.crypto = 0;              
     alice.investments.deposit = alice.capital;
     alice.investments.steam_marketplace = 0;
 
-    alice.capital_control.min_threshold = 10'000;     // Критический порог - 10,000 руб
-    alice.capital_control.loan_amount = 100'000;      // Кредит 100,000 руб
+    alice.capital_control.min_threshold = 10'000;    
+    alice.capital_control.loan_amount = 100'000;    
     alice.capital_control.loan_count = 0;
     alice.capital_control.total_loan_amount = 0;
     alice.capital_control.total_interest_paid = 0;
@@ -266,6 +325,326 @@ void alice_init()
     alice.capital_control.active_loan.monthly_payment = 0;
     alice.capital_control.active_loan.interest_rate = 0;
     alice.capital_control.active_loan.months_left = 0;
+
+    alice.business.exists = false;
+    alice.business.invested = 0;
+    alice.business.monthly_income = 0;
+    alice.business.monthly_cost = 0;
+    alice.business.months = 0;
+
+    alice.crisis.active = false;
+    alice.crisis.duration = 0;
+    alice.crisis.months_left = 0;
+    alice.crisis.salary_multiplier = 100;
+    alice.crisis.price_multiplier = 100;  
+    sprintf(alice.crisis.description, "Нормальная ситуация");
+
+    alice.electronics.has_phone = true;
+    alice.electronics.has_laptop = true;
+    alice.electronics.has_tablet = false;
+    alice.electronics.has_tv = true;
+    alice.electronics.has_headphones = true;
+    alice.electronics.has_smartwatch = false;
+    alice.electronics.has_game_console = false;
+    alice.electronics.has_camera = false;
+    alice.electronics.has_smart_home = false;
+    
+    
+    alice.electronics.new_phone_cost = 80'000;        
+    alice.electronics.new_laptop_cost = 120'000;      
+    alice.electronics.new_tablet_cost = 50'000;       
+    alice.electronics.new_tv_cost = 70'000;          
+    alice.electronics.new_headphones_cost = 20'000;  
+    alice.electronics.new_smartwatch_cost = 25'000;   
+    alice.electronics.new_game_console_cost = 45'000; 
+    alice.electronics.new_camera_cost = 60'000;      
+    alice.electronics.new_smart_home_cost = 30'000; 
+
+}
+
+
+
+void check_crisis(const int year, const int month) {
+    // Если кризис уже активен, уменьшаем счетчик
+    if (alice.crisis.active) {
+        alice.crisis.months_left--;
+        
+        if (alice.crisis.months_left <= 0) {
+            printf("\n🌈 КРИЗИС ЗАКОНЧИЛСЯ! Экономика восстанавливается.\n");
+            printf("Зарплаты возвращаются к нормальному уровню, цены снижаются.\n\n");
+            
+            alice.crisis.active = false;
+            alice.crisis.salary_multiplier = 100;
+            alice.crisis.price_multiplier = 100;
+            sprintf(alice.crisis.description, "Нормальная ситуация");
+        }
+        return;
+    }
+    
+
+
+    // Шанс начала кризиса: 1% в месяц (примерно раз в 8 лет)
+    if (rand() % 1000 < 10) { // 1% шанс
+        int crisis_type = rand() % 5;
+        
+        alice.crisis.active = true;
+        alice.crisis.duration = 6 + (rand() % 12); // 6-18 месяцев
+        alice.crisis.months_left = alice.crisis.duration;
+        
+        switch(crisis_type) {
+            case 0: // Экономический кризис
+                alice.crisis.salary_multiplier = 80; // -20% к зарплате
+                alice.crisis.price_multiplier = 120; // +20% к ценам
+                sprintf(alice.crisis.description, "Экономический кризис");
+                break;
+            case 1: // Инфляция
+                alice.crisis.salary_multiplier = 90; // -10% к зарплате
+                alice.crisis.price_multiplier = 130; // +30% к ценам
+                sprintf(alice.crisis.description, "Высокая инфляция");
+                break;
+            case 2: // Стагнация
+                alice.crisis.salary_multiplier = 85; // -15% к зарплате
+                alice.crisis.price_multiplier = 115; // +15% к ценам
+                sprintf(alice.crisis.description, "Экономическая стагнация");
+                break;
+            case 3: // Кризис в отрасли
+                alice.crisis.salary_multiplier = 75; // -25% к зарплате
+                alice.crisis.price_multiplier = 110; // +10% к ценам
+                sprintf(alice.crisis.description, "Кризис в отрасли");
+                break;
+            case 4: // Дефолт
+                alice.crisis.salary_multiplier = 70; // -30% к зарплате
+                alice.crisis.price_multiplier = 140; // +40% к ценам
+                sprintf(alice.crisis.description, "ДЕФОЛТ!");
+                break;
+        }
+        
+        printf("\n⚠️⚠️⚠️ ВНИМАНИЕ! КРИЗИС В СТРАНЕ! ⚠️⚠️⚠️\n");
+        printf("Тип кризиса: %s\n", alice.crisis.description);
+        printf("Длительность: %d месяцев\n", alice.crisis.duration);
+        printf("Зарплаты уменьшатся на %d%%\n", 100 - alice.crisis.salary_multiplier);
+        printf("Цены вырастут на %d%%\n", alice.crisis.price_multiplier - 100);
+        printf("Будьте осторожны с финансами!\n\n");
+    }
+}
+
+
+
+void alice_buy_electronics(const int year, const int month) {
+    // Пропускаем, если не прошло хотя бы 3 месяца после последней крупной покупки
+    if (alice.electronics.last_purchase_year == year && 
+        month - alice.electronics.last_purchase_month < 3) {
+        return;
+    }
+    
+    // Шанс на покупку электроники (5% в месяц)
+    if (rand() % 100 < 5 && alice.capital > 100'000) {
+        // Список возможных покупок
+        const char* items[] = {
+            "новый телефон", "новый ноутбук", "новый планшет", 
+            "новый телевизор", "новые наушники", "умные часы",
+            "игровую консоль", "новый фотоаппарат", "умный дом"
+        };
+        
+        // Соответствующие стоимости и флаги наличия
+        RUB costs[] = {
+            alice.electronics.new_phone_cost,
+            alice.electronics.new_laptop_cost,
+            alice.electronics.new_tablet_cost,
+            alice.electronics.new_tv_cost,
+            alice.electronics.new_headphones_cost,
+            alice.electronics.new_smartwatch_cost,
+            alice.electronics.new_game_console_cost,
+            alice.electronics.new_camera_cost,
+            alice.electronics.new_smart_home_cost
+        };
+        
+        bool* has_items[] = {
+            &alice.electronics.has_phone,
+            &alice.electronics.has_laptop,
+            &alice.electronics.has_tablet,
+            &alice.electronics.has_tv,
+            &alice.electronics.has_headphones,
+            &alice.electronics.has_smartwatch,
+            &alice.electronics.has_game_console,
+            &alice.electronics.has_camera,
+            &alice.electronics.has_smart_home
+        };
+        
+        // Выбираем случайный товар
+        int choice = rand() % 9;
+        RUB cost = costs[choice];
+        
+        // Во время кризиса тратим меньше на электронику
+        if (alice.crisis.active) {
+            cost = cost * 70 / 100; // -30%
+        }
+        
+        // Проверяем, можем ли позволить
+        if (alice.capital >= cost) {
+            // Если товара еще нет или решаем обновить (70% шанс)
+            if (!(*has_items[choice]) || rand() % 100 < 70) {
+                alice.capital -= cost;
+                *has_items[choice] = true;
+                
+                printf("\n📱 АЛИСА ПОКУПАЕТ %s за %lld руб.\n", items[choice], cost);
+                printf("   Капитал после покупки: %lld руб.\n", alice.capital);
+                
+                alice.electronics.last_purchase_month = month;
+                alice.electronics.last_purchase_year = year;
+                
+                // Особые сообщения для разных покупок
+                if (choice == 0) printf("   Теперь можно делать классные фото!\n");
+                if (choice == 1) printf("   Новый ноутбук для работы и учебы!\n");
+                if (choice == 4) printf("   Теперь музыка звучит лучше!\n");
+                if (choice == 6) printf("   Можно играть в новые игры!\n");
+            }
+        }
+    }
+}
+
+
+
+void alice_repair_electronics(const int month, const int year) {
+    // Шанс поломки техники (3% в месяц, если техника есть)
+    if (rand() % 100 < 3) {
+        // Список техники, которая может сломаться
+        const char* items[] = {"телефон", "ноутбук", "телевизор", "наушники"};
+        bool* has_items[] = {
+            &alice.electronics.has_phone,
+            &alice.electronics.has_laptop,
+            &alice.electronics.has_tv,
+            &alice.electronics.has_headphones
+        };
+        
+        RUB repair_costs[] = {15'000, 25'000, 20'000, 5'000};
+        
+        for (int i = 0; i < 4; i++) {
+            if (*has_items[i] && rand() % 100 < 25) { // 25% шанс сломаться конкретному
+                RUB cost = repair_costs[i];
+                
+                if (alice.crisis.active) cost = cost * 120 / 100; // +20%
+                
+                printf("\n🔧 СЛОМАЛСЯ %s! Ремонт: %lld руб.\n", items[i], cost);
+                
+                if (alice.capital >= cost) {
+                    alice.capital -= cost;
+                    printf("   Отремонтировано. Капитал: %lld руб.\n", alice.capital);
+                } else {
+                    printf("   Нет денег на ремонт! Придется покупать новый.\n");
+                    *has_items[i] = false;
+                }
+                break;
+            }
+        }
+    }
+}
+
+
+
+// Функция применения кризиса к расходам
+RUB apply_crisis_to_expense(RUB expense) {
+    if (alice.crisis.active) {
+        return expense * alice.crisis.price_multiplier / 100;
+    }
+    return expense;
+}
+
+
+void alice_open_business(const int year, const int month) {
+    // Не открываем, если уже есть бизнес
+    if (alice.business.exists) return;
+    
+    // Шанс открыть бизнес: 5% если капитал больше 300к
+    if (rand() % 100 < 5 && alice.capital >= 100'000) {
+        RUB invest = 200'000 + (rand() % 200'000); // Вложения 200-400к
+        
+        printf("\n🌟🌟🌟 АЛИСА ОТКРЫВАЕТ БИЗНЕС! 🌟🌟🌟\n");
+        printf("Вложено в бизнес: %lld руб.\n", invest);
+        
+        alice.capital -= invest;
+        alice.business.exists = true;
+        alice.business.invested = invest;
+        alice.business.months = 0;
+        
+        if (alice.crisis.active) {
+            alice.business.monthly_income = 30'000 + (rand() % 100'000);
+            alice.business.monthly_cost = 30'000 + (rand() % 80'000);
+            printf("⚠️ Открытие во время кризиса - бизнес будет менее прибыльным\n");
+        } else {
+            alice.business.monthly_income = 50'000 + (rand() % 150'000);
+            alice.business.monthly_cost = 20'000 + (rand() % 80'000);
+        }
+
+        // Случайный доход и расход
+        alice.business.monthly_income = 50'000 + (rand() % 150'000); // 50-200к
+        alice.business.monthly_cost = 20'000 + (rand() % 80'000);    // 20-100к
+        
+        printf("Ежемесячный доход: %lld руб.\n", alice.business.monthly_income);
+        printf("Ежемесячные расходы: %lld руб.\n", alice.business.monthly_cost);
+        printf("Ожидаемая прибыль: %lld руб./мес\n", alice.business.monthly_income - alice.business.monthly_cost);
+        printf("Капитал после открытия: %lld руб.\n\n", alice.capital);
+    }
+}
+
+
+
+void alice_run_business(const int year, const int month) {
+    if (!alice.business.exists) return;
+    
+    alice.business.months++;
+    
+    // Базовая прибыль
+    RUB profit = alice.business.monthly_income - alice.business.monthly_cost;
+    
+    // Случайные колебания +/- 30%
+    double factor = 0.7 + (rand() % 60) / 100.0; // 0.7 до 1.3
+    profit = profit * factor;
+    
+    // Добавляем в капитал
+    alice.capital += profit;
+
+    printf("\n--- БИЗНЕС: МЕСЯЦ %d ---\n", alice.business.months);
+    if (profit >= 0) {
+        printf("✅ Прибыль: +%lld руб.\n", profit);
+    } else {
+        printf("❌ Убыток: %lld руб.\n", profit);
+    }
+    printf("Текущий капитал: %lld руб.\n", alice.capital);
+    
+    // Бизнес может прогореть при больших убытках
+    if (alice.business.months > 6 && profit < -50000) {
+        printf("\n💔 БИЗНЕС ПРОГОРЕЛ из-за больших убытков!\n");
+        alice.business.exists = false;
+    }
+    
+    // Успешный бизнес может расти
+    if (profit > 100000 && alice.business.months % 12 == 0) {
+        alice.business.monthly_income *= 1.1; // +10% к доходу
+        printf("📈 БИЗНЕС РАСШИРЯЕТСЯ! Доход увеличен до %lld руб.\n", 
+               alice.business.monthly_income);
+    }
+}
+
+
+
+void alice_sell_business(const int year, const int month) {
+    if (!alice.business.exists || alice.business.months < 12) return;
+    
+    // Шанс продать бизнес: 2% в месяц
+    if (rand() % 100 < 2) {
+        // Стоимость продажи = вложения + прибыль за последний год
+        RUB sell_price = alice.business.invested * 1.5 + (rand() % 200'000);
+        
+        printf("\n💰💰💰 ПРЕДЛОЖЕНИЕ О ПОКУПКЕ БИЗНЕСА! 💰💰💰\n");
+        printf("Цена продажи: %lld руб.\n", sell_price);
+        printf("Изначально вложено: %lld руб.\n", alice.business.invested);
+        
+        alice.capital += sell_price;
+        alice.business.exists = false;
+        
+        printf("✅ БИЗНЕС ПРОДАН! Капитал: %lld руб.\n\n", alice.capital);
+    }
 }
 
 
@@ -416,6 +795,17 @@ void process_loan_payment(const int year, const int month)
 
 float sberbank_interest(RUB sum)
 {
+    // Во время кризиса проценты по вкладам ниже
+    if (alice.crisis.active) {
+        if (sum > 10'000 && sum < 3'000'000) {
+            return 8.0; // Было 11.5
+        }
+        if (sum >= 3'000'000) {
+            return 9.0; // Было 12.5
+        }
+        return 0.05;
+    }
+    
     if (sum > 10'000 && sum < 3'000'000) {
         return 11.5;
     }
@@ -429,19 +819,24 @@ float sberbank_interest(RUB sum)
 
 void alice_medical_expenses(const int month, const int year)
 {
+    RUB expense = apply_crisis_to_expense(alice.medical.monthly);
+    alice.capital -= expense;
+
     // Ежемесячные расходы на медицину
     alice.capital -= alice.medical.monthly;
     printf("Месяц %d: - Медицинская страховка: %lld руб. (капитал: %lld руб.)\n", month, alice.medical.monthly, alice.capital);
     
     // Стоматолог раз в полгода
     if (month == 3 || month == 9) {
-        alice.capital -= alice.medical.dentist;
+        RUB dentist = apply_crisis_to_expense(alice.medical.dentist);
+        alice.capital -= dentist;
         printf("Месяц %d: - СТОМАТОЛОГ: %lld руб. (капитал: %lld руб.)\n", month, alice.medical.dentist, alice.capital);
     }
     
     // Экстренные случаи (редко, 5% шанс)
     if (rand() % 100 < 5) {
-        alice.capital -= alice.medical.emergency;
+        RUB emergency = apply_crisis_to_expense(alice.medical.emergency);
+        alice.capital -= emergency;
         printf("Месяц %d: - ЭКСТРЕННАЯ МЕДИЦИНА: %lld руб. (капитал: %lld руб.)\n", month, alice.medical.emergency, alice.capital);
     }
     
@@ -466,20 +861,25 @@ void alice_CounterStrike(const int month, const int year)
 void alice_entertainment(const int month, const int year)
 {
     // Регулярные развлечения
-    alice.capital -= alice.entertainment.cinema;
-    alice.capital -= alice.entertainment.subscriptions;
+    RUB cinema = apply_crisis_to_expense(alice.entertainment.cinema);
+    RUB subscriptions = apply_crisis_to_expense(alice.entertainment.subscriptions);
+    
+    alice.capital -= cinema;
+    alice.capital -= subscriptions;
     
     printf("Месяц %d: - Кино: %lld руб., Подписки: %lld руб. (капитал: %lld руб.)\n", month, alice.entertainment.cinema, alice.entertainment.subscriptions, alice.capital);
     
     // Рестораны (70% шанс)
     if (rand() % 100 < 70) {
-        alice.capital -= alice.entertainment.restaurant;
+        RUB restaurant = apply_crisis_to_expense(alice.entertainment.restaurant);
+        alice.capital -= restaurant;
         printf("Месяц %d: - Ресторан: %lld руб. (капитал: %lld руб.)\n", month, alice.entertainment.restaurant, alice.capital);
     }
     
     // Хобби (50% шанс)
     if (rand() % 100 < 50) {
-        alice.capital -= alice.entertainment.hobbies;
+        RUB hobbies = apply_crisis_to_expense(alice.entertainment.hobbies);
+        alice.capital -= hobbies;
         printf("Месяц %d: - Хобби: %lld руб. (капитал: %lld руб.)\n", month, alice.entertainment.hobbies, alice.capital);
     }
     
@@ -491,22 +891,26 @@ void alice_entertainment(const int month, const int year)
 void alice_transport(const int month, const int year)
 {
     // Ежемесячные расходы на транспорт
-    alice.capital -= alice.transport.public_transport;
+    RUB transport = apply_crisis_to_expense(alice.transport.public_transport);
+    alice.capital -= transport;
     printf("Месяц %d: - Общественный транспорт: %lld руб. (капитал: %lld руб.)\n", month, alice.transport.public_transport, alice.capital);
     
     // Такси (40% шанс)
     if (rand() % 100 < 40) {
-        alice.capital -= alice.transport.taxi;
+        RUB taxi = apply_crisis_to_expense(alice.transport.taxi);
+        alice.capital -= taxi;
         printf("Месяц %d: - Такси: %lld руб. (капитал: %lld руб.)\n", month, alice.transport.taxi, alice.capital);
     }
     
     // Годовые расходы на машину
     if (month == 6) { // Страховка в июне
-        alice.capital -= alice.transport.car_insurance;
+        RUB insurance = apply_crisis_to_expense(alice.transport.car_insurance);
+        alice.capital -= insurance;
         printf("Месяц %d: - Страховка машины (ГОДОВАЯ): %lld руб. (капитал: %lld руб.)\n", month, alice.transport.car_insurance, alice.capital);
     }
     if (month == 9) { // ТО в сентябре
-        alice.capital -= alice.transport.car_maintenance;
+        RUB maintenance = apply_crisis_to_expense(alice.transport.car_maintenance);
+        alice.capital -= maintenance;
         printf("Месяц %d: - ТО машины: %lld руб. (капитал: %lld руб.)\n", month, alice.transport.car_maintenance, alice.capital);
     }
     
@@ -518,16 +922,19 @@ void alice_transport(const int month, const int year)
 void alice_education(const int month, const int year)
 {
     // Ежемесячные расходы на образование
-    alice.capital -= alice.education.books;
+    RUB books = apply_crisis_to_expense(alice.education.books);
+    alice.capital -= books;
     printf("Месяц %d: - Книги: %lld руб. (капитал: %lld руб.)\n", month, alice.education.books, alice.capital);
     
     // Кружки для ребенка
-    alice.capital -= alice.education.child_circles;
+    RUB circles = apply_crisis_to_expense(alice.education.child_circles);
+    alice.capital -= circles;
     printf("Месяц %d: - Кружки ребенка: %lld руб. (капитал: %lld руб.)\n", month, alice.education.child_circles, alice.capital);
     
     // Курсы (раз в 4 месяца)
     if (month % 4 == 0) {
-        alice.capital -= alice.education.courses;
+        RUB courses = apply_crisis_to_expense(alice.education.courses);
+        alice.capital -= courses;
         printf("Месяц %d: - Курсы повышения квалификации: %lld руб. (капитал: %lld руб.)\n", month, alice.education.courses, alice.capital);
     }
     
@@ -539,14 +946,18 @@ void alice_education(const int month, const int year)
 void alice_health(const int month, const int year)
 {
     // Расходы на здоровье
-    alice.capital -= alice.health.pharmacy;
-    alice.capital -= alice.health.vitamins;
+    RUB pharmacy = apply_crisis_to_expense(alice.health.pharmacy);
+    RUB vitamins = apply_crisis_to_expense(alice.health.vitamins);
+    
+    alice.capital -= pharmacy;
+    alice.capital -= vitamins;
     
     printf("Месяц %d: - Лекарства: %lld руб., Витамины: %lld руб. (капитал: %lld руб.)\n", month, alice.health.pharmacy, alice.health.vitamins, alice.capital);
     
     // Спортивный инвентарь (раз в 3 месяца)
     if (month % 3 == 0) {
-        alice.capital -= alice.health.sports_equipment;
+        RUB equipment = apply_crisis_to_expense(alice.health.sports_equipment);
+        alice.capital -= equipment;
         printf("Месяц %d: - Спортивный инвентарь: %lld руб. (капитал: %lld руб.)\n", month, alice.health.sports_equipment, alice.capital);
     }
     
@@ -559,19 +970,22 @@ void alice_gifts(const int month, const int year)
 {
     // Подарки на дни рождения (случайные месяцы)
     if (month == 2 || month == 5 || month == 8 || month == 11) {
-        alice.capital -= alice.gifts.birthday;
+        RUB birthday = apply_crisis_to_expense(alice.gifts.birthday);
+        alice.capital -= birthday;
         printf("Месяц %d: - Подарки на дни рождения: %lld руб. (капитал: %lld руб.)\n", month, alice.gifts.birthday, alice.capital);
     }
     
     // Новогодние подарки
     if (month == 12) {
-        alice.capital -= alice.gifts.new_year;
+        RUB new_year = apply_crisis_to_expense(alice.gifts.new_year);
+        alice.capital -= new_year;
         printf("Месяц %d: - НОВОГОДНИЕ ПОДАРКИ: %lld руб. (капитал: %lld руб.)\n", month, alice.gifts.new_year, alice.capital);
     }
     
     // Прочие подарки (30% шанс)
     if (rand() % 100 < 30) {
-        alice.capital -= alice.gifts.other;
+        RUB other = apply_crisis_to_expense(alice.gifts.other);
+        alice.capital -= other;
         printf("Месяц %d: - Прочие подарки: %lld руб. (капитал: %lld руб.)\n", month, alice.gifts.other, alice.capital);
     }
     
@@ -584,33 +998,44 @@ void alice_additional_income(const int month, const int year)
 {
     // Фриланс (70% шанс)
     if (rand() % 100 < 70) {
-        RUB freelance = alice.additional_income.freelance + (rand() % 10000);
+        // Во время кризиса фриланса меньше
+        RUB freelance;
+        if (alice.crisis.active) {
+            freelance = (alice.additional_income.freelance / 2) + (rand() % 5000);
+        } else {
+            freelance = alice.additional_income.freelance + (rand() % 10000);
+        }
         alice.capital += freelance;
         printf("Месяц %d: + Фриланс: %lld руб. (капитал: %lld руб.)\n", month, freelance, alice.capital);
     }
     
-    // Дивиденды (раз в квартал)
     if (month == 3 || month == 6 || month == 9 || month == 12) {
-        RUB dividends = alice.additional_income.dividends * (1 + (rand() % 50) / 100.0);
-        alice.capital += dividends;
-        printf("Месяц %d: + Дивиденды: %lld руб. (капитал: %lld руб.)\n", month, dividends, alice.capital);
+        // Во время кризиса дивидендов нет или они меньше
+        if (!alice.crisis.active || rand() % 100 < 30) {
+            RUB dividends = alice.additional_income.dividends * (1 + (rand() % 50) / 100.0);
+            if (alice.crisis.active) dividends /= 2;
+            alice.capital += dividends;
+            printf("Месяц %d: + Дивиденды: %lld руб. (капитал: %lld руб.)\n", month, dividends, alice.capital);
+        }
     }
     
-    // Кэшбэк (всегда)
     RUB cashback = alice.additional_income.cashback + (rand() % 1000);
     alice.capital += cashback;
     printf("Месяц %d: + Кэшбэк: %lld руб. (капитал: %lld руб.)\n", month, cashback, alice.capital);
     
-    // Подарки на день рождения Алисы (допустим, в апреле)
     if (month == 4) {
         alice.capital += alice.additional_income.birthday_gifts;
         printf("Месяц %d: + Подарки на ДЕНЬ РОЖДЕНИЯ: %lld руб. (капитал: %lld руб.)\n", month, alice.additional_income.birthday_gifts, alice.capital);
     }
     
-    // Годовая премия
     if (month == 12) {
-        alice.capital += alice.additional_income.bonus;
-        printf("Месяц %d: + ГОДОВАЯ ПРЕМИЯ: %lld руб. (капитал: %lld руб.)\n", month, alice.additional_income.bonus, alice.capital);
+        // Во время кризиса премия меньше или отсутствует
+        if (!alice.crisis.active || rand() % 100 < 50) {
+            RUB bonus = alice.additional_income.bonus;
+            if (alice.crisis.active) bonus /= 2;
+            alice.capital += bonus;
+            printf("Месяц %d: + ГОДОВАЯ ПРЕМИЯ: %lld руб. (капитал: %lld руб.)\n", month, bonus, alice.capital);
+        }
     }
     
     check_and_take_loan(year, month);
@@ -682,8 +1107,8 @@ void alice_investments(const int month, const int year)
 
 
 void alice_husband_alimony(const int month, const int year) // Алименты
-{
-    alice.capital += alice.husband.alimony_payments;
+{    
+    alice.capital -= alice.husband.alimony_payments;
     printf("Месяц %d.%d: + Алименты: %lld руб. (капитал %lld руб.)\n", month, year, alice.husband.alimony_payments, alice.capital);
 
     check_and_take_loan(year, month);
@@ -693,7 +1118,8 @@ void alice_husband_alimony(const int month, const int year) // Алименты
 
 void alice_house_repair(const int year) // Ремонт дома
 {
-    alice.capital -= alice.house.repair;
+    RUB repair = apply_crisis_to_expense(alice.house.repair);
+    alice.capital -= repair;
     printf("Год %d: - Ремонт дома: %lld руб. (капитал %lld руб.)\n", year, alice.house.repair, alice.capital);
 
     check_and_take_loan(year, 1);
@@ -701,33 +1127,56 @@ void alice_house_repair(const int year) // Ремонт дома
 
 
 
-void alice_salary(const int year, const int month) // Зарплата
+void alice_salary(const int year, const int month)
 {
     RUB old_salary = alice.salary;
+    
+    // Повышение зарплаты
     if (month == 3 && year == 2026) {
-        alice.salary *= 1.2; // Повышение на 20%
+        alice.salary *= 1.2;
         printf("Повышение зарплаты! Было: %lld, стало: %lld\n", old_salary, alice.salary);
     }
     
-    // Ежегодная индексация
+    // Ежегодная индексация (во время кризиса ее может не быть)
     if (month == 1 && year > 2026) {
-        alice.salary *= 1.05; // Индексация 5% в год
-        printf("Индексация зарплаты! Новая зарплата: %lld руб.\n", alice.salary);
+        if (alice.crisis.active && rand() % 100 < 60) {
+            printf("⚠️ Индексации зарплаты нет из-за кризиса\n");
+        } else {
+            alice.salary *= 1.05;
+            printf("Индексация зарплаты! Новая зарплата: %lld руб.\n", alice.salary);
+        }
     }
     
-    alice.capital += alice.salary;
-    printf("Месяц %d.%d: + Зарплата: %lld руб. (капитал: %lld руб.)\n", month, year, alice.salary, alice.capital);
-
+    // Применяем кризис к зарплате
+    RUB current_salary = alice.salary;
+    if (alice.crisis.active) {
+        current_salary = current_salary * alice.crisis.salary_multiplier / 100;
+    }
+    
+    alice.capital += current_salary;
+    
+    if (alice.crisis.active) {
+        printf("Месяц %d.%d: + Зарплата с учетом кризиса: %lld руб. (было бы %lld) (капитал: %lld руб.)\n", month, year, current_salary, alice.salary, alice.capital);
+    } else {
+        printf("Месяц %d.%d: + Зарплата: %lld руб. (капитал: %lld руб.)\n", month, year, current_salary, alice.capital);
+    }
+    
     check_and_take_loan(year, month);
 }
 
 
 
-void alice_taxes(const int month, const int year) // Подоходный налог
-{
-    alice.capital -= alice.salary_tax;
-    printf("Месяц %d: - Налог: %lld руб. (капитал: %lld руб.)\n", month, alice.salary_tax, alice.capital);
 
+void alice_taxes(const int month, const int year)
+{
+    // Налоги тоже могут меняться
+    RUB tax = alice.salary_tax;
+    if (alice.crisis.active) {
+        tax = tax * alice.crisis.price_multiplier / 100;
+    }
+    
+    alice.capital -= tax;
+    printf("Месяц %d: - Налог: %lld руб. (капитал: %lld руб.)\n", month, tax, alice.capital);
     check_and_take_loan(year, month);
 }
 
@@ -735,7 +1184,8 @@ void alice_taxes(const int month, const int year) // Подоходный нал
 
 void alice_gym(const int month, const int year) // Тренажерный зал
 {
-    alice.capital -= alice.gym;
+    RUB gym = apply_crisis_to_expense(alice.gym);
+    alice.capital -= gym;
     printf("Месяц %d: - Тренажерный зал: %lld руб. (капитал: %lld руб.)\n", month, alice.gym, alice.capital);
 
     check_and_take_loan(year, month);
@@ -745,7 +1195,8 @@ void alice_gym(const int month, const int year) // Тренажерный зал
 
 void alice_clothes(const int month, const int year) // Одежда
 {
-    alice.capital -= alice.clothes;
+    RUB clothes = apply_crisis_to_expense(alice.clothes);
+    alice.capital -= clothes;
     printf("Месяц %d: - Одежда: %lld руб. (капитал: %lld руб.)\n", month, alice.clothes, alice.capital);
 
     check_and_take_loan(year, month);
@@ -755,7 +1206,8 @@ void alice_clothes(const int month, const int year) // Одежда
 
 void alice_internet(const int month, const int year) // Интернет
 {
-    alice.capital -= alice.internet;
+    RUB internet = apply_crisis_to_expense(alice.internet);
+    alice.capital -= internet;
     printf("Месяц %d: - Интернет: %lld руб. (капитал: %lld руб.)\n", month, alice.internet, alice.capital);
 
     check_and_take_loan(year, month);
@@ -763,17 +1215,17 @@ void alice_internet(const int month, const int year) // Интернет
 
 
 
-void alice_fixed_costs(const int month, const int year) // Коммунальные платежи
+void alice_fixed_costs(const int month, const int year)
 {
-    // Коммунальные платежи могут меняться в зависимости от сезона
     RUB season_costs = alice.fixed_costs;
     if (month == 12 || month == 1 || month == 2) {
-        season_costs += 3000; // Зимой больше за отопление
+        season_costs += 3000;
     }
     
-    alice.capital -= season_costs;
-    printf("Месяц %d: - Коммунальные: %lld руб. (капитал: %lld руб.)\n", month, season_costs, alice.capital);
-
+    RUB costs = apply_crisis_to_expense(season_costs);
+    alice.capital -= costs;
+    printf("Месяц %d: - Коммунальные: %lld руб. (капитал: %lld руб.)\n", 
+           month, costs, alice.capital);
     check_and_take_loan(year, month);
 }
 
@@ -789,7 +1241,8 @@ void alice_child_expenses(const int month, const int year) // Расходы н�
         printf("Месяц %d: + Летний лагерь для ребенка\n", month);
     }
     
-    alice.capital -= total_child;
+    RUB child = apply_crisis_to_expense(total_child);
+    alice.capital -= child;
     printf("Месяц %d: - Ребенок (одежда + еда + лекарства + школа): %lld руб. (капитал: %lld руб.)\n", month, total_child, alice.capital);
 
     check_and_take_loan(year, month);
@@ -807,7 +1260,8 @@ void alice_food(const int month, const int year) // Расходы на еду
         food_costs += 10000;
     }
     
-    alice.capital -= food_costs;
+    RUB food = apply_crisis_to_expense(food_costs);
+    alice.capital -= food;
     printf("Месяц %d: - Еда: %lld руб. (капитал: %lld руб.)\n", month, food_costs, alice.capital);
 
     check_and_take_loan(year, month);
@@ -817,10 +1271,12 @@ void alice_food(const int month, const int year) // Расходы на еду
 
 void alice_cat(const int month, const int year) // Расходы на кота
 {
-    alice.capital -= alice.cat.Proplan;
+    RUB cat = apply_crisis_to_expense(alice.cat.Proplan);
+    alice.capital -= cat;
     printf("Месяц %d: - Корм для кота: %lld руб. (капитал: %lld руб.)\n", month, alice.cat.Proplan, alice.capital);
 
-           alice.capital -= alice.cat.Vet;
+           RUB Vet = apply_crisis_to_expense(alice.cat.Vet);
+           alice.capital -= Vet;
            printf("Месяц %d: - Ветеринар; %lld руб. (капитал: %lld руб.)\n", month, alice.cat.Vet, alice.capital);
 
     check_and_take_loan(year, month);
@@ -836,7 +1292,8 @@ void alice_car(const int month, const int year) // Расходы на маши�
         gas_cost += 5000; // Летом больше поездок
     }
     
-    alice.capital -= gas_cost;
+    RUB gas = apply_crisis_to_expense(gas_cost);
+    alice.capital -= gas;
     printf("Месяц %d: - Бензин: %lld руб. (капитал: %lld руб.)\n", month, gas_cost, alice.capital);
     check_and_take_loan(year, month);
 }
@@ -868,36 +1325,56 @@ void alice_gambling(const int month, const int year) // Лотереи
 
 
 
-void alice_bank_interest(const int month) // Проценты по вкладу
+void alice_bank_interest(const int month)
 {
     float pp = sberbank_interest(alice.capital);
     RUB interest = alice.capital * (pp / 12.0 / 100.0);
     alice.capital += interest;
-    printf("Месяц %d: + Банковский процент (%.1f%%): %lld руб. (капитал: %lld руб.)\n", month, pp, interest, alice.capital);
+    
+    if (alice.crisis.active) {
+        printf("Месяц %d: + Банковский процент с учетом кризиса (%.1f%%): %lld руб. (капитал: %lld руб.)\n", month, pp, interest, alice.capital);
+    } else {
+        printf("Месяц %d: + Банковский процент (%.1f%%): %lld руб. (капитал: %lld руб.)\n", month, pp, interest, alice.capital);
+    }
 }
 
 
 
-void alice_savings(const int month) // Накопления
+void alice_savings(const int month)
 {
-    RUB saved = alice.salary * 0.1; // 10% от зарплаты
+    // Во время кризиса меньше откладывает
+    RUB saved;
+    if (alice.crisis.active) {
+        saved = alice.salary * 0.05; // 5% вместо 10%
+    } else {
+        saved = alice.salary * 0.1;
+    }
+    
     alice.savings += saved;
     printf("Месяц %d: Отложено в сбережения: %lld руб. (всего сбережений: %lld руб.)\n", month, saved, alice.savings);
 }
 
 
 
-void alice_trip(const int year, const int month) // Накопление на путешествие
+void alice_trip(const int year, const int month)
 {
-    static RUB trip_savings = 0; // Отдельные сбережения на поездку
-    trip_savings += 5000;
-    printf("Месяц %d.%d: Накопление на путешествие: +5000 руб. (всего: %lld руб.)\n", month, year, trip_savings);
+    static RUB trip_savings = 0;
     
-    if(trip_savings >= 200'000) {
-        alice.capital -= 200'000;
-        printf("***** ПУТЕШЕСТВИЕ! Потрачено 200,000 руб. (капитал: %lld руб.) *****\n", alice.capital);
+    // Во время кризиса откладывает на путешествия меньше
+    RUB trip_add = alice.crisis.active ? 2000 : 5000;
+    trip_savings += trip_add;
+    printf("Месяц %d.%d: Накопление на путешествие: +%lld руб. (всего: %lld руб.)\n", month, year, trip_add, trip_savings);
+    
+    // Во время кризиса путешествия откладываются
+    if (!alice.crisis.active && trip_savings >= 200'000) {
+        RUB trip_cost = apply_crisis_to_expense(200'000);
+        alice.capital -= trip_cost;
+        printf("***** ПУТЕШЕСТВИЕ! Потрачено %lld руб. (капитал: %lld руб.) *****\n", trip_cost, alice.capital);
+
         trip_savings = 0;
         check_and_take_loan(year, month);
+    } else if (trip_savings >= 200'000) {
+        printf("⚠️ Путешествие откладывается из-за кризиса\n");
     }
 }
 
@@ -947,54 +1424,66 @@ void alice_simulation()
     printf("Начальный капитал: %lld руб.\n", alice.capital);
     printf("Период: Февраль 2026 - Февраль 2031\n\n");
     
-    while (!(year == 2031 && month == 2)) {
+    while (!(year == 2036 && month == 2)) {
         printf("\n========== МЕСЯЦ %d.%d ==========\n", month, year);
         
+        check_crisis(year, month);
+              if (alice.crisis.active) {
+                  printf("⚠️ КРИЗИС: %s (осталось %d мес.)\n", alice.crisis.description, alice.crisis.months_left);
+                  printf("   Зарплаты: %d%%, Цены: %d%%\n", alice.crisis.salary_multiplier, alice.crisis.price_multiplier);
+        }
+
         // ДОХОДЫ
-        alice_husband_alimony(month, year);      // Алименты
-        alice_salary(year, month);                 // Зарплата
-        alice_additional_income(month, year);      // Дополнительные доходы
-        alice_bank_interest(month);                 // Банковские проценты
+        alice_husband_alimony(month, year);      
+        alice_salary(year, month);                
+        alice_additional_income(month, year);     
+        alice_bank_interest(month);                
         
         // РАСХОДЫ (обязательные)
-        alice_taxes(month, year);                   // Налоги
-        alice_fixed_costs(month, year);             // Коммунальные
-        alice_food(month, year);                     // Еда
-        alice_child_expenses(month, year);           // Ребенок
-        alice_medical_expenses(month, year);         // Медицина
-        alice_transport(month, year);                 // Транспорт
-        alice_internet(month, year);                  // Интернет
-        alice_car(month, year);                       // Бензин
-        alice_cat(month, year);                       // Кот
+        alice_taxes(month, year);                 
+        alice_fixed_costs(month, year);            
+        alice_food(month, year);                   
+        alice_child_expenses(month, year);          
+        alice_medical_expenses(month, year);        
+        alice_transport(month, year);                 
+        alice_internet(month, year);                
+        alice_car(month, year);                     
+        alice_cat(month, year);                      
         
+        alice_open_business(year, month);
+        alice_run_business(year, month);
+        alice_sell_business(year, month);
+
         // РАСХОДЫ (необязательные, но регулярные)
-        alice_education(month, year);                 // Образование
-        alice_health(month, year);                    // Здоровье
-        alice_entertainment(month, year);             // Развлечения
-        alice_gym(month, year);                        // Спортзал
-        alice_clothes(month, year);                    // Одежда
-        alice_gifts(month, year);                      // Подарки
+        alice_education(month, year);                
+        alice_health(month, year);                  
+        alice_entertainment(month, year);           
+        alice_gym(month, year);                   
+        alice_clothes(month, year);                
+        alice_gifts(month, year);                  
         alice_gambling(month, year);    
         alice_CounterStrike(month, year);
+
+        alice_repair_electronics(month, year);
+        alice_buy_electronics(year, month);
         
         // СОЦИАЛЬНЫЕ РАСХОДЫ
-        friends_rest(month, year);                     // Друзья
+        friends_rest(month, year);                   
         
         // ИНВЕСТИЦИИ И РИСКИ
-        alice_investments(month, year);                // Инвестиции
-        alice_casino(month, year);                     // Казино
+        alice_investments(month, year);                
+        alice_casino(month, year);                    
         
         // НАКОПЛЕНИЯ И БОЛЬШИЕ ТРАТЫ
-        alice_savings(month);                          // Сбережения
-        alice_trip(year, month);                       // Путешествие
+        alice_savings(month);                          
         
         // ГОДОВЫЕ РАСХОДЫ
-        if (month == 12) {                             // Ремонт дома раз в год
+        if (month == 12) {                             
             alice_house_repair(year);
         }
         
         // ПЛАТЕЖИ ПО КРЕДИТАМ
-        process_loan_payment(year, month);             // Платеж по кредиту
+        process_loan_payment(year, month);             
         
         ++month;
         if (month == 13) {
@@ -1008,11 +1497,11 @@ void alice_simulation()
 
 void print_spending_summary() 
 {
-    printf("\n\n========== ИТОГИ ЗА 5 ЛЕТ (2026-2031) ==========\n");
+    printf("\n\n========== ИТОГИ ЗА 10 ЛЕТ (2026-2031) ==========\n");
     printf("================================================\n");
     
-    int total_months = 61; // Фев 2026 - Фев 2031 (5 лет)
-    int total_years = 5;
+    int total_months = 122; // Фев 2026 - Фев 2036 (10 лет)
+    int total_years = 10;
     
     // Основные расходы
     long long total_food = alice.food * total_months;
@@ -1031,20 +1520,12 @@ void print_spending_summary()
     
     // Новые расходы
     long long total_medical = (alice.medical.monthly * total_months) + (alice.medical.dentist * 10) + (alice.medical.emergency * 3); 
-    
     long long total_entertainment = (alice.entertainment.cinema + alice.entertainment.subscriptions) * total_months + (alice.entertainment.restaurant * 40) + (alice.entertainment.hobbies * 30);     
-    
     long long total_transport = (alice.transport.public_transport * total_months) + (alice.transport.taxi * 24) + (alice.transport.car_insurance * 5) + (alice.transport.car_maintenance * 5);
-    
     long long total_education = (alice.education.books * total_months) + (alice.education.child_circles * total_months) + (alice.education.courses * 15); 
-    
     long long total_health = (alice.health.pharmacy + alice.health.vitamins) * total_months + (alice.health.sports_equipment * 20); 
-    
     long long total_gifts = (alice.gifts.birthday * 20) + (alice.gifts.new_year * 5) + (alice.gifts.other * 18); 
-    
     long long total_child = (alice.child.clothes + alice.child.food + alice.child.medicine + alice.child.school) * total_months;
-    
-    
     long long total_alimony = alice.husband.alimony_payments * total_months;
     
     long long total_salary = 0;
@@ -1059,6 +1540,39 @@ void print_spending_summary()
         total_salary += current_salary;
     }
     
+
+
+        printf("\n========== ИТОГИ БИЗНЕСА ==========\n");
+    if (alice.business.exists) {
+        printf("✅ Бизнес активен\n");
+        printf("Вложено всего: %'lld руб.\n", alice.business.invested);
+        printf("Месяцев работы: %d\n", alice.business.months);
+        printf("Текущий доход/мес: %'lld руб.\n", alice.business.monthly_income);
+        printf("Текущие расходы/мес: %'lld руб.\n", alice.business.monthly_cost);
+    } else if (alice.business.invested > 0) {
+
+        printf("❌ Бизнес был закрыт или продан\n");
+        printf("Всего было вложено: %'lld руб.\n", alice.business.invested);
+        printf("Бизнес проработал: %d месяцев\n", alice.business.months);
+    } else {
+        printf("❌ Бизнес не открывался\n");
+    }
+
+
+
+    printf("\n========== ЭЛЕКТРОНИКА И ТЕХНИКА ==========\n");
+    printf("📱 Телефон: %s\n", alice.electronics.has_phone ? "✅ есть" : "❌ нет");
+    printf("💻 Ноутбук: %s\n", alice.electronics.has_laptop ? "✅ есть" : "❌ нет");
+    printf("📟 Планшет: %s\n", alice.electronics.has_tablet ? "✅ есть" : "❌ нет");
+    printf("📺 Телевизор: %s\n", alice.electronics.has_tv ? "✅ есть" : "❌ нет");
+    printf("🎧 Наушники: %s\n", alice.electronics.has_headphones ? "✅ есть" : "❌ нет");
+    printf("⌚ Умные часы: %s\n", alice.electronics.has_smartwatch ? "✅ есть" : "❌ нет");
+    printf("🎮 Игровая консоль: %s\n", alice.electronics.has_game_console ? "✅ есть" : "❌ нет");
+    printf("📷 Фотоаппарат: %s\n", alice.electronics.has_camera ? "✅ есть" : "❌ нет");
+    printf("🏠 Умный дом: %s\n", alice.electronics.has_smart_home ? "✅ есть" : "❌ нет");
+
+
+
     printf("\n========== КРЕДИТНАЯ ИСТОРИЯ ==========\n");
     printf("Количество взятых кредитов: %d\n", alice.capital_control.loan_count);
     printf("Общая сумма взятых кредитов: %'lld руб.\n", alice.capital_control.total_loan_amount);
