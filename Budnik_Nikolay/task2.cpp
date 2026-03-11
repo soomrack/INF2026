@@ -3,6 +3,7 @@
 using RUB = long long int;
 using PER = float;
 
+
 struct Car {
     RUB value;
     RUB gas;
