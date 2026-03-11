@@ -9,9 +9,9 @@
 #include <iomanip>
 #include <sstream>
 
-using RUB = long int;
-using USD = long int;
-using EUR = long int;
+using RUB = long long int;
+using USD = long long int;
+using EUR = long long int;
 using procent = const float;
 
 // ============================================================
@@ -54,7 +54,7 @@ struct taxes_state
     procent pension_fund = 22.0f;
     procent social_insurance = 2.9f;
     procent medical_insurance = 5.1f;
-    procent vat = 20.0f;
+    procent vat = 22.0f;
     procent vat_food = 10.0f;
 
     RUB   calc_income_tax(RUB gross, RUB annual_income_so_far = 0) const;
@@ -116,10 +116,10 @@ struct taxes_state taxes_state;
 class Bank
 {
 private:
-    static constexpr float BASE_DOLLAR_RATE = 90.91f;
-    static constexpr float BASE_EURO_RATE = 100.00f;
-    static constexpr float deposit_rate_short = 0.14f;
-    static constexpr float deposit_rate_long = 0.18f;
+    float BASE_DOLLAR_RATE = 90.91f;
+    float BASE_EURO_RATE = 100.00f;
+    float deposit_rate_short = 0.14f;
+    float deposit_rate_long = 0.18f;
     static constexpr RUB   MIN_DEPOSIT_SUM = 30'000;
 
     struct transaction { std::string type; RUB amount_rub; std::string note; };
@@ -226,12 +226,12 @@ Bank::deposit& Bank::find_deposit(int id)
 
 float Bank::dollar_rate() const
 {
-    return BASE_DOLLAR_RATE * std::pow(1.03f, static_cast<float>(g_years_lived));
+    return BASE_DOLLAR_RATE;
 }
 
 float Bank::euro_rate() const
 {
-    return BASE_EURO_RATE * std::pow(1.025f, static_cast<float>(g_years_lived));
+    return BASE_EURO_RATE;
 }
 
 void Bank::rub_to_usd(RUB amount)
@@ -270,7 +270,7 @@ void Bank::receive_salary(RUB gross, int unpaid_days, const std::string& employe
 {
     RUB daily_rate = gross / 22;
     RUB lost_pay = daily_rate * std::min(unpaid_days, 22);
-    RUB reduced_gross = std::max(0L, gross - lost_pay);
+    RUB reduced_gross = std::max(0LL, gross - lost_pay);
     RUB tax = taxes_state.calc_income_tax(reduced_gross);
     RUB net = reduced_gross - tax;
     account_rub += net;
@@ -749,7 +749,7 @@ void apply_age_event(const age_event& ev)
         {
             Alice.is_married = true;
             g_expense_multiplier = 1.5f;
-            RUB actual_cost = std::min(inflated_cost, std::max(0L, Alice.sber.account_rub));
+            RUB actual_cost = std::min(inflated_cost, std::max(0LL, Alice.sber.account_rub));
             Alice.sber.account_rub -= actual_cost;
             Alice.salary += ev.income_change;
             std::cout << "  Расходы на свадьбу:         " << actual_cost << " руб.\n"
@@ -763,9 +763,9 @@ void apply_age_event(const age_event& ev)
         {
             Alice.has_first_child = true;
             g_expense_multiplier = 2.0f;
-            RUB actual_cost = std::min(inflated_cost, std::max(0L, Alice.sber.account_rub));
+            RUB actual_cost = std::min(inflated_cost, std::max(0LL, Alice.sber.account_rub));
             Alice.sber.account_rub -= actual_cost;
-            Alice.salary = std::max(0L, Alice.salary + ev.income_change);
+            Alice.salary = std::max(0LL, Alice.salary + ev.income_change);
             std::cout << "  Расходы на рождение:        " << actual_cost << " руб.\n"
                 << "  Декрет (изменение дохода): " << ev.income_change << " руб./мес.\n"
                 << "  Расходы вырастают в:        x" << g_expense_multiplier << "\n";
@@ -776,7 +776,7 @@ void apply_age_event(const age_event& ev)
         if (!Alice.passport_renewed)
         {
             Alice.passport_renewed = true;
-            RUB actual_cost = std::min(inflated_cost, std::max(0L, Alice.sber.account_rub));
+            RUB actual_cost = std::min(inflated_cost, std::max(0LL, Alice.sber.account_rub));
             Alice.sber.account_rub -= actual_cost;
             std::cout << "  Расходы: " << actual_cost << " руб. (госпошлина + фото)\n";
         }
@@ -787,7 +787,7 @@ void apply_age_event(const age_event& ev)
         {
             Alice.is_grandmother = true;
             g_expense_multiplier = 1.5f;
-            RUB actual_cost = std::min(inflated_cost, std::max(0L, Alice.sber.account_rub));
+            RUB actual_cost = std::min(inflated_cost, std::max(0LL, Alice.sber.account_rub));
             Alice.sber.account_rub -= actual_cost;
             std::cout << "  Подарки внуку/внучке:       " << actual_cost << " руб.\n"
                 << "  Расходы снизились до:       x" << g_expense_multiplier << "\n";
@@ -798,9 +798,9 @@ void apply_age_event(const age_event& ev)
         if (!Alice.is_retired)
         {
             Alice.is_retired = true;
-            RUB actual_cost = std::min(inflated_cost, std::max(0L, Alice.sber.account_rub));
+            RUB actual_cost = std::min(inflated_cost, std::max(0LL, Alice.sber.account_rub));
             Alice.sber.account_rub -= actual_cost;
-            Alice.salary = std::max(0L, Alice.salary + ev.income_change);
+            Alice.salary = std::max(0LL, Alice.salary + ev.income_change);
             std::cout << "  Корпоратив:                 " << actual_cost << " руб.\n"
                 << "  Новый доход (пенсия):       " << Alice.salary << " руб./мес.\n";
         }
@@ -1569,43 +1569,43 @@ struct month_result { std::vector<std::string> events; int total_income = 0; boo
 struct event_pool
 {
     std::vector<Event> positive{
-        {"Нашёл потерянный кошелёк",       20,    750},
-        {"Выполнил сложное задание",        30,  5'000},
-        {"Перевыполнил план продаж",        40,  7'000},
-        {"Выиграл в лотерею",           0.1,1'000'000},
-        {"Сдал бутылки",                    70,    200},
-        {"Сдал макулатуру",                 70,    500},
-        {"Получил бонусные баллы магазина", 50,  1'500},
-        {"Нашёл мелочь в диване",           20,    100},
-        {"Нашёл 100 рублей на улице",       12,    100},
-        {"Нашёл 500 рублей на улице",        7,    500},
-        {"Нашёл 1000 рублей на улице",       5,  1'000},
-        {"Получил кэшбэк от банка",         45,  2'000},
-        {"Продал ненужные вещи",            25,  3'500},
-        {"Получил премию за стаж",          15,  8'000},
-        {"Сосед вернул долг",               10,  4'000},
-        {"Удачно перепродал акции",          8,  6'000},
-        {"Выиграл в конкурсе",              12,  2'500},
-        {"Возврат налогового вычета",        5, 15'000},
-        {"Бабушка дала деньги на день рожд",18,  5'000},
-        {"Нашёл ошибку в чеке в свою пользу",6, 1'200},
+        {"Нашёл потерянный кошелёк",       2000,    750},
+        {"Выполнил сложное задание",        3000,  5'000},
+        {"Перевыполнил план продаж",        4000,  7'000},
+        {"Выиграл в лотерею",           5,1'000'000},
+        {"Сдал бутылки",                    7000,    200},
+        {"Сдал макулатуру",                 7000,    500},
+        {"Получил бонусные баллы магазина", 5000,  1'500},
+        {"Нашёл мелочь в диване",           2000,    100},
+        {"Нашёл 100 рублей на улице",       1200,    100},
+        {"Нашёл 500 рублей на улице",        700,    500},
+        {"Нашёл 1000 рублей на улице",       500,  1'000},
+        {"Получил кэшбэк от банка",         4500,  2'000},
+        {"Продал ненужные вещи",            2500,  3'500},
+        {"Получил премию за стаж",          1500,  8'000},
+        {"Сосед вернул долг",               1000,  4'000},
+        {"Удачно перепродал акции",          800,  6'000},
+        {"Выиграл в конкурсе",              1200,  2'500},
+        {"Возврат налогового вычета",        500, 15'000},
+        {"Бабушка дала деньги на день рожд",1800,  5'000},
+        {"Нашёл ошибку в чеке в свою пользу",600, 1'200},
     };
     std::vector<Event> negative{
-        {"Пропала мелочь из кошелька",      20,   -100},
-        {"Задержка транспорта, взял такси", 30,   -400},
-        {"Потерял вещь",                    10,   -700},
-        {"Случайная ссора — штраф",         15,   -200},
-        {"Сломался зонт",                   20,   -500},
-        {"Вы получили премию Дравина, из-за того, что задохнулись от вдоха", 0.5, -1},
-        {"Штраф за просрочку платежа",      12, -1'500},
-        {"Испортился телефон — ремонт",      8, -3'000},
-        {"Сломался бытовой прибор",          6, -4'500},
-        {"Штраф от ИФНС",                    4, -2'000},
-        {"Незапланированный подарок",        18,-2'500},
-        {"Разбил стекло/посуду",            15,   -800},
-        {"Испортились продукты — выброс",   22,   -600},
-        {"Лопнула труба — сантехник",        4, -6'000},
-        {"Упала антенна — вызов мастера",    5, -1'800},
+        {"Пропала мелочь из кошелька",      2000,   -100},
+        {"Задержка транспорта, взял такси", 3000,   -400},
+        {"Потерял вещь",                    1000,   -700},
+        {"Случайная ссора — штраф",         1500,   -200},
+        {"Сломался зонт",                   2000,   -500},
+        {"Вы получили премию Дравина, из-за того, что задохнулись от вдоха", 4, -1},
+        {"Штраф за просрочку платежа",      1200, -1'500},
+        {"Испортился телефон — ремонт",      800, -3'000},
+        {"Сломался бытовой прибор",          600, -4'500},
+        {"Штраф от ИФНС",                    400, -2'000},
+        {"Незапланированный подарок",        1800,-2'500},
+        {"Разбил стекло/посуду",            1500,   -800},
+        {"Испортились продукты — выброс",   2200,   -600},
+        {"Лопнула труба — сантехник",        400, -6'000},
+        {"Упала антенна — вызов мастера",    500, -1'800},
     };
     std::vector<Event> one_time_positive{
         {"Выиграл крупный приз",                5,  5'000, false},
@@ -1712,7 +1712,7 @@ void process_car_service(int month)
         for (const auto& [part, price] : parts_costs) cost += price;
     cost += static_cast<RUB>(500 * car_parts_inflation);
 
-    RUB actual = std::min(cost, std::max(0L, Alice.sber.account_rub));
+    RUB actual = std::min(cost, std::max(0LL, Alice.sber.account_rub));
     Alice.sber.account_rub -= actual;
 }
 
@@ -1730,7 +1730,7 @@ void process_holiday_expenses(int month)
     {
         if (h.month != month) continue;
         RUB cost = static_cast<RUB>(inflate(h.base_cost) * g_expense_multiplier);
-        RUB actual = std::min(cost, std::max(0L, Alice.sber.account_rub));
+        RUB actual = std::min(cost, std::max(0LL, Alice.sber.account_rub));
         Alice.sber.account_rub -= actual;
     }
 }
@@ -1775,7 +1775,7 @@ void process_medicine(const illness_result& illness)
 {
     if (!illness.sick) return;
     RUB medical_total = illness.doctor_cost + illness.medicine_cost;
-    RUB actual_payment = std::min(medical_total, std::max(0L, Alice.sber.account_rub));
+    RUB actual_payment = std::min(medical_total, std::max(0LL, Alice.sber.account_rub));
     Alice.sber.account_rub -= actual_payment;
     Alice.total_sick_days += illness.days;
     Alice.total_medical_cost += actual_payment;
@@ -1793,7 +1793,7 @@ void process_investments(std::mt19937& gen)
         RUB gross_profit = Alice.invest_portfolio - Alice.invest_cost_basis;
         RUB tax = gross_profit > 0
             ? taxes_state.calc_investment_tax(gross_profit) : 0;
-        RUB payout = std::max(0L, Alice.invest_portfolio - tax);
+        RUB payout = std::max(0LL, Alice.invest_portfolio - tax);
         Alice.sber.account_rub += payout;
         if (gross_profit > 0) Alice.total_invest_profit += gross_profit;
         Alice.invest_portfolio = 0;
@@ -1819,7 +1819,7 @@ void process_investments(std::mt19937& gen)
     if (Alice.invest_portfolio < 0)
     {
         RUB debt = -Alice.invest_portfolio;
-        RUB covered = std::min(debt, std::max(0L, Alice.sber.account_rub));
+        RUB covered = std::min(debt, std::max(0LL, Alice.sber.account_rub));
         Alice.sber.account_rub -= covered;
         Alice.total_invest_loss += debt;
         Alice.invest_portfolio = 0;
@@ -1899,7 +1899,7 @@ void process_property_tax()
     RUB inflated_cadastral = static_cast<RUB>(
         apt.cadastral_value * std::pow(1.09f, static_cast<float>(g_years_lived)));
     RUB prop_tax = taxes_state.calc_property_tax(inflated_cadastral);
-    RUB actual = std::min(prop_tax, std::max(0L, Alice.sber.account_rub));
+    RUB actual = std::min(prop_tax, std::max(0LL, Alice.sber.account_rub));
     Alice.sber.account_rub -= actual;
     Alice.total_property_tax += actual;
 }
@@ -1908,7 +1908,7 @@ void process_transport_tax()
 {
     RUB transport_tax = static_cast<RUB>(
         taxes_state.calc_transport_tax(Alice.car.horsepower) * inflation_factor());
-    RUB actual_tax = std::min(transport_tax, std::max(0L, Alice.sber.account_rub));
+    RUB actual_tax = std::min(transport_tax, std::max(0LL, Alice.sber.account_rub));
     Alice.sber.account_rub -= actual_tax;
     Alice.total_transport_tax += actual_tax;
 }
@@ -1919,7 +1919,7 @@ void process_utilities()
     RUB base_utilities = 5'000 * (Alice.apartment_level + 1);
     RUB utilities = static_cast<RUB>(
         base_utilities * 12 * std::pow(1.08f, (float)g_years_lived));
-    RUB actual = std::min(utilities, std::max(0L, Alice.sber.account_rub));
+    RUB actual = std::min(utilities, std::max(0LL, Alice.sber.account_rub));
     Alice.sber.account_rub -= actual;
 }
 
@@ -1927,7 +1927,7 @@ void process_car_incident(std::mt19937& car_gen)
 {
     car_event_result car_ev = generate_car_event(car_gen);
     if (!car_ev.happened) return;
-    RUB actual = std::min(car_ev.total_cost, std::max(0L, Alice.sber.account_rub));
+    RUB actual = std::min(car_ev.total_cost, std::max(0LL, Alice.sber.account_rub));
     Alice.sber.account_rub -= actual;
     Alice.total_car_repair_cost += actual;
     ++Alice.total_car_incidents;
@@ -1943,7 +1943,7 @@ void alice_start()
     g_expense_multiplier = 1.0f;
 
     Alice.age = 24;
-    Alice.salary = 1000'000;
+    Alice.salary = 100'000;
     Alice.sber.account_rub = 0;
 
     Alice.car.car_cost = 4'000'000;
@@ -2125,17 +2125,18 @@ bool alice_live()
     static std::mt19937 invest_gen(std::random_device{}());
 
     int month = 1;
+    illness_result illness;
 
     while (Alice.age < 97)
     {
         if (month == 1) process_new_year(career_gen);
 
-        illness_result illness = generate_illness(illness_gen);
+        illness = generate_illness(illness_gen);
 
         if (!process_income(illness))
         {
             print_darwin_award();
-            return 1;
+            return true;
         }
 
         process_living_expenses(month, illness);
@@ -2150,7 +2151,7 @@ bool alice_live()
         if (month == 13) { month = 1; ++Alice.age; ++g_years_lived; }
     }
 
-    return 0;
+    return false;
 }
 
 // ============================================================
