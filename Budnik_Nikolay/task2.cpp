@@ -1,9 +1,8 @@
 #include <cstdio>
-#include <stdio.h>
 
 using RUB = long long int;
+using PER = float;
 
-// --- DATA STRUCTURES ---
 struct Car {
     RUB value;
     RUB gas;
@@ -22,11 +21,10 @@ struct Inflation {
 };
 
 struct Pet {
-    bool enabled;
+    bool alive;
     RUB feed;
 };
 
-// --- PERSON ---
 struct Person {
     RUB salary;
     RUB capital;
@@ -40,9 +38,8 @@ struct Person {
 
 struct Person Alice;
 
-float pp = 14.5f;
+float pp = 14.5f; // убрать
 
-// --- HELPERS ---
 static RUB rub_percent_month(RUB base, float annual_percent)
 {
     double monthly_rate = (double)annual_percent / 12.0 / 100.0;
@@ -85,21 +82,21 @@ static void alice_inflation()
     Alice.car.value+= rub_percent_month(Alice.car.value, Alice.infl.car_value);
     Alice.car.gas  += rub_percent_month(Alice.car.gas, Alice.infl.gas);
 
-    if (Alice.dog.enabled) {
+    if (Alice.dog.alive) {
         Alice.dog.feed += rub_percent_month(Alice.dog.feed, Alice.infl.pet_food);
     }
 }
 
 static void alice_pet()
 {
-    if (Alice.dog.enabled) {
+    if (Alice.dog.alive) {
         Alice.bank.account -= Alice.dog.feed;
     }
 }
 
 static void alice_transfer_to_deposit()
 {
-    RUB reserve = Alice.food + Alice.car.gas + (Alice.dog.enabled ? Alice.dog.feed : 0);
+    RUB reserve = Alice.food + Alice.car.gas + (Alice.dog.alive ? Alice.dog.feed : 0);
     RUB extra = Alice.bank.account - reserve;
 
     if (extra > 0) {
@@ -108,7 +105,6 @@ static void alice_transfer_to_deposit()
     }
 }
 
-// --- DEPOSIT ---
 static void alice_cover_account_from_deposit()
 {
     if (Alice.bank.account >= 0) return;
@@ -135,7 +131,7 @@ void alice_init()
     Alice.bank.deposit = 0;
 
     // собака
-    Alice.dog.enabled = 1;
+    Alice.dog.alive = 1;
     Alice.dog.feed = 2'000;
 
     // инфляция
@@ -182,28 +178,24 @@ void print_results()
 {
     printf("Main information:\n");
 
-    // Зарплата и капитал
     printf("\tSalary = %lld\n", Alice.salary);
     printf("\tCapital = %lld\n", Alice.capital);
 
     printf("\nOther information:\n");
 
-    // Счет и вклад
     printf("\tBank account = %lld\n", Alice.bank.account);
     printf("\tDeposit = %lld\n", Alice.bank.deposit);
 
-    // Другое
     printf("\tFood = %lld\n", Alice.food);
     printf("\tCar value = %lld\n", Alice.car.value);
     printf("\tCar gas = %lld\n", Alice.car.gas);
 
-    if (Alice.dog.enabled == 1){
+    if (Alice.dog.alive == 1){
        printf("\tDog's feed = %lld\n", Alice.dog.feed);
 
     }
 }
 
-// --- MAIN FUNCTION ---
 int main()
 {
     alice_init();
