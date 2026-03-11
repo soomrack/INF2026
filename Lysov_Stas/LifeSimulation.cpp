@@ -7,16 +7,26 @@
 #include <cstdlib>
 #include <vector>
 #include <ctime>
+#include <algorithm>
 
 using RUB = long long int;          // Тип для хранения денежных значений в рублях
 const RUB CASH_LIMIT = 100'000;     // Лимит наличных денег
 using percent = double;              // Тип для хранения процентов
 
-// ================== СТРУКТУРЫ ==================
 
 struct Car {
     RUB value;      // Текущая стоимость автомобиля
     RUB gas;        // Ежемесячные расходы на бензин
+};
+
+struct Apartment {
+    RUB value;               // стоимость квартиры
+    RUB mortgage_debt;       // остаток ипотеки
+    RUB total_mortgage_paid; // сколько выплачено по ипотеке
+    RUB total_interest_paid; // сколько выплачено процентов
+    RUB property_tax_paid;   // налог на недвижимость
+    RUB total_repair_paid;   // расходы на ремонт
+    RUB insurance_paid;      // страховка
 };
 
 struct Job {
@@ -38,7 +48,7 @@ struct Deposit {
     RUB amount;         // Сумма депозита
     percent annual_rate; // Годовая ставка
     int months_left;    // Срок вклада в месяцах
-    bool replenishable; // Можно ли пополнять вклад
+    bool is_replenishable; // Можно ли пополнять вклад
 };
 
 struct Credit {
@@ -85,6 +95,7 @@ struct Person {
     Credit credit;              
     Investment investment;      
     RUB rent;                   
+    RUB total_rent_paid;
 
     int children_count;         
     RUB child_monthly_expense;  
@@ -100,17 +111,10 @@ struct Person {
     bool is_unemployed;          // безработный ли человек
     int unemployed_months_left;  // сколько месяцев без работы
 
-    RUB mortgage_debt;           // остаток ипотеки
-
-    RUB apartment_value;         
-    RUB total_mortgage_paid;     // сколько всего уплачено по ипотеке
-    RUB total_interest_paid;     // сколько уплачено процентов
-    RUB total_property_tax_paid; // налог на имущество
-    RUB total_rent_paid;         // сколько уплачено аренды
-    RUB total_repair_paid;       // сколько потрачено на ремонт
-    RUB insurance_paid;          // страховка
     RUB stress_index;            // индекс стресса
     RUB liquidity_reserve;       // финансовая подушка
+
+    Apartment apartment;
 };
 
 Person alice;   // Объект Алисы
@@ -129,7 +133,7 @@ void alice_init()
     alice.deposit.amount = 0;            // депозит отсутствует
     alice.deposit.annual_rate = 11.5;    // процент по депозиту
     alice.deposit.months_left = 12;      // срок вклада
-    alice.deposit.replenishable = true;  // можно пополнять
+    alice.deposit.is_replenishable = true;  // можно пополнять
 
     alice.job.salary = 180'000;          // ЗП
     alice.job.fire_probability = 2.0;    // вероятность вылететь
@@ -152,7 +156,6 @@ void alice_init()
     alice.early_mortgage_payment_rate = 0.20;
     alice.total_early_mortgage_paid = 0;
 
-    alice.mortgage_debt = 12'000'000;     // Ипотека
 
     alice.stock_investment_amount = 0;
     alice.stock_return_rate = 0.10;
@@ -162,13 +165,13 @@ void alice_init()
     alice.is_unemployed = false;
     alice.unemployed_months_left = 0;
 
-    alice.apartment_value = 12'000'000;   // Стоимость квартиры
-    alice.total_mortgage_paid = 0;
-    alice.total_interest_paid = 0;
-    alice.total_property_tax_paid = 0;
-    alice.total_rent_paid = 0;
-    alice.total_repair_paid = 0;
-    alice.insurance_paid = 0;
+    alice.apartment.value = 12'000'000;
+    alice.apartment.mortgage_debt = 12'000'000;
+    alice.apartment.total_mortgage_paid = 0;
+    alice.apartment.total_interest_paid = 0;
+    alice.apartment.property_tax_paid = 0;
+    alice.apartment.total_repair_paid = 0;
+    alice.apartment.insurance_paid = 0;
     alice.stress_index = 0;
     alice.liquidity_reserve = 0;
 }
@@ -186,12 +189,12 @@ void bob_init()
     bob.deposit.amount = 0;        // депозит отсутствует
     bob.deposit.annual_rate = 11.5; // процент по депозиту
     bob.deposit.months_left = 12;   // срок вклада
-    bob.deposit.replenishable = true; // можно пополнять
+    bob.deposit.is_replenishable = true; // можно пополнять
 
     bob.job.salary = 180'000;        // зарплата по контракту
     bob.job.fire_probability = 2.0;  // вероятность увольнения
     bob.job.raise_probability = 5.0; // вероятность повышения
-    bob.job.annual_raise_percent = 7.5; // годовой рост зарплаты
+    bob.job.annual_raise_percent = 7.5;  // годовой рост зарплаты
     bob.job.raise_month = 3;         // месяц повышения
 
     bob.credit.sumcredit = 2'400'000; // потребительский кредит
@@ -215,16 +218,15 @@ void bob_init()
     bob.unemployed_months_left = 0;
 
     bob.rent = 120'000;             // ежемесячная аренда
-
-    bob.mortgage_debt = 0;          // ипотеки нет
-
-    bob.apartment_value = 0;        // квартиры нет
-    bob.total_mortgage_paid = 0;
-    bob.total_interest_paid = 0;
-    bob.total_property_tax_paid = 0;
     bob.total_rent_paid = 0;
-    bob.total_repair_paid = 0;
-    bob.insurance_paid = 0;
+
+    bob.apartment.value = 0;
+    bob.apartment.mortgage_debt = 0;
+    bob.apartment.total_mortgage_paid = 0;
+    bob.apartment.total_interest_paid = 0;
+    bob.apartment.property_tax_paid = 0;
+    bob.apartment.total_repair_paid = 0;
+    bob.apartment.insurance_paid = 0;
     bob.stress_index = 0;
     bob.liquidity_reserve = 0;
 }
@@ -243,19 +245,32 @@ World world_init()
 }
 
 
-void alice_pay_food()
+void alice_pay_food(const World& world)
 {
-    alice.capital -= alice.food;         // списываем деньги на еду
-    if (alice.capital < 0)               // стресс, если ушли в минус
+    RUB food_cost = static_cast<RUB>(
+        alice.food *
+        (1 + world.inflation_rate / 100.0)
+        );
+
+    alice.capital -= food_cost;
+
+    if (alice.capital < 0)
         alice.stress_index += 2;
 }
 
 
-void alice_pay_car_expenses()
+void alice_pay_car_expenses(const World& world)
 {
-    alice.capital -= alice.car.gas;
+    RUB gas_cost =
+        static_cast<RUB>(
+            alice.car.gas *
+            (1 + world.inflation_rate / 100.0)
+            );
+
+    alice.capital -= gas_cost;
+
     if (alice.capital < 0)
-        alice.stress_index += 1;
+        alice.stress_index += 2;
 }
 
 
@@ -280,41 +295,55 @@ void alice_pay_credit()
 }
 
 
-void alice_pay_mortgage_month()
+void alice_pay_mortgage_month(const World& world)
 {
-    if (alice.mortgage_debt <= 0) return; // если ипотека погашена
+    if (alice.apartment.mortgage_debt <= 0)
+        return;
 
-    percent monthly_rate = 9.0 / 12.0; // годовая ставка 9 процентов
-    RUB interest = static_cast<RUB>(alice.mortgage_debt * (monthly_rate / 100.0)); // проценты за месяц
+    percent monthly_rate = 0.08 / 12.0;
 
-    RUB principal_payment = 67'000; // фиксированное тело кредита
+    RUB interest = static_cast<RUB>(
+        alice.apartment.mortgage_debt * monthly_rate
+        );
 
-    alice.capital -= (principal_payment + interest); // списываем деньги
-    alice.mortgage_debt -= principal_payment;        // уменьшаем долг
+    RUB principal_payment = 67'000;
 
-    alice.total_mortgage_paid += principal_payment;  // учёт уплаченного тела
-    alice.total_interest_paid += interest;           // учёт процентов
+    RUB total_payment = interest + principal_payment;
 
-    if (alice.mortgage_debt < 0)
-        alice.mortgage_debt = 0;
+    double inflation_multiplier =
+        1 + world.inflation_rate / 100.0 / 12.0;
+
+    total_payment =
+        static_cast<RUB>(total_payment * inflation_multiplier);
+
+    alice.capital -= total_payment;
+
+    alice.apartment.mortgage_debt -= principal_payment;
+
+    alice.apartment.total_mortgage_paid += principal_payment;
+
+    alice.apartment.total_interest_paid += interest;
 
     if (alice.capital < 0)
-        alice.stress_index += 5; // стресс если ушли в минус
+        alice.stress_index += 5;
+
+    if (alice.apartment.mortgage_debt < 0)
+        alice.apartment.mortgage_debt = 0;
 }
 
 
 void alice_early_repayment()
 {
-    if (alice.capital > 300'000 && alice.mortgage_debt > 0)
+    if (alice.capital > 300'000 && alice.apartment.mortgage_debt > 0)
     {
         RUB extra = static_cast<RUB>(alice.capital * (alice.early_mortgage_payment_rate / 100.0));
 
         alice.capital -= extra;
-        alice.mortgage_debt -= extra;
+        alice.apartment.mortgage_debt -= extra;
         alice.total_early_mortgage_paid += extra;
 
-        if (alice.mortgage_debt < 0)
-            alice.mortgage_debt = 0;
+        if (alice.apartment.mortgage_debt < 0)
+            alice.apartment.mortgage_debt = 0;
     }
 }
 
@@ -322,48 +351,71 @@ void alice_early_repayment()
 void alice_apartment_growth(const World& world)
 {
     percent growth = world.apartment_growth_rate;
-    alice.apartment_value = static_cast<RUB>(
-        alice.apartment_value * (1 + growth / 100.0)
-        );
+
+    alice.apartment.value =
+        static_cast<RUB>(alice.apartment.value * (1 + growth / 100.0));
 }
 
 
-void alice_property_tax()
+void alice_property_tax(const World& world)
 {
-    percent tax_rate = 0.1; // 0.1 процента от стоимости
-    RUB tax = static_cast<RUB>(alice.apartment_value * (tax_rate / 100.0));
+    percent tax_rate = 0.001;
+
+    RUB tax =
+        static_cast<RUB>(alice.apartment.value * tax_rate);
+
+    double inflation_multiplier =
+        1 + world.inflation_rate / 100.0;
+
+    tax = static_cast<RUB>(tax * inflation_multiplier);
 
     alice.capital -= tax;
-    alice.total_property_tax_paid += tax;
 
-    if (alice.capital < 0)
-        alice.stress_index += 2;
-}
-
-
-void alice_pay_insurance()
-{
-    RUB insurance = 50'000; // ежегодная страховка
-
-    alice.capital -= insurance;
-    alice.insurance_paid += insurance;
+    alice.apartment.property_tax_paid += tax;
 
     if (alice.capital < 0)
         alice.stress_index += 1;
 }
 
 
-void alice_random_repair()
+void alice_pay_insurance(const World& world)
 {
-    int chance = rand() % 100;
+    RUB insurance = 30'000;
 
-    if (chance < 10) // 10 процентов вероятность
+    double inflation_multiplier =
+        1 + world.inflation_rate / 100.0;
+
+    insurance =
+        static_cast<RUB>(insurance * inflation_multiplier);
+
+    alice.capital -= insurance;
+
+    alice.apartment.insurance_paid += insurance;
+
+    if (alice.capital < 0)
+        alice.stress_index += 1;
+}
+
+
+void alice_random_repair(const World& world)
+{
+    int random_value = rand() % 100;
+
+    if (random_value < 10)
     {
-        RUB repair_cost = 200'000 + rand() % 300'000;
+        RUB repair_cost = 150'000;
+
+        double inflation_multiplier =
+            1 + world.inflation_rate / 100.0;
+
+        repair_cost =
+            static_cast<RUB>(repair_cost * inflation_multiplier);
 
         alice.capital -= repair_cost;
-        alice.total_repair_paid += repair_cost;
-        alice.stress_index += 4;
+
+        alice.apartment.total_repair_paid += repair_cost;
+
+        alice.stress_index += 3;
     }
 }
 
@@ -376,9 +428,8 @@ void alice_check_crisis(const World& world)
     {
         percent drop = world.crisis_impact_percent;
 
-        alice.apartment_value = static_cast<RUB>(
-            alice.apartment_value * (1 - drop / 100.0)
-            );
+        alice.apartment.value =
+            static_cast<RUB>(alice.apartment.value * (1 - drop / 100.0));
 
         alice.stress_index += 10;
     }
@@ -644,7 +695,7 @@ void alice_stress_from_debt()
     if (alice.credit.sumcredit > 1'000'000)
         alice.stress_index += 5;
 
-    if (alice.mortgage_debt > 5'000'000)
+    if (alice.apartment.mortgage_debt > 5'000'000)
         alice.stress_index += 5;
 }
 
@@ -709,23 +760,271 @@ void alice_random_bonus_or_inheritance()
 }
 
 
+void alice_buy_furniture(const World& world)
+{
+    int chance = rand() % 100;
+
+    if (chance < 8)
+    {
+        RUB cost = 120'000;
+
+        percent inflation = world.inflation_rate;
+
+        cost = static_cast<RUB>(
+            cost * (1 + inflation / 100.0)
+            );
+
+        alice.capital -= cost;
+
+        alice.stress_index += 1;
+    }
+}
+
+
+void alice_appliance_break(const World& world)
+{
+    int chance = rand() % 100;
+
+    if (chance < 6)
+    {
+        RUB repair = 60'000;
+
+        percent inflation = world.inflation_rate;
+
+        repair = static_cast<RUB>(
+            repair * (1 + inflation / 100.0)
+            );
+
+        alice.capital -= repair;
+
+        alice.stress_index += 2;
+    }
+}
+
+
+void alice_neighbor_flood(const World& world)
+{
+    int chance = rand() % 1000;
+
+    if (chance < 5)
+    {
+        RUB repair = 250'000;
+
+        percent inflation = world.inflation_rate;
+
+        repair = static_cast<RUB>(
+            repair * (1 + inflation / 100.0)
+            );
+
+        alice.capital -= repair;
+
+        alice.stress_index += 6;
+    }
+}
+
+
+void alice_lost_keys(const World& world)
+{
+    int chance = rand() % 100;
+
+    if (chance < 3)
+    {
+        RUB locksmith = 15'000;
+
+        percent inflation = world.inflation_rate;
+
+        locksmith = static_cast<RUB>(
+            locksmith * (1 + inflation / 100.0)
+            );
+
+        alice.capital -= locksmith;
+
+        alice.stress_index += 1;
+    }
+}
+
+
+void alice_install_security(const World& world)
+{
+    int chance = rand() % 100;
+
+    if (chance < 2)
+    {
+        RUB cost = 80'000;
+
+        percent inflation = world.inflation_rate;
+
+        cost = static_cast<RUB>(
+            cost * (1 + inflation / 100.0)
+            );
+
+        alice.capital -= cost;
+    }
+}
+
+
+void alice_buy_home_decor(const World& world)
+{
+    int chance = rand() % 100;
+
+    if (chance < 7)
+    {
+        RUB cost = 25'000;
+
+        percent inflation = world.inflation_rate;
+
+        cost = static_cast<RUB>(cost * (1 + inflation / 100.0));
+
+        alice.capital -= cost;
+    }
+}
+
+
+void alice_buy_phone(const World& world)
+{
+    int chance = rand() % 100;
+
+    if (chance < 5)
+    {
+        RUB cost = 90'000;
+
+        percent inflation = world.inflation_rate;
+
+        cost = static_cast<RUB>(cost * (1 + inflation / 100.0));
+
+        alice.capital -= cost;
+
+        alice.stress_index += 1;
+    }
+}
+
+
+void alice_family_gift()
+{
+    int chance = rand() % 100;
+
+    if (chance < 10)
+    {
+        RUB gift = 15'000;
+
+        alice.capital -= gift;
+    }
+}
+
+
+void alice_lost_wallet()
+{
+    int chance = rand() % 100;
+
+    if (chance < 3)
+    {
+        RUB loss = 12'000;
+
+        alice.capital -= loss;
+
+        alice.stress_index += 2;
+    }
+}
+
+
+void alice_go_to_conference(const World& world)
+{
+    int chance = rand() % 100;
+
+    if (chance < 4)
+    {
+        RUB cost = 40'000;
+
+        percent inflation = world.inflation_rate;
+
+        cost = static_cast<RUB>(cost * (1 + inflation / 100.0));
+
+        alice.capital -= cost;
+    }
+}
+
+
+void alice_medical_expense(const World& world)
+{
+    int chance = rand() % 100;
+
+    if (chance < 6)
+    {
+        RUB cost = 35'000;
+
+        percent inflation = world.inflation_rate;
+
+        cost = static_cast<RUB>(cost * (1 + inflation / 100.0));
+
+        alice.capital -= cost;
+
+        alice.stress_index += 2;
+    }
+}
+
+
+void alice_sell_old_items()
+{
+    int chance = rand() % 100;
+
+    if (chance < 5)
+    {
+        RUB income = 10'000;
+
+        alice.capital += income;
+    }
+}
+
+
+void alice_take_vacation(const World& world)
+{
+    int chance = rand() % 100;
+
+    if (chance < 5)
+    {
+        RUB cost = 150'000;
+
+        percent inflation = world.inflation_rate;
+
+        cost = static_cast<RUB>(cost * (1 + inflation / 100.0));
+
+        alice.capital -= cost;
+    }
+}
+
+
+void alice_take_courses(const World& world)
+{
+    int chance = rand() % 100;
+
+    if (chance < 4)
+    {
+        RUB cost = 70'000;
+
+        percent inflation = world.inflation_rate;
+
+        cost = static_cast<RUB>(cost * (1 + inflation / 100.0));
+
+        alice.capital -= cost;
+    }
+}
+
+
 RUB alice_calculate_net_worth()
 {
     RUB assets = 0;
     RUB liabilities = 0;
 
-    // активы
-    assets += alice.capital;                  // наличные
-    assets += alice.deposit.amount;           // депозит
-    assets += alice.car.value;                // машина
-    assets += alice.stock_investment_amount; // акции
-    assets += alice.apartment_value;          // недвижимость
+    assets += alice.capital;
+    assets += alice.deposit.amount;
+    assets += alice.car.value;
+    assets += alice.stock_investment_amount;
+    assets += alice.apartment.value;
 
-    // обязательства
-    liabilities += alice.credit.sumcredit;    // кредиты
-    liabilities += alice.mortgage_debt;      // ипотека
+    liabilities += alice.credit.sumcredit;
+    liabilities += alice.apartment.mortgage_debt;
 
-    return assets - liabilities;              // net worth
+    return assets - liabilities;
 }
 
 
@@ -738,21 +1037,24 @@ void alice_make_year_report(int year)
     report.deposit = alice.deposit.amount;
     report.car_value = alice.car.value;
     report.credit = alice.credit.sumcredit;
-    report.mortgage_debt = alice.mortgage_debt;
+    report.mortgage_debt = alice.apartment.mortgage_debt;
     report.stock_value = alice.stock_investment_amount;
-    report.rent_paid = alice.total_rent_paid;
-    report.mortgage_paid = alice.total_mortgage_paid;
-    report.interest_paid = alice.total_interest_paid;
-    report.property_tax_paid = alice.total_property_tax_paid;
+    report.rent_paid = 0;
+    report.mortgage_paid = alice.apartment.total_mortgage_paid;
+    report.interest_paid = alice.apartment.total_interest_paid;
+    report.property_tax_paid = alice.apartment.property_tax_paid;
     report.stress_index = alice.stress_index;
 
-    RUB assets = alice.capital +
+    RUB assets =
+        alice.capital +
         alice.deposit.amount +
         alice.car.value +
         alice.stock_investment_amount +
-        alice.apartment_value;
+        alice.apartment.value;
 
-    RUB liabilities = alice.credit.sumcredit + alice.mortgage_debt;
+    RUB liabilities =
+        alice.credit.sumcredit +
+        alice.apartment.mortgage_debt;
 
     report.net_worth = assets - liabilities;
 
@@ -1098,23 +1400,227 @@ void bob_random_bonus_or_inheritance()
 }
 
 
+void bob_rent_increase(const World& world)
+{
+    int chance = rand() % 100;
+
+    if (chance < 10)
+    {
+        percent inflation = world.inflation_rate;
+
+        bob.rent = static_cast<RUB>(
+            bob.rent * (1 + inflation / 100.0)
+            );
+
+        bob.stress_index += 3;
+    }
+}
+
+
+void bob_move_to_new_apartment(const World& world)
+{
+    int chance = rand() % 100;
+
+    if (chance < 4)
+    {
+        RUB moving_cost = 90'000;
+
+        percent inflation = world.inflation_rate;
+
+        moving_cost = static_cast<RUB>(
+            moving_cost * (1 + inflation / 100.0)
+            );
+
+        bob.capital -= moving_cost;
+
+        bob.stress_index += 4;
+    }
+}
+
+
+void bob_security_deposit_loss(const World& world)
+{
+    int chance = rand() % 100;
+
+    if (chance < 2)
+    {
+        RUB loss = 50'000;
+
+        percent inflation = world.inflation_rate;
+
+        loss = static_cast<RUB>(
+            loss * (1 + inflation / 100.0)
+            );
+
+        bob.capital -= loss;
+
+        bob.stress_index += 2;
+    }
+}
+
+
+void bob_buy_laptop(const World& world)
+{
+    int chance = rand() % 100;
+
+    if (chance < 5)
+    {
+        RUB cost = 110'000;
+
+        percent inflation = world.inflation_rate;
+
+        cost = static_cast<RUB>(cost * (1 + inflation / 100.0));
+
+        bob.capital -= cost;
+    }
+}
+
+
+void bob_small_repair(const World& world)
+{
+    int chance = rand() % 100;
+
+    if (chance < 6)
+    {
+        RUB cost = 20'000;
+
+        percent inflation = world.inflation_rate;
+
+        cost = static_cast<RUB>(cost * (1 + inflation / 100.0));
+
+        bob.capital -= cost;
+    }
+}
+
+
+void bob_visit_friends()
+{
+    int chance = rand() % 100;
+
+    if (chance < 8)
+    {
+        RUB cost = 8'000;
+
+        bob.capital -= cost;
+    }
+}
+
+
+void bob_phone_break(const World& world)
+{
+    int chance = rand() % 100;
+
+    if (chance < 4)
+    {
+        RUB cost = 60'000;
+
+        percent inflation = world.inflation_rate;
+
+        cost = static_cast<RUB>(cost * (1 + inflation / 100.0));
+
+        bob.capital -= cost;
+
+        bob.stress_index += 2;
+    }
+}
+
+
+void bob_gift_parents()
+{
+    int chance = rand() % 100;
+
+    if (chance < 7)
+    {
+        RUB gift = 12'000;
+
+        bob.capital -= gift;
+
+        bob.stress_index -= 2;
+    }
+}
+
+
+void bob_medical_expense(const World& world)
+{
+    int chance = rand() % 100;
+
+    if (chance < 5)
+    {
+        RUB cost = 30'000;
+
+        percent inflation = world.inflation_rate;
+
+        cost = static_cast<RUB>(cost * (1 + inflation / 100.0));
+
+        bob.capital -= cost;
+
+        bob.stress_index += 2;
+    }
+}
+
+
+void bob_sell_old_items()
+{
+    int chance = rand() % 100;
+
+    if (chance < 5)
+    {
+        RUB income = 9'000;
+
+        bob.capital += income;
+    }
+}
+
+
+void bob_take_vacation(const World& world)
+{
+    int chance = rand() % 100;
+
+    if (chance < 5)
+    {
+        RUB cost = 120'000;
+
+        percent inflation = world.inflation_rate;
+
+        cost = static_cast<RUB>(cost * (1 + inflation / 100.0));
+
+        bob.capital -= cost;
+    }
+}
+
+
+void bob_take_courses(const World& world)
+{
+    int chance = rand() % 100;
+
+    if (chance < 4)
+    {
+        RUB cost = 60'000;
+
+        percent inflation = world.inflation_rate;
+
+        cost = static_cast<RUB>(cost * (1 + inflation / 100.0));
+
+        bob.capital -= cost;
+    }
+}
+
+
 RUB bob_calculate_net_worth()
 {
     RUB assets = 0;
     RUB liabilities = 0;
 
-    // активы
-    assets += bob.capital;                    // наличные
-    assets += bob.deposit.amount;             // депозит
-    assets += bob.car.value;                  // машина
-    assets += bob.stock_investment_amount;   // акции
-    assets += bob.apartment_value;            // недвижимость
+    assets += bob.capital;
+    assets += bob.deposit.amount;
+    assets += bob.car.value;
+    assets += bob.stock_investment_amount;
+    assets += bob.apartment.value;
 
-    // обязательства
-    liabilities += bob.credit.sumcredit;      // кредиты
-    liabilities += bob.mortgage_debt;        // ипотека (у Боба 0, если нет ипотеки)
+    liabilities += bob.credit.sumcredit;
+    liabilities += bob.apartment.mortgage_debt;
 
-    return assets - liabilities;              // net worth
+    return assets - liabilities;
 }
 
 
@@ -1127,25 +1633,25 @@ void bob_make_year_report(int year)
     report.deposit = bob.deposit.amount;
     report.car_value = bob.car.value;
     report.credit = bob.credit.sumcredit;
-    report.mortgage_debt = 0; // ипотеки нет у Боба
+    report.mortgage_debt = 0;
     report.stock_value = bob.stock_investment_amount;
-    report.rent_paid = bob.total_rent_paid; // учитываем аренду
-    report.mortgage_paid = 0; // ипотеки нет у Боба
-    report.interest_paid = bob.total_interest_paid; // проценты по кредитам
-    report.property_tax_paid = 0; // нет недвижимости
+    report.rent_paid = bob.total_rent_paid;
+    report.mortgage_paid = 0;
+    report.interest_paid = 0;
+    report.property_tax_paid = 0;
     report.stress_index = bob.stress_index;
 
-    // расчёт net_worth: активы - обязательства
-    RUB assets = bob.capital +
+    RUB assets =
+        bob.capital +
         bob.deposit.amount +
         bob.car.value +
         bob.stock_investment_amount;
 
-    RUB liabilities = bob.credit.sumcredit; // ипотека отсутствует
+    RUB liabilities =
+        bob.credit.sumcredit;
 
     report.net_worth = assets - liabilities;
 
-    // добавляем в глобальный отчёт
     report_bob.push_back(report);
 }
 
@@ -1169,8 +1675,8 @@ void bob_make_year_report(int year)
             alice_burnout();
 
             // расходы
-            alice_pay_food();
-            alice_pay_car_expenses();
+            alice_pay_food(world);
+            alice_pay_car_expenses(world);
             alice_depreciate_car();
             alice_pay_credit();
 
@@ -1194,6 +1700,23 @@ void bob_make_year_report(int year)
             // случайные события
             alice_random_large_expense();
             alice_random_bonus_or_inheritance();
+
+            alice_buy_furniture(world);
+            alice_appliance_break(world);
+            alice_neighbor_flood(world);
+            alice_lost_keys(world);
+            alice_install_security(world);
+
+
+            alice_buy_home_decor(world);
+            alice_buy_phone(world);
+            alice_family_gift();
+            alice_lost_wallet();
+            alice_go_to_conference(world);
+            alice_medical_expense(world);
+            alice_sell_old_items();
+            alice_take_vacation(world);
+            alice_take_courses(world);
 
             // если декабрь — делаем годовой отчёт
             if (month == 12)
@@ -1252,6 +1775,20 @@ void bob_make_year_report(int year)
             // случайные события
             bob_random_large_expense();
             bob_random_bonus_or_inheritance();
+
+            bob_rent_increase(world);
+            bob_move_to_new_apartment(world);
+            bob_security_deposit_loss(world);
+
+            bob_buy_laptop(world);
+            bob_small_repair(world);
+            bob_visit_friends();
+            bob_phone_break(world);
+            bob_gift_parents();
+            bob_medical_expense(world);
+            bob_sell_old_items();
+            bob_take_vacation(world);
+            bob_take_courses(world);
 
             // если декабрь — делаем годовой отчёт
             if (month == 12)
@@ -1341,6 +1878,83 @@ std::cout << "Year | Alice Capital | Bob Capital | Alice Deposit | Bob Deposit |
         }
     }
 
+    void analyze_alice_bob()
+{
+    size_t years = std::min(report_alice.size(), report_bob.size());
+
+    int alice_richer_years = 0;
+    int bob_richer_years = 0;
+    int alice_less_stress_years = 0;
+    int bob_less_stress_years = 0;
+
+    std::cout << "=== Yearly Analysis: Alice vs Bob ===\n";
+    std::cout << "Year | Richer | Less Stress\n";
+
+    for (size_t i = 0; i < years; ++i)
+    {
+        const auto& alice_report = report_alice[i];
+        const auto& bob_report = report_bob[i];
+
+        std::string richer;
+        std::string less_stress;
+
+        if (alice_report.net_worth > bob_report.net_worth)
+        {
+            richer = "Alice";
+            alice_richer_years++;
+        }
+        else if (bob_report.net_worth > alice_report.net_worth)
+        {
+            richer = "Bob";
+            bob_richer_years++;
+        }
+        else
+        {
+            richer = "Equal";
+        }
+
+        if (alice_report.stress_index < bob_report.stress_index)
+        {
+            less_stress = "Alice";
+            alice_less_stress_years++;
+        }
+        else if (bob_report.stress_index < alice_report.stress_index)
+        {
+            less_stress = "Bob";
+            bob_less_stress_years++;
+        }
+        else
+        {
+            less_stress = "Equal";
+        }
+
+        std::cout
+            << alice_report.year << " | "
+            << richer << " | "
+            << less_stress
+            << "\n";
+    }
+
+    // Общий анализ
+    std::cout << "\n=== Overall Analysis ===\n";
+    std::cout << "Alice richer in " << alice_richer_years << " years, Bob in " << bob_richer_years << " years.\n";
+    std::cout << "Alice less stressed in " << alice_less_stress_years << " years, Bob in " << bob_less_stress_years << " years.\n";
+
+    if (alice_richer_years > bob_richer_years)
+        std::cout << "Overall, Alice is richer.\n";
+    else if (bob_richer_years > alice_richer_years)
+        std::cout << "Overall, Bob is richer.\n";
+    else
+        std::cout << "Overall, wealth is equal.\n";
+
+    if (alice_less_stress_years > bob_less_stress_years)
+        std::cout << "Overall, Alice is less stressed.\n";
+    else if (bob_less_stress_years > alice_less_stress_years)
+        std::cout << "Overall, Bob is less stressed.\n";
+    else
+        std::cout << "Overall, stress levels are equal.\n";
+}
+
 
     int main() {
     
@@ -1355,6 +1969,8 @@ std::cout << "Year | Alice Capital | Bob Capital | Alice Deposit | Bob Deposit |
         print_alice_report();
         print_bob_report();
         compare_strategies();
+
+		analyze_alice_bob();
 
         return 0;
     }
