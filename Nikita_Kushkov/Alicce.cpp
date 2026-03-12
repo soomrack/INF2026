@@ -7,6 +7,50 @@ using RUB = long long int;  // C++
 
 
 
+struct Currency {
+    // Курсы валют (сколько рублей за единицу)
+    float usd_rate;              // Курс доллара
+    float eur_rate;              // Курс евро
+    float jpy_rate;              // Курс йены (за 100 йен)
+    
+    // Валютные сбережения
+    RUB usd_amount;              // Долларов США
+    RUB eur_amount;              // Евро
+    RUB jpy_amount;              // Йен (в сотнях)
+    
+    // История курсов
+    float usd_history[60];       // История за 5 лет
+    float eur_history[60];
+    float jpy_history[60];
+    int history_index;
+    
+    // Комиссия банка при обмене
+    float bank_commission;       // 1-3%
+    
+    // Прибыль/убыток от валюты
+    RUB total_invested_rub;      // Сколько рублей вложено в валюту
+    RUB total_profit_loss;       // Общая прибыль/убыток
+};
+
+
+
+struct RealEstate {
+    bool has_apartment;        
+    RUB apartment_value;        
+    RUB apartment_cost;         
+    RUB mortgage_payment;      
+    RUB mortgage_left;          
+    int mortgage_years;         
+    int mortgage_months_left;   
+    RUB property_tax;           
+    RUB apartment_maintenance;  
+    bool has_dacha;            
+    RUB dacha_cost;            
+    RUB dacha_maintenance;      
+};
+
+
+
 struct Electronics {
     
     bool has_phone;           
@@ -235,10 +279,11 @@ struct Person {
     CounterStrike cs;
 
     Business business;
-
     Crisis crisis;
-
     Electronics electronics;
+    RealEstate real_estate;
+
+    Currency currency;
 };
 
 
@@ -360,6 +405,409 @@ void alice_init()
     alice.electronics.new_camera_cost = 60'000;      
     alice.electronics.new_smart_home_cost = 30'000; 
 
+    alice.real_estate.has_apartment = false;
+    alice.real_estate.apartment_value = 0;
+    alice.real_estate.apartment_cost = 0;
+    alice.real_estate.mortgage_payment = 0;
+    alice.real_estate.mortgage_left = 0;
+    alice.real_estate.mortgage_years = 0;
+    alice.real_estate.mortgage_months_left = 0;
+    alice.real_estate.property_tax = 15'000; // Ежегодный налог
+    alice.real_estate.apartment_maintenance = 30'000; // Ремонт и содержание
+    alice.real_estate.has_dacha = false;
+    alice.real_estate.dacha_cost = 1'500'000;
+    alice.real_estate.dacha_maintenance = 20'000;
+
+    alice.currency.usd_rate = 90.0;      // 90 рублей за доллар
+    alice.currency.eur_rate = 98.0;      // 98 рублей за евро
+    alice.currency.jpy_rate = 65.0;      // 65 рублей за 100 йен
+    
+    alice.currency.usd_amount = 0;
+    alice.currency.eur_amount = 0;
+    alice.currency.jpy_amount = 0;
+    
+    alice.currency.bank_commission = 2.0; // 2% комиссия банка
+    
+    alice.currency.total_invested_rub = 0;
+    alice.currency.total_profit_loss = 0;
+    
+    alice.currency.history_index = 0;
+    for (int i = 0; i < 60; i++) {
+        alice.currency.usd_history[i] = 0;
+        alice.currency.eur_history[i] = 0;
+        alice.currency.jpy_history[i] = 0;
+    }
+
+}
+
+
+
+void alice_update_currency_rates(const int month, const int year) {
+    // Курсы меняются случайно каждый месяц
+    // Доллар: колебания от -5% до +7%
+    float usd_change = (rand() % 13 - 5) / 100.0; // -5% до +7%
+    alice.currency.usd_rate = alice.currency.usd_rate * (1 + usd_change);
+    
+    // Евро: колебания от -6% до +8%
+    float eur_change = (rand() % 15 - 6) / 100.0; // -6% до +8%
+    alice.currency.eur_rate = alice.currency.eur_rate * (1 + eur_change);
+    
+    // Йена: колебания от -4% до +6%
+    float jpy_change = (rand() % 11 - 4) / 100.0; // -4% до +6%
+    alice.currency.jpy_rate = alice.currency.jpy_rate * (1 + jpy_change);
+    
+    // Влияние кризиса на курсы
+    if (alice.crisis.active) {
+        // В кризис рубль падает
+        alice.currency.usd_rate = alice.currency.usd_rate * 1.1; // +10%
+        alice.currency.eur_rate = alice.currency.eur_rate * 1.12; // +12%
+        alice.currency.jpy_rate = alice.currency.jpy_rate * 1.08; // +8%
+    }
+    
+    // Сохраняем в историю
+    if (alice.currency.history_index < 60) {
+        alice.currency.usd_history[alice.currency.history_index] = alice.currency.usd_rate;
+        alice.currency.eur_history[alice.currency.history_index] = alice.currency.eur_rate;
+        alice.currency.jpy_history[alice.currency.history_index] = alice.currency.jpy_rate;
+        alice.currency.history_index++;
+    }
+    
+    printf("\n💱 КУРСЫ ВАЛЮТ НА %d.%d:\n", month, year);
+    printf("   Доллар США (USD): %.2f руб. (изм. %+.1f%%)\n", alice.currency.usd_rate, usd_change * 100);
+    printf("   Евро (EUR): %.2f руб. (изм. %+.1f%%)\n", alice.currency.eur_rate, eur_change * 100);
+    printf("   100 Японских йен (JPY): %.2f руб. (изм. %+.1f%%)\n", alice.currency.jpy_rate, jpy_change * 100);
+    
+    // Пересчет стоимости валютных сбережений
+    RUB usd_value = alice.currency.usd_amount * alice.currency.usd_rate;
+    RUB eur_value = alice.currency.eur_amount * alice.currency.eur_rate;
+    RUB jpy_value = alice.currency.jpy_amount * alice.currency.jpy_rate;
+    
+    printf("   Стоимость сбережений: USD: %lld руб., EUR: %lld руб., JPY: %lld руб.\n", 
+           usd_value, eur_value, jpy_value);
+}
+
+// НОВАЯ ФУНКЦИЯ - ПОКУПКА ВАЛЮТЫ
+void alice_buy_currency(const int month, const int year) {
+    // Шанс купить валюту: 10% в месяц, если есть свободные деньги
+    if (rand() % 100 < 10 && alice.capital > 100'000) {
+        int choice = rand() % 3; // 0-USD, 1-EUR, 2-JPY
+        
+        RUB amount_rub = 50'000 + (rand() % 100'000); // 50-150 тыс рублей
+        
+        // С учетом комиссии банка
+        RUB commission = amount_rub * alice.currency.bank_commission / 100;
+        RUB amount_after_commission = amount_rub - commission;
+        
+        const char* currency_name;
+        float rate;
+        RUB* currency_amount;
+        
+        if (choice == 0) {
+            currency_name = "долларов";
+            rate = alice.currency.usd_rate;
+            currency_amount = &alice.currency.usd_amount;
+        } else if (choice == 1) {
+            currency_name = "евро";
+            rate = alice.currency.eur_rate;
+            currency_amount = &alice.currency.eur_amount;
+        } else {
+            currency_name = "йен (сотни)";
+            rate = alice.currency.jpy_rate;
+            currency_amount = &alice.currency.jpy_amount;
+        }
+        
+        RUB bought = amount_after_commission / rate;
+        *currency_amount += bought;
+        
+        alice.capital -= amount_rub;
+        alice.currency.total_invested_rub += amount_rub;
+        
+        printf("\n💵 АЛИСА ПОКУПАЕТ ВАЛЮТУ!\n");
+        printf("   Куплено: %.2f %s за %lld руб.\n", (double)bought, currency_name, amount_rub);
+        printf("   Комиссия банка: %lld руб. (%.1f%%)\n", commission, alice.currency.bank_commission);
+        printf("   Остаток капитала: %lld руб.\n", alice.capital);
+    }
+}
+
+// НОВАЯ ФУНКЦИЯ - ПРОДАЖА ВАЛЮТЫ
+void alice_sell_currency(const int month, const int year) {
+    // Шанс продать валюту: 15% в месяц, если есть что продавать
+    if (rand() % 100 < 15) {
+        int choice = -1;
+        RUB* currency_amount = nullptr;
+        const char* currency_name;
+        float rate;
+        
+        // Выбираем, какую валюту продавать (если есть)
+        if (alice.currency.usd_amount > 100 && rand() % 3 == 0) {
+            choice = 0;
+            currency_amount = &alice.currency.usd_amount;
+            currency_name = "долларов";
+            rate = alice.currency.usd_rate;
+        } else if (alice.currency.eur_amount > 100 && rand() % 3 == 0) {
+            choice = 1;
+            currency_amount = &alice.currency.eur_amount;
+            currency_name = "евро";
+            rate = alice.currency.eur_rate;
+        } else if (alice.currency.jpy_amount > 1000 && rand() % 3 == 0) {
+            choice = 2;
+            currency_amount = &alice.currency.jpy_amount;
+            currency_name = "йен (сотни)";
+            rate = alice.currency.jpy_rate;
+        }
+        
+        if (choice != -1 && currency_amount != nullptr) {
+            // Продаем 20-50% от имеющейся валюты
+            RUB sell_amount = *currency_amount * (20 + (rand() % 31)) / 100;
+            
+            RUB rubles = sell_amount * rate;
+            RUB commission = rubles * alice.currency.bank_commission / 100;
+            RUB rubles_after = rubles - commission;
+            
+            RUB invested_part = alice.currency.total_invested_rub * sell_amount / 
+                               (*currency_amount + sell_amount); // Приблизительно
+            
+            RUB profit = rubles_after - invested_part;
+            alice.currency.total_profit_loss += profit;
+            
+            *currency_amount -= sell_amount;
+            alice.capital += rubles_after;
+            
+            printf("\n💱 АЛИСА ПРОДАЕТ ВАЛЮТУ!\n");
+            printf("   Продано: %.2f %s за %lld руб.\n", (double)sell_amount, currency_name, rubles_after);
+            printf("   Комиссия банка: %lld руб.\n", commission);
+            printf("   Прибыль/убыток от сделки: %+lld руб.\n", profit);
+            printf("   Остаток капитала: %lld руб.\n", alice.capital);
+        }
+    }
+}
+
+// НОВАЯ ФУНКЦИЯ - АНАЛИЗ ВАЛЮТНОГО РЫНКА
+void alice_currency_analysis(const int month, const int year) {
+    if (month == 12) { // Раз в год
+        printf("\n📊 ГОДОВОЙ АНАЛИЗ ВАЛЮТНОГО РЫНКА:\n");
+        
+        float usd_year_change = (alice.currency.usd_history[alice.currency.history_index-1] - 
+                                 alice.currency.usd_history[alice.currency.history_index-13]) / 
+                                 alice.currency.usd_history[alice.currency.history_index-13] * 100;
+        
+        float eur_year_change = (alice.currency.eur_history[alice.currency.history_index-1] - 
+                                 alice.currency.eur_history[alice.currency.history_index-13]) / 
+                                 alice.currency.eur_history[alice.currency.history_index-13] * 100;
+        
+        float jpy_year_change = (alice.currency.jpy_history[alice.currency.history_index-1] - 
+                                 alice.currency.jpy_history[alice.currency.history_index-13]) / 
+                                 alice.currency.jpy_history[alice.currency.history_index-13] * 100;
+        
+        printf("   Доллар за год: %+.1f%%\n", usd_year_change);
+        printf("   Евро за год: %+.1f%%\n", eur_year_change);
+        printf("   Йена за год: %+.1f%%\n", jpy_year_change);
+        
+        RUB total_currency_value = alice.currency.usd_amount * alice.currency.usd_rate +
+                                   alice.currency.eur_amount * alice.currency.eur_rate +
+                                   alice.currency.jpy_amount * alice.currency.jpy_rate;
+        
+        printf("   Общая стоимость валютных сбережений: %lld руб.\n", total_currency_value);
+        printf("   Вложено рублей: %lld руб.\n", alice.currency.total_invested_rub);
+        printf("   Общая прибыль/убыток: %+lld руб.\n", alice.currency.total_profit_loss);
+    }
+}
+
+
+
+// Функция для расчета степени (замена pow)
+double my_pow(double base, int exp) {
+    double result = 1.0;
+    for (int i = 0; i < exp; i++) {
+        result *= base;
+    }
+    return result;
+}
+
+
+
+void alice_buy_apartment(const int year, const int month) {
+    // Уже есть квартира
+    if (alice.real_estate.has_apartment) return;
+    
+    // Шанс на покупку квартиры (2% в месяц, если есть накопления)
+    int buy_chance = 2;
+    RUB required_down_payment = 2'000'000; // Первоначальный взнос
+    
+    // Во время кризиса цены на недвижимость падают, но кредиты дороже
+    RUB apartment_price = 8'000'000;
+    if (alice.crisis.active) {
+        apartment_price = apartment_price * 80 / 100; // -20%
+        required_down_payment = apartment_price * 25 / 100; // 25% первоначальный взнос
+    }
+    
+    if (rand() % 100 < buy_chance && alice.capital >= required_down_payment) {
+        printf("\n🏠🏠🏠 АЛИСА ПОКУПАЕТ КВАРТИРУ! 🏠🏠🏠\n");
+        printf("Стоимость квартиры: %lld руб.\n", apartment_price);
+        printf("Первоначальный взнос: %lld руб.\n", required_down_payment);
+        
+        alice.capital -= required_down_payment;
+        alice.real_estate.has_apartment = true;
+        alice.real_estate.apartment_cost = apartment_price;
+        alice.real_estate.apartment_value = apartment_price;
+        
+        // Остаток берем в ипотеку
+        RUB mortgage_amount = apartment_price - required_down_payment;
+        alice.real_estate.mortgage_left = mortgage_amount;
+        
+        // Ставка по ипотеке
+        RUB mortgage_rate = alice.crisis.active ? 12.0 : 9.5; // 9.5% или 12% в кризис
+        
+        // Срок ипотеки - 15 лет (180 месяцев)
+        alice.real_estate.mortgage_years = 15;
+        alice.real_estate.mortgage_months_left = 180;
+        
+        // Расчет ежемесячного платежа (аннуитетный)
+        double monthly_rate = mortgage_rate / 12.0 / 100.0;
+        int annuity_factor = 0;
+        alice.real_estate.mortgage_payment = mortgage_amount * annuity_factor;
+        
+        printf("Ипотека: %lld руб. под %.1f%% на 15 лет\n", mortgage_amount, mortgage_rate);
+        printf("Ежемесячный платеж: %lld руб.\n", alice.real_estate.mortgage_payment);
+        printf("Остаток капитала: %lld руб.\n\n", alice.capital);
+    }
+}
+
+// НОВАЯ ФУНКЦИЯ - ПОКУПКА ДАЧИ
+void alice_buy_dacha(const int year, const int month) {
+    if (alice.real_estate.has_dacha || !alice.real_estate.has_apartment) return;
+    if (alice.capital < alice.real_estate.dacha_cost) return;
+    
+    // Шанс купить дачу (1% в месяц, весной выше)
+    int buy_chance = (month >= 3 && month <= 5) ? 3 : 1;
+    
+    if (rand() % 100 < buy_chance) {
+        printf("\n🌳🌳🌳 АЛИСА ПОКУПАЕТ ДАЧУ! 🌳🌳🌳\n");
+        printf("Стоимость дачи: %lld руб.\n", alice.real_estate.dacha_cost);
+        
+        alice.capital -= alice.real_estate.dacha_cost;
+        alice.real_estate.has_dacha = true;
+        
+        printf("Остаток капитала: %lld руб.\n\n", alice.capital);
+    }
+}
+
+// НОВАЯ ФУНКЦИЯ - ПЛАТЕЖ ПО ИПОТЕКЕ
+void alice_pay_mortgage(const int month, const int year) {
+    if (!alice.real_estate.has_apartment) return;
+    if (alice.real_estate.mortgage_months_left <= 0) return;
+    
+    RUB payment = alice.real_estate.mortgage_payment;
+    
+    // Во время кризиса платежи могут быть пересмотрены
+    if (alice.crisis.active && rand() % 100 < 20) {
+        printf("⚠️ Банк предложил реструктуризацию ипотеки\n");
+        payment = payment * 90 / 100; // -10%
+        alice.real_estate.mortgage_months_left += 6; // Срок увеличивается
+        printf("   Новый платеж: %lld руб., срок увеличен на 6 мес.\n", payment);
+    }
+    
+    printf("Месяц %d: - ИПОТЕКА: %lld руб. (капитал: %lld руб.)\n", 
+           month, payment, alice.capital);
+    
+    // Пытаемся заплатить из капитала
+    if (alice.capital >= payment) {
+        alice.capital -= payment;
+        alice.real_estate.mortgage_left -= payment * 0.7; // 70% в основной долг
+        alice.real_estate.mortgage_months_left--;
+        
+        printf("   Остаток по ипотеке: %lld руб.\n", alice.real_estate.mortgage_left);
+        printf("   Осталось месяцев: %d\n", alice.real_estate.mortgage_months_left);
+    } 
+    // Если не хватает, пробуем сбережения
+    else if (alice.capital + alice.savings >= payment) {
+        RUB from_savings = payment - alice.capital;
+        alice.capital = 0;
+        alice.savings -= from_savings;
+        alice.real_estate.mortgage_left -= payment * 0.7;
+        alice.real_estate.mortgage_months_left--;
+        
+        printf("   Использованы сбережения: %lld руб.\n", from_savings);
+        printf("   Остаток по ипотеке: %lld руб.\n", alice.real_estate.mortgage_left);
+    }
+    // Просрочка по ипотеке
+    else {
+        printf("\n*** ПРОСРОЧКА ПО ИПОТЕКЕ! ***\n");
+        RUB penalty = payment * 0.2; // Штраф 20%
+        printf("Штраф: %lld руб.\n", penalty);
+        
+        alice.capital = 0;
+        alice.savings = 0;
+        alice.real_estate.mortgage_left += penalty;
+        
+        // Риск потери квартиры при большой просрочке
+        if (alice.real_estate.mortgage_left > alice.real_estate.apartment_value * 1.5) {
+            printf("\n💔 БАНК ЗАБИРАЕТ КВАРТИРУ! 💔\n");
+            alice.real_estate.has_apartment = false;
+            alice.real_estate.mortgage_left = 0;
+            alice.real_estate.mortgage_months_left = 0;
+        }
+    }
+    
+    // Проверяем, выплачена ли ипотека
+    if (alice.real_estate.mortgage_months_left <= 0) {
+        printf("\n🎉🎉🎉 ИПОТЕКА ВЫПЛАЧЕНА! КВАРТИРА ВАША! 🎉🎉🎉\n");
+        alice.real_estate.mortgage_payment = 0;
+    }
+    
+
+}
+
+// НОВАЯ ФУНКЦИЯ - РОСТ СТОИМОСТИ НЕДВИЖИМОСТИ
+void alice_update_property_value(const int year) {
+    if (!alice.real_estate.has_apartment) return;
+    
+    // Недвижимость растет в цене примерно на 5-15% в год
+    int increase = 5 + (rand() % 11);
+    if (alice.crisis.active) increase = increase / 2;
+    
+    RUB old_value = alice.real_estate.apartment_value;
+    alice.real_estate.apartment_value = alice.real_estate.apartment_value * (100 + increase) / 100;
+    
+    printf("📈 Стоимость квартиры выросла на %d%%: %lld руб. -> %lld руб.\n", 
+           increase, old_value, alice.real_estate.apartment_value);
+}
+
+// НОВАЯ ФУНКЦИЯ - НАЛОГ НА НЕДВИЖИМОСТЬ
+void alice_pay_property_tax(const int year) {
+    if (!alice.real_estate.has_apartment) return;
+    
+    RUB tax = alice.real_estate.property_tax;
+    if (alice.real_estate.apartment_value > 10'000'000) {
+        tax = tax * 150 / 100; // Дорогая квартира - выше налог
+    }
+    
+    printf("Год %d: - НАЛОГ НА НЕДВИЖИМОСТЬ: %lld руб.\n", year, tax);
+    alice.capital -= tax;
+}
+
+// НОВАЯ ФУНКЦИЯ - СОДЕРЖАНИЕ НЕДВИЖИМОСТИ
+void alice_maintain_property(const int month, const int year) {
+    if (!alice.real_estate.has_apartment) return;
+    
+    // Текущий ремонт и содержание
+    RUB maintenance = alice.real_estate.apartment_maintenance / 12; // Ежемесячно
+    
+    // Капитальный ремонт раз в 5 лет
+    if (year % 5 == 0 && month == 9) {
+        maintenance += 100'000;
+        printf("🏗️ КАПИТАЛЬНЫЙ РЕМОНТ: +100,000 руб.\n");
+    }
+    
+    printf("Месяц %d: - Содержание квартиры: %lld руб.\n", month, maintenance);
+    alice.capital -= maintenance;
+    
+    // Содержание дачи (только летом)
+    if (alice.real_estate.has_dacha && month >= 5 && month <= 9) {
+        RUB dacha_cost = alice.real_estate.dacha_maintenance;
+        printf("🌿 Содержание дачи: %lld руб.\n", dacha_cost);
+        alice.capital -= dacha_cost;
+    }
 }
 
 
@@ -645,16 +1093,6 @@ void alice_sell_business(const int year, const int month) {
         
         printf("✅ БИЗНЕС ПРОДАН! Капитал: %lld руб.\n\n", alice.capital);
     }
-}
-
-
-// Функция для расчета степени (замена pow)
-double my_pow(double base, int exp) {
-    double result = 1.0;
-    for (int i = 0; i < exp; i++) {
-        result *= base;
-    }
-    return result;
 }
 
 
@@ -1483,7 +1921,19 @@ void alice_simulation()
         }
         
         // ПЛАТЕЖИ ПО КРЕДИТАМ
-        process_loan_payment(year, month);             
+        process_loan_payment(year, month);  
+        
+          // НЕДВИЖИМОСТЬ
+        alice_buy_apartment(year, month);
+        alice_buy_dacha(year, month);
+        if (alice.real_estate.has_apartment) {
+            alice_pay_mortgage(month, year);
+            alice_maintain_property(month, year);
+        }
+
+        alice_update_currency_rates(month, year);
+        alice_buy_currency(month, year);
+        alice_sell_currency(month, year);
         
         ++month;
         if (month == 13) {
@@ -1542,6 +1992,18 @@ void print_spending_summary()
     
 
 
+     printf("\n========== ВАЛЮТНЫЕ СБЕРЕЖЕНИЯ ==========\n");
+     printf("💵 Доллары США: %.2f USD (курс: %.2f, стоимость: %lld руб.)\n", (double)alice.currency.usd_amount, alice.currency.usd_rate, (RUB)(alice.currency.usd_amount * alice.currency.usd_rate));
+     printf("💶 Евро: %.2f EUR (курс: %.2f, стоимость: %lld руб.)\n", (double)alice.currency.eur_amount, alice.currency.eur_rate , (RUB)(alice.currency.eur_amount * alice.currency.eur_rate));
+     printf("💴 Японские йены: %.2f JPY (курс: %.2f за 100, стоимость: %lld руб.)\n", (double)alice.currency.jpy_amount, alice.currency.jpy_rate, (RUB)(alice.currency.jpy_amount * alice.currency.jpy_rate));
+    
+     RUB total_currency = alice.currency.usd_amount * alice.currency.usd_rate + alice.currency.eur_amount * alice.currency.eur_rate + alice.currency.jpy_amount * alice.currency.jpy_rate;
+    
+     printf("💰 Общая стоимость валюты: %lld руб.\n", total_currency);
+     printf("📊 Вложено рублей: %lld руб.\n", alice.currency.total_invested_rub);
+     printf("📈 Общая прибыль/убыток: %+lld руб.\n", alice.currency.total_profit_loss);
+
+
         printf("\n========== ИТОГИ БИЗНЕСА ==========\n");
     if (alice.business.exists) {
         printf("✅ Бизнес активен\n");
@@ -1556,6 +2018,25 @@ void print_spending_summary()
         printf("Бизнес проработал: %d месяцев\n", alice.business.months);
     } else {
         printf("❌ Бизнес не открывался\n");
+    }
+
+
+
+        printf("\n========== НЕДВИЖИМОСТЬ ==========\n");
+    if (alice.real_estate.has_apartment) {
+        printf("🏠 Квартира: ДА\n");
+        printf("   Текущая стоимость: %'lld руб.\n", alice.real_estate.apartment_value);
+        printf("   Остаток по ипотеке: %'lld руб.\n", alice.real_estate.mortgage_left);
+        printf("   Осталось месяцев: %d\n", alice.real_estate.mortgage_months_left);
+        printf("   Ежемесячный платеж: %'lld руб.\n", alice.real_estate.mortgage_payment);
+    } else {
+        printf("🏠 Квартиры нет\n");
+    }
+    
+    if (alice.real_estate.has_dacha) {
+        printf("🌳 Дача: ДА\n");
+    } else {
+        printf("🌳 Дачи нет\n");
     }
 
 
