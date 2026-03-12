@@ -21,6 +21,15 @@ struct Person {
     bool has_apartment;    // куплена ли квартира
 };
 
+// Кот
+struct Cat {
+    RUB price;          // стоимость котёнка
+    RUB food_cost;      // корм в месяц
+    RUB toys_cost;      // игрушки в месяц
+    RUB vet_cost;       // ветеринар раз в год
+    bool is_bought;     // куплен ли кот
+};
+
 // Машина
 struct Car {
     RUB value;                 // текущая стоимость машины
@@ -85,6 +94,8 @@ struct UnexpectedExpense {
 
 Person alice;
 
+Cat cat;
+
 Car first_car;   // первая машина
 Car second_car;  // вторая машина
 
@@ -117,6 +128,15 @@ void person_init()
     alice.tax_rate = 13.0;         // НДФЛ
     alice.has_computer = false;
     alice.has_apartment = false;
+}
+
+void cat_init()
+{
+    cat.price = 20'000;
+    cat.food_cost = 3'500;
+    cat.toys_cost = 500;
+    cat.vet_cost = 10'000;
+    cat.is_bought = false;
 }
 
 void first_car_init()
@@ -190,6 +210,7 @@ void unexpected_expense_init()
 void all_init()
 {
     person_init();
+    cat_init();
     first_car_init();
     second_car_init();
     deposit_init();
@@ -277,6 +298,10 @@ void apply_inflation()
     alice.rent_cost = static_cast<RUB>(std::llround(alice.rent_cost * k));
     alice.internet_cost = static_cast<RUB>(std::llround(alice.internet_cost * k));
     alice.fitness_cost = static_cast<RUB>(std::llround(alice.fitness_cost * k));
+
+    cat.food_cost = static_cast<RUB>(std::llround(cat.food_cost * k));
+    cat.toys_cost = static_cast<RUB>(std::llround(cat.toys_cost * k));
+    cat.vet_cost = static_cast<RUB>(std::llround(cat.vet_cost * k));
 
     apartment.utility_cost = static_cast<RUB>(std::llround(apartment.utility_cost * k));
 
@@ -374,6 +399,25 @@ void apply_fitness_cost()
     alice.cash -= alice.fitness_cost;
 }
 
+// Рыжая наглая морда
+void apply_cat_food_cost()
+{
+    if (!cat.is_bought) {
+        return;
+    }
+
+    alice.cash -= cat.food_cost;
+}
+
+void apply_cat_toys_cost()
+{
+    if (!cat.is_bought) {
+        return;
+    }
+
+    alice.cash -= cat.toys_cost;
+}
+
 // Аренда квартиры платится, пока собственная квартира не куплена
 void apply_rent_cost()
 {
@@ -442,6 +486,18 @@ void apply_public_transport_cost()
     }
 
     alice.cash -= public_transport.monthly_cost;
+}
+
+// Ветеринар раз в год
+void apply_cat_vet_cost(int month)
+{
+    if (!cat.is_bought) {
+        return;
+    }
+
+    if (month == 5) { // май
+        alice.cash -= cat.vet_cost;
+    }
 }
 
 // Отпуск раз в год
@@ -606,6 +662,21 @@ void try_buy_second_car()
     second_car.is_active = true;
 }
 
+// Покупка котёнка при первой возможности
+void try_buy_cat()
+{
+    if (cat.is_bought) {
+        return;
+    }
+
+    if (alice.cash < cat.price) {
+        return;
+    }
+
+    alice.cash -= cat.price;
+    cat.is_bought = true;
+}
+
 // Покрытие минуса со вклада
 void cover_negative_cash_from_deposit()
 {
@@ -667,7 +738,7 @@ void sell_second_car_if_needed()
 
 void simulate_month(int year, int month)
 {
-    (void)year; // оставлено для расширения модели
+    (void)year;
 
     // 1. Инфляция
     apply_inflation();
@@ -684,6 +755,10 @@ void simulate_month(int year, int month)
     apply_fitness_cost();
     apply_rent_cost();
     apply_utility_cost();
+    
+    apply_cat_food_cost();
+    apply_cat_toys_cost();
+    apply_cat_vet_cost(month);
 
     apply_first_car_cost();
     apply_second_car_cost();
@@ -711,6 +786,7 @@ void simulate_month(int year, int month)
     try_buy_computer();
     try_buy_apartment();
     try_buy_second_car();
+    try_buy_cat();
 
     // 9. Если ушли в минус — сначала закрываем вкладом
     cover_negative_cash_from_deposit();
@@ -748,7 +824,7 @@ void simulate_years(int start_year, int start_month, int years_count)
 
 void print_results()
 {
-    std::cout << "===== Результаты симуляции =====\n";
+    std::cout << "===== Итог за 5 лет: =====\n";
     std::cout << "Зарплата: " << alice.salary << "\n";
     std::cout << "Свободные деньги: " << alice.cash << "\n";
     std::cout << "Вклад: " << alice_deposit.balance << "\n";
@@ -762,9 +838,18 @@ void print_results()
         std::cout << "Коммуналка в месяц: " << apartment.utility_cost << "\n";
     }
 
+    // Кот
+    std::cout << "Кот: "
+          << (cat.is_bought ? "есть" : "нет") << "\n";
+
+    if (cat.is_bought) {
+    std::cout << "Корм для кота в месяц: " << cat.food_cost << "\n";
+    std::cout << "Игрушки для кота в месяц: " << cat.toys_cost << "\n";
+    }
+
     std::cout << "Компьютер куплен: "
               << (alice.has_computer ? "да" : "нет") << "\n";
-
+    
     // Первая машина
     std::cout << "Первая машина: "
               << (first_car.is_active ? "есть" : "нет") << "\n";
