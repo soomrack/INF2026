@@ -1,0 +1,664 @@
+#include <stdio.h>
+
+using RUB = long long int;
+using USD = long long int;
+
+using Percent = float;  
+
+
+struct Bank {
+    RUB account;
+    RUB deposite;
+    Percent interest;
+    RUB salary;
+
+    USD account_usd;
+    float rate_usd_rub;
+};
+
+
+struct Car {
+    RUB gas;
+    RUB value;
+};
+
+struct Education {
+    RUB course_cost;
+    int duration_months; // длительность учебы в месяцах
+    float salary_boost_percent;
+    int months_remaining; // осталось месяцев до конца 
+};
+
+struct EntertainmentExpenses {
+    RUB cinema;        
+    RUB concerts;     
+    RUB museums;       
+    RUB hobbies;       
+};
+
+struct Person {
+    Bank vtb;
+    Car car;
+    RUB salary;
+    RUB food;
+    RUB dog_expenses;//ежемесячные траты на собаку (корм,ветеренар и тд.)
+    RUB apartment_value;  // стоимость квартиры
+    RUB dacha_value; // покупка дачи 
+    RUB shopping; // регулярный шоппинг
+    RUB medical; // медицина
+    RUB salary_second;// вторая работа макса
+    Education study;
+    RUB travel_expenses;// траты на путешествие 
+    EntertainmentExpenses entertainment;
+    RUB utilities;  // расходы на ЖКХ
+    RUB communication; // мобильная связь 
+    RUB internet;             
+    RUB fine; // штраф
+    RUB gifts;
+    RUB repairs;// ремонт
+    RUB books; // учебные материалы
+    RUB dog_price;
+
+};
+   
+
+    struct Person alice;
+    //struct Person max;
+
+
+    void alice_init()
+    {
+        alice.vtb.account = 0;
+        alice.vtb.deposite = 1'000'000;
+        alice.vtb.interest = 14.5;
+        alice.salary = 180'000;
+
+        alice.vtb.account_usd = 1'000;
+        alice.vtb.rate_usd_rub = 78.5;
+
+        alice.food = 20'000;
+
+        alice.car.value = 2'400'000;
+        alice.car.gas = 15'000;
+        alice.dog_price = 55'000;
+        alice.shopping = 15'000;
+        alice.medical = 2'500;
+
+        alice.study.course_cost = 120'000;
+        alice.study.duration_months = 6;
+        alice.study.salary_boost_percent = 25.0f;
+        alice.study.months_remaining = 0;
+        alice.travel_expenses = 200'000; 
+
+        alice.entertainment.cinema = 2'500;     
+        alice.entertainment.concerts = 4'000;  
+        alice.entertainment.museums = 1'500;   
+        alice.entertainment.hobbies = 3'000;
+        alice.communication = 800;  
+        alice.internet = 600;
+        alice.fine = 500;
+        alice.gifts = 3'000;
+        alice.repairs = 5'000;
+        alice.books = 1'000;
+    }
+    void alice_dog_price() {
+        if (alice.vtb.account >= alice.dog_price) {
+            alice.vtb.account -= alice.dog_price;
+            printf("Bought a dog for %11d RUB\n", alice.dog_price);
+        }
+        else {
+            printf("Have not money for dog:(\n ");
+        }
+    }
+    void alice_books() {
+        if (alice.vtb.account >= alice.books) {
+            alice.vtb.account -= alice.books;
+            printf("Alice paid for books: %lld RUB\n", alice.books);
+        }
+        else {
+            printf("Not enough funds for books! Balance: %lld, Required: %lld\n",
+                alice.vtb.account, alice.books);
+        }
+    }
+
+    void alice_repairs() {
+        if (alice.vtb.account >= alice.repairs) {
+            alice.vtb.account -= alice.repairs;
+            printf("Alice paid for repairs: %lld RUB\n", alice.repairs);
+        }
+        else {
+            printf("Not enough funds for repairs! Balance: %lld, Required: %lld\n",
+                alice.vtb.account, alice.repairs);
+        }
+     }
+
+    void alice_gifts() {
+        if (alice.vtb.account >= alice.gifts) {
+            alice.vtb.account -= alice.gifts;
+            printf("Alice paid for gifts: %lld RUB\n", alice.gifts);
+        } 
+        else {
+            printf("Not enough funds for gifts! Balance: %lld, Required: %lld\n",
+                alice.vtb.account, alice.gifts);
+        }
+     }
+
+    void alice_fine () {
+        if (alice.vtb.account >= alice.fine) {
+            alice.vtb.account -= alice.fine;
+            printf("Alice paid a fine: %lld RUB\n", alice.fine);
+        }
+        else {
+            printf("Not enough funds for fine! Balance: %lld, Required: %lld\n",
+                alice.vtb.account, alice.fine);
+        }
+    }
+    void alice_communication() {
+        RUB total_communication = alice.communication + alice.internet;
+
+        if (alice.vtb.account >= total_communication) {
+            alice.vtb.account -= alice.communication;
+            alice.vtb.account -= alice.internet;
+
+            printf("Alice paid communication services: %lld RUB\n", total_communication);
+            printf("  Mobile: %lld RUB\n", alice.communication);
+            printf("  Internet: %lld RUB\n", alice.internet);
+        }
+        else {
+            printf("Not enough funds for communication! Balance: %lld, Required: %lld\n",
+                alice.vtb.account, total_communication);
+        }
+    }
+    void pay_alice_entertainment() {
+        RUB total_expenses = 0;
+
+        alice.vtb.account -= alice.entertainment.cinema;
+        total_expenses += alice.entertainment.cinema;
+
+        alice.vtb.account -= alice.entertainment.museums;
+        total_expenses += alice.entertainment.museums;
+
+        alice.vtb.account -= alice.entertainment.hobbies;
+        total_expenses += alice.entertainment.hobbies;
+
+        printf("Alice entertainment expenses this month: %lld RUB\n", total_expenses);
+        printf("  Cinema: %lld RUB\n", alice.entertainment.cinema);
+        printf("  Museums: %lld RUB\n", alice.entertainment.museums);
+        printf("  Hobbies: %lld RUB\n", alice.entertainment.hobbies);
+    }
+    
+    void pay_travel_expenses() {
+        if (alice.vtb.account >= alice.travel_expenses) {
+            alice.vtb.account -= alice.travel_expenses;
+            printf("Paid for travel");
+        }
+        else {
+            printf("cannot afford travel. Balance: %lld, Travel cost: %lld\n", alice.vtb.account, alice.travel_expenses);
+        }
+    }
+    void start_alice_study() {
+        if (alice.study.months_remaining == 0 and alice.vtb.account >= alice.study.course_cost) {
+            alice.vtb.account -= alice.study.course_cost;
+            alice.study.months_remaining = alice.study.duration_months;
+            printf("Alice started education");
+        }
+        else if (alice.study.months_remaining > 0)
+        {
+            printf("Alice is already in education program.");
+        }
+        else {
+            printf("Alice can not start education. balance: %11d, Course cost: %11d\n ", alice.vtb.account, alice.study.course_cost);
+        }
+    }
+
+    void progress_alice_study() {
+        if (alice.study.months_remaining > 0) {
+            alice.study.months_remaining--;
+            if (alice.study.months_remaining <= 0) {
+                RUB salary_boost = alice.salary * (alice.study.salary_boost_percent / 100);
+                printf("Alice completed education!");
+            }
+        }
+
+    }
+    void alice_medical()
+    {
+        if (alice.vtb.account >= alice.medical) {
+            alice.vtb.account -= alice.medical;
+            printf("Paid medical: %11d RUB\n", alice.medical);
+        }
+        else {
+            printf("Error. Not enough money. Balance: %11d, Required: %11d\n", alice.vtb.account, alice.medical);
+        }
+    }
+    void alice_shopping()
+    {
+        if (alice.vtb.account >= alice.shopping) {
+            alice.vtb.account -= alice.shopping;
+            printf("New purchases in the amount of: %11d RUB\n", alice.shopping);
+        }
+        else {
+            printf(" Error. Insufficient funds in the account. Balance: %11d,Is required: %11d\n", alice.vtb.account, alice.shopping);
+        }
+    }
+
+    void alice_salary(const int month, const int year)
+    {
+        if (month == 12) {
+            alice.vtb.account += alice.salary;  // 13th salary
+        }
+
+        if (month == 1 and year == 2027) {
+            alice.salary *= 1.5;  // promotion
+        }
+
+        alice.vtb.account += alice.salary;
+    }
+
+
+    void alice_food() {
+        if (alice.vtb.account >= alice.food) {
+            alice.vtb.account -= alice.food;
+            printf("Alice paid for food: %11d RUB\n", alice.food);
+        }
+        else {
+            printf("Error. Not enough money. Balance: %11d, Required: %11d\n", alice.vtb.account, alice.food);
+        }
+    }
+
+    void alice_car() {
+         {
+            alice.vtb.account -= alice.car.gas;
+            printf("Alice paid for car: %11d RUB\n", alice.car);
+        }
+        
+    }
+
+    void alice_deposite(const int month, const int year)
+    {
+        if (year == 2026) alice.vtb.interest = 14.5;
+        if (year == 2027) alice.vtb.interest = 13.5;
+        if (year == 2028) alice.vtb.interest = 12.5;
+        if (year == 2029) alice.vtb.interest = 11.5;
+
+        alice.vtb.deposite += alice.vtb.deposite * (alice.vtb.interest / 12.0 / 100.0);
+
+        alice.vtb.deposite += alice.vtb.account;
+        alice.vtb.account = 0;
+    }
+
+
+    void alice_freelance(const int month, const int year)
+    {
+        if (month == 3 and year == 2027) {
+            alice.vtb.account_usd += 3'000;
+        }
+    }
+
+
+    void print_results_alice()
+    {
+        printf("Salary = %lld\n", alice.salary);
+
+        RUB capital = 0;
+        capital += alice.vtb.account;
+        capital += alice.car.value;
+        capital += alice.vtb.deposite;
+        capital += alice.vtb.account_usd * alice.vtb.rate_usd_rub;
+        printf("Capital = %lld", capital);
+    }
+
+
+    void simulation_alice()
+    {
+        int month = 2;
+        int year = 2026;
+
+        while (not (month == 3 and year == 2028)) {
+
+            start_alice_study();  // начать обучение
+            alice_salary(month, year);
+            alice_freelance(month, year);
+            alice_food();
+            alice_car();
+            alice_communication();
+            pay_alice_entertainment();
+            alice_shopping();
+            alice_medical();
+            alice_fine();
+            alice_gifts();
+            alice_repairs();
+            alice_dog_price();
+            alice_books();
+            alice_deposite(month, year);
+
+            if (month == 7) {
+                pay_travel_expenses();
+            }
+            ++month;
+            if (month == 13) {
+                ++year;
+                month = 1;
+            }
+        }
+    }
+
+
+    struct Person max;
+
+
+    void max_init()
+    {
+        max.vtb.account = 0;
+        max.vtb.deposite = 2'000'000;
+        max.vtb.interest = 14;
+        max.vtb.salary = 220'000;
+        max.salary_second = 70'000;
+        max.vtb.account_usd = 2'802;
+        max.vtb.rate_usd_rub = 78.5;
+        max.communication = 1'200; 
+        max.internet = 750;
+
+        max.food = 20'000;
+
+        max.car.value = 4'500'000;
+        max.car.gas = 16'000;
+        max.dog_expenses = 5'000;
+        max.apartment_value = 20'000'000;
+        max.dacha_value = 500'000;
+        max.medical = 2'500;
+
+        max.study.course_cost = 110'000;
+        max.study.duration_months = 7;
+        max.study.salary_boost_percent = 28.0f;
+        max.study.months_remaining = 0;
+        max.travel_expenses = 200'000;
+
+        max.entertainment.cinema = 1'000;    
+        max.entertainment.museums = 500;    
+        max.entertainment.hobbies = 5'000;
+        max.utilities = 5'000;  // оплата ЖКХ каждый месяц
+        max.fine = 500;
+        max.gifts = 4'000;
+        max.repairs = 5'000;
+        max.books = 2'000;
+    }
+    void max_books() {
+        if (max.vtb.account >= max.books) {
+            max.vtb.account -= max.books;
+            printf("Max paid for books: %lld RUB\n", max.books);
+        }
+        else {
+            printf("Not enough funds for books! Balance: %lld, Required: %lld\n",
+                max.vtb.account, max.books);
+        }
+    }
+    void max_repairs() {
+        if (max.vtb.account >= max.repairs) {
+            max.vtb.account -= max.repairs;
+            printf("Max paid for repairs: %lld RUB\n", max.repairs);
+        }
+        else {
+            printf("Not enough funds for repairs! Balance: %lld, Required: %lld\n",
+                max.vtb.account, max.repairs);
+        }
+    }
+
+    void max_gifts() {
+        if (max.vtb.account >= max.gifts) {
+            max.vtb.account -= max.gifts;
+            printf("Max paid for gifts: %lld RUB\n", max.gifts);
+        }
+        else {
+            printf("Not enough funds for gifts! Balance: %lld, Required: %lld\n",
+                max.vtb.account, max.gifts);
+        }
+    }
+
+    void max_fine() {
+        if (max.vtb.account >= max.fine) {
+            max.vtb.account -= max.fine;
+            printf("Max paid a fine: %lld RUB\n", max.fine);
+        }
+        else {
+            printf("Not enough funds for fine! Balance: %lld, Required: %lld\n",
+                max.vtb.account, max.fine);
+        }
+    }
+    void max_pay_communication() {
+        RUB total_communication = max.communication + max.internet;
+
+        if (max.vtb.account >= total_communication) {
+            max.vtb.account -= max.communication;
+            max.vtb.account -= max.internet;
+
+            printf("Max paid communication services: %lld RUB\n", total_communication);
+            printf("  Mobile: %lld RUB\n", max.communication);
+            printf("  Internet: %lld RUB\n", max.internet);
+        }
+        else {
+            printf("Not enough funds for communication! Balance: %lld, Required: %lld\n",
+                max.vtb.account, total_communication);
+        }
+    }
+    void max_pay_utilities() {
+        if (max.vtb.account >= max.utilities) {
+            max.vtb.account -= max.utilities;
+            printf("Max paid utilities: %lld RUB\n", max.utilities);
+        }
+        else {
+            printf("Not enough funds for utilities! Balance: %lld, Required: %lld\n",
+                max.vtb.account, max.utilities);
+        }
+    }
+    void pay_max_entertainment() {
+        RUB total_expenses = 0;
+
+        max.vtb.account -= max.entertainment.cinema;
+        total_expenses += max.entertainment.cinema;
+
+        max.vtb.account -= max.entertainment.museums;
+        total_expenses += max.entertainment.museums;
+
+        max.vtb.account -= max.entertainment.hobbies;
+        total_expenses += max.entertainment.hobbies;
+
+        printf("Max entertainment expenses this month: %lld RUB\n", total_expenses);
+        printf("  Cinema: %lld RUB\n", max.entertainment.cinema);
+        printf("  Museums: %lld RUB\n", max.entertainment.museums);
+        printf("  Hobbies: %lld RUB\n", max.entertainment.hobbies);
+    }
+    void max_pay_travel_expenses() {
+        if (max.vtb.account >= max.travel_expenses) {
+            max.vtb.account -= max.travel_expenses;
+            printf("Paid for travel: %lld RUB\n");
+        }
+        else {
+            printf(" cannot afford travel. Balance: %lld, Travel cost: %lld\n", max.vtb.account, max.travel_expenses);
+        }
+    }
+    void start_max_study() {
+        if (max.study.months_remaining == 0 and max.vtb.account >= max.study.course_cost) {
+            max.vtb.account -= max.study.course_cost;
+            max.study.months_remaining = max.study.duration_months;
+            printf("Max started education");
+        }
+        else if (max.study.months_remaining > 0)
+        {
+            printf("Max is already in education program.");
+        }
+        else {
+            printf("Max can not start education. balance: %11d, Course cost: %11d\n ", max.vtb.account, max.study.course_cost);
+        }
+    }
+
+    void progress_max_study() {
+        if (max.study.months_remaining > 0) {
+            max.study.months_remaining--;
+            if (max.study.months_remaining <= 0) {
+                RUB salary_boost = max.salary * (max.study.salary_boost_percent / 100);
+                printf("Max completed education!");
+            }
+        }
+    }
+    void max_salary_second(const int month, const int year)
+    {
+        max.vtb.account += max.salary_second;
+
+        if (month == 12)
+        {
+            max.vtb.account += max.salary_second;
+        }
+        if (month == 1 and year == 2028)
+        {
+            max.salary_second += 2.3;
+        }
+    }
+    void max_medical()
+    {
+        if (max.vtb.account >= max.medical)
+        {
+            max.vtb.account -= max.medical;
+            printf("Paid medical: %11d RUB\n", max.medical);
+        }
+        else {
+            printf("Error.Not enough money. Balance: %11d, Required: %11d\n",
+                max.vtb.account, max.medical);
+        }
+    }
+    void max_salary(const int month, const int year)
+    {
+        if (month == 12) {
+            max.vtb.account += max.salary;//13th salary 
+        }
+        if (month == 1 and year == 2027) {
+            max.salary *= 1.5;// promotion
+        }
+        max.vtb.account += max.salary;
+    }
+
+    void max_food()
+    {
+        if (max.vtb.account >= max.food) {
+            max.vtb.account -= max.food;
+            printf("Paid food expenses: %lld RUB\n", max.food);
+        }
+        else {
+            printf("Error. Insufficient funds in the account. Balance: %lld,Is required : %lld\n",
+                max.vtb.account, max.food);
+
+        }
+    }
+
+    void max_car()
+    {
+        if (max.vtb.account >= max.car.gas) {
+            max.vtb.account -= max.car.gas;
+            printf("Paid car expenses: %lld RUB\n", max.car.gas);
+        }
+        else {
+            printf("Error. Insufficient funds in the account. Balance: %lld,Is required : %lld\n",
+                max.vtb.account, max.car.gas);
+
+        }
+    }
+    void max_dog_expenses()
+    {
+        if (max.vtb.account >= max.dog_expenses) {
+            max.vtb.account -= max.dog_expenses;
+            printf("The dog will be fed: %11d RUB\n", max.dog_expenses);
+        }
+        else {
+            printf("The dog will starve!Balance: %11d,Necessary : %11d\n ", max.vtb.account, max.dog_expenses);
+        }
+    }
+    void max_dacha_buy()
+    {
+        const RUB dacha_price = 500'000;
+
+        if (max.vtb.account >= dacha_price) {
+            max.dacha_value = dacha_price;
+            max.vtb.account -= dacha_price;
+            printf("Now Max has a summer cottage!");
+        }
+        else {
+            max.dacha_value = 0;
+            printf("There's no money for a country house( Balance: %11d, Necessary: %11d\n ", max.vtb.account, dacha_price);
+        }
+    }
+
+    void max_deposite(const int month, const int year)
+    {
+        if (year == 2026) max.vtb.interest = 14.0f;
+        if (year == 2027) max.vtb.interest = 13;
+        if (year == 2028) max.vtb.interest = 12;
+        if (year == 2029) max.vtb.interest = 11;
+        max.vtb.deposite += max.vtb.deposite * (max.vtb.interest / 12.0 / 100.0);
+        max.vtb.deposite += max.vtb.account;
+        max.vtb.account = 0;
+    }
+    void max_freelance(const int month, const int year)
+    {
+        if (month == 12 and year == 2027) {
+            max.vtb.account_usd += 4'500;
+        }
+    }
+    void print_results_max()
+    {
+        printf("Salary = %lld\n", max.salary);
+
+        RUB capital = 0;
+        capital += max.vtb.account;
+        capital += max.car.value;
+        capital += max.vtb.deposite;
+        capital += max.vtb.account_usd * max.vtb.rate_usd_rub;
+        capital += max.apartment_value;
+        capital += max.dacha_value;
+        printf("Capital = %lld", capital);
+
+    }
+    void simulation_max()
+    {
+        int month = 2;
+        int year = 2026;
+        while (not(month == 3 and year == 2028)) {
+            max_salary(month, year);
+            max_salary_second(month, year);
+            max_freelance(month, year);
+            start_max_study();
+            max_food();
+            max_car();
+            pay_max_entertainment();
+            max_medical();
+            max_pay_utilities();
+            max_dog_expenses();
+            max_pay_communication();
+            max_fine();
+            max_gifts();
+            max_books();
+            max_repairs();
+            max_deposite(month, year);
+            if (month == 7) {
+                pay_travel_expenses();
+            }
+
+            ++month;
+            if (month == 13) {
+                ++year;
+                month = 1;
+            }
+        }
+    }
+    int main()
+    {
+        alice_init();
+        max_init();
+
+        simulation_alice();
+        simulation_max();
+
+        print_results_alice();
+        print_results_max();
+
+        return 0;
+    }
