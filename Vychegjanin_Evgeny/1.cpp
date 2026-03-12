@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <iomanip>
 
 // Тип для денег
 using RUB = long long;
@@ -16,6 +17,9 @@ struct Person {
     RUB rent_cost;         // аренда квартиры
     RUB internet_cost;     // интернет и связь
     RUB fitness_cost;      // фитнес / здоровье
+    RUB clothes_cost;       // одежда раз в сезон
+    RUB doctor_cost;       // стоматология раз в год
+    RUB gifts_cost;         // подарки на новый год
     double tax_rate;       // ставка НДФЛ
     bool has_computer;     // куплен ли компьютер
     bool has_apartment;    // куплена ли квартира
@@ -27,6 +31,7 @@ struct Cat {
     RUB food_cost;      // корм в месяц
     RUB toys_cost;      // игрушки в месяц
     RUB vet_cost;       // ветеринар раз в год
+    RUB litter_cost;   // наполнитель
     bool is_bought;     // куплен ли кот
 };
 
@@ -34,6 +39,7 @@ struct Cat {
 struct Car {
     RUB value;                 // текущая стоимость машины
     RUB monthly_cost;          // ежемесячные расходы
+    RUB parking_cost;          // парковка в месяц
     double depreciation_rate;  // процент удешевления в месяц
     RUB insurance_cost;        // ОСАГО раз в год
     RUB service_cost;          // ТО раз в год
@@ -68,9 +74,11 @@ struct PublicTransport {
 
 // Квартира
 struct Apartment {
-    RUB price;         // фиксированная цена квартиры
-    bool is_bought;    // куплена ли квартира
-    RUB utility_cost;  // коммунальные платежи после покупки квартиры
+    RUB price;              // фиксированная цена квартиры
+    bool is_bought;         // куплена ли квартира
+    RUB utility_cost;       // коммунальные платежи после покупки квартиры
+    bool furniture_bought;  // куплена ли мебель
+    RUB furniture_cost;     // покупка мебели
 };
 
 // Отпуск
@@ -122,6 +130,9 @@ void person_init()
     alice.salary = 180'000;
     alice.cash = 0;
     alice.food_cost = 15'000;
+    alice.clothes_cost = 25'000;
+    alice.doctor_cost = 30'000;
+    alice.gifts_cost = 40'000;
     alice.rent_cost = 40'000;      // аренда до покупки квартиры
     alice.internet_cost = 1'500;   // интернет и связь
     alice.fitness_cost = 4'000;    // фитнес / здоровье
@@ -137,6 +148,7 @@ void cat_init()
     cat.toys_cost = 500;
     cat.vet_cost = 10'000;
     cat.is_bought = false;
+    cat.litter_cost = 1'200;
 }
 
 void first_car_init()
@@ -144,6 +156,7 @@ void first_car_init()
     first_car.value = 2'400'000;
     first_car.monthly_cost = 12'000;
     first_car.depreciation_rate = 2.0;
+    first_car.parking_cost = 3'000;
     first_car.insurance_cost = 18'000; // ОСАГО
     first_car.service_cost = 25'000;   // ТО
     first_car.is_active = true;
@@ -155,6 +168,7 @@ void second_car_init()
     second_car.value = SECOND_CAR_PRICE;
     second_car.monthly_cost = 15'000;
     second_car.depreciation_rate = 2.0;
+    second_car.parking_cost = 4'000;
     second_car.insurance_cost = 18'000; // ОСАГО
     second_car.service_cost = 30'000;   // ТО
     second_car.is_active = false;
@@ -188,9 +202,11 @@ void public_transport_init()
 
 void apartment_init()
 {
-    apartment.price = 7'000'000; // цена фиксированная
+    apartment.price = 7'000'000; // цена квартиры
     apartment.is_bought = false;
     apartment.utility_cost = 8'000; // коммуналка после покупки квартиры
+    apartment.furniture_bought = false;
+    apartment.furniture_cost = 300'000; // цена мебели
 }
 
 void vacation_init()
@@ -298,10 +314,14 @@ void apply_inflation()
     alice.rent_cost = static_cast<RUB>(std::llround(alice.rent_cost * k));
     alice.internet_cost = static_cast<RUB>(std::llround(alice.internet_cost * k));
     alice.fitness_cost = static_cast<RUB>(std::llround(alice.fitness_cost * k));
+    alice.clothes_cost = static_cast<RUB>(std::llround(alice.clothes_cost * k));
+    alice.doctor_cost = static_cast<RUB>(std::llround(alice.doctor_cost * k));
+    alice.gifts_cost = static_cast<RUB>(std::llround(alice.gifts_cost * k));
 
     cat.food_cost = static_cast<RUB>(std::llround(cat.food_cost * k));
     cat.toys_cost = static_cast<RUB>(std::llround(cat.toys_cost * k));
     cat.vet_cost = static_cast<RUB>(std::llround(cat.vet_cost * k));
+    cat.litter_cost = static_cast<RUB>(std::llround(cat.litter_cost * k));
 
     apartment.utility_cost = static_cast<RUB>(std::llround(apartment.utility_cost * k));
 
@@ -399,6 +419,30 @@ void apply_fitness_cost()
     alice.cash -= alice.fitness_cost;
 }
 
+// Одежда
+void apply_clothes_cost(int month)
+{
+    if (month == 3 || month == 6 || month == 9 || month == 12) {
+        alice.cash -= alice.clothes_cost;
+    }
+}
+
+// Подарки на новый год
+void apply_gifts_cost(int month)
+{
+    if (month == 12) {
+        alice.cash -= alice.gifts_cost;
+    }
+}
+
+// Доктор раз в год
+void apply_doctor_cost(int month)
+{
+    if (month == 4) { // апрель
+        alice.cash -= alice.doctor_cost;
+    }
+}
+
 // Рыжая наглая морда
 void apply_cat_food_cost()
 {
@@ -418,6 +462,13 @@ void apply_cat_toys_cost()
     alice.cash -= cat.toys_cost;
 }
 
+void apply_cat_litter_cost()
+{
+    if (!cat.is_bought) return;
+
+    alice.cash -= cat.litter_cost;
+}
+
 // Аренда квартиры платится, пока собственная квартира не куплена
 void apply_rent_cost()
 {
@@ -426,12 +477,25 @@ void apply_rent_cost()
     }
 }
 
-// После покупки квартиры платим коммуналку
+// После покупки квартиры платим коммуналку и проверяем куплена ли мебель
 void apply_utility_cost()
 {
     if (apartment.is_bought) {
         alice.cash -= apartment.utility_cost;
     }
+}
+
+void try_buy_furniture()
+{
+    if (!apartment.is_bought) return;
+
+    if (apartment.furniture_bought) return;
+
+    if (alice.cash < apartment.furniture_cost) return;
+
+    alice.cash -= apartment.furniture_cost;
+
+    apartment.furniture_bought = true;
 }
 
 // Расходы на первую машину
@@ -444,6 +508,22 @@ void apply_first_car_cost()
     alice.cash -= first_car.monthly_cost;
 }
 
+void apply_first_car_parking()          // парковка в месяц
+{
+    if (!first_car.is_active) return;
+
+    alice.cash -= first_car.parking_cost;
+}
+
+void apply_first_car_tax(int month)     // налог в год
+{
+    if (!first_car.is_active) return;
+
+    if (month == 10) { // октябрь
+        alice.cash -= 12'000;
+    }
+}
+
 // Расходы на вторую машину
 void apply_second_car_cost()
 {
@@ -452,6 +532,22 @@ void apply_second_car_cost()
     }
 
     alice.cash -= second_car.monthly_cost;
+}
+
+void apply_second_car_parking()         // парковка в месяц
+{
+    if (!second_car.is_active) return;
+
+    alice.cash -= second_car.parking_cost;
+}
+
+void apply_second_car_tax(int month)    // налог в год
+{
+    if (!second_car.is_active) return;
+
+    if (month == 10) {
+        alice.cash -= 15'000;
+    }
 }
 
 // Удешевление первой машины
@@ -758,15 +854,25 @@ void simulate_month(int year, int month)
     
     apply_cat_food_cost();
     apply_cat_toys_cost();
-    apply_cat_vet_cost(month);
+    apply_cat_litter_cost();
 
     apply_first_car_cost();
+    apply_first_car_parking();
     apply_second_car_cost();
+    apply_second_car_parking();
     apply_public_transport_cost();
 
     // 5. Годовые расходы
     apply_vacation_cost(month);
     apply_unexpected_expense(month);
+    apply_clothes_cost(month);
+    apply_doctor_cost(month);
+    apply_gifts_cost(month);
+    
+    apply_cat_vet_cost(month);
+
+    apply_first_car_tax(month);
+    apply_second_car_tax(month);
 
     apply_first_car_insurance(month);
     apply_second_car_insurance(month);
@@ -785,6 +891,7 @@ void simulate_month(int year, int month)
     // 8. Крупные события
     try_buy_computer();
     try_buy_apartment();
+    try_buy_furniture();
     try_buy_second_car();
     try_buy_cat();
 
@@ -799,6 +906,14 @@ void simulate_month(int year, int month)
     cover_negative_cash_from_deposit();
 }
 
+
+
+// Прототипы функций вывода
+void print_year_table_header();
+void print_year_table_row(int year);
+void print_results();
+
+
 void simulate_years(int start_year, int start_month, int years_count)
 {
     int year = start_year;
@@ -806,10 +921,19 @@ void simulate_years(int start_year, int start_month, int years_count)
 
     const int total_months = years_count * 12;
 
+    print_year_table_header();
+
     for (int i = 0; i < total_months; ++i) {
+
         simulate_month(year, month);
 
+        // вывод в конце каждого года
+        if (month == 12) {
+            print_year_table_row(year);
+        }
+
         ++month;
+
         if (month == 13) {
             month = 1;
             ++year;
@@ -818,9 +942,40 @@ void simulate_years(int start_year, int start_month, int years_count)
 }
 
 
-
 // ВЫВОД РЕЗУЛЬТАТОВ
 
+void print_year_table_header()
+{
+    std::cout
+        << std::setw(6)  << "Год"
+        << std::setw(12) << "Зарплата"
+        << std::setw(15) << "Наличные"
+        << std::setw(15) << "Вклад"
+        << std::setw(12) << "Кот"
+        << std::setw(12) << "1_маш"
+        << std::setw(12) << "2_маш"
+        << std::setw(12) << "Квартира"
+        << std::setw(18) << "Капитал"
+        << "\n";
+
+    std::cout << std::string(114, '-') << "\n";
+}
+
+
+void print_year_table_row(int year)
+{
+    std::cout
+        << std::setw(6)  << year
+        << std::setw(12) << alice.salary
+        << std::setw(15) << alice.cash
+        << std::setw(15) << alice_deposit.balance
+        << std::setw(12) << (cat.is_bought ? "да" : "нет")
+        << std::setw(12) << (first_car.is_active ? "да" : "нет")
+        << std::setw(12) << (second_car.is_active ? "да" : "нет")
+        << std::setw(12) << (apartment.is_bought ? "да" : "нет")
+        << std::setw(18) << total_capital()
+        << "\n";
+}
 
 void print_results()
 {
