@@ -1,0 +1,269 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
+
+int year = 2026;
+int month = 2;
+double salary_up = 0.07;
+int inflation = 7;
+
+struct Car {
+    char name[20];
+    int price;
+    int max_speed;
+    int engine_power;
+    double fuel_consumption;
+    int year_of_issue;
+    int monthly_maintenance;
+};
+
+struct User
+{
+    int salary;
+    int capital;
+    double koeff;
+    int trust_lvl;
+    Car car;
+    int has_car;
+    int credit_payment;
+    int credit_months;
+};
+
+struct Car car_catalog[10];
+
+void fill_catalog() {
+    strcpy(car_catalog[0].name, "Lada Vesta");
+    car_catalog[0].price = 1500000;
+    car_catalog[0].max_speed = 180;
+    car_catalog[0].engine_power = 106;
+    car_catalog[0].fuel_consumption = 7.5;
+    car_catalog[0].year_of_issue = 2023;
+    car_catalog[0].monthly_maintenance = 2023;
+    
+    strcpy(car_catalog[1].name, "Nissan");
+    car_catalog[1].price = 2000000;
+    car_catalog[1].max_speed = 190;
+    car_catalog[1].engine_power = 123;
+    car_catalog[1].fuel_consumption = 6.8;
+    car_catalog[1].year_of_issue = 2024;
+    car_catalog[0].monthly_maintenance = 2023;
+    
+    strcpy(car_catalog[2].name, "Skoda");
+    car_catalog[2].price = 1900000;
+    car_catalog[2].max_speed = 185;
+    car_catalog[2].engine_power = 115;
+    car_catalog[2].fuel_consumption = 7.0;
+    car_catalog[2].year_of_issue = 2024;
+    car_catalog[0].monthly_maintenance = 2023;
+    
+    strcpy(car_catalog[3].name, "ferrari");
+    car_catalog[3].price = 3500000;
+    car_catalog[3].max_speed = 210;
+    car_catalog[3].engine_power = 200;
+    car_catalog[3].fuel_consumption = 8.5;
+    car_catalog[3].year_of_issue = 2025;
+    car_catalog[0].monthly_maintenance = 2023;
+    
+    strcpy(car_catalog[4].name, "Mitsubisi");
+    car_catalog[4].price = 7500000;
+    car_catalog[4].max_speed = 250;
+    car_catalog[4].engine_power = 340;
+    car_catalog[4].fuel_consumption = 11.2;
+    car_catalog[4].year_of_issue = 2025;
+    car_catalog[0].monthly_maintenance = 2023;
+    
+    strcpy(car_catalog[5].name, "Maybach");
+    car_catalog[5].price = 6800000;
+    car_catalog[5].max_speed = 240;
+    car_catalog[5].engine_power = 300;
+    car_catalog[5].fuel_consumption = 10.5;
+    car_catalog[5].year_of_issue = 2024;
+    car_catalog[0].monthly_maintenance = 2023;
+    
+    strcpy(car_catalog[6].name, "Tesla");
+    car_catalog[6].price = 7200000;
+    car_catalog[6].max_speed = 245;
+    car_catalog[6].engine_power = 320;
+    car_catalog[6].fuel_consumption = 11.0;
+    car_catalog[6].year_of_issue = 2025;
+    car_catalog[0].monthly_maintenance = 2023;
+    
+    strcpy(car_catalog[7].name, "Porshe");
+    car_catalog[7].price = 1300000;
+    car_catalog[7].max_speed = 170;
+    car_catalog[7].engine_power = 90;
+    car_catalog[7].fuel_consumption = 6.5;
+    car_catalog[7].year_of_issue = 2023;
+    car_catalog[0].monthly_maintenance = 2023;
+    
+    strcpy(car_catalog[8].name, "Range rover");
+    car_catalog[8].price = 2500000;
+    car_catalog[8].max_speed = 200;
+    car_catalog[8].engine_power = 150;
+    car_catalog[8].fuel_consumption = 7.2;
+    car_catalog[8].year_of_issue = 2024;
+    car_catalog[0].monthly_maintenance = 2023;
+    
+    strcpy(car_catalog[9].name, "Zeekr");
+    car_catalog[9].price = 1800000;
+    car_catalog[9].max_speed = 185;
+    car_catalog[9].engine_power = 110;
+    car_catalog[9].fuel_consumption = 6.9;
+    car_catalog[9].year_of_issue = 2024;
+    car_catalog[0].monthly_maintenance = 2023;
+}
+
+void date()
+{
+    ++month;
+    if (month == 13)
+    {
+        ++year;
+        month = 1;
+    }
+}
+
+User calc_salary(User user)
+{
+    if (month == 1)
+    {
+        user.salary = (int)(user.salary * (1 + salary_up));
+    }
+    return user;
+}
+
+User calc_trust_lvl(User user)
+{
+    user.trust_lvl = (int)(user.capital / 1'000'000 + user.salary / 100'000);
+    if (user.trust_lvl > 10)
+    {
+        user.trust_lvl = 10;
+    }
+    return user;
+}
+
+User calc_koef(User user)
+{
+    user.koeff = 1 + (double)user.trust_lvl / 50;
+    return user;
+}
+
+User buy_car(User user) {
+    if (user.has_car == 0 && user.capital >= 100000) {
+        int car_index = rand() % 10;
+        
+        user.capital -= 100000;
+        
+        int credit_term = 12 + rand() % 37;
+        int credit_sum = car_catalog[car_index].price - 100000;
+        int monthly_payment = credit_sum / credit_term;
+        strcpy(user.car.name, car_catalog[car_index].name);
+        user.car.price = car_catalog[car_index].price;
+        user.car.max_speed = car_catalog[car_index].max_speed;
+        user.car.engine_power = car_catalog[car_index].engine_power;
+        user.car.fuel_consumption = car_catalog[car_index].fuel_consumption;
+        user.car.year_of_issue = car_catalog[car_index].year_of_issue;
+        user.has_car = 1;
+        user.credit_payment = monthly_payment;
+        user.credit_months = credit_term;
+        
+        printf("Информация по кредиту: \n");
+        printf("Кредит взят на машину %s \n", user.car.name);
+        printf("Первый взнос: 100'000 rub.\n");
+        printf("Кредит на %d мес.\n", credit_term);
+        printf("Ежемесячный платеж: %d rub.\n", monthly_payment);
+    }
+    return user;
+}
+
+int calc_loose(User user){
+    int base_loose = 75000;
+    
+    if (user.has_car == 1) {
+        base_loose += user.car.monthly_maintenance;
+    }
+    
+    int loose = (int)(base_loose * (1 + (double)inflation / 100));
+        if (user.credit_months > 0) {
+        loose = loose + user.credit_payment;
+        user.credit_months=user.credit_months-1;
+        
+    }
+    return loose;
+}
+
+User calc_capital(User user)
+{
+    user.capital = user.capital + user.salary - calc_loose(user);
+    
+
+    
+    if (month == 1)
+    {
+        user.capital = (int)(user.capital * user.koeff);
+    }
+    return user;
+}
+
+void print_inf(User user){
+    printf("        Информация п пользователе \n");
+    printf("Зарплата: %d rub.\n", user.salary);
+    printf("Коэффициент: %.3lf\n", user.koeff);
+    printf("Уровень доверия: %d\n", user.trust_lvl);
+    printf("Капитал: %d rub.\n", user.capital);
+    
+    if (user.has_car == 1) {
+        printf("        Информация o машине \n");
+        printf("Модель: %s\n", user.car.name);
+        printf("Цена: %d rub.\n", user.car.price);
+        printf("Макс. скорость: %d км/ч\n", user.car.max_speed);
+        printf("Мощность: %d л.c.\n", user.car.engine_power);
+        printf("Расход топлива: %.1f л/100км\n", user.car.fuel_consumption);
+        printf("Год выпуска: %d\n", user.car.year_of_issue);
+        printf("        Информация по кредиту на момент записи\n");
+        
+        if (user.credit_months > 0) {
+            printf("Осталось платежей: %d мес.\n", user.credit_months);
+            printf("Ежемесячный платеж: %d rub.\n", user.credit_payment);
+        } else {
+            printf("Кредит полностью выплачен\n");
+        }
+    }
+}
+
+int main()
+{
+    srand(time(NULL));
+    
+    fill_catalog();
+    
+    User Ignat;
+    Ignat.capital = 1'000'000;
+    Ignat.salary = 150'120;
+    Ignat.koeff = 1;
+    Ignat.trust_lvl = 2;
+    Ignat.has_car = 0;
+    Ignat.credit_payment = 0;
+    Ignat.credit_months = 0;
+    
+    int purchase_year = 2027 + rand() % 8;
+    int purchase_month = 1 + rand() % 11;
+    while (year != 2035 || month != 6)
+    {
+        date();
+        
+        Ignat = calc_salary(Ignat);
+        Ignat = calc_trust_lvl(Ignat);
+        Ignat = calc_koef(Ignat);
+        
+        if (year == purchase_year && month == purchase_month && Ignat.has_car == 0) {
+            Ignat = buy_car(Ignat);
+        }
+        
+        Ignat = calc_capital(Ignat);
+    }
+    
+    print_inf(Ignat);
+    return 0;
+}
