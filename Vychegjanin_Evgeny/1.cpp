@@ -4,9 +4,9 @@
 // Тип для денег
 using RUB = long long;
 
-// =======================
+
+
 // СТРУКТУРЫ ДАННЫХ
-// =======================
 
 // Основная структура персонажа
 struct Person {
@@ -78,9 +78,10 @@ struct UnexpectedExpense {
     bool is_active; // активен ли блок
 };
 
-// =======================
+
+
 // ГЛОБАЛЬНЫЕ ОБЪЕКТЫ
-// =======================
+
 
 Person alice;
 
@@ -100,9 +101,10 @@ constexpr RUB COMPUTER_PRICE = 300'000;
 constexpr RUB SECOND_CAR_PRICE = 2'000'000;
 constexpr RUB SECOND_CAR_DEPOSIT_THRESHOLD = 2'500'000;
 
-// =======================
+
+
 // ИНИЦИАЛИЗАЦИЯ
-// =======================
+
 
 void person_init()
 {
@@ -199,9 +201,10 @@ void all_init()
     unexpected_expense_init();
 }
 
-// =======================
+
+
 // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-// =======================
+
 
 // Перевод годового процента в месячный
 double monthly_rate(double yearly_rate)
@@ -250,9 +253,10 @@ RUB total_capital()
     return result;
 }
 
-// =======================
+
+
 // СИСТЕМНЫЕ БЛОКИ
-// =======================
+
 
 // Инфляция:
 // - увеличивает еду
@@ -347,9 +351,10 @@ void apply_deposit_interest()
     alice_deposit.balance += income;
 }
 
-// =======================
+
+
 // БЫТОВЫЕ РАСХОДЫ
-// =======================
+
 
 // Еда
 void apply_food_cost()
@@ -511,9 +516,10 @@ void apply_second_car_service(int month)
     }
 }
 
-// =======================
+
+
 // СОБЫТИЯ
-// =======================
+
 
 // Покупка компьютера:
 // - можно оплатить наличными
@@ -654,9 +660,10 @@ void sell_second_car_if_needed()
     second_car.is_active = false;
 }
 
-// =======================
+
+
 // СИМУЛЯЦИЯ
-// =======================
+
 
 void simulate_month(int year, int month)
 {
@@ -734,9 +741,10 @@ void simulate_years(int start_year, int start_month, int years_count)
     }
 }
 
-// =======================
+
+
 // ВЫВОД РЕЗУЛЬТАТОВ
-// =======================
+
 
 void print_results()
 {
@@ -791,9 +799,10 @@ void print_results()
     std::cout << "Итоговый капитал: " << total_capital() << "\n";
 }
 
-// =======================
+
+
 // MAIN
-// =======================
+
 
 int main()
 {
