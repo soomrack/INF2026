@@ -1,9 +1,0 @@
-﻿################################################################################
-# Данный GITIGNORE-файл был автоматически создан Microsoft(R) Visual Studio.
-################################################################################
-
-/.vs
-/Yaroslavskiy_Dmitry/ТестКоммита/.vs/ТестКоммита.slnx
-/Yaroslavskiy_Dmitry/Poly1/x64/Debug
-/Yaroslavskiy_Dmitry/Poly1/.vs
-/Yaroslavskiy_Dmitry/Poly1/Poly1/x64/Debug
