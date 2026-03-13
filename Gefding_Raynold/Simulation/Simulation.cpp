@@ -46,6 +46,53 @@ struct Bank {
 };
 
 
+struct Stock {
+    std::string ticker;
+
+    RUB quantity;
+    RUB purchase_price;
+    RUB current_price;
+    Percent dividend_yield;
+    int dividend_month;
+};
+
+
+struct Bond {
+    std::string issuer;
+
+    RUB face_value;
+    RUB quantity;
+    RUB purchase_price;
+    RUB current_price;
+    Percent coupon_rate;
+    int coupon_months[12];
+    RUB years_to_maturity;
+};
+
+
+struct ETF {
+    std::string name;
+
+    RUB quantity;
+    RUB purchase_price;
+    RUB current_price;
+    Percent avg_dividend;
+};
+
+struct InvestmentPortfolio {
+    std::vector<Stock> stocks;
+    std::vector<Bond> bonds;
+    std::vector<ETF> etfs;
+
+    RUB management_fee;
+    RUB brokerage_commission;
+
+    RUB total_purchase_value;
+    RUB total_current_value;
+    RUB yearly_dividend_income;
+};
+
+
 struct Car {
     RUB gas; 
     RUB value;
@@ -84,6 +131,8 @@ struct Person {
     std::string region;
 
     Bank vtb;
+
+    InvestmentPortfolio investments;
 
     Housing home;
 
@@ -318,6 +367,62 @@ void person_loans(Person& p) {
 }
 
 
+void investment_init(Person& p) {
+    if (p.name == "Alice") {
+        Stock sber;
+        sber.ticker = "SBER";
+        sber.quantity = 100;
+        sber.purchase_price = 250;
+        sber.current_price = 250;
+        sber.dividend_yield = 8.5;
+        sber.dividend_month = 7;
+        p.investments.stocks.push_back(sber);
+
+        Stock gazp;
+        gazp.ticker = "GAZP";
+        gazp.quantity = 50;
+        gazp.purchase_price = 350;
+        gazp.current_price = 350;
+        gazp.dividend_yield = 7.2;
+        gazp.dividend_month = 10;
+        p.investments.stocks.push_back(gazp);
+
+        Bond ofz;
+        ofz.issuer = "OFZ 26238";
+        ofz.face_value = 1000;
+        ofz.quantity = 200;
+        ofz.purchase_price = 980;
+        ofz.current_price = 980;
+        ofz.coupon_rate = 7.5;
+
+        ofz.coupon_months[0] = 3;
+        ofz.coupon_months[1] = 9;
+        ofz.years_to_maturity = 5;
+        p.investments.bonds.push_back(ofz);
+
+        p.investments.management_fee = 0;
+        p.investments.brokerage_commission = 0.05;
+    }
+
+    if (p.name == "Bob") {
+        ETF fxru;
+        fxru.name = "FXRU";
+        fxru.quantity = 500;
+        fxru.purchase_price = 900;
+        fxru.current_price = 900;
+        fxru.avg_dividend = 4.5;
+        p.investments.etfs.push_back(fxru);
+
+        p.investments.management_fee = 0;
+        p.investments.brokerage_commission = 0.05;
+    }
+
+    p.investments.total_purchase_value = 0;
+    p.investments.total_current_value = 0;
+    p.investments.yearly_dividend_income = 0;
+}
+
+
 // инициализация персон
 void alice_init(Person &p)
 {
@@ -358,6 +463,8 @@ void alice_init(Person &p)
 
     p.yearly_income = 0;
     p.yearly_deposit_interest = 0;
+
+    investment_init(p);
 }
 
 
@@ -411,7 +518,133 @@ void bob_init(Person &p)
     
     p.yearly_income = 0;
     p.yearly_deposit_interest = 0;
+
+    investment_init(p);
 }
+
+
+void update_investment_prices(Person& p, int year) {
+    for (auto& stock : p.investments.stocks) {
+        if (year % 2 == 0) {
+            double change = (rand() % 40 - 20) / 100.0; // -20% .. +20%
+            stock.current_price = (RUB)(stock.current_price * (1 + change));
+            if (stock.current_price < 1) stock.current_price = 1;
+        }
+    }
+
+    for (auto& bond : p.investments.bonds) {
+        double change = (rand() % 20 - 10) / 100.0; // -10% .. +10%
+        bond.current_price = (RUB)(bond.current_price * (1 + change));
+        if (bond.current_price < bond.face_value * 0.5)
+            bond.current_price = bond.face_value * 0.5;
+    }
+
+    for (auto& etf : p.investments.etfs) {
+        double change = (rand() % 30 - 15) / 100.0; // -15% .. +15%
+        etf.current_price = (RUB)(etf.current_price * (1 + change));
+        if (etf.current_price < 1) etf.current_price = 1;
+    }
+}
+
+
+void calculate_investment_value(Person& p) {
+    p.investments.total_current_value = 0;
+    p.investments.total_purchase_value = 0;
+
+    for (const auto& stock : p.investments.stocks) {
+        p.investments.total_current_value += stock.quantity * stock.current_price;
+        p.investments.total_purchase_value += stock.quantity * stock.purchase_price;
+    }
+
+    for (const auto& bond : p.investments.bonds) {
+        p.investments.total_current_value += bond.quantity * bond.current_price;
+        p.investments.total_purchase_value += bond.quantity * bond.purchase_price;
+    }
+
+    for (const auto& etf : p.investments.etfs) {
+        p.investments.total_current_value += etf.quantity * etf.current_price;
+        p.investments.total_purchase_value += etf.quantity * etf.purchase_price;
+    }
+}
+
+
+void process_dividends(Person& p, int month, int year) {
+    RUB dividend_income = 0;
+
+    // Дивиденды по акциям
+    for (auto& stock : p.investments.stocks) {
+        if (stock.dividend_month == month) {
+            RUB dividend = (RUB)(stock.quantity * stock.current_price *
+                stock.dividend_yield / 100.0);
+            dividend_income += dividend;
+            printf("  %s received dividends on %s: %lld RUB\n",
+                p.name.c_str(), stock.ticker.c_str(), dividend);
+        }
+    }
+
+    // Купоны по облигациям
+    for (auto& bond : p.investments.bonds) {
+        for (int i = 0; i < 12; i++) {
+            if (bond.coupon_months[i] == month) {
+                RUB coupon = (RUB)(bond.quantity * bond.face_value *
+                    bond.coupon_rate / 100.0 / 12);
+                dividend_income += coupon;
+                printf("  %s received a coupon for %s: %lld RUB\n",
+                    p.name.c_str(), bond.issuer.c_str(), coupon);
+            }
+        }
+    }
+
+    // Дивиденды по ETF
+    for (auto& etf : p.investments.etfs) {
+        if (month % 3 == 0) {
+            RUB dividend = (RUB)(etf.quantity * etf.current_price *
+                etf.avg_dividend / 100.0 / 4);
+            dividend_income += dividend;
+            printf("  %s received dividends on %s: %lld RUB\n",
+                p.name.c_str(), etf.name.c_str(), dividend);
+        }
+    }
+
+    if (dividend_income > 0) {
+        p.vtb.account += dividend_income;
+        p.investments.yearly_dividend_income += dividend_income;
+
+        RUB dividend_tax = (RUB)(dividend_income * 13.0 / 100.0);
+        p.vtb.account -= dividend_tax;
+        printf("  Tax on dividends: %lld RUB\n", dividend_tax);
+    }
+}
+
+
+void person_investments(Person& p, int month, int year) {
+    if (month == 1) {
+        update_investment_prices(p, year);
+        calculate_investment_value(p);
+    }
+
+    process_dividends(p, month, year);
+
+    if (p.name == "Alice" && month == 12) {
+        RUB to_invest = p.investments.yearly_dividend_income / 2;
+        if (to_invest > 10000) {
+            for (auto& stock : p.investments.stocks) {
+                if (stock.ticker == "SBER") {
+                    RUB price = stock.current_price;
+                    RUB commission = (RUB)(to_invest * p.investments.brokerage_commission / 100.0);
+                    RUB net_invest = to_invest - commission;
+                    RUB new_quantity = net_invest / price;
+                    stock.quantity += new_quantity;
+                    printf("  %s reinvested %lld RUB in %s, purchased %lld things.\n",
+                        p.name.c_str(), net_invest, stock.ticker.c_str(), new_quantity);
+                    break;
+                }
+            }
+        }
+        p.investments.yearly_dividend_income = 0;
+    }
+}
+
 
 
 void print_person_results(Person &p)
@@ -419,18 +652,38 @@ void print_person_results(Person &p)
     printf("\n=== %s ===\n", p.name.c_str());
     printf("Salary: %lld RUB\n", p.salary);
 
+    calculate_investment_value(p);
+
     RUB capital = 0;
     capital += p.vtb.account;
     capital += p.car.value;
     capital += p.home.value;
     capital += p.vtb.deposite;
     capital += p.vtb.account_usd * p.vtb.rate_usd_rub;
+    capital += p.investments.total_current_value;
 
     for (const auto& loan : p.loans){
         capital -= loan.remaining;
     }
 
+    printf("Liquid assets (bank+deposits+investments): %lld RUB\n",
+        p.vtb.account + p.vtb.deposite + p.investments.total_current_value);
     printf("Capital = %lld RUB\n", capital);
+
+    if (!p.investments.stocks.empty() || !p.investments.bonds.empty() || !p.investments.etfs.empty()) {
+        printf("\nInvestment Portfolio:\n");
+        printf("  Stocks: %lld RUB (%lld items)\n",
+            p.investments.total_current_value -
+            (p.investments.bonds.size() > 0 ? p.investments.bonds[0].quantity * p.investments.bonds[0].current_price : 0) -
+            (p.investments.etfs.size() > 0 ? p.investments.etfs[0].quantity * p.investments.etfs[0].current_price : 0),
+            p.investments.stocks.size());
+        printf("  Bonds: %lld RUB\n",
+            p.investments.bonds.size() > 0 ? p.investments.bonds[0].quantity * p.investments.bonds[0].current_price : 0);
+        printf("  ETFs: %lld RUB\n",
+            p.investments.etfs.size() > 0 ? p.investments.etfs[0].quantity * p.investments.etfs[0].current_price : 0);
+        printf("  Profit/Loss: %lld RUB\n",
+            p.investments.total_current_value - p.investments.total_purchase_value);
+    }
 
 }
 
@@ -451,6 +704,7 @@ void simulation(Person &p)
         person_insurance(p);
         person_home(p, year);
         person_loans(p);
+        person_investments(p, month, year);
         person_deposite(p, month, year);
 
 
