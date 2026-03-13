@@ -1,14 +1,14 @@
 ﻿#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <windows.h> // для русского
+#include <windows.h> 
 #define RESET   "\033[0m"
-#define RED     "\033[31m"      // Цвет для плохих событий Боба
-#define GREEN   "\033[32m"      // Цвет для хороших событий Алисы
-#define YELLOW  "\033[33m"      // Цвет для общих новостей
-#define BLUE    "\033[34m"      // Цвет для Боба
-#define MAGENTA "\033[35m"      // Цвет для Алисы
-#define CYAN    "\033[36m"      // Цвет для системных данных
+#define RED     "\033[31m"      
+#define GREEN   "\033[32m"     
+#define YELLOW  "\033[33m"      
+#define BLUE    "\033[34m"     
+#define MAGENTA "\033[35m"      
+#define CYAN    "\033[36m"      
 
 using RUB = long long int;
 
@@ -33,6 +33,7 @@ struct Bank
     RUB capital;
     RUB total_waste_money;
     RUB total_luck_money;
+    int is_bankrupt;
 };
 
 
@@ -44,13 +45,21 @@ struct Person {
     struct Pet pet;
 };
 
+struct WorldEconomy {
+    float inflation_rate;
+    float food_modifier;
+    float car_modifier;
+    float estate_modifier;
+};
+
+struct WorldEconomy Russia2026;
+
 struct Person Alice;
 struct Person Bob;
 
 
 float pp = 14.5; // пересмотреть
-int month = 2;
-int year = 2026;
+
 
 // Объявление функций
 
@@ -58,7 +67,6 @@ int year = 2026;
 // Alice
 void alice_salary(const int month, const int year);
 void alice_deposit();
-void alice_capital();
 void alice_food();
 void alice_car();
 void alice_inflation();
@@ -69,10 +77,8 @@ void alice_lifestyle(int month, int year);
 // Bob
 void bob_salary(const int month, const int year);
 void bob_deposit();
-void bob_capital();
 void bob_food();
 void bob_car();
-void bob_inflation();
 void bob_pet();
 void bob_init();
 void bob_lifestyle(int month, int year);
@@ -89,7 +95,7 @@ void simulation();
 void alice_salary(const int month, const int year) 
 {
     if ((month == 8) && (year == 2026)){
-        Alice.vtb.salary *= 1.5;
+        Alice.vtb.salary *= 1.3;
     }
 
     Alice.vtb.bankcard += Alice.vtb.salary;
@@ -99,16 +105,8 @@ void alice_deposit()
 {
     Alice.vtb.deposit += Alice.vtb.deposit * pp / 12 / 100;
     RUB money = Alice.vtb.salary / 10;
-    Alice.vtb.deposit += money; 
+    Alice.vtb.deposit += money;
     Alice.vtb.bankcard -= money;
-}
-
-void alice_capital()
-{
-    if ((month == 2) && (year == 2026)) {
-        Alice.vtb.capital = Alice.flat + Alice.car.value + Alice.pet.value + Alice.vtb.bankcard;
-    }
-    Alice.vtb.capital += Alice.vtb.deposit;
 }
 
 void alice_food()
@@ -126,6 +124,51 @@ void alice_pet()
     Alice.vtb.bankcard -= Alice.pet.filler + Alice.pet.food;
 }
 
+void alice_food_expenses(int month, int year) {
+    RUB grocery_bill = 25000;
+    RUB cafe_bill = 8000;
+
+
+    if (rand() % 100 < 20) {
+        cafe_bill += 10000;
+        printf("[%02d.%d] Алиса сходила в элитный ресторан. -10 000 руб.\n", month, year);
+    }
+
+    Alice.vtb.bankcard -= (grocery_bill + cafe_bill);
+}
+
+void alice_car_expenses(int month, int year) {
+
+    Alice.vtb.bankcard -= Alice.car.gas;
+
+    if (month == 4 || month == 10) {
+        RUB service_cost = 20000;
+        printf("[%02d.%d] Алиса прошла плановое ТО автомобиля. -%lld руб.\n", month, year, service_cost);
+        Alice.vtb.bankcard -= service_cost;
+    }
+
+
+    if (month == 1) {
+        RUB insurance = 60000;
+        printf("[%02d.%d] Оформлена страховка КАСКО. -%lld руб.\n", month, year, insurance);
+        Alice.vtb.bankcard -= insurance;
+    }
+}
+
+void alice_pet_expenses(int month, int year) {
+    RUB total_pet = Alice.pet.food + Alice.pet.filler;
+
+    if (month == 5) {
+        RUB vet_visit = 5000;
+        printf("[%02d.%d] Кот Алисы получил ежегодные прививки. -%lld руб.\n", month, year, vet_visit);
+        total_pet += vet_visit;
+    }
+
+    Alice.vtb.bankcard -= total_pet;
+}
+
+
+
 void alice_init()
 {
     Alice.flat = 8'000'000;
@@ -134,6 +177,8 @@ void alice_init()
     Alice.vtb.salary = 180'000;
     Alice.food = 20'000;
     Alice.vtb.capital = 0;
+    Alice.vtb.is_bankrupt = 0;
+
 
     Alice.car.value = 2'400'000;
     Alice.car.gas = 15'000;
@@ -143,23 +188,53 @@ void alice_init()
 
     Alice.vtb.total_waste_money = 0;
     Alice.vtb.total_luck_money = 0;
+
 }
 
-void alice_inflation() {
-    Alice.flat *= 0.09 / 12 / 100;
-    Alice.food *= 1.04;
-    Alice.car.gas *= 1.03;  //добавить рандом
-    Alice.car.value *= 1.03;
-    Alice.pet.filler *= 1.01;
-    Alice.pet.food *= 1.02;
+void alice_housing_expenses(int month, int year) {
+    RUB electricity = 1500;
+    RUB water = 1200;
+    RUB heating = 2500;
+    RUB internet = 800;
+
+    // В зимние месяцы отопление дороже
+    if (month >= 11 || month <= 3) {
+        heating *= 1.5;
+    }
+
+    RUB total_utility = electricity + water + heating + internet;
+
+    printf("[%02d.%d] Алиса оплатила ЖКХ: %lld руб.\n", month, year, total_utility);
+    Alice.vtb.bankcard -= total_utility;
+
+    if (month == 12) {
+        RUB property_tax = Alice.flat * 0.001;
+        printf("[%02d.%d] !!! Алиса оплатила годовой налог на имущество: %lld руб.\n", month, year, property_tax);
+        Alice.vtb.bankcard -= property_tax;
+    }
+}
+
+
+void check_alice_bankruptcy(int month, int year) {
+    if (Alice.vtb.is_bankrupt == 1) return;
+
+
+    if (Alice.vtb.bankcard < -500000) {
+        Alice.vtb.is_bankrupt = 1;
+        printf("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+        printf("!!! ВНИМАНИЕ: Алиса ОБЪЯВЛЕНА БАНКРОТОМ В %02d.%d      !!!\n", month, year);
+        printf("!!! Ее долги превысили 500 000 рублей.                 !!!\n");
+        printf("!!! Симуляция жизни Алисы остановлена. GAME OVER       !!!\n");
+        printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+    }
 }
 
 void alice_lifestyle(int month, int year) {
     if ((rand() % 100) > 30) return;
     int good_or_bad_event = rand() % 10;
 
-    if (good_or_bad_event <= 7) {
-        int good_event = rand() % 100;
+    if (good_or_bad_event <= 4) {
+        int good_event = rand() % 50;
         switch (good_event) {
         case 0:
             printf(GREEN "[%02d.%d] Алиса получила налоговый вычет за лечение. +15 000 руб." RESET "\n", month, year);
@@ -269,7 +344,7 @@ void alice_lifestyle(int month, int year) {
         }
     }
     else {
-        int bad_event = rand() % 100;
+        int bad_event = rand() % 50;
         switch (bad_event) {
         case 0:
             printf(MAGENTA"[%02d.%d] Алиса потеряла зонт и купила новый. -2 500 руб." RESET "\n", month, year);
@@ -354,7 +429,7 @@ void alice_lifestyle(int month, int year) {
             break;
 
         case 16:
-            printf(MAGENTA "[%02d.%d] Штраф за неправильный переход дороги (пешеход). -500 руб." RESET "\n", month, year);
+            printf(MAGENTA "[%02d.%d] Штраф за запрещенную аватарку в максе. -1000 руб." RESET "\n", month, year);
             Alice.vtb.bankcard -= 500;
             break;
 
@@ -400,14 +475,6 @@ void bob_deposit()
     Bob.vtb.bankcard -= money;
 }
 
-void bob_capital()
-{
-    if ((month == 3) && (year == 2027)) {
-        Bob.vtb.capital = Bob.flat + Bob.car.value + Bob.pet.value + Bob.vtb.bankcard;
-    }
-    Bob.vtb.capital += Bob.vtb.deposit;
-}
-
 void bob_food()
 {
     Bob.vtb.bankcard -= Bob.food;
@@ -423,7 +490,72 @@ void bob_pet()
     Bob.vtb.bankcard -= Bob.pet.filler + Bob.pet.food;
 }
 
-//void bob_komunalka()
+void bob_food_expenses(int month, int year) {
+    RUB fastfood = 45000; 
+    RUB energy_drinks = 5000; 
+
+    if (rand() % 100 < 40) {
+        RUB party_pizza = 8000;
+        printf("[ЕДА] Боб заказал пиццу на всех друзей. -%lld руб.\n", party_pizza);
+        fastfood += party_pizza;
+    }
+
+    printf("[%02d.%d] Расходы Боба на еду и доставку: %lld руб.\n", month, year, fastfood + energy_drinks);
+    Bob.vtb.bankcard -= (fastfood + energy_drinks);
+}
+
+void bob_car_expenses(int month, int year) {
+
+    Bob.vtb.bankcard -= Bob.car.gas;
+
+    if (rand() % 100 < 30) { 
+        RUB ticket = 2500;
+        printf("[%02d.%d] ШТРАФ: Боб превысил скорость. -%lld руб.\n", month, year, ticket);
+        Bob.vtb.bankcard -= ticket;
+    }
+
+
+    if (rand() % 100 < 5) {
+        RUB repair = 45000;
+        printf("[%02d.%d] ПОЛОМКА: У Боба задымился капот! Ремонт: -%lld руб.\n", month, year, repair);
+        Bob.vtb.bankcard -= repair;
+    }
+}
+
+void bob_fun_expenses(int month, int year) {
+    RUB subs = 4500;
+    RUB bar_bill = 15000;
+
+
+    if (month % 3 == 0) {
+        RUB game_price = 8000;
+        printf("[%02d.%d] Вышел новый ведьмак! Боб купил игру за %lld руб.\n", month, year, game_price);
+        Bob.vtb.bankcard -= game_price;
+    }
+
+    Bob.vtb.bankcard -= (subs + bar_bill);
+}
+
+void bob_pet_expenses(int month, int year) {
+    RUB pet_rent = 7000;
+
+
+    if (rand() % 100 < 15) {
+        RUB damage = 12000;
+        printf("[%02d.%d] Енот Боба съел провода и порвал диван. Ущерб: -%lld руб.\n", month, year, damage);
+        Bob.vtb.bankcard -= damage;
+    }
+
+    Bob.vtb.bankcard -= pet_rent;
+}
+
+
+//void bob_kommunalka()
+//{
+//    int base = 12'000;
+//    int summer_kommunalka = base;//+ base * inflation;
+//    int winter_komunalka = //
+//}
 
 void bob_init()
 {
@@ -442,6 +574,23 @@ void bob_init()
 
     Bob.vtb.total_waste_money = 0;
     Bob.vtb.total_luck_money = 0;
+
+    Bob.vtb.is_bankrupt = 0;
+
+}
+
+void check_bob_bankruptcy(int month, int year) {
+    if (Bob.vtb.is_bankrupt == 1) return;
+
+
+    if (Bob.vtb.bankcard < -500000) {
+        Bob.vtb.is_bankrupt = 1;
+        printf("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+        printf("!!! ВНИМАНИЕ: БОБ ОБЪЯВЛЕН БАНКРОТОМ В %02d.%d         !!!\n", month, year);
+        printf("!!! Его долги превысили 500 000 рублей.                !!!\n");
+        printf("!!! Симуляция жизни Боба остановлена. GAME OVER        !!!\n");
+        printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+    }
 }
 
 void bob_lifestyle(int month, int year) {
@@ -449,7 +598,7 @@ void bob_lifestyle(int month, int year) {
 
     int good_or_bad_event = rand() % 10;
 
-    if (good_or_bad_event >= 6)
+    if (good_or_bad_event >= 3)
     {
         int bad_event = rand() % 100;
 
@@ -576,124 +725,124 @@ void bob_lifestyle(int month, int year) {
         
         switch (good_event){
         case 0:
-            printf(BLUE"[%02d.%d] Боб нашел на улице 5000 руб.!" RESET "\n", month, year);
+            printf(CYAN"[%02d.%d] Боб нашел на улице 5000 руб.!" RESET "\n", month, year);
             Bob.vtb.bankcard += 5000;
             break;
 
         case 1:
-            printf(BLUE"[%02d.%d] Старый долг вернули Бобу. +10 000 руб." RESET "\n", month, year);
+            printf(CYAN"[%02d.%d] Старый долг вернули Бобу. +10 000 руб." RESET "\n", month, year);
             Bob.vtb.bankcard += 10000;
             break;
 
         case 2:
-            printf(BLUE"[%02d.%d] Боб выиграл бесплатный ужин. Экономия! +2 000 руб." RESET "\n", month, year);
+            printf(CYAN"[%02d.%d] Боб выиграл бесплатный ужин. Экономия! +2 000 руб." RESET "\n", month, year);
             Bob.vtb.bankcard += 2000;
             break;
 
         case 4: {
             RUB win = 150000;
-            printf(BLUE"[%02d.%d] Боб выиграл в казино! Выигрыш: +%lld руб." RESET "\n", month, year, win);
+            printf(CYAN"[%02d.%d] Боб выиграл в казино! Выигрыш: +%lld руб." RESET "\n", month, year, win);
             Bob.vtb.bankcard += win;
             Bob.vtb.total_luck_money += win;
             break;
         }
         case 5: {
-            printf(BLUE"[%02d.%d] Боб нашел подработку курьером на выходные. +15 000 руб." RESET "\n", month, year);
+            printf(CYAN"[%02d.%d] Боб нашел подработку курьером на выходные. +15 000 руб." RESET "\n", month, year);
             Bob.vtb.bankcard += 15000;
             break;
         }
         case 6: {
             RUB win = 200000;
-            printf(BLUE"[%02d.%d] Боб выиграл в онлайн-покер: +%lld руб." RESET "\n", month, year, win);
+            printf(CYAN"[%02d.%d] Боб выиграл в онлайн-покер: +%lld руб." RESET "\n", month, year, win);
             Bob.vtb.bankcard += win;
             Bob.vtb.total_luck_money += win;
             break;
         }
         case 7: {
             RUB win = 100000;
-            printf(BLUE"[%02d.%d] Боб выиграл в лотерею: +%lld руб." RESET "\n", month, year, win);
+            printf(CYAN"[%02d.%d] Боб выиграл в лотерею: +%lld руб." RESET "\n", month, year, win);
             Bob.vtb.bankcard += win;
             Bob.vtb.total_luck_money += win;
             break;
         }
         case 8: {
             RUB sell_item = 15000;
-            printf(BLUE"[%02d.%d] Боб продал старый хлам с балкона на барахолке. +%lld руб." RESET "\n", month, year, sell_item);
+            printf(CYAN"[%02d.%d] Боб продал старый хлам с балкона на барахолке. +%lld руб." RESET "\n", month, year, sell_item);
             Bob.vtb.bankcard += sell_item;
             break;
         }
 
         case 9: {
-            printf(BLUE"[%02d.%d] Боб нашел баг в приложении банка. Ему выплатили вознаграждение! +50 000 руб." RESET "\n", month, year);
+            printf(CYAN"[%02d.%d] Боб нашел баг в приложении банка. Ему выплатили вознаграждение! +50 000 руб." RESET "\n", month, year);
             Bob.vtb.bankcard += 50000;
             break;
         }
 
         case 10: {
             RUB tax_return = 13000;
-            printf(BLUE"[%02d.%d] Боб наконец-то подал на налоговый вычет. Пришли деньги: +%lld руб." RESET "\n", month, year, tax_return);
+            printf(CYAN"[%02d.%d] Боб наконец-то подал на налоговый вычет. Пришли деньги: +%lld руб." RESET "\n", month, year, tax_return);
             Bob.vtb.bankcard += tax_return;
             break;
         }
 
         case 11: {
-            printf(BLUE"[%02d.%d] Боб удачно зашел в крипту на «низах». Быстрая прибыль: +25 000 руб." RESET "\n", month, year);
+            printf(CYAN"[%02d.%d] Боб удачно зашел в крипту на «низах». Быстрая прибыль: +25 000 руб." RESET "\n", month, year);
             Bob.vtb.bankcard += 25000;
             break;
         }
 
         case 12: {
-            printf(BLUE"[%02d.%d] Боб выиграл в конкурсе репостов новый смартфон и сразу его продал. +70 000 руб." RESET "\n", month, year);
+            printf(CYAN"[%02d.%d] Боб выиграл в конкурсе репостов новый смартфон и сразу его продал. +70 000 руб." RESET "\n", month, year);
             Bob.vtb.bankcard += 70000;
             break;
         }
 
         case 13: {
             RUB part_time = 12000;
-            printf(BLUE"[%02d.%d] Боб подработал диджеем на вечеринке у друга. +%lld руб." RESET "\n", month, year, part_time);
+            printf(CYAN"[%02d.%d] Боб подработал диджеем на вечеринке у друга. +%lld руб." RESET "\n", month, year, part_time);
             Bob.vtb.bankcard += part_time;
             break;
         }
 
         case 14: {
-            printf(BLUE"[%02d.%d] Боб нашел забытую заначку в зимней куртке. Какая радость! +8 000 руб." RESET "\n", month, year);
+            printf(CYAN"[%02d.%d] Боб нашел забытую заначку в зимней куртке. Какая радость! +8 000 руб." RESET "\n", month, year);
             Bob.vtb.bankcard += 8000;
             break;
         }
 
         case 15: {
-            printf(BLUE"[%02d.%d] Родственники прислали Бобу денег «на витамины». +10 000 руб." RESET "\n", month, year);
+            printf(CYAN"[%02d.%d] Родственники прислали Бобу денег «на витамины». +10 000 руб." RESET "\n", month, year);
             Bob.vtb.bankcard += 10000;
             break;
         }
 
         case 16: {
-            printf(BLUE"[%02d.%d] Боб сдал пустые бутылки из-под элитного газировки (шутка). Кешбэк от магазина: +1 500 руб." RESET "\n", month, year);
+            printf(CYAN"[%02d.%d] Боб сдал пустые бутылки из-под элитного газировки (шутка). Кешбэк от магазина: +1 500 руб." RESET "\n", month, year);
             Bob.vtb.bankcard += 1500;
             break;
         }
 
         case 17: {
             RUB stream_donations = 5000;
-            printf(BLUE"[%02d.%d] Боб провел стрим, как он учит C. Накидали донатов: +%lld руб." RESET "\n", month, year, stream_donations);
+            printf(CYAN"[%02d.%d] Боб провел стрим, как он учит C. Накидали донатов: +%lld руб." RESET "\n", month, year, stream_donations);
             Bob.vtb.bankcard += stream_donations;
             break;
         }
 
         case 18: {
-            printf(BLUE"[%02d.%d] Сосед попросил Боба починить компьютер. Оплата за сервис: +3 000 руб." RESET "\n", month, year);
+            printf(CYAN"[%02d.%d] Сосед попросил Боба починить компьютер. Оплата за сервис: +3 000 руб." RESET "\n", month, year);
             Bob.vtb.bankcard += 3000;
             break;
         }
 
         case 19: {
-            printf(BLUE"[%02d.%d] Боб нашел редкую монету в сдачи. Продал нумизмату: +15 000 руб." RESET "\n", month, year);
+            printf(CYAN"[%02d.%d] Боб нашел редкую монету в сдачи. Продал нумизмату: +15 000 руб." RESET "\n", month, year);
             Bob.vtb.bankcard += 15000;
             break;
         }
 
         case 20: {
-            printf(BLUE"[%02d.%d] Боб поучаствовал в платном опросе от крупной компании. +2 500 руб." RESET "\n", month, year);
+            printf(CYAN"[%02d.%d] Боб поучаствовал в платном опросе от крупной компании. +2 500 руб." RESET "\n", month, year);
             Bob.vtb.bankcard += 2500;
             break;
         }
@@ -706,29 +855,89 @@ void bob_lifestyle(int month, int year) {
 
 
 // others
+
+void update_bank_rate(int month, int year) {
+    if (month % 3 == 0) {
+        int change = (rand() % 5) - 2;
+        pp += (float)change;
+
+        if (pp < 5.0) pp = 5.0;
+        if (pp > 25.0) pp = 25.0;
+
+        printf("[%02d.%d]--- НОВОСТИ ЭКОНОМИКИ: Центробанк изменил ставку. Теперь она %.1f%% ---\n", month, year, pp);
+    }
+}
+
+void economy_init() {
+    Russia2026.inflation_rate = 0.08;
+    Russia2026.food_modifier = 1.2;
+    Russia2026.car_modifier = 1.5;
+    Russia2026.estate_modifier = 1.0;
+}
+
+void apply_global_inflation(int month, int year) {
+    float monthly_base = Russia2026.inflation_rate / 12.0;
+
+    // 1. Инфляция для Алисы
+    if (Alice.vtb.is_bankrupt == 0) {
+        Alice.flat += Alice.flat * (monthly_base * Russia2026.estate_modifier);
+        Alice.food += Alice.food * (monthly_base * Russia2026.food_modifier);
+        Alice.car.gas += Alice.car.gas * (monthly_base * Russia2026.car_modifier);
+        Alice.pet.food += Alice.pet.food * (monthly_base * Russia2026.food_modifier);
+    }
+
+    // 2. Инфляция для Боба
+    if (Bob.vtb.is_bankrupt == 0) {
+        Bob.flat += Bob.flat * (monthly_base * Russia2026.estate_modifier);
+        Bob.food += Bob.food * (monthly_base * Russia2026.food_modifier);
+        Bob.car.gas += Bob.car.gas * (monthly_base * Russia2026.car_modifier);
+        Bob.pet.food += Bob.pet.food * (monthly_base * Russia2026.food_modifier);
+    }
+
+    // Раз в год инфляция может измениться (эффект неожиданности)
+    if (month == 12) {
+        float change = (float)((rand() % 40) - 20) / 1000.0; // от -2% до +2%
+        Russia2026.inflation_rate += change;
+
+        if (Russia2026.inflation_rate < 0.04) Russia2026.inflation_rate = 0.04;
+
+        printf("\n>>> ИТОГИ ГОДА %d: Инфляция на следующий год установлена: %.1f%% <<<\n\n",
+            year, Russia2026.inflation_rate * 100);
+    }
+}
+
+
 void simulation()
 {
-
-
+    int month = 2;
+    int year = 2026;
     while (!((month == 3) && (year == 2040))) {
-        alice_capital();
-        alice_pet();
-        alice_food();
-        alice_car();
-        alice_deposit();
-       // alice_inflation();
-        alice_salary(month, year);
-        alice_lifestyle(month, year);
 
-        
-        bob_capital();
-        bob_pet();
-        bob_food();
-        bob_car();
-        bob_deposit();
-      //  bob_inflation(); not done 
-        bob_salary(month, year);
-        bob_lifestyle(month, year);
+        if (Alice.vtb.is_bankrupt == 0) {
+            alice_lifestyle(month, year);
+            alice_salary(month, year);
+            alice_housing_expenses(month, year);
+            alice_food_expenses(month, year);
+            alice_car_expenses(month, year);
+            alice_pet_expenses(month, year);
+            alice_deposit();
+            check_alice_bankruptcy(month, year);
+        }
+
+        if (Bob.vtb.is_bankrupt == 0) {
+            bob_lifestyle(month, year);
+            bob_food_expenses(month, year);
+            bob_car_expenses(month, year);
+            bob_fun_expenses(month, year);
+            bob_pet_expenses(month, year);
+            bob_deposit();
+            bob_salary(month, year);
+            check_bob_bankruptcy(month, year);
+        }
+
+        apply_global_inflation(month, year);
+
+        update_bank_rate(month, year);
 
         ++month;
         if (month == 13) 
@@ -739,22 +948,30 @@ void simulation()
     }
 }
 
+
 // Финальная часть
 
 void print_results()
 {
-    printf("\nalice bank acc = %lld\n", Alice.vtb.bankcard);
-    printf("alice deposit = %lld\n", Alice.vtb.deposit);
-    printf("alice capital = %lld\n", Alice.vtb.capital);
-    printf("bob bank acc = %lld\n", Bob.vtb.bankcard);
-    printf("bob deposit = %lld\n", Bob.vtb.deposit);
-    printf("bob capital = %lld", Bob.vtb.capital);
+    printf("\nБанковский счет Алисы = %lld\n", Alice.vtb.bankcard);
+    printf("Вклад Алисы = %lld\n", Alice.vtb.deposit);
+    printf("Имущество Алисы = %lld\n", Alice.vtb.capital = Alice.car.value + Alice.flat + Alice.pet.value + Alice.vtb.bankcard + Alice.vtb.deposit);
+    printf("Алисе повезло = %lld\n", Alice.vtb.total_luck_money);
+    printf("Алисе не повезло = %lld\n\n", Alice.vtb.total_waste_money);
+
+    printf("Банковский счет Боба = %lld\n", Bob.vtb.bankcard);
+    printf("Вклад Боба = %lld\n", Bob.vtb.deposit);
+    printf("Имущество Боба = %lld\n", Bob.vtb.capital = Bob.car.value + Bob.flat + Bob.pet.value + Bob.vtb.bankcard + Bob.vtb.deposit);
+    printf("Бобу фортануло = %lld\n", Bob.vtb.total_luck_money);
+    printf("Бобу не фортануло = %lld\n\n", Bob.vtb.total_waste_money);
 }
 
 int main()
 {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251); //для русского
+
+    economy_init();
 
     bob_init();
 
