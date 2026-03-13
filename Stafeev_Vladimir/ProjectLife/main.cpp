@@ -791,156 +791,168 @@ void process_deposits(Male& person, int month, int year) {
     }
 }
 
-void process_career_growth(Female& person, int year) {
-    if (year % 3 == 0 && random_event(0.6)) {
-        RUB education_cost = 50000 + rand() % 150000;
-        printf("  Kate education cost %lld RUB\n", education_cost);
-        if (person.emergency_fund >= education_cost) {
-            person.emergency_fund -= education_cost;
-        } else {
-            person.tbank.account -= education_cost;
-        }
-        person.total_education_cost += education_cost;
-        person.skills.education_cost += education_cost;
-        person.skills.technical += 5 + rand() % 10;
-        person.skills.managerial += 2 + rand() % 5;
-        if (person.skills.technical > 100) person.skills.technical = 100;
-        if (person.skills.managerial > 100) person.skills.managerial = 100;
-        person.skills.certifications++;
-        printf("Skills upgrades: tech %.1f, management %.1f\n",
-               person.skills.technical, person.skills.managerial);
-    }
-    if (random_event(0.2)) {
-        RUB cert_cost = 20000 + rand() % 60000;
-        printf("  Kate gets certification, value %lld RUB\n", cert_cost);
-        if (person.emergency_fund >= cert_cost) {
-            person.emergency_fund -= cert_cost;
-        } else {
-            person.tbank.account -= cert_cost;
-        }
-        person.skills.certifications++;
-        person.skills.technical += 3;
-    }
-}
-
-void process_career_growth(Male& person, int year) {
-    if (year % 2 == 0 && random_event(0.7)) {
-        RUB education_cost = 70000 + rand() % 200000;
-        printf("  Henry educates, value %lld RUB\n", education_cost);
-        if (person.emergency_fund >= education_cost) {
-            person.emergency_fund -= education_cost;
-        } else {
-            person.sber.account -= education_cost;
-        }
-        person.total_education_cost += education_cost;
-        person.skills.education_cost += education_cost;
-        person.skills.managerial += 8 + rand() % 12;
-        person.skills.financial += 5 + rand() % 8;
-        person.skills.communication += 3 + rand() % 5;
-        if (person.skills.managerial > 100) person.skills.managerial = 100;
-        if (person.skills.financial > 100) person.skills.financial = 100;
-        if (person.skills.communication > 100) person.skills.communication = 100;
-        person.skills.certifications++;
-        printf("  Skills upgrades: management %.1f, financial %.1f\n",
-               person.skills.managerial, person.skills.financial);
-    }
-}
-
-void process_promotion(Female& person, int year) {
-    float promotion_chance = (person.skills.technical / 200.0) +
-                             (person.skills.managerial / 200.0) +
-                             (person.skills.certifications * 0.02);
-    if (random_event(promotion_chance / 10)) {
-        Profession old_prof = person.skills.current_profession;
-        Profession new_prof = old_prof;
-        switch (old_prof) {
-            case PROFESSION_SPECIALIST:
-                if (person.skills.technical > 70) new_prof = PROFESSION_SENIOR;
-                break;
-            case PROFESSION_SENIOR:
-                if (person.skills.managerial > 50) new_prof = PROFESSION_TEAM_LEAD;
-                break;
-            case PROFESSION_TEAM_LEAD:
-                if (person.skills.managerial > 70) new_prof = PROFESSION_MANAGER;
-                break;
-            case PROFESSION_MANAGER:
-                if (person.skills.financial > 60) new_prof = PROFESSION_DIRECTOR;
-                break;
-            default: break;
-        }
-        if (new_prof != old_prof) {
-            person.skills.current_profession = new_prof;
-            person.career_path[person.career_stage++] = new_prof;
-            float salary_multiplier = 1.0;
-            switch (new_prof) {
-                case PROFESSION_SENIOR: salary_multiplier = 1.3; break;
-                case PROFESSION_TEAM_LEAD: salary_multiplier = 1.5; break;
-                case PROFESSION_MANAGER: salary_multiplier = 1.8; break;
-                case PROFESSION_DIRECTOR: salary_multiplier = 2.2; break;
-                default: salary_multiplier = 1.2;
+void process_career_growth(Female& person, const int &month, int year) {
+    if (month == 1)
+    {
+        if (year % 3 == 0 && random_event(0.6)) {
+            RUB education_cost = 50000 + rand() % 150000;
+            printf("  Kate education cost %lld RUB\n", education_cost);
+            if (person.emergency_fund >= education_cost) {
+                person.emergency_fund -= education_cost;
+            } else {
+                person.tbank.account -= education_cost;
             }
-            person.salary *= salary_multiplier;
-            printf("  CONGRATS! Kate rises up to %d, salary %lld RUB\n", new_prof, person.salary);
+            person.total_education_cost += education_cost;
+            person.skills.education_cost += education_cost;
+            person.skills.technical += 5 + rand() % 10;
+            person.skills.managerial += 2 + rand() % 5;
+            if (person.skills.technical > 100) person.skills.technical = 100;
+            if (person.skills.managerial > 100) person.skills.managerial = 100;
+            person.skills.certifications++;
+            printf("Skills upgrades: tech %.1f, management %.1f\n",
+                   person.skills.technical, person.skills.managerial);
         }
-    }
-    if (random_event(0.15)) {
-        RUB new_salary = person.salary * (1.1 + (rand() % 30) / 100.0);
-        if (new_salary > person.salary * 1.2) {
-            printf("  Kate gets offer with salary %lld RUB\n", new_salary);
-            if (random_event(0.5)) {
-                person.salary = new_salary;
-                printf("  Kate changes work! New salary %lld RUB\n", person.salary);
+        if (random_event(0.2)) {
+            RUB cert_cost = 20000 + rand() % 60000;
+            printf("  Kate gets certification, value %lld RUB\n", cert_cost);
+            if (person.emergency_fund >= cert_cost) {
+                person.emergency_fund -= cert_cost;
+            } else {
+                person.tbank.account -= cert_cost;
             }
+            person.skills.certifications++;
+            person.skills.technical += 3;
         }
     }
 }
 
-void process_promotion(Male& person, int year) {
-    float promotion_chance = (person.skills.managerial / 150.0) +
-                             (person.skills.financial / 200.0) +
-                             (person.skills.communication / 150.0) +
-                             (person.skills.certifications * 0.03);
-    if (random_event(promotion_chance / 8)) {
-        Profession old_prof = person.skills.current_profession;
-        Profession new_prof = old_prof;
-        switch (old_prof) {
-            case PROFESSION_SENIOR:
-                if (person.skills.managerial > 60) new_prof = PROFESSION_TEAM_LEAD;
-                break;
-            case PROFESSION_TEAM_LEAD:
-                if (person.skills.managerial > 75) new_prof = PROFESSION_MANAGER;
-                break;
-            case PROFESSION_MANAGER:
-                if (person.skills.financial > 70) new_prof = PROFESSION_DIRECTOR;
-                break;
-            case PROFESSION_DIRECTOR:
-                if (person.skills.financial > 80 && person.emergency_fund > 1000000)
-                    new_prof = PROFESSION_ENTREPRENEUR;
-                break;
-            default: break;
-        }
-        if (new_prof != old_prof) {
-            person.skills.current_profession = new_prof;
-            person.career_path[person.career_stage++] = new_prof;
-            float salary_multiplier = 1.0;
-            switch (new_prof) {
-                case PROFESSION_TEAM_LEAD: salary_multiplier = 1.4; break;
-                case PROFESSION_MANAGER: salary_multiplier = 1.7; break;
-                case PROFESSION_DIRECTOR: salary_multiplier = 2.0; break;
-                case PROFESSION_ENTREPRENEUR: salary_multiplier = 2.5; break;
-                default: salary_multiplier = 1.3;
+void process_career_growth(Male& person, const int &month, int year) {
+    if (month == 1)
+    {
+        if (year % 2 == 0 && random_event(0.7)) {
+            RUB education_cost = 70000 + rand() % 200000;
+            printf("  Henry educates, value %lld RUB\n", education_cost);
+            if (person.emergency_fund >= education_cost) {
+                person.emergency_fund -= education_cost;
+            } else {
+                person.sber.account -= education_cost;
             }
-            person.salary *= salary_multiplier;
-            printf("  CONGRATS! Henry rises up to %d level, new salary %lld RUB\n", new_prof, person.salary);
+            person.total_education_cost += education_cost;
+            person.skills.education_cost += education_cost;
+            person.skills.managerial += 8 + rand() % 12;
+            person.skills.financial += 5 + rand() % 8;
+            person.skills.communication += 3 + rand() % 5;
+            if (person.skills.managerial > 100) person.skills.managerial = 100;
+            if (person.skills.financial > 100) person.skills.financial = 100;
+            if (person.skills.communication > 100) person.skills.communication = 100;
+            person.skills.certifications++;
+            printf("  Skills upgrades: management %.1f, financial %.1f\n",
+                   person.skills.managerial, person.skills.financial);
         }
     }
-    if (random_event(0.2)) {
-        RUB new_salary = person.salary * (1.15 + (rand() % 40) / 100.0);
-        if (new_salary > person.salary * 1.25) {
-            printf("  Henry gets offer with salary %lld RUB\n", new_salary);
-            if (random_event(0.6)) {
-                person.salary = new_salary;
-                printf("  Henry changes job! New salary %lld RUB\n", person.salary);
+}
+
+void process_promotion(Female& person, const int &month, int year) {
+    if (month == 1)
+    {
+        float promotion_chance = (person.skills.technical / 200.0) +
+                                 (person.skills.managerial / 200.0) +
+                                 (person.skills.certifications * 0.02);
+        if (random_event(promotion_chance / 10)) {
+            Profession old_prof = person.skills.current_profession;
+            Profession new_prof = old_prof;
+            switch (old_prof) {
+                case PROFESSION_SPECIALIST:
+                    if (person.skills.technical > 70) new_prof = PROFESSION_SENIOR;
+                    break;
+                case PROFESSION_SENIOR:
+                    if (person.skills.managerial > 50) new_prof = PROFESSION_TEAM_LEAD;
+                    break;
+                case PROFESSION_TEAM_LEAD:
+                    if (person.skills.managerial > 70) new_prof = PROFESSION_MANAGER;
+                    break;
+                case PROFESSION_MANAGER:
+                    if (person.skills.financial > 60) new_prof = PROFESSION_DIRECTOR;
+                    break;
+                default: break;
+            }
+            if (new_prof != old_prof) {
+                person.skills.current_profession = new_prof;
+                person.career_path[person.career_stage++] = new_prof;
+                float salary_multiplier = 1.0;
+                switch (new_prof) {
+                    case PROFESSION_SENIOR: salary_multiplier = 1.3; break;
+                    case PROFESSION_TEAM_LEAD: salary_multiplier = 1.5; break;
+                    case PROFESSION_MANAGER: salary_multiplier = 1.8; break;
+                    case PROFESSION_DIRECTOR: salary_multiplier = 2.2; break;
+                    default: salary_multiplier = 1.2;
+                }
+                person.salary *= salary_multiplier;
+                printf("  CONGRATS! Kate rises up to %d, salary %lld RUB\n", new_prof, person.salary);
+            }
+        }
+        if (random_event(0.15)) {
+            RUB new_salary = person.salary * (1.1 + (rand() % 30) / 100.0);
+            if (new_salary > person.salary * 1.2) {
+                printf("  Kate gets offer with salary %lld RUB\n", new_salary);
+                if (random_event(0.5)) {
+                    person.salary = new_salary;
+                    printf("  Kate changes work! New salary %lld RUB\n", person.salary);
+                }
+            }
+        }
+    }
+}
+
+void process_promotion(Male& person, const int &month, int year) {
+    if (month == 1)
+    {
+        float promotion_chance = (person.skills.managerial / 150.0) +
+                                 (person.skills.financial / 200.0) +
+                                 (person.skills.communication / 150.0) +
+                                 (person.skills.certifications * 0.03);
+        if (random_event(promotion_chance / 8)) {
+            Profession old_prof = person.skills.current_profession;
+            Profession new_prof = old_prof;
+            switch (old_prof) {
+                case PROFESSION_SENIOR:
+                    if (person.skills.managerial > 60) new_prof = PROFESSION_TEAM_LEAD;
+                    break;
+                case PROFESSION_TEAM_LEAD:
+                    if (person.skills.managerial > 75) new_prof = PROFESSION_MANAGER;
+                    break;
+                case PROFESSION_MANAGER:
+                    if (person.skills.financial > 70) new_prof = PROFESSION_DIRECTOR;
+                    break;
+                case PROFESSION_DIRECTOR:
+                    if (person.skills.financial > 80 && person.emergency_fund > 1000000)
+                        new_prof = PROFESSION_ENTREPRENEUR;
+                    break;
+                default: break;
+            }
+            if (new_prof != old_prof) {
+                person.skills.current_profession = new_prof;
+                person.career_path[person.career_stage++] = new_prof;
+                float salary_multiplier = 1.0;
+                switch (new_prof) {
+                    case PROFESSION_TEAM_LEAD: salary_multiplier = 1.4; break;
+                    case PROFESSION_MANAGER: salary_multiplier = 1.7; break;
+                    case PROFESSION_DIRECTOR: salary_multiplier = 2.0; break;
+                    case PROFESSION_ENTREPRENEUR: salary_multiplier = 2.5; break;
+                    default: salary_multiplier = 1.3;
+                }
+                person.salary *= salary_multiplier;
+                printf("  CONGRATS! Henry rises up to %d level, new salary %lld RUB\n", new_prof, person.salary);
+            }
+        }
+        if (random_event(0.2)) {
+            RUB new_salary = person.salary * (1.15 + (rand() % 40) / 100.0);
+            if (new_salary > person.salary * 1.25) {
+                printf("  Henry gets offer with salary %lld RUB\n", new_salary);
+                if (random_event(0.6)) {
+                    person.salary = new_salary;
+                    printf("  Henry changes job! New salary %lld RUB\n", person.salary);
+                }
             }
         }
     }
@@ -1572,14 +1584,102 @@ void process_month(int month, int year) {
     }
 }
 
-void process_year_end(int &month, int year, int& years_passed) {
+
+void asset_events(const int &month)
+{
+    if (month == 1 || month == 6) {
+        process_car_events(Kate.matiz, Kate.tbank, Kate.emergency_fund, "Kate", Kate.life_insurance);
+        process_car_events(Henry.volga, Henry.sber, Henry.emergency_fund, "Henry", Henry.life_insurance);
+    }
+    if (random_event(0.3)) {
+        process_home_events(Kate.flat, Kate.tbank, Kate.emergency_fund, "Kate");
+        process_home_events(Henry.house, Henry.sber, Henry.emergency_fund, "Henry");
+    }
+}
+
+
+void computers_maintenance()
+{
+    if (Kate.work_pc.purchase_price == 0 && Kate.skills.current_profession >= PROFESSION_SENIOR) {
+            buy_computer(Kate, "work_pc", Kate.emergency_fund);
+        }
+        if (Kate.personal_pc.needs_upgrade && Kate.emergency_fund > Kate.personal_pc.upgrade_cost) {
+            buy_computer(Kate, "upgrade_personal", Kate.emergency_fund);
+        }
+        if (Henry.gaming_pc.age > 4 && random_event(0.3) && Henry.emergency_fund > 150000) {
+            buy_computer(Henry, "new_gaming", Henry.emergency_fund);
+        }
+}
+
+void taxes_and_insurance_payment(const int &month, const int &year)
+{
     if (month == 1) {
-        process_career_growth(Kate, year);
-        process_career_growth(Henry, year);
-        process_promotion(Kate, year);
-        process_promotion(Henry, year);
+        pay_insurance_premiums(month, year);
+        Kate.tbank.account -= Kate.matiz.insurance;
+        Henry.sber.account -= Henry.volga.insurance;
+    }
+    if (month == 3) Kate.tbank.account -= Kate.flat.annual_insurance;
+    if (month == 6) {
+        Henry.sber.account -= Henry.house.annual_insurance;
+        Kate.tbank.account -= Kate.matiz.maintenance;
+        Henry.sber.account -= Henry.volga.maintenance;
+    }
+    if (month == 8) {
+        Kate.tbank.account -= Kate.flat.renovation;
+        Henry.sber.account -= Henry.house.renovation;
+    }
+    if (month == 9) Henry.sber.account -= Henry.monthly_education;
+    if (month != 9 && month != 12 && random_event(0.2)) Henry.sber.account -= Henry.monthly_education * 0.3;
+}
+
+
+void Henry_dream_savings()
+{
+    if (Henry.sber.account > 150000) {
+            RUB saving = Henry.sber.account * 0.15;
+            Henry.dream_stash += saving;
+            Henry.sber.account -= saving;
+        }
+    if (Henry.dream_stash >= Henry.dream_car_price) {
+        Henry.volga.price = Henry.dream_car_price;
+        Henry.dream_stash -= Henry.dream_car_price;
+        Henry.dream_car_price = Henry.dream_car_price * 1.5;
+    }
+}
+
+
+void emergency_fund_savings()
+{
+    if (Kate.tbank.account > 100000 && Kate.emergency_fund < 500000) {
+            RUB transfer = Kate.tbank.account * 0.1;
+            Kate.emergency_fund += transfer;
+            Kate.tbank.account -= transfer;
+        }
+    if (Henry.sber.account > 150000 && Henry.emergency_fund < 700000) {
+        RUB transfer = Henry.sber.account * 0.1;
+        Henry.emergency_fund += transfer;
+        Henry.sber.account -= transfer;
+    }
+}
+
+
+void business_activities(const int &month, const int &year)
+{
+    if (month == 1) {
         if (!Kate.business.is_active) try_open_business(Kate, year);
         if (!Henry.business.is_active) try_open_business(Henry, year);
+    }
+    if (month == 12)
+    {
+        try_sell_business(Kate, year);
+        try_sell_business(Henry, year);
+    }
+}
+
+
+void computer_activities(const int &month)
+{
+    if (month == 1) {
         // Tech Aging
         update_computer_state(Kate.personal_pc, "Kate", "personal PC");
         update_computer_state(Kate.laptop, "Kate", "laptop");
@@ -1588,51 +1688,96 @@ void process_year_end(int &month, int year, int& years_passed) {
         update_computer_state(Henry.work_laptop, "Henry", "working laptop");
         update_computer_state(Henry.home_server, "Henry", "home server");
     }
-    if (month == 12) {
-        try_sell_business(Kate, year);
-        try_sell_business(Henry, year);
-    }
+}
+
+
+void annual_params_check(int &month, int &year)
+{
     if (month == 13) {
-        month = 1;
-        year++;
-        years_passed++;
-        Kate.skills.experience++;
-        Henry.skills.experience++;
-        apply_inflation(year);
-        update_economic_params(year);
-        update_insurance(year);
-        Kate.annual_income = 0;
-        Henry.annual_income = 0;
-        Kate.matiz.is_working = true;
-        Henry.volga.is_working = true;
-        if (years_passed % 5 == 0) {
-            printf("\n--- Progress: %d years simulation ---\n", years_passed);
-            printf("tech Kate: PC %.0f%% (%d years), Laptop %.0f%% (%d years)\n",
-                   Kate.personal_pc.performance, Kate.personal_pc.age,
-                   Kate.laptop.performance, Kate.laptop.age);
-            printf("tech Henry: Gaming %.0f%% (%d years), Laptop %.0f%% (%d years)\n",
-                   Henry.gaming_pc.performance, Henry.gaming_pc.age,
-                   Henry.work_laptop.performance, Henry.work_laptop.age);
-            if (Kate.business.is_active) {
-                printf("Business Kate: value %lld RUB, comps %d\n", Kate.business.current_value, Kate.business.computer_count);
-            }
-            if (Henry.business.is_active) {
-                printf("Henry's business: value %lld RUB, comps %d\n", Henry.business.current_value, Henry.business.computer_count);
-            }
-        }
+            month = 1;
+            year++;
+            Kate.skills.experience++;
+            Henry.skills.experience++;
+            apply_inflation(year);
+            update_economic_params(year);
+            update_insurance(year);
+            Kate.annual_income = 0;
+            Henry.annual_income = 0;
+            Kate.matiz.is_working = true;
+            Henry.volga.is_working = true;
     }
 }
+
 
 void run_simulation() {
     int month = 2;
     int year = 2026;
-    int years_passed = 0;
-    while (years_passed < 40) {
-        process_month(month, year);
-        process_year_end(month, year, years_passed);
+
+    while (!(year == 2066 && month == 2))
+    {
+        annual_params_check(month, year);
+        // Income
+        process_salary(Kate, month, year);
+        process_salary(Henry, month, year);
+
+        // Business Management
+        manage_active_business(Kate, month, year);
+        manage_active_business(Henry, month, year);
+
+        // Expenses
+        process_monthly_expenses(Kate, month, year);
+        process_monthly_expenses(Henry, month, year);
+
+        // Events
+        process_health_events(Kate, month, year);
+        process_health_events(Henry, month, year);
+        process_force_majeure(Kate, month, year);
+        process_force_majeure(Henry, month, year);
+
+        // Asset Events
+        asset_events(month);
+
+        // Tech Maintenance
+        handle_computer_repair(Kate, Kate.personal_pc, "personal PC");
+        handle_computer_repair(Kate, Kate.laptop, "laptop");
+        handle_computer_repair(Henry, Henry.gaming_pc, "gaming PC");
+        handle_computer_repair(Henry, Henry.work_laptop, "working laptop");
+
+        // Tech Upgrades
+        computers_maintenance();
+
+        // Taxes & Insurance
+        calculate_monthly_taxes(month, year);
+
+        taxes_and_insurance_payment(month, year);
+
+        pay_taxes(month, year);
+
+        // Savings
+        process_deposits(Kate, month, year);
+        process_deposits(Henry, month, year);
+
+        // Henry Dream Savings
+        Henry_dream_savings();
+
+        // Emergency Fund Top-up
+        emergency_fund_savings();
+
+        process_career_growth(Kate, month, year);
+        process_career_growth(Henry, month, year);
+
+        process_promotion(Kate, month, year);
+        process_promotion(Henry, month, year);
+
+        business_activities(month, year);
+
+        computer_activities(month);
+
         month++;
-    }
+
+        }
 }
+
 
 // ============================================================================
 // SECTION 13: REPORTING
@@ -1725,7 +1870,7 @@ void print_final_report() {
 
 int main() {
     freopen("output.txt", "w", stdout);
-    
+
     initialize_simulation();
     run_simulation();
     print_final_report();
