@@ -1,0 +1,2009 @@
+﻿#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <iostream>
+#include <iomanip>
+
+//--------------------ТИПЫ ДАННЫХ-----------------------
+
+using RUB = long long int;
+using USD = long long int;
+using Percent = float;
+
+//--------------------СТРУКТУРЫ-----------------------
+
+struct Bank
+{
+    RUB account;
+    RUB deposite;
+    USD account_usd;
+    float rate_usd_rub;
+    Percent interest;
+    std::vector<RUB> deposit_history;
+};
+
+struct Car
+{
+    RUB gas;
+    RUB value;
+    RUB maintenance;
+    RUB insurance;
+    int age_months;
+    RUB total_repairs;
+};
+
+struct Business
+{
+    RUB investment;
+    RUB monthly_profit;
+    float risk_factor;
+    RUB expansion_cost;
+    int employees;
+    RUB total_revenue;
+    RUB total_expenses;
+    std::vector<RUB> profit_history;
+};
+
+struct Loan
+{
+    RUB body;
+    Percent interest;
+    int months_left;
+    RUB monthly_payment;
+    RUB total_paid;
+    const char* bank_name;
+};
+
+struct Investment
+{
+    RUB stocks;
+    RUB bonds;
+    RUB crypto;
+    RUB real_estate;
+    Percent stock_return;
+    Percent bond_return;
+    RUB monthly_contribution;
+    RUB total_dividends;
+    std::vector<RUB> portfolio_history;
+};
+
+struct RealEstate
+{
+    RUB apartment_value;
+    RUB mortgage_debt;
+    RUB monthly_mortgage;
+    RUB property_tax;
+    RUB utilities;
+    int rooms;
+    bool is_owned;
+    RUB rental_income;
+};
+
+struct TravelLog
+{
+    const char* destination;
+    RUB cost;
+    int year;
+    int month;
+    int duration_days;
+};
+
+struct BusinessExpansion
+{
+    int new_locations;
+    RUB cost;
+    RUB additional_profit;
+    bool is_franchise;
+};
+
+struct YearlyReport
+{
+    int year;
+    RUB net_worth;
+    RUB capital;
+    RUB deposite;
+    RUB car_value;
+    RUB credit;
+    RUB investment_value;
+    RUB real_estate_value;
+    RUB total_income;
+    RUB total_expenses;
+    RUB luxury_spending;
+    RUB travel_cost;
+    RUB education_cost;
+    RUB business_profit;
+    RUB tax_paid;
+    RUB emergency_fund;
+    int travel_count;
+    int business_events;
+};
+
+// Структура персонажа Анна (Накопитель)
+struct PersonAnna
+{
+    Bank bank;
+    Car car;
+    RUB salary;
+    RUB food;
+    RUB utilities;
+    RUB health;
+    RUB education;
+    RUB emergency_fund_target;
+
+    Investment investments;
+    RealEstate property;
+
+    int total_months;
+    int food_payments_count;
+    int gas_payments_count;
+    int salary_payments_count;
+    int work_events_count;
+    int medicine_events_count;
+    RUB total_earned;
+    RUB total_spent;
+    RUB total_tax_paid;
+
+    // Цели накопления
+    RUB fire_target;
+    RUB house_target;
+    bool reached_fire;
+    int fire_year;
+    RUB monthly_savings_goal;
+    RUB actual_monthly_savings;
+    RUB total_savings;
+
+    // Инвестиционные цели
+    RUB investment_goal;
+    RUB dividend_income;
+    RUB passive_income_target;
+
+    // Статистика
+    std::vector<RUB> savings_history;
+    std::vector<RUB> investment_history;
+    std::vector<RUB> income_history;
+    std::vector<RUB> expense_history;
+    std::vector<YearlyReport> yearly_reports;
+
+    // Достижения
+    std::vector<const char*> achievements;
+};
+
+// Структура персонажа Михаил (Тратильщик)
+struct PersonMikhail
+{
+    Bank bank;
+    Car car;
+    Business business;
+    Loan credit;
+    RUB food;
+    RUB fines;
+    RUB entertainment;
+    RUB travel_budget;
+    RUB clothing;
+    RUB gadgets;
+    RUB parties;
+    RUB hobby;
+
+    Investment investments;
+    std::vector<TravelLog> travel_history;
+    std::vector<BusinessExpansion> expansions;
+
+    int business_events_count;
+    int black_market_count;
+    int rescue_events_count;
+    int fines_count;
+    int loan_payments_count;
+    int travel_count;
+    int party_count;
+    RUB total_business_income;
+    RUB total_earned;
+    RUB total_spent;
+    RUB total_tax_paid;
+
+    // Траты на впечатления
+    RUB total_travel_spent;
+    RUB total_entertainment_spent;
+    RUB total_gadgets_spent;
+    RUB total_party_spent;
+    RUB dream_vacation_cost;
+    std::vector<const char*> visited_places;
+
+    // Бизнес-цели
+    RUB business_expansion_goal;
+    RUB monthly_profit_goal;
+    int target_employees;
+    RUB franchise_cost;
+    bool has_franchise;
+
+    // Статистика
+    std::vector<RUB> expenses_history;
+    std::vector<RUB> profit_history;
+    std::vector<const char*> achievements;
+    std::vector<YearlyReport> yearly_reports;
+};
+
+struct Wedding
+{
+    RUB budget;
+    RUB cafe_rent;
+    RUB travel_cost;
+    RUB rings_cost;
+    RUB photographer;
+    RUB dress_cost;
+    RUB suit_cost;
+    RUB cake_cost;
+    int guests_count;
+    bool is_possible;
+    int wedding_year;
+    RUB total_gifts;
+    std::vector<const char*> guests_list;
+};
+
+// Объявление объектов
+PersonAnna anna;
+PersonMikhail mikhail;
+Wedding wedding;
+
+//--------------------ОБЪЯВЛЕНИЯ ФУНКЦИЙ-----------------------
+
+float key_rate(const int month, const int year);
+float inflation_rate(const int year);
+float market_volatility(const int month, const int year);
+
+// Функции для Анны (Накопитель)
+void anna_init();
+void anna_salary(const int month, const int year);
+void anna_food();
+void anna_car();
+void anna_deposite(const int month, const int year);
+void anna_currency_exchange(int month, int year);
+void anna_medicine(int month, int year);
+void anna_work_events(int month, int year);
+void anna_invest_monthly();
+void anna_apply_investment_returns(const int month, const int year);
+void anna_check_fire_status();
+void anna_utilities_payment();
+void anna_education_spending();
+void anna_emergency_fund_build();
+void anna_random_positive_events(int month, int year);
+void anna_random_negative_events(int month, int year);
+void anna_save_for_house();
+void anna_buy_real_estate(int year);
+void anna_collect_rent();
+void anna_pay_property_tax();
+void anna_track_savings();
+void anna_make_yearly_report(int year);
+
+// Функции для Михаила (Тратильщик)
+void mikhail_init();
+void mikhail_business_logic(const int month, const int year);
+void mikhail_loan_payment();
+void mikhail_expenses();
+void mikhail_shadow_expenses(int month);
+void mikhail_black_market_exchange(int month, int year);
+void mikhail_law_compliance(int month, int year);
+void mikhail_life_events(int month, int year);
+void mikhail_travel_expenses(int month, int year);
+void mikhail_entertainment_spending();
+void mikhail_gadgets_purchase(int month, int year);
+void mikhail_clothing_spending();
+void mikhail_party_hosting(int month, int year);
+void mikhail_hobby_spending();
+void mikhail_business_expansion(int year);
+void mikhail_hire_employees();
+void mikhail_invest_small();
+void mikhail_apply_investment_returns(const int month, const int year);
+void mikhail_track_achievements();
+void mikhail_make_yearly_report(int year);
+
+// Общие функции
+void inflation(const int month, const int year);
+void update_currency_rate(int month, int year);
+void calculate_taxes(int year);
+void common_events(int month, int year);
+void anna_to_the_rescue(int month, int year);
+void shopping_mall_mikhail(const int month, const int year);
+void shopping_mall_anna(const int month, const int year);
+void print_anna_report(int month, int year, RUB deposit_at_start);
+void print_mikhail_report(int month, int year);
+void print_final_summary();
+void plan_wedding();
+void collect_wedding_gifts();
+void print_disclaimer();
+void simulation();
+void print_debug_info();
+
+//--------------------ОПРЕДЕЛЕНИЕ ФУНКЦИЙ-----------------------
+
+float key_rate(const int month, const int year)
+{
+    Percent percents_rate;
+    if (year == 2026) percents_rate = 14.5;
+    if (year == 2027) percents_rate = 12.5;
+    if (year == 2028) percents_rate = 10.0;
+    if (year == 2029) percents_rate = 7.5;
+    if (year == 2030) percents_rate = 4.0;
+    if (year == 2031) percents_rate = 4.5;
+    return percents_rate;
+}
+
+float inflation_rate(const int year)
+{
+    if (year == 2026) return 8.5;
+    if (year == 2027) return 7.2;
+    if (year == 2028) return 6.0;
+    if (year == 2029) return 5.5;
+    if (year == 2030) return 4.8;
+    if (year == 2031) return 5.0;
+    return 6.0;
+}
+
+float market_volatility(const int month, const int year)
+{
+    return ((month * 7 + year * 3) % 30) / 10.0;
+}
+
+// --- Инициализация Анны (Накопитель) ---
+void anna_init()
+{
+    anna.bank.account = 50'000;
+    anna.bank.deposite = 1'000'000;
+    anna.bank.interest = 12.0;
+    anna.bank.account_usd = 1'000;
+    anna.bank.rate_usd_rub = 78.5;
+    anna.bank.deposit_history.push_back(anna.bank.deposite);
+
+    anna.salary = 180'000;
+    anna.food = 20'000;
+    anna.utilities = 8'000;
+    anna.health = 5'000;
+    anna.education = 10'000;
+    anna.emergency_fund_target = 500'000;
+
+    anna.car.value = 2'400'000;
+    anna.car.gas = 15'000;
+    anna.car.maintenance = 5'000;
+    anna.car.insurance = 7'000;
+    anna.car.age_months = 0;
+    anna.car.total_repairs = 0;
+
+    anna.investments.stocks = 200'000;
+    anna.investments.bonds = 100'000;
+    anna.investments.crypto = 0;
+    anna.investments.real_estate = 0;
+    anna.investments.stock_return = 15.0;
+    anna.investments.bond_return = 8.0;
+    anna.investments.monthly_contribution = 30'000;
+    anna.investments.total_dividends = 0;
+    anna.investments.portfolio_history.push_back(300'000);
+
+    anna.property.apartment_value = 0;
+    anna.property.mortgage_debt = 0;
+    anna.property.monthly_mortgage = 0;
+    anna.property.property_tax = 0;
+    anna.property.utilities = 0;
+    anna.property.rooms = 0;
+    anna.property.is_owned = false;
+    anna.property.rental_income = 0;
+
+    anna.total_months = 0;
+    anna.food_payments_count = 0;
+    anna.total_earned = 0;
+    anna.total_spent = 0;
+    anna.total_tax_paid = 0;
+    anna.gas_payments_count = 0;
+    anna.salary_payments_count = 0;
+    anna.work_events_count = 0;
+    anna.medicine_events_count = 0;
+
+    // Цели накопления
+    anna.fire_target = 30'000'000;
+    anna.house_target = 12'000'000;
+    anna.reached_fire = false;
+    anna.fire_year = 0;
+    anna.monthly_savings_goal = 50'000;
+    anna.actual_monthly_savings = 0;
+    anna.total_savings = anna.bank.deposite;
+
+    anna.investment_goal = 5'000'000;
+    anna.dividend_income = 0;
+    anna.passive_income_target = 100'000;
+
+    anna.savings_history.push_back(anna.bank.deposite);
+    anna.investment_history.push_back(anna.investments.stocks + anna.investments.bonds);
+    anna.income_history.push_back(anna.salary);
+    anna.expense_history.push_back(anna.food + anna.utilities + anna.car.gas);
+
+    anna.achievements.push_back("Начала карьеру");
+}
+
+// --- Инициализация Михаила (Тратильщик) ---
+void mikhail_init()
+{
+    mikhail.bank.account = 90'000;
+    mikhail.bank.deposite = 0;
+    mikhail.bank.interest = 0;
+    mikhail.bank.rate_usd_rub = 78.5;
+    mikhail.bank.account_usd = 500;
+
+    mikhail.fines = 0;
+
+    mikhail.car.value = 400'000;
+    mikhail.car.gas = 10'000;
+    mikhail.car.maintenance = 3'000;
+    mikhail.car.insurance = 5'000;
+    mikhail.car.age_months = 0;
+    mikhail.car.total_repairs = 0;
+
+    mikhail.food = 25'000;
+    mikhail.entertainment = 20'000;
+    mikhail.travel_budget = 15'000;
+    mikhail.clothing = 15'000;
+    mikhail.gadgets = 10'000;
+    mikhail.parties = 8'000;
+    mikhail.hobby = 5'000;
+
+    mikhail.business.investment = 200'000;
+    mikhail.business.monthly_profit = 57'000;
+    mikhail.business.risk_factor = 0.3;
+    mikhail.business.expansion_cost = 100'000;
+    mikhail.business.employees = 2;
+    mikhail.business.total_revenue = 0;
+    mikhail.business.total_expenses = 0;
+    mikhail.business.profit_history.push_back(57'000);
+
+    mikhail.credit.body = 600'000;
+    mikhail.credit.interest = 18.0;
+    mikhail.credit.months_left = 36;
+    mikhail.credit.monthly_payment = 25'000;
+    mikhail.credit.total_paid = 0;
+    mikhail.credit.bank_name = "Первый Банк";
+
+    mikhail.investments.stocks = 20'000;
+    mikhail.investments.bonds = 0;
+    mikhail.investments.crypto = 10'000;
+    mikhail.investments.real_estate = 0;
+    mikhail.investments.stock_return = 15.0;
+    mikhail.investments.bond_return = 8.0;
+    mikhail.investments.monthly_contribution = 5'000;
+    mikhail.investments.total_dividends = 0;
+    mikhail.investments.portfolio_history.push_back(30'000);
+
+    mikhail.business_events_count = 0;
+    mikhail.black_market_count = 0;
+    mikhail.rescue_events_count = 0;
+    mikhail.fines_count = 0;
+    mikhail.loan_payments_count = 0;
+    mikhail.travel_count = 0;
+    mikhail.party_count = 0;
+    mikhail.total_business_income = 0;
+    mikhail.total_earned = 0;
+    mikhail.total_spent = 0;
+    mikhail.total_tax_paid = 0;
+
+    // Траты на впечатления
+    mikhail.total_travel_spent = 0;
+    mikhail.total_entertainment_spent = 0;
+    mikhail.total_gadgets_spent = 0;
+    mikhail.total_party_spent = 0;
+    mikhail.dream_vacation_cost = 800'000;
+    mikhail.visited_places.push_back("Москва");
+
+    TravelLog initial;
+    initial.destination = "Москва";
+    initial.cost = 0;
+    initial.year = 2026;
+    initial.month = 1;
+    initial.duration_days = 0;
+    mikhail.travel_history.push_back(initial);
+
+    // Бизнес-цели
+    mikhail.business_expansion_goal = 500'000;
+    mikhail.monthly_profit_goal = 100'000;
+    mikhail.target_employees = 5;
+    mikhail.franchise_cost = 300'000;
+    mikhail.has_franchise = false;
+
+    mikhail.expenses_history.push_back(mikhail.bank.account);
+    mikhail.profit_history.push_back(mikhail.business.monthly_profit);
+    mikhail.achievements.push_back("Открыл бизнес");
+}
+
+//--- Общие экономические функции ---
+void inflation(const int month, const int year)
+{
+    if (month == 1) {
+        float rate = inflation_rate(year);
+        float multiplier = 1.0 + rate / 100.0;
+
+        anna.salary = (RUB)(anna.salary * multiplier);
+        anna.food = (RUB)(anna.food * multiplier);
+        anna.utilities = (RUB)(anna.utilities * multiplier);
+        anna.car.gas = (RUB)(anna.car.gas * multiplier);
+        anna.car.maintenance = (RUB)(anna.car.maintenance * multiplier);
+        anna.car.insurance = (RUB)(anna.car.insurance * multiplier);
+        anna.education = (RUB)(anna.education * multiplier);
+        anna.car.value = (RUB)(anna.car.value * 0.95);
+        anna.car.age_months++;
+
+        mikhail.food = (RUB)(mikhail.food * multiplier);
+        mikhail.entertainment = (RUB)(mikhail.entertainment * multiplier);
+        mikhail.travel_budget = (RUB)(mikhail.travel_budget * multiplier);
+        mikhail.clothing = (RUB)(mikhail.clothing * multiplier);
+        mikhail.gadgets = (RUB)(mikhail.gadgets * multiplier);
+        mikhail.parties = (RUB)(mikhail.parties * multiplier);
+        mikhail.hobby = (RUB)(mikhail.hobby * multiplier);
+        mikhail.car.gas = (RUB)(mikhail.car.gas * multiplier);
+        mikhail.car.maintenance = (RUB)(mikhail.car.maintenance * multiplier);
+        mikhail.car.insurance = (RUB)(mikhail.car.insurance * multiplier);
+        mikhail.business.monthly_profit = (RUB)(mikhail.business.monthly_profit * (1.0 + rate / 200.0));
+        mikhail.car.value = (RUB)(mikhail.car.value * 0.90);
+        mikhail.car.age_months++;
+
+        printf("  [ИНФЛЯЦИЯ]: Годовая инфляция %.1f%%. Цены скорректированы.\n", rate);
+    }
+}
+
+void calculate_taxes(int year)
+{
+    printf("\n\n--- НАЛОГОВАЯ ИНСПЕКЦИЯ (ГОД %d) ---\n", year);
+
+    RUB anna_car_tax = (RUB)(anna.car.value * 0.02);
+    RUB anna_income_tax = (RUB)(anna.total_earned * 0.13);
+    RUB anna_property_tax = (RUB)(anna.property.apartment_value * 0.01);
+    RUB anna_investment_tax = (RUB)(anna.investments.total_dividends * 0.09);
+
+    RUB anna_total_tax = anna_car_tax + anna_income_tax + anna_property_tax + anna_investment_tax;
+    anna.bank.account -= anna_total_tax;
+    anna.total_spent += anna_total_tax;
+    anna.total_tax_paid += anna_total_tax;
+    printf("Анна заплатила налогов:\n");
+    printf("  - налог на авто: %lld RUB\n", anna_car_tax);
+    printf("  - подоходный налог: %lld RUB\n", anna_income_tax);
+    printf("  - налог на недвижимость: %lld RUB\n", anna_property_tax);
+    printf("  - налог на дивиденды: %lld RUB\n", anna_investment_tax);
+    printf("  ВСЕГО: %lld RUB\n", anna_total_tax);
+
+    RUB mikhail_business_tax = (RUB)(mikhail.business.monthly_profit * 12 * 0.06);
+    RUB mikhail_car_tax = (RUB)(mikhail.car.value * 0.02);
+    RUB mikhail_total_tax = mikhail_business_tax + mikhail_car_tax;
+
+    mikhail.bank.account -= mikhail_total_tax;
+    mikhail.total_spent += mikhail_total_tax;
+    mikhail.total_tax_paid += mikhail_total_tax;
+    printf("Михаил заплатил налогов:\n");
+    printf("  - налог на бизнес: %lld RUB\n", mikhail_business_tax);
+    printf("  - налог на авто: %lld RUB\n", mikhail_car_tax);
+    printf("  ВСЕГО: %lld RUB\n", mikhail_total_tax);
+
+    if (mikhail.bank.account < 0) {
+        mikhail.fines += 20000;
+        mikhail.fines_count++;
+        printf("Михаил получил дополнительный штраф за долги.\n");
+    }
+    printf("--------------------------------------------------\n\n");
+}
+
+void update_currency_rate(int month, int year)
+{
+    float base_rate = 78.5;
+    if (year == 2027) base_rate = 82.0;
+    if (year == 2028) base_rate = 89.5;
+    if (year == 2029) base_rate = 95.0;
+    if (year == 2030) base_rate = 96.5;
+    if (year == 2031) base_rate = 93.0;
+
+    float fluctuation = market_volatility(month, year) * 2.0;
+    anna.bank.rate_usd_rub = base_rate + fluctuation;
+    mikhail.bank.rate_usd_rub = anna.bank.rate_usd_rub;
+    printf("  [ВАЛЮТНЫЙ РЫНОК]: Курс доллара: %.2f RUB\n\n", anna.bank.rate_usd_rub);
+}
+
+// --- Функции Анны (Накопитель) ---
+void anna_salary(const int month, const int year)
+{
+    anna.bank.account += anna.salary;
+    anna.total_earned += anna.salary;
+    anna.salary_payments_count++;
+    anna.income_history.push_back(anna.salary);
+
+    if (month == 12) {
+        RUB bonus = (RUB)(anna.salary * 1.5);
+        anna.bank.account += bonus;
+        anna.total_earned += bonus;
+        printf("  [РАБОТА]: Анна получила годовую премию! +%lld RUB\n", bonus);
+    }
+
+    if (anna.salary_payments_count % 12 == 0) {
+        printf("  [КАРЬЕРА]: Анна отработала %d лет!\n", anna.salary_payments_count / 12);
+    }
+}
+
+void anna_food()
+{
+    anna.bank.account -= anna.food;
+    anna.total_spent += anna.food;
+    anna.food_payments_count++;
+}
+
+void anna_utilities_payment()
+{
+    anna.bank.account -= anna.utilities;
+    anna.total_spent += anna.utilities;
+}
+
+void anna_education_spending()
+{
+    if (anna.education > 0) {
+        anna.bank.account -= anna.education;
+        anna.total_spent += anna.education;
+        printf("  [ОБРАЗОВАНИЕ]: Анна потратила %lld RUB на курсы повышения квалификации\n", anna.education);
+
+        if (rand() % 100 < 20) {
+            anna.salary = (RUB)(anna.salary * 1.05);
+            printf("  [КАРЬЕРА]: Благодаря обучению, зарплата повышена до %lld RUB\n", anna.salary);
+        }
+    }
+}
+
+void anna_car()
+{
+    RUB total_car_expenses = anna.car.gas + anna.car.maintenance + anna.car.insurance;
+    anna.bank.account -= total_car_expenses;
+    anna.total_spent += total_car_expenses;
+    anna.gas_payments_count++;
+
+    if (anna.car.age_months > 0 && anna.car.age_months % 12 == 0) {
+        printf("  [АВТО]: Машине Анны исполнилось %d лет. Текущая стоимость: %lld RUB\n",
+            anna.car.age_months / 12, anna.car.value);
+    }
+
+    if (rand() % 100 < 8) {
+        RUB repair = 20'000 + rand() % 100'000;
+        anna.bank.account -= repair;
+        anna.total_spent += repair;
+        anna.car.total_repairs += repair;
+        printf("  [АВТО]: Неожиданный ремонт машины! -%lld RUB\n", repair);
+        printf("         Всего потрачено на ремонт: %lld RUB\n", anna.car.total_repairs);
+    }
+}
+
+void anna_deposite(const int month, const int year)
+{
+    anna.bank.interest = key_rate(month, year) - 2.0;
+    RUB interest_earned = (RUB)(anna.bank.deposite * (anna.bank.interest / 12.0 / 100.0));
+    anna.bank.deposite += interest_earned;
+    anna.investments.total_dividends += interest_earned;
+
+    printf("  [БАНК]: Начислены проценты по депозиту: +%lld RUB (ставка %.1f%%)\n",
+        interest_earned, anna.bank.interest);
+
+    if (anna.bank.account > 100000) {
+        RUB transfer = anna.bank.account - 20000;
+        anna.bank.deposite += transfer;
+        anna.bank.account = 20000;
+        printf("  [БАНК]: Переведено %lld RUB на депозит\n", transfer);
+        anna.actual_monthly_savings += transfer;
+    }
+
+    anna.bank.deposit_history.push_back(anna.bank.deposite);
+}
+
+void anna_currency_exchange(int month, int year)
+{
+    if (month % 3 == 0 && anna.bank.deposite > 500000) {
+        RUB sum_to_exchange = 50000;
+        float bank_commission = 0.02 + market_volatility(month, year) / 100.0;
+        USD bought_usd = (USD)((sum_to_exchange * (1.0 - bank_commission)) / anna.bank.rate_usd_rub);
+        anna.bank.deposite -= sum_to_exchange;
+        anna.bank.account_usd += bought_usd;
+        printf("  [ВАЛЮТНЫЙ БАНК]: Куплено %lld USD по курсу %.2f с комиссией %.1f%%\n",
+            bought_usd, anna.bank.rate_usd_rub, bank_commission * 100);
+    }
+}
+
+void anna_medicine(int month, int year)
+{
+    if (month % 3 != 0) return;
+
+    int med_id = (month * 3 + year) % 20;
+    RUB cost = 0;
+    const char* description = "";
+
+    switch (med_id) {
+    case 0: cost = 2000; description = "плановая диспансеризация"; break;
+    case 1: cost = 3500; description = "витамины"; break;
+    case 2: cost = 1500; description = "лекарства"; break;
+    case 3: cost = 15000; description = "стоматолог"; break;
+    case 4: cost = 25000; description = "медицинская страховка"; break;
+    case 5: cost = 5000; description = "терапевт"; break;
+    case 6: cost = 8000; description = "окулист"; break;
+    case 7: cost = 12000; description = "массаж"; break;
+    default: return;
+    }
+
+    if (cost > 0) {
+        anna.bank.account -= cost;
+        anna.total_spent += cost;
+        anna.medicine_events_count++;
+        printf("  [ЗДОРОВЬЕ]: %s - %lld RUB\n", description, cost);
+    }
+}
+
+void anna_work_events(int month, int year)
+{
+    anna.work_events_count++;
+    int event_id = (month * 11 + year * 5) % 40;
+    RUB amount = 0;
+    const char* event_desc = "";
+
+    switch (event_id) {
+    case 0: amount = 2000; event_desc = "участие в конференции"; break;
+    case 1: amount = -1500; event_desc = "обед с коллегами"; break;
+    case 2: amount = 0; event_desc = "успешный проект"; break;
+    case 3: amount = -3000; event_desc = "штраф за опоздание"; break;
+    case 4: amount = -2000; event_desc = "подарок коллеге"; break;
+    case 5: amount = 4000; event_desc = "сверхурочная работа"; break;
+    case 6: amount = -6000; event_desc = "новая рабочая одежда"; break;
+    case 7: amount = 15000; event_desc = "премия за проект"; break;
+    case 8: amount = -2500; event_desc = "ошибка в отчете"; break;
+    case 9: amount = 1000; event_desc = "помощь коллеге"; break;
+    default: return;
+    }
+
+    printf("  [РАБОТА]: %s ", event_desc);
+    if (amount > 0) {
+        anna.bank.account += amount;
+        anna.total_earned += amount;
+        printf("+%lld RUB\n", amount);
+    }
+    else if (amount < 0) {
+        anna.bank.account += amount;
+        anna.total_spent += -amount;
+        printf("%lld RUB\n", amount);
+    }
+    else {
+        printf("\n");
+    }
+}
+
+void anna_invest_monthly()
+{
+    if (anna.bank.account > anna.investments.monthly_contribution + 50000) {
+        RUB stocks_part = (RUB)(anna.investments.monthly_contribution * 0.7);
+        RUB bonds_part = (RUB)(anna.investments.monthly_contribution * 0.3);
+
+        anna.bank.account -= anna.investments.monthly_contribution;
+        anna.investments.stocks += stocks_part;
+        anna.investments.bonds += bonds_part;
+
+        printf("  [ИНВЕСТИЦИИ]: Анна инвестировала %lld RUB\n", anna.investments.monthly_contribution);
+        printf("               Акции: %lld RUB, Облигации: %lld RUB\n", stocks_part, bonds_part);
+
+        anna.investments.portfolio_history.push_back(
+            anna.investments.stocks + anna.investments.bonds + anna.investments.real_estate);
+    }
+}
+
+void anna_apply_investment_returns(const int month, const int year)
+{
+    float volatility = market_volatility(month, year) / 10.0;
+
+    // Акции
+    float stock_random = ((rand() % 200) - 100) / 100.0;
+    float stock_monthly = anna.investments.stock_return / 12.0 / 100.0;
+    float stock_volatility = 15.0 * stock_random / 12.0 / 100.0 + volatility / 100.0;
+
+    RUB stock_return = (RUB)(anna.investments.stocks * (stock_monthly + stock_volatility));
+    anna.investments.stocks += stock_return;
+
+    // Облигации
+    float bond_random = ((rand() % 100) - 50) / 100.0;
+    float bond_monthly = anna.investments.bond_return / 12.0 / 100.0;
+    float bond_volatility = 5.0 * bond_random / 12.0 / 100.0;
+
+    RUB bond_return = (RUB)(anna.investments.bonds * (bond_monthly + bond_volatility));
+    anna.investments.bonds += bond_return;
+
+    RUB total_return = stock_return + bond_return;
+    anna.investments.total_dividends += (total_return > 0) ? total_return : 0;
+
+    if (total_return > 0) {
+        printf("  [ИНВЕСТИЦИИ]: Доход за месяц: +%lld RUB\n", total_return);
+    }
+    else if (total_return < 0) {
+        printf("  [ИНВЕСТИЦИИ]: Убыток за месяц: %lld RUB\n", total_return);
+    }
+}
+
+void anna_emergency_fund_build()
+{
+    RUB emergency_fund = anna.bank.account + (RUB)(anna.bank.deposite * 0.1);
+    if (emergency_fund < anna.emergency_fund_target) {
+        RUB needed = anna.emergency_fund_target - emergency_fund;
+        printf("  [ФИНАНСЫ]: Резервный фонд: %lld RUB (цель: %lld RUB, нужно еще %lld RUB)\n",
+            emergency_fund, anna.emergency_fund_target, needed);
+    }
+    else {
+        printf("  [ФИНАНСЫ]: Резервный фонд сформирован: %lld RUB\n", emergency_fund);
+    }
+}
+
+void anna_buy_real_estate(int year)
+{
+    if (!anna.property.is_owned && anna.bank.deposite > anna.house_target * 0.8) {
+        RUB price = anna.house_target;
+        RUB mortgage = price * 0.3;
+
+        anna.bank.deposite -= price - mortgage;
+        anna.property.apartment_value = price;
+        anna.property.mortgage_debt = mortgage;
+        anna.property.monthly_mortgage = (RUB)(mortgage * 0.09 / 12);
+        anna.property.property_tax = (RUB)(price * 0.01 / 12);
+        anna.property.utilities = 12000;
+        anna.property.rooms = 3;
+        anna.property.is_owned = true;
+
+        anna.investments.real_estate = price;
+
+        printf("\n  [НЕДВИЖИМОСТЬ]: Анна купила квартиру за %lld RUB!\n", price);
+        printf("                Первоначальный взнос: %lld RUB\n", price - mortgage);
+        printf("                Ипотека: %lld RUB, ежемесячный платеж: %lld RUB\n",
+            mortgage, anna.property.monthly_mortgage);
+        printf("                Комнат: %d\n", anna.property.rooms);
+
+        anna.achievements.push_back("Купила квартиру");
+    }
+}
+
+void anna_collect_rent()
+{
+    if (anna.property.is_owned && anna.property.rental_income > 0) {
+        anna.bank.account += anna.property.rental_income;
+        anna.total_earned += anna.property.rental_income;
+        printf("  [АРЕНДА]: Получен доход от аренды: +%lld RUB\n", anna.property.rental_income);
+    }
+}
+
+void anna_pay_property_tax()
+{
+    if (anna.property.is_owned) {
+        anna.bank.account -= anna.property.property_tax;
+        anna.total_spent += anna.property.property_tax;
+        printf("  [НЕДВИЖИМОСТЬ]: Уплачен налог на имущество: %lld RUB\n", anna.property.property_tax);
+    }
+}
+
+void anna_check_fire_status()
+{
+    RUB total_assets = anna.bank.account + anna.bank.deposite +
+        anna.car.value + anna.investments.stocks +
+        anna.investments.bonds + anna.investments.real_estate +
+        (anna.bank.account_usd * anna.bank.rate_usd_rub);
+
+    anna.total_savings = total_assets;
+    anna.savings_history.push_back(total_assets);
+
+    if (!anna.reached_fire && total_assets >= anna.fire_target) {
+        anna.reached_fire = true;
+        anna.fire_year = 2026 + (rand() % 10);
+        printf("\n*** АННА ДОСТИГЛА ФИНАНСОВОЙ НЕЗАВИСИМОСТИ В %d ГОДУ! ***\n", anna.fire_year);
+        printf("    Чистый капитал: %lld RUB\n", total_assets);
+        printf("    Пассивный доход (4%%): %lld RUB/год\n", (RUB)(total_assets * 0.04));
+        anna.achievements.push_back("Достигла финансовой независимости");
+    }
+}
+
+void anna_save_for_house()
+{
+    RUB house_progress = (anna.bank.deposite * 100) / anna.house_target;
+    if (house_progress > 0 && house_progress % 25 == 0) {
+        printf("  [ЦЕЛЬ]: Накоплено на дом: %lld%% (%lld / %lld RUB)\n",
+            house_progress, anna.bank.deposite, anna.house_target);
+    }
+}
+
+void anna_track_savings()
+{
+    anna.total_savings = anna.bank.deposite + anna.investments.stocks +
+        anna.investments.bonds + anna.investments.real_estate;
+    anna.savings_history.push_back(anna.total_savings);
+
+    RUB yearly_savings = anna.total_earned - anna.total_spent;
+    printf("  [СТАТИСТИКА]: Накопления за год: %lld RUB, всего накоплено: %lld RUB\n",
+        yearly_savings, anna.total_savings);
+}
+
+void anna_random_positive_events(int month, int year)
+{
+    int chance = rand() % 100;
+
+    if (chance < 2) {
+        RUB inheritance = 100'000 + rand() % 1'000'000;
+        anna.bank.account += inheritance;
+        anna.total_earned += inheritance;
+        printf("  [СОБЫТИЕ]: Анна получила наследство! +%lld RUB\n", inheritance);
+        anna.achievements.push_back("Получила наследство");
+    }
+    else if (chance < 5) {
+        RUB prize = 10'000 + rand() % 100'000;
+        anna.bank.account += prize;
+        anna.total_earned += prize;
+        printf("  [СОБЫТИЕ]: Анна выиграла в лотерею! +%lld RUB\n", prize);
+    }
+    else if (chance < 8) {
+        RUB cashback = 2'000 + rand() % 20'000;
+        anna.bank.account += cashback;
+        anna.total_earned += cashback;
+        printf("  [СОБЫТИЕ]: Анна получила кэшбэк по карте! +%lld RUB\n", cashback);
+    }
+}
+
+void anna_random_negative_events(int month, int year)
+{
+    int chance = rand() % 100;
+
+    if (chance < 3) {
+        RUB theft = 10'000 + rand() % 100'000;
+        anna.bank.account -= theft;
+        anna.total_spent += theft;
+        printf("  [СОБЫТИЕ]: У Анны украли кошелек! -%lld RUB\n", theft);
+    }
+    else if (chance < 6) {
+        RUB fine = 3'000 + rand() % 20'000;
+        anna.bank.account -= fine;
+        anna.total_spent += fine;
+        printf("  [СОБЫТИЕ]: Анну оштрафовали за парковку! -%lld RUB\n", fine);
+    }
+    else if (chance < 9) {
+        RUB repair = 5'000 + rand() % 50'000;
+        anna.bank.account -= repair;
+        anna.total_spent += repair;
+        printf("  [СОБЫТИЕ]: Сломалась бытовая техника. Ремонт: -%lld RUB\n", repair);
+    }
+}
+
+void anna_make_yearly_report(int year)
+{
+    YearlyReport report;
+    report.year = year;
+    report.capital = anna.bank.account;
+    report.deposite = anna.bank.deposite;
+    report.car_value = anna.car.value;
+    report.credit = 0;
+    report.investment_value = anna.investments.stocks + anna.investments.bonds;
+    report.real_estate_value = anna.investments.real_estate;
+    report.total_income = anna.total_earned;
+    report.total_expenses = anna.total_spent;
+    report.luxury_spending = 0;
+    report.travel_cost = 0;
+    report.education_cost = anna.education * 12;
+    report.business_profit = 0;
+    report.tax_paid = anna.total_tax_paid;
+    report.emergency_fund = anna.bank.account + (RUB)(anna.bank.deposite * 0.1);
+    report.travel_count = 0;
+    report.business_events = anna.work_events_count;
+
+    RUB total_assets = anna.bank.account + anna.bank.deposite + anna.car.value +
+        anna.investments.stocks + anna.investments.bonds +
+        anna.investments.real_estate +
+        (anna.bank.account_usd * anna.bank.rate_usd_rub);
+    report.net_worth = total_assets;
+
+    anna.yearly_reports.push_back(report);
+}
+
+// --- Функции Михаила (Тратильщик) ---
+void mikhail_business_logic(const int month, const int year)
+{
+    RUB base_profit = mikhail.business.monthly_profit;
+    RUB profit = base_profit;
+
+    float volatility = market_volatility(month, year) / 5.0;
+    int random_factor = rand() % 100;
+
+    if (random_factor < 15) {
+        RUB bonus = 10'000 + rand() % 50'000;
+        profit += bonus;
+        printf("  [БИЗНЕС]: Удачный месяц! +%lld RUB\n", bonus);
+    }
+    else if (random_factor < 25) {
+        RUB loss = 5'000 + rand() % 30'000;
+        profit -= loss;
+        printf("  [БИЗНЕС]: Неудачный месяц... -%lld RUB\n", loss);
+    }
+    else if (random_factor < 30) {
+        RUB expansion_effect = (RUB)(profit * 0.1);
+        profit += expansion_effect;
+        printf("  [БИЗНЕС]: Эффект от расширения! +%lld RUB\n", expansion_effect);
+    }
+
+    if (mikhail.business.employees > 2) {
+        profit = (RUB)(profit * (1.0 + mikhail.business.employees * 0.05));
+    }
+
+    mikhail.bank.account += profit;
+    mikhail.business.total_revenue += profit;
+    mikhail.total_business_income += profit;
+    mikhail.business_events_count++;
+    mikhail.total_earned += profit;
+    mikhail.business.profit_history.push_back(profit);
+
+    printf("  [БИЗНЕС]: Прибыль за месяц: %lld RUB\n", profit);
+}
+
+void mikhail_loan_payment()
+{
+    if (mikhail.credit.months_left > 0 && mikhail.credit.body > 0) {
+        RUB interest_payment = (RUB)(mikhail.credit.body * (mikhail.credit.interest / 100.0 / 12.0));
+        RUB total_payment = mikhail.credit.monthly_payment + interest_payment;
+
+        mikhail.bank.account -= total_payment;
+        mikhail.total_spent += total_payment;
+        mikhail.loan_payments_count++;
+        mikhail.credit.body -= mikhail.credit.monthly_payment;
+        mikhail.credit.months_left--;
+        mikhail.credit.total_paid += total_payment;
+
+        printf("  [КРЕДИТ]: Платеж по кредиту: %lld RUB (основной долг: %lld, проценты: %lld)\n",
+            total_payment, mikhail.credit.monthly_payment, interest_payment);
+        printf("           Остаток долга: %lld RUB, осталось месяцев: %d\n",
+            mikhail.credit.body, mikhail.credit.months_left);
+
+        if (mikhail.bank.account < 0) {
+            mikhail.fines_count++;
+            RUB bank_fine = 5000;
+            mikhail.credit.body += bank_fine;
+            mikhail.fines += bank_fine;
+            printf("  [БАНК]: Михаил в минусе! Штраф +%lld к долгу.\n", bank_fine);
+        }
+
+        if (mikhail.credit.months_left == 0) {
+            mikhail.credit.body = 0;
+            printf("\n  [МИХАИЛ]: 'Ура! Я расправился с этим кредитом!'\n");
+            mikhail.achievements.push_back("Выплатил кредит");
+        }
+    }
+}
+
+void mikhail_expenses()
+{
+    RUB food_cost = mikhail.food;
+    if (rand() % 100 < 20) {
+        food_cost += 5'000 + rand() % 15'000;
+        printf("  [ЕДА]: Михаил сходил в ресторан! +%lld RUB\n", food_cost - mikhail.food);
+    }
+    mikhail.bank.account -= food_cost;
+    mikhail.total_spent += food_cost;
+
+    RUB car_cost = mikhail.car.gas + mikhail.car.maintenance + mikhail.car.insurance;
+    mikhail.bank.account -= car_cost;
+    mikhail.total_spent += car_cost;
+}
+
+void mikhail_entertainment_spending()
+{
+    RUB entertainment_cost = mikhail.entertainment;
+    if (rand() % 100 < 30) {
+        entertainment_cost += 5'000 + rand() % 20'000;
+        printf("  [КЛУБ]: Михаил сходил в элитный клуб! Дополнительно: +%lld RUB\n",
+            entertainment_cost - mikhail.entertainment);
+    }
+
+    mikhail.bank.account -= entertainment_cost;
+    mikhail.total_spent += entertainment_cost;
+    mikhail.total_entertainment_spent += entertainment_cost;
+    printf("  [РАЗВЛЕЧЕНИЯ]: Михаил потратил %lld RUB\n", entertainment_cost);
+}
+
+void mikhail_travel_expenses(int month, int year)
+{
+    if (month % 4 == 0) {
+        RUB travel_cost = 30'000 + rand() % 100'000;
+
+        if (mikhail.bank.account > travel_cost + 20000) {
+            mikhail.bank.account -= travel_cost;
+            mikhail.total_spent += travel_cost;
+            mikhail.total_travel_spent += travel_cost;
+            mikhail.travel_count++;
+
+            const char* destinations[] = { "Санкт-Петербург", "Сочи", "Крым",
+                                          "Карелия", "Алтай", "Байкал", "Камчатка" };
+            int dest_id = rand() % 7;
+            const char* destination = destinations[dest_id];
+
+            TravelLog trip;
+            trip.destination = destination;
+            trip.cost = travel_cost;
+            trip.year = year;
+            trip.month = month;
+            trip.duration_days = 3 + rand() % 10;
+
+            mikhail.travel_history.push_back(trip);
+            mikhail.visited_places.push_back(destination);
+
+            printf("  [ПУТЕШЕСТВИЕ]: Михаил съездил в %s на %d дней! Потрачено %lld RUB\n",
+                destination, trip.duration_days, travel_cost);
+        }
+        else {
+            printf("  [ПУТЕШЕШВИЕ]: Михаил хотел поехать, но недостаточно денег\n");
+        }
+    }
+}
+
+void mikhail_gadgets_purchase(int month, int year)
+{
+    if (month % 3 == 0) {
+        RUB gadget_cost = 20'000 + rand() % 80'000;
+        mikhail.bank.account -= gadget_cost;
+        mikhail.total_spent += gadget_cost;
+        mikhail.total_gadgets_spent += gadget_cost;
+        printf("  [ГАДЖЕТЫ]: Михаил купил новый гаджет за %lld RUB\n", gadget_cost);
+
+        if (rand() % 100 < 10) {
+            printf("  [ГАДЖЕТЫ]: Это оказался лимитированный выпуск! Коллекционная стоимость!\n");
+            mikhail.investments.stocks += gadget_cost / 2;
+        }
+    }
+}
+
+void mikhail_clothing_spending()
+{
+    if (rand() % 100 < 25) {
+        RUB clothing_cost = mikhail.clothing + (rand() % 20'000);
+        mikhail.bank.account -= clothing_cost;
+        mikhail.total_spent += clothing_cost;
+        printf("  [ОДЕЖДА]: Михаил купил новую одежду на %lld RUB\n", clothing_cost);
+    }
+}
+
+void mikhail_party_hosting(int month, int year)
+{
+    if (rand() % 100 < 20) {
+        RUB party_cost = 15'000 + rand() % 70'000;
+        mikhail.bank.account -= party_cost;
+        mikhail.total_spent += party_cost;
+        mikhail.total_party_spent += party_cost;
+        mikhail.party_count++;
+        printf("  [ВЕЧЕРИНКА]: Михаил устроил вечеринку на %lld RUB. Пришло %d гостей\n",
+            party_cost, 10 + rand() % 50);
+
+        if (party_cost > 50000) {
+            printf("           Это была вечеринка года! Все в восторге!\n");
+        }
+    }
+}
+
+void mikhail_hobby_spending()
+{
+    if (rand() % 100 < 30) {
+        RUB hobby_cost = mikhail.hobby + (rand() % 15'000);
+        mikhail.bank.account -= hobby_cost;
+        mikhail.total_spent += hobby_cost;
+        printf("  [ХОББИ]: Михаил потратил на свое хобби %lld RUB\n", hobby_cost);
+    }
+}
+
+void mikhail_business_expansion(int year)
+{
+    if (!mikhail.has_franchise && mikhail.business.monthly_profit > 80000 &&
+        mikhail.bank.account > mikhail.franchise_cost) {
+
+        printf("\n  [БИЗНЕС]: Михаил открывает франшизу!\n");
+
+        mikhail.bank.account -= mikhail.franchise_cost;
+        mikhail.business.expansion_cost += mikhail.franchise_cost;
+        mikhail.business.monthly_profit = (RUB)(mikhail.business.monthly_profit * 1.5);
+        mikhail.has_franchise = true;
+
+        BusinessExpansion expansion;
+        expansion.new_locations = 1;
+        expansion.cost = mikhail.franchise_cost;
+        expansion.additional_profit = mikhail.business.monthly_profit / 2;
+        expansion.is_franchise = true;
+        mikhail.expansions.push_back(expansion);
+
+        printf("  Затраты на франшизу: %lld RUB\n", mikhail.franchise_cost);
+        printf("  Новая ежемесячная прибыль: %lld RUB\n", mikhail.business.monthly_profit);
+
+        mikhail.achievements.push_back("Открыл франшизу");
+    }
+}
+
+void mikhail_hire_employees()
+{
+    if (mikhail.business.employees < mikhail.target_employees &&
+        mikhail.business.monthly_profit > 100000) {
+        int new_hires = 1 + rand() % 2;
+        mikhail.business.employees += new_hires;
+        mikhail.business.monthly_profit = (RUB)(mikhail.business.monthly_profit * (1.0 + new_hires * 0.1));
+        printf("  [БИЗНЕС]: Михаил нанял %d новых сотрудников. Теперь всего %d\n",
+            new_hires, mikhail.business.employees);
+    }
+}
+
+void mikhail_shadow_expenses(int month)
+{
+    if (rand() % 100 < 20) {
+        RUB protection_fee = 5'000 + rand() % 10'000;
+        mikhail.bank.account -= protection_fee;
+        mikhail.total_spent += protection_fee;
+        printf("  [ТЕНИ]: Михаил заплатил 'за крышу' %lld RUB\n", protection_fee);
+    }
+
+    if (month % 4 == 0) {
+        RUB spoiled = 3'000 + rand() % 10'000;
+        mikhail.bank.account -= spoiled;
+        mikhail.total_spent += spoiled;
+        printf("  [ПРОБЛЕМЫ]: Продукты испортились! Потеряно %lld RUB\n", spoiled);
+    }
+}
+
+void mikhail_black_market_exchange(int month, int year)
+{
+    if (mikhail.bank.account > 30000 && month % 4 == 0) {
+        int risk = (month * year) % 10;
+        mikhail.black_market_count++;
+        printf("  [ЧЕРНЫЙ РЫНОК]: Михаил пытается обменять валюту... ");
+
+        if (risk > 3) {
+            RUB sum = 15'000;
+            float lucky_rate = anna.bank.rate_usd_rub * 0.8;
+            USD bought = (USD)(sum / lucky_rate);
+            mikhail.bank.account -= sum;
+            mikhail.bank.account_usd += bought;
+            mikhail.investments.crypto += bought * 50;
+            printf("УСПЕХ! Обменял по курсу %.2f. Получено %lld USD.\n", lucky_rate, bought);
+        }
+        else {
+            RUB penalty = 15'000;
+            mikhail.fines_count++;
+            mikhail.bank.account -= penalty;
+            mikhail.total_spent += penalty;
+            printf("ПРОВАЛ! Михаил наткнулся на мошенников. Потеряно %lld RUB.\n", penalty);
+        }
+    }
+}
+
+void mikhail_law_compliance(int month, int year)
+{
+    if (mikhail.fines > 0) {
+        printf("  [ПОЛИЦИЯ]: Михаил имеет неоплаченные штрафы (%lld RUB).\n", mikhail.fines);
+
+        if (mikhail.bank.account > 50000) {
+            RUB payment = (mikhail.bank.account >= mikhail.fines) ? mikhail.fines : 20000;
+            mikhail.bank.account -= payment;
+            mikhail.fines -= payment;
+            mikhail.total_spent += payment;
+            printf("  [МИХАИЛ]: Оплатил штрафы - %lld RUB\n", payment);
+        }
+        else {
+            RUB penalty = 2'000;
+            mikhail.fines += penalty;
+            printf("  [СИСТЕМА]: Михаил не может оплатить штрафы. Пени: +%lld RUB\n", penalty);
+        }
+    }
+}
+
+void mikhail_life_events(int month, int year)
+{
+    int event_id = (month * 17 + year * 3) % 50;
+    RUB amount = 0;
+    const char* desc = "";
+
+    switch (event_id) {
+    case 0: amount = 15000; desc = "Выгодная сделка"; break;
+    case 1: amount = 5000; desc = "Новый контракт"; mikhail.business.monthly_profit += 5000; break;
+    case 2: amount = -10000; desc = "Проблемы с партнерами"; break;
+    case 3: amount = 5000; desc = "Помощь от Анны"; mikhail.rescue_events_count++; break;
+    case 4: amount = 2000; desc = "Скидка на сырье"; mikhail.business.monthly_profit += 2000; break;
+    case 5: amount = -25000; desc = "Поломка оборудования"; break;
+    case 6: amount = 18500; desc = "Удачная перепродажа"; mikhail.black_market_count++; break;
+    case 7: amount = -15000; desc = "Налоговая проверка"; mikhail.fines_count++; break;
+    case 8: amount = 10000; desc = "Выигрыш в лотерею"; break;
+    case 9: amount = -4500; desc = "Дорогая покупка"; break;
+    default: return;
+    }
+
+    if (amount != 0) {
+        if (amount > 0) {
+            mikhail.bank.account += amount;
+            mikhail.total_earned += amount;
+            printf("  [ИСТОРИЯ]: %s +%lld RUB\n", desc, amount);
+        }
+        else {
+            mikhail.bank.account += amount;
+            mikhail.total_spent += -amount;
+            printf("  [ИСТОРИЯ]: %s %lld RUB\n", desc, amount);
+        }
+    }
+    else {
+        printf("  [ИСТОРИЯ]: %s\n", desc);
+    }
+}
+
+void mikhail_invest_small()
+{
+    if (mikhail.bank.account > 100000 && (rand() % 100) < 25) {
+        RUB invest = 10'000 + rand() % 40'000;
+        mikhail.bank.account -= invest;
+
+        RUB stocks_part = (RUB)(invest * 0.3);
+        RUB crypto_part = (RUB)(invest * 0.7);
+
+        mikhail.investments.stocks += stocks_part;
+        mikhail.investments.crypto += crypto_part;
+
+        printf("  [ИНВЕСТИЦИИ]: Михаил инвестировал %lld RUB (30%% акции, 70%% крипто)\n", invest);
+    }
+}
+
+void mikhail_apply_investment_returns(const int month, const int year)
+{
+    float volatility = market_volatility(month, year) / 5.0;
+
+    // Акции
+    float stock_random = ((rand() % 200) - 100) / 100.0;
+    float stock_monthly = 15.0 / 12.0 / 100.0;
+    float stock_volatility = 20.0 * stock_random / 12.0 / 100.0 + volatility / 100.0;
+
+    RUB stock_return = (RUB)(mikhail.investments.stocks * (stock_monthly + stock_volatility));
+    mikhail.investments.stocks += stock_return;
+
+    // Крипто (очень волатильно)
+    float crypto_random = ((rand() % 400) - 200) / 100.0;
+    float crypto_return = crypto_random / 100.0 + volatility / 50.0;
+    RUB crypto_change = (RUB)(mikhail.investments.crypto * crypto_return);
+    mikhail.investments.crypto += crypto_change;
+
+    if (crypto_change > 0) {
+        printf("  [КРИПТО]: Михаил заработал на крипте +%lld RUB!\n", crypto_change);
+    }
+    else if (crypto_change < 0) {
+        printf("  [КРИПТО]: Михаил потерял на крипте %lld RUB...\n", -crypto_change);
+    }
+
+    mikhail.investments.portfolio_history.push_back(
+        mikhail.investments.stocks + mikhail.investments.crypto);
+}
+
+void mikhail_track_achievements()
+{
+    if (mikhail.total_travel_spent > mikhail.dream_vacation_cost) {
+        printf("\n  [ДОСТИЖЕНИЕ]: Михаил потратил на путешествия больше стоимости мечты!\n");
+        printf("                Потрачено: %lld RUB, Мечта: %lld RUB\n",
+            mikhail.total_travel_spent, mikhail.dream_vacation_cost);
+        mikhail.achievements.push_back("Превзошел мечту о путешествиях");
+    }
+
+    if (mikhail.business.monthly_profit > mikhail.monthly_profit_goal) {
+        printf("\n  [ДОСТИЖЕНИЕ]: Михаил достиг цели по ежемесячной прибыли!\n");
+        printf("                Прибыль: %lld RUB, Цель: %lld RUB\n",
+            mikhail.business.monthly_profit, mikhail.monthly_profit_goal);
+        mikhail.achievements.push_back("Достиг цели по прибыли");
+    }
+
+    if (mikhail.credit.body == 0) {
+        printf("\n  [ДОСТИЖЕНИЕ]: Михаил полностью свободен от долгов!\n");
+    }
+}
+
+void mikhail_make_yearly_report(int year)
+{
+    YearlyReport report;
+    report.year = year;
+    report.capital = mikhail.bank.account;
+    report.deposite = mikhail.bank.deposite;
+    report.car_value = mikhail.car.value;
+    report.credit = mikhail.credit.body;
+    report.investment_value = mikhail.investments.stocks + mikhail.investments.crypto;
+    report.real_estate_value = 0;
+    report.total_income = mikhail.total_earned;
+    report.total_expenses = mikhail.total_spent;
+    report.luxury_spending = mikhail.total_travel_spent + mikhail.total_entertainment_spent +
+        mikhail.total_party_spent + mikhail.total_gadgets_spent;
+    report.travel_cost = mikhail.total_travel_spent;
+    report.education_cost = 0;
+    report.business_profit = mikhail.total_business_income;
+    report.tax_paid = mikhail.total_tax_paid;
+    report.emergency_fund = mikhail.bank.account;
+    report.travel_count = mikhail.travel_count;
+    report.business_events = mikhail.business_events_count;
+
+    RUB total_assets = mikhail.bank.account + mikhail.car.value +
+        mikhail.investments.stocks + mikhail.investments.crypto +
+        (mikhail.bank.account_usd * mikhail.bank.rate_usd_rub);
+    RUB total_liabilities = mikhail.credit.body;
+    report.net_worth = total_assets - total_liabilities;
+
+    mikhail.yearly_reports.push_back(report);
+}
+
+// --- Общие функции взаимодействия ---
+void common_events(int month, int year)
+{
+    int news_id = (month * 31 + year * 13) % 100;
+    printf(" [НОВОСТИ]: ");
+
+    switch (news_id) {
+    case 0:
+        printf("Экономический кризис! Цены на топливо выросли.\n");
+        mikhail.car.gas += 3000;
+        anna.car.gas += 3000;
+        break;
+    case 1:
+        printf("Популярный исполнитель дал концерт. -2000 RUB\n");
+        mikhail.bank.account -= 2000;
+        mikhail.total_spent += 2000;
+        anna.bank.account -= 2000;
+        anna.total_spent += 2000;
+        break;
+    case 2:
+        printf("Аномальная жара. Цены на продукты выросли на 20%%.\n");
+        anna.food = (RUB)(anna.food * 1.2);
+        mikhail.food = (RUB)(mikhail.food * 1.2);
+        break;
+    case 3:
+        printf("Правительство объявило налоговые каникулы! +5000 RUB\n");
+        mikhail.bank.account += 5000;
+        mikhail.total_earned += 5000;
+        anna.bank.account += 5000;
+        anna.total_earned += 5000;
+        break;
+    case 4:
+        printf("Открытие нового торгового центра. Скидки 30%%!\n");
+        anna.food = (RUB)(anna.food * 0.95);
+        mikhail.food = (RUB)(mikhail.food * 0.95);
+        break;
+    case 5:
+        printf("Кризис в банковской системе. Ставки по депозитам снижены.\n");
+        anna.bank.interest -= 1.0;
+        break;
+    case 6:
+        printf("Фестиваль еды в центре города! +5000 RUB\n");
+        mikhail.bank.account += 5000;
+        mikhail.total_earned += 5000;
+        break;
+    case 7:
+        printf("Эпидемия гриппа! Все покупают лекарства. -3000 RUB\n");
+        anna.bank.account -= 3000;
+        anna.total_spent += 3000;
+        mikhail.bank.account -= 3000;
+        mikhail.total_spent += 3000;
+        break;
+    case 8:
+        printf("Фестиваль еды! Туристы в городе. +10000 RUB\n");
+        mikhail.bank.account += 10000;
+        mikhail.total_earned += 10000;
+        anna.bank.account += 5000;
+        anna.total_earned += 5000;
+        break;
+    case 9:
+        printf("Новый закон о налогах. Все платят на 5%% больше.\n");
+        anna.total_tax_paid = (RUB)(anna.total_tax_paid * 1.05);
+        mikhail.total_tax_paid = (RUB)(mikhail.total_tax_paid * 1.05);
+        break;
+    case 10:
+        printf("Технологический прорыв! Акции растут.\n");
+        anna.investments.stocks = (RUB)(anna.investments.stocks * 1.05);
+        mikhail.investments.stocks = (RUB)(mikhail.investments.stocks * 1.05);
+        break;
+    case 11:
+        printf("Крах криптобиржи! Все криптоинвесторы в убытке.\n");
+        mikhail.investments.crypto = (RUB)(mikhail.investments.crypto * 0.7);
+        break;
+    default:
+        printf("В экономике все спокойно.\n");
+        break;
+    }
+    printf("  --------------------------------------------------\n");
+}
+
+void anna_to_the_rescue(int month, int year)
+{
+    if (mikhail.bank.account >= 0) {
+        if (month % 4 == 0) {
+            printf("  [ПАРТНЕРЫ]: Анна зашла к Михаилу в гости.\n");
+            mikhail.bank.account -= 500;
+        }
+        return;
+    }
+
+    RUB debt = -mikhail.bank.account;
+    printf("\n  [СРОЧНАЯ ПОМОЩЬ]: ");
+
+    if (debt < 30000) {
+        RUB help = 15000;
+        printf("Анна перевела Михаилу %lld RUB на еду.\n", help);
+        anna.bank.account -= help;
+        mikhail.bank.account += help;
+        mikhail.total_earned += help;
+        anna.total_spent += help;
+        mikhail.rescue_events_count++;
+    }
+    else if (debt < 150000) {
+        RUB help = 50000;
+        printf("У Михаила большие долги! Анна снимает %lld RUB с депозита.\n", help);
+        anna.bank.deposite -= help;
+        mikhail.bank.account += help;
+        mikhail.total_earned += help;
+        anna.total_spent += help;
+        mikhail.rescue_events_count++;
+    }
+    else {
+        RUB help = 100000;
+        printf("МИХАИЛ НА ГРАНИ БАНКРОТСТВА! Анна отдает %lld RUB.\n", help);
+        anna.bank.deposite -= help;
+        mikhail.bank.account += help;
+        mikhail.total_earned += help;
+        anna.total_spent += help;
+        mikhail.rescue_events_count++;
+    }
+    printf("  --------------------------------------------------\n\n");
+}
+
+void shopping_mall_mikhail(const int month, const int year)
+{
+    if (month == 6 || month == 12) {
+        RUB equipment = 15000;
+        mikhail.bank.account -= equipment;
+        mikhail.business.monthly_profit += 2000;
+        mikhail.gadgets += equipment;
+        printf("  - Михаил купил новое оборудование для бизнеса. Прибыль +2000\n");
+    }
+}
+
+void shopping_mall_anna(const int month, const int year)
+{
+    if (month == 12) {
+        RUB gifts = 15000;
+        anna.bank.account -= gifts;
+        anna.total_spent += gifts;
+        printf("  - Анна отправила подарки родственникам. -15000\n");
+    }
+}
+
+void plan_wedding()
+{
+    wedding.guests_count = 100;
+    wedding.cafe_rent = 500000;
+    wedding.rings_cost = 150000;
+    wedding.travel_cost = 800000;
+    wedding.photographer = 100000;
+    wedding.dress_cost = 200000;
+    wedding.suit_cost = 100000;
+    wedding.cake_cost = 50000;
+    wedding.total_gifts = 0;
+    wedding.guests_list = { "Родители", "Друзья", "Коллеги", "Бизнес-партнеры" };
+
+    printf("\n\n");
+    printf("  ╔══════════════════════════════════════════════════════════╗\n");
+    printf("  ║         💍 СВАДЬБА: АННА И МИХАИЛ 💍                    ║\n");
+    printf("  ╚══════════════════════════════════════════════════════════╝\n\n");
+
+    RUB total_cost = wedding.cafe_rent + wedding.rings_cost + wedding.travel_cost +
+        wedding.photographer + wedding.dress_cost + wedding.suit_cost +
+        wedding.cake_cost;
+
+    RUB mikhail_assets = mikhail.bank.account + (RUB)(mikhail.bank.account_usd * mikhail.bank.rate_usd_rub) +
+        mikhail.investments.stocks + mikhail.investments.crypto;
+    RUB anna_assets = anna.bank.account + anna.bank.deposite +
+        (RUB)(anna.bank.account_usd * anna.bank.rate_usd_rub) +
+        anna.investments.stocks + anna.investments.bonds + anna.investments.real_estate;
+    wedding.budget = mikhail_assets + anna_assets;
+
+    printf("  БЮДЖЕТ СВАДЬБЫ:\n");
+    printf("  ──────────────────────────────────────────────────────────\n");
+    printf("  Аренда кафе:          %15lld RUB\n", wedding.cafe_rent);
+    printf("  Кольца:                %15lld RUB\n", wedding.rings_cost);
+    printf("  Медовый месяц:         %15lld RUB\n", wedding.travel_cost);
+    printf("  Фотограф:              %15lld RUB\n", wedding.photographer);
+    printf("  Платье невесты:        %15lld RUB\n", wedding.dress_cost);
+    printf("  Костюм жениха:         %15lld RUB\n", wedding.suit_cost);
+    printf("  Свадебный торт:        %15lld RUB\n", wedding.cake_cost);
+    printf("  ──────────────────────────────────────────────────────────\n");
+    printf("  ВСЕГО:                 %15lld RUB\n", total_cost);
+    printf("\n");
+    printf("  КАПИТАЛ МОЛОДОЖЕНОВ:\n");
+    printf("  ──────────────────────────────────────────────────────────\n");
+    printf("  Анна:                  %15lld RUB\n", anna_assets);
+    printf("  Михаил:                %15lld RUB\n", mikhail_assets);
+    printf("  ВСЕГО:                 %15lld RUB\n", wedding.budget);
+    printf("  ──────────────────────────────────────────────────────────\n");
+
+    if (wedding.budget >= total_cost) {
+        printf("\n  ✅ РЕЗУЛЬТАТ: ДЕНЕГ ХВАТАЕТ!\n");
+        printf("  Свадьба состоится в лучшем ресторане!\n");
+        wedding.is_possible = true;
+        wedding.wedding_year = 2031;
+    }
+    else {
+        RUB shortfall = total_cost - wedding.budget;
+        printf("\n  ❌ РЕЗУЛЬТАТ: НЕ ХВАТАЕТ %lld RUB\n", shortfall);
+        printf("  Михаил: 'Ничего, я еще заработаю!'\n");
+        printf("  Анна: 'Главное, что мы вместе.'\n");
+        wedding.is_possible = false;
+    }
+    printf("\n");
+}
+
+void collect_wedding_gifts()
+{
+    if (!wedding.is_possible) return;
+
+    printf("\n");
+    printf("  ╔══════════════════════════════════════════════════════════╗\n");
+    printf("  ║         🎁 СВАДЕБНЫЕ ПОДАРКИ 🎁                         ║\n");
+    printf("  ╚══════════════════════════════════════════════════════════╝\n\n");
+
+    RUB total_gifts = 0;
+    RUB current_gift = 0;
+
+    current_gift = 50000;
+    total_gifts += current_gift;
+    printf("  Родители:                %15lld RUB\n", current_gift);
+
+    current_gift = 30000;
+    total_gifts += current_gift;
+    printf("  Друзья:                  %15lld RUB\n", current_gift);
+
+    current_gift = 25000;
+    total_gifts += current_gift;
+    printf("  Коллеги Анны:            %15lld RUB\n", current_gift);
+
+    current_gift = 35000;
+    total_gifts += current_gift;
+    printf("  Бизнес-партнеры Михаила: %15lld RUB\n", current_gift);
+
+    // Случайные подарки от других гостей
+    RUB random_gifts = 0;
+    for (int i = 0; i < 50; i++) {
+        random_gifts += 1000 + rand() % 5000;
+    }
+    total_gifts += random_gifts;
+    printf("  Подарки от 50 гостей:      %15lld RUB\n", random_gifts);
+
+    printf("  ──────────────────────────────────────────────────────────\n");
+    printf("  ВСЕГО ПОДАРКОВ:            %15lld RUB\n", total_gifts);
+
+    mikhail.bank.account += total_gifts / 2;
+    anna.bank.account += total_gifts / 2;
+    mikhail.total_earned += total_gifts / 2;
+    anna.total_earned += total_gifts / 2;
+    wedding.total_gifts = total_gifts;
+
+    printf("\n  Подарки разделены поровну между молодыми.\n");
+    printf("\n");
+}
+
+// --- Функции для вывода отчетов ---
+void print_anna_report(int month, int year, RUB deposit_at_start)
+{
+    RUB profit = anna.bank.deposite - deposit_at_start;
+    RUB total_assets = anna.bank.account + anna.bank.deposite + anna.car.value +
+        anna.investments.stocks + anna.investments.bonds + anna.investments.real_estate +
+        (anna.bank.account_usd * anna.bank.rate_usd_rub);
+
+    printf("\n");
+    printf("  ╔══════════════════════════════════════════════════════════╗\n");
+    printf("  ║              ОТЧЕТ: АННА (НАКОПИТЕЛЬ)                   ║\n");
+    printf("  ╠══════════════════════════════════════════════════════════╣\n");
+    printf("  ║  Месяц: %02d, Год: %d                                      ║\n", month, year);
+    printf("  ╠══════════════════════════════════════════════════════════╣\n");
+    printf("  ║  Депозит:           %15lld RUB                        ║\n", anna.bank.deposite);
+    printf("  ║  Акции:             %15lld RUB                        ║\n", anna.investments.stocks);
+    printf("  ║  Облигации:         %15lld RUB                        ║\n", anna.investments.bonds);
+    printf("  ║  Недвижимость:      %15lld RUB                        ║\n", anna.investments.real_estate);
+    printf("  ║  Валюта ($):        %15lld USD                        ║\n", anna.bank.account_usd);
+    printf("  ║  Машина:            %15lld RUB                        ║\n", anna.car.value);
+    printf("  ║  Наличные:          %15lld RUB                        ║\n", anna.bank.account);
+    printf("  ╠══════════════════════════════════════════════════════════╣\n");
+    printf("  ║  Зарплата:          %15lld RUB                        ║\n", anna.salary);
+    printf("  ║  Накопления за год: %15lld RUB                        ║\n", profit);
+    printf("  ║  Всего заработано:  %15lld RUB                        ║\n", anna.total_earned);
+    printf("  ║  Всего потрачено:   %15lld RUB                        ║\n", anna.total_spent);
+    printf("  ║  Уплачено налогов:  %15lld RUB                        ║\n", anna.total_tax_paid);
+    printf("  ╠══════════════════════════════════════════════════════════╣\n");
+    printf("  ║  ИТОГО КАПИТАЛ:     %15lld RUB                        ║\n", total_assets);
+    printf("  ║  ЦЕЛЬ FIRE:         %15lld RUB                        ║\n", anna.fire_target);
+    printf("  ║  ПРОГРЕСС:          %15lld%%                             ║\n", (total_assets * 100) / anna.fire_target);
+    if (anna.reached_fire) {
+        printf("  ║  🏆 ДОСТИГНУТА FIRE в %d году!                           ║\n", anna.fire_year);
+    }
+    printf("  ╚══════════════════════════════════════════════════════════╝\n");
+}
+
+void print_mikhail_report(int month, int year)
+{
+    RUB total_assets = mikhail.bank.account + mikhail.car.value +
+        mikhail.investments.stocks + mikhail.investments.crypto +
+        (mikhail.bank.account_usd * mikhail.bank.rate_usd_rub);
+    RUB total_liabilities = mikhail.credit.body;
+    RUB net_worth = total_assets - total_liabilities;
+
+    printf("\n");
+    printf("  ╔══════════════════════════════════════════════════════════╗\n");
+    printf("  ║              ОТЧЕТ: МИХАИЛ (ТРАТИЛЬЩИК)                 ║\n");
+    printf("  ╠══════════════════════════════════════════════════════════╣\n");
+    printf("  ║  Месяц: %02d, Год: %d                                      ║\n", month, year);
+    printf("  ╠══════════════════════════════════════════════════════════╣\n");
+    printf("  ║  Наличные:          %15lld RUB                        ║\n", mikhail.bank.account);
+    printf("  ║  Прибыль бизнеса:   %15lld RUB/мес                    ║\n", mikhail.business.monthly_profit);
+    printf("  ║  Акции:             %15lld RUB                        ║\n", mikhail.investments.stocks);
+    printf("  ║  Крипто:            %15lld RUB                        ║\n", mikhail.investments.crypto);
+    printf("  ║  Валюта ($):        %15lld USD                        ║\n", mikhail.bank.account_usd);
+    printf("  ║  Машина:            %15lld RUB                        ║\n", mikhail.car.value);
+    printf("  ╠══════════════════════════════════════════════════════════╣\n");
+    printf("  ║  Остаток кредита:   %15lld RUB                        ║\n", mikhail.credit.body);
+    printf("  ║  Осталось платежей: %15d месяцев                      ║\n", mikhail.credit.months_left);
+    printf("  ║  Штрафы:            %15lld RUB                        ║\n", mikhail.fines);
+    printf("  ╠══════════════════════════════════════════════════════════╣\n");
+    printf("  ║  Траты на впечатления:                                  ║\n");
+    printf("  ║    Путешествия:     %15lld RUB                        ║\n", mikhail.total_travel_spent);
+    printf("  ║    Развлечения:     %15lld RUB                        ║\n", mikhail.total_entertainment_spent);
+    printf("  ║    Вечеринки:       %15lld RUB                        ║\n", mikhail.total_party_spent);
+    printf("  ║    Гаджеты:         %15lld RUB                        ║\n", mikhail.total_gadgets_spent);
+    printf("  ╠══════════════════════════════════════════════════════════╣\n");
+    printf("  ║  Всего заработано:  %15lld RUB                        ║\n", mikhail.total_earned);
+    printf("  ║  Всего потрачено:   %15lld RUB                        ║\n", mikhail.total_spent);
+    printf("  ║  Уплачено налогов:  %15lld RUB                        ║\n", mikhail.total_tax_paid);
+    printf("  ╠══════════════════════════════════════════════════════════╣\n");
+    printf("  ║  ЧИСТЫЙ КАПИТАЛ:    %15lld RUB                        ║\n", net_worth);
+    printf("  ║  Посещено мест:     %15d                              ║\n", (int)mikhail.visited_places.size());
+    if (!mikhail.visited_places.empty()) {
+        printf("  ║  Места:              ");
+        for (size_t i = 0; i < mikhail.visited_places.size() && i < 3; i++) {
+            printf("%s ", mikhail.visited_places[i]);
+        }
+        if (mikhail.visited_places.size() > 3) printf("...");
+        printf("                    ║\n");
+    }
+    printf("  ╚══════════════════════════════════════════════════════════╝\n");
+}
+
+// --- УПРОЩЕННЫЙ ФИНАЛЬНЫЙ ВЫВОД ---
+void print_final_summary()
+{
+    printf("\n\n");
+    printf("  ╔══════════════════════════════════════════════════════════════════════════════════════╗\n");
+    printf("  ║                          ИТОГОВАЯ СВОДКА 2026-2031                                   ║\n");
+    printf("  ╚══════════════════════════════════════════════════════════════════════════════════════╝\n\n");
+
+    if (!anna.yearly_reports.empty() && !mikhail.yearly_reports.empty()) {
+        const auto& last_anna = anna.yearly_reports.back();
+        const auto& last_mikhail = mikhail.yearly_reports.back();
+
+        printf("  ╔════════════════════════════════════╦════════════════════╦════════════════════╗\n");
+        printf("  ║ Показатель                        ║ Анна (Накопитель)  ║ Михаил (Тратильщик)║\n");
+        printf("  ╠════════════════════════════════════╬════════════════════╬════════════════════╣\n");
+        printf("  ║ Чистый капитал                    ║ %18lld ║ %18lld ║\n", last_anna.net_worth, last_mikhail.net_worth);
+        printf("  ║ Всего заработано за 5 лет         ║ %18lld ║ %18lld ║\n", last_anna.total_income, last_mikhail.total_income);
+        printf("  ║ Всего потрачено за 5 лет          ║ %18lld ║ %18lld ║\n", last_anna.total_expenses, last_mikhail.total_expenses);
+        printf("  ║ Уплачено налогов                   ║ %18lld ║ %18lld ║\n", last_anna.tax_paid, last_mikhail.tax_paid);
+        printf("  ╠════════════════════════════════════╬════════════════════╬════════════════════╣\n");
+        printf("  ║ Инвестиции + недвижимость         ║ %18lld ║ %18lld ║\n",
+            last_anna.investment_value + last_anna.real_estate_value,
+            last_mikhail.investment_value);
+        printf("  ║ Траты на впечатления               ║ %18lld ║ %18lld ║\n",
+            last_anna.luxury_spending, last_mikhail.luxury_spending);
+        printf("  ║ Количество путешествий             ║ %18d ║ %18d ║\n",
+            last_anna.travel_count, last_mikhail.travel_count);
+        printf("  ╚════════════════════════════════════╩════════════════════╩════════════════════╝\n\n");
+
+        // Достижения
+        bool has_achievements = false;
+        if (anna.reached_fire || mikhail.credit.body == 0 || mikhail.has_franchise ||
+            mikhail.total_travel_spent > mikhail.dream_vacation_cost) {
+            printf("  🏆 ДОСТИЖЕНИЯ:\n");
+            printf("  ──────────────────────────────────────────────────────────────────────────\n");
+            has_achievements = true;
+
+            if (anna.reached_fire) {
+                printf("  • Анна достигла финансовой независимости (FIRE) в %d году!\n", anna.fire_year);
+            }
+            if (mikhail.credit.body == 0) {
+                printf("  • Михаил полностью выплатил все кредиты!\n");
+            }
+            if (mikhail.has_franchise) {
+                printf("  • Михаил открыл франшизу и расширил бизнес!\n");
+            }
+            if (mikhail.total_travel_spent > mikhail.dream_vacation_cost) {
+                printf("  • Михаил потратил на путешествия больше своей мечты (%lld RUB)!\n", mikhail.dream_vacation_cost);
+            }
+        }
+
+        // Посещенные места
+        if (!mikhail.visited_places.empty() && mikhail.visited_places.size() > 1) {
+            if (!has_achievements) {
+                printf("  🏆 ДОСТИЖЕНИЯ:\n");
+                printf("  ──────────────────────────────────────────────────────────────────────────\n");
+            }
+            printf("  ✈️ МИХАИЛ ПОСЕТИЛ: ");
+            for (size_t i = 0; i < mikhail.visited_places.size(); i++) {
+                if (i > 0) printf(", ");
+                printf("%s", mikhail.visited_places[i]);
+            }
+            printf("\n");
+        }
+
+        if (has_achievements || mikhail.visited_places.size() > 1) {
+            printf("  ──────────────────────────────────────────────────────────────────────────\n\n");
+        }
+
+        // Итог
+        printf("  💰 ИТОГ:\n");
+        printf("  ──────────────────────────────────────────────────────────────────────────\n");
+        if (last_anna.net_worth > last_mikhail.net_worth) {
+            RUB diff = last_anna.net_worth - last_mikhail.net_worth;
+            printf("  Анна накопила на %lld RUB больше Михаила.\n", diff);
+            if (anna.reached_fire) {
+                printf("  Она достигла своей главной цели - финансовой независимости!\n");
+            }
+            else {
+                printf("  До цели FIRE осталось %lld RUB.\n", anna.fire_target - last_anna.net_worth);
+            }
+        }
+        else {
+            RUB diff = last_mikhail.net_worth - last_anna.net_worth;
+            printf("  Михаил накопил на %lld RUB больше Анны.\n", diff);
+            printf("  При этом он потратил на впечатления %lld RUB и посетил %zu мест.\n",
+                last_mikhail.luxury_spending, mikhail.visited_places.size());
+        }
+        printf("  ──────────────────────────────────────────────────────────────────────────\n");
+    }
+    else {
+        printf("  ❌ Ошибка: нет данных для отображения\n");
+    }
+}
+
+void print_disclaimer()
+{
+    printf("\n\n");
+    printf("  ╔══════════════════════════════════════════════════════════════════════════════════════╗\n");
+    printf("  ║                                                                                      ║\n");
+    printf("  ║              ECONOMIC LIFE SIMULATION SYSTEM v1.0                                    ║\n");
+    printf("  ║                                                                                      ║\n");
+    printf("  ╚══════════════════════════════════════════════════════════════════════════════════════╝\n\n");
+
+    printf("  ╔══════════════════════════════════════════════════════════════════════════════════════╗\n");
+    printf("  ║  1. ОПИСАНИЕ СИСТЕМЫ                                                                  ║\n");
+    printf("  ║     • АННА - накопитель, цель: финансовая независимость (FIRE)                       ║\n");
+    printf("  ║     • МИХАИЛ - тратильщик, цель: яркая жизнь и впечатления                           ║\n");
+    printf("  ╠══════════════════════════════════════════════════════════════════════════════════════╣\n");
+    printf("  ║  2. РЕЖИМ РАБОТЫ: 2026-2031, каждый шаг = 1 месяц                                    ║\n");
+    printf("  ╚══════════════════════════════════════════════════════════════════════════════════════╝\n\n");
+
+    printf("  НАЖМИТЕ ENTER ДЛЯ НАЧАЛА СИМУЛЯЦИИ...\n");
+    getchar();
+}
+
+void print_month_header(int month, int year)
+{
+    printf("\n");
+    printf("  ╔══════════════════════════════════════════════════════════════════════════════════════╗\n");
+    printf("  ║                        МЕСЯЦ %02d / %d                                                ║\n", month, year);
+    printf("  ╚══════════════════════════════════════════════════════════════════════════════════════╝\n");
+}
+
+void print_year_end(int month, int year, RUB deposit_at_start_of_year)
+{
+    printf("\n");
+    printf("  ╔══════════════════════════════════════════════════════════════════════════════════════╗\n");
+    printf("  ║                           ИТОГИ %d ГОДА                                              ║\n", year);
+    printf("  ╚══════════════════════════════════════════════════════════════════════════════════════╝\n");
+
+    anna_make_yearly_report(year);
+    mikhail_make_yearly_report(year);
+
+    printf("\n[ФИНАНСОВЫЙ ОТЧЕТ АННЫ]:\n");
+    print_anna_report(12, year, deposit_at_start_of_year); // month = 12 для декабря
+
+    printf("\n[ФИНАНСОВЫЙ ОТЧЕТ МИХАИЛА]:\n");
+    print_mikhail_report(12, year);
+}
+
+// --- Основная функция симуляции ---
+void simulation()
+{
+    int month = 1;
+    int year = 2026;
+    RUB deposit_at_start_of_year = anna.bank.deposite;
+
+    while (!(month == 3 && year == 2031))
+    {
+        print_month_header(month, year);
+        anna.total_months++;
+
+        // Глобальные события месяца
+        inflation(month, year);
+        update_currency_rate(month, year);
+        common_events(month, year);
+
+        // Анна (Накопитель)
+        anna_salary(month, year);
+        anna_work_events(month, year);
+        anna_food();
+        anna_utilities_payment();
+        anna_education_spending();
+        anna_car();
+        anna_medicine(month, year);
+        anna_currency_exchange(month, year);
+        anna_invest_monthly();
+        anna_apply_investment_returns(month, year);
+        anna_deposite(month, year);
+        anna_random_positive_events(month, year);
+        anna_random_negative_events(month, year);
+        anna_emergency_fund_build();
+        anna_save_for_house();
+        anna_buy_real_estate(year);
+        if (anna.property.is_owned) {
+            anna_collect_rent();
+            anna_pay_property_tax();
+        }
+        anna_check_fire_status();
+
+        // Михаил (Тратильщик)
+        mikhail_business_logic(month, year);
+        mikhail_life_events(month, year);
+        mikhail_shadow_expenses(month);
+        mikhail_expenses();
+        mikhail_entertainment_spending();
+        mikhail_travel_expenses(month, year);
+        mikhail_clothing_spending();
+        mikhail_gadgets_purchase(month, year);
+        mikhail_party_hosting(month, year);
+        mikhail_hobby_spending();
+        mikhail_loan_payment();
+        mikhail_black_market_exchange(month, year);
+        mikhail_law_compliance(month, year);
+        mikhail_invest_small();
+        mikhail_apply_investment_returns(month, year);
+        mikhail_business_expansion(year);
+        mikhail_hire_employees();
+        mikhail_track_achievements();
+
+        // Взаимодействие персонажей
+        anna_to_the_rescue(month, year);
+        shopping_mall_mikhail(month, year);
+        shopping_mall_anna(month, year);
+
+        month++;
+        if (month == 13)
+        {
+            calculate_taxes(year);
+            print_year_end(12, year, deposit_at_start_of_year);
+            deposit_at_start_of_year = anna.bank.deposite;
+            anna_track_savings();
+            year++;
+            month = 1;
+        }
+    }
+
+    // Вместо полного отчета - упрощенная сводка
+    print_final_summary();
+    plan_wedding();
+    collect_wedding_gifts();
+
+    printf("\n\n");
+    printf("  ╔══════════════════════════════════════════════════════════════════════════════════════╗\n");
+    printf("  ║                      СИМУЛЯЦИЯ ЗАВЕРШЕНА                                             ║\n");
+    printf("  ║                СПАСИБО ЗА ИСПОЛЬЗОВАНИЕ СИСТЕМЫ!                                     ║\n");
+    printf("  ╚══════════════════════════════════════════════════════════════════════════════════════╝\n");
+}
+
+int main()
+{
+    srand(time(NULL));
+
+    print_disclaimer();
+
+    anna_init();
+    mikhail_init();
+
+    simulation();
+
+    return 0;
+}
