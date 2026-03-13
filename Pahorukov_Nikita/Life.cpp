@@ -1,34 +1,96 @@
 #include <iostream>
 #include <string>
 #include <random>
+#include <array>
 
-using KOP = int;
-
-int random_year(int min, int max) {
+using DAR = int;
+                                /* =======================
+                                   ВСПОМОГАТЕЛЬНЫЕ КОМАНДЫ
+                                   ======================= */
+int random_year(const int min, const int max) {
     static std::mt19937 gen(std::random_device{}());
     std::uniform_int_distribution<> dist(min, max);
-    return dist(gen);
+    return dist(gen); 
 }
 
-struct Ivan {
-    std::string name;
-    double age;
-    int birth_year;
-    KOP money;
-};
+                                /* =======================
+                                            ЗЕРНО 
+                                   ======================= */
 
-struct Barin {
-    double percent_obrok;
-    int forced_crop;
-    int how_many_years;
-};
-
-struct Grain {
+class Grain {
+public:
     std::string name;
     double price_per_kg;
     int kg_for_desyatina;
-    int storage_kg;  // сколько есть в амбаре
+    int storage_kg;
+
 };
+
+std::array<Grain, 4> grains;
+
+void grains_init() {
+    grains[0] = { "Oats", 8, 190, 190 };
+    grains[1] = { "Barley", 9, 150, 150 }; // ячмень
+    grains[2] = { "Rye", 12, 140, 140 };
+    grains[3] = { "Wheat", 14, 160, 160 };
+}
+
+
+                                /* =======================
+                                            БАРИН 
+                                   ======================= */
+class Barin {
+public:
+    double percent_obrok = 0.3;
+    int forced_crop;
+    int how_many_years;
+
+    void random_barin_order();
+    void barin_init();
+};
+Barin barin;
+
+void Barin::random_barin_order() {
+    static std::mt19937 gen(std::random_device{}());
+
+    std::uniform_int_distribution<> crop_dist(0, 3);
+    std::uniform_int_distribution<> years_dist(1, 5);
+
+    forced_crop = crop_dist(gen);
+    how_many_years = years_dist(gen);
+
+    std::cout << "Barin ordered to plant "
+        << grains[forced_crop].name
+        << " for " << how_many_years
+        << " years\n";
+}
+                                /* =======================
+                                            ИВАН 
+                                   ======================= */
+
+class Ivan {
+public:
+    double age = 18.0;
+    int birth_year;
+    DAR money = 10000;
+
+    void expenses() {
+        money -= 2000;
+        std::cout << "Ivan spend 2000 DAR for food \n";
+        // траты зерна на еду
+    }
+};
+
+Ivan ivan;
+
+class Depended_Ivan:Ivan {
+
+};
+
+
+
+
+
 
 struct Field {
     int crop_index; // индекс культуры, которая будет посеяна
@@ -37,43 +99,30 @@ struct Field {
 
 enum Season { Spring, Summer, Autumn, Winter };
 
-Ivan ivan;
-std::array<Grain, 4> grains;
+
+
 Field field;
-Barin barin;
 
-void ivan_init() {
-    ivan.name = "Ivan";
-    ivan.age = 18.0;
-    ivan.money = 500;
-}
+std::array <double, 16> harvest_coeff = {
+    0.1,
+    0.3,
+    0.5, 0.5,
+    0.7, 0.7,
+    0.9, 0.9, 0.9,
+    1.1, 1.1, 1.1,
+    1.3, 1.3,
+    1.6,
+    2.0
+};
 
-void randomBarinOrder() {
+double random_harvest_coeff_init() {
+
     static std::mt19937 gen(std::random_device{}());
-
-    std::uniform_int_distribution<> crop_dist(0, 3);
-    std::uniform_int_distribution<> years_dist(1, 5);
-
-    barin.forced_crop = crop_dist(gen);
-    barin.how_many_years = years_dist(gen);
-
-    std::cout << "Barin ordered to plant "
-        << grains[barin.forced_crop].name
-        << " for " << barin.how_many_years
-        << " years\n";
+    std::uniform_int_distribution<> coeff(0, 15);
+    return harvest_coeff[coeff(gen)];
 }
 
-void barin_init() {
-    barin.percent_obrok = 0.3;
-    randomBarinOrder();
-}
 
-void grains_init() {
-    grains[0] = {"Oats", 0.8, 190, 190};
-    grains[1] = { "Barley", 0.9, 150, 150 }; // ячмень
-    grains[2] = { "Rye", 1.2, 140, 140 };
-    grains[3] = {"Wheat", 1.4, 160, 160};
-}
 
 void field_init() {
     field.area = 20.0; // площадь поля
@@ -81,25 +130,28 @@ void field_init() {
 }
 
 // Весна: посадка культуры
-void plant_сrop(Season season) {
+void plant_crop(Season season) {
     if (season != Spring) return;
-    if (barin.how_many_years > 0) {
-        field.crop_index = barin.forced_crop; // Иван сеет то, что приказал барин
-        std::cout << "Spring: " << grains[field.crop_index].name << " is planted\n";
-        barin.how_many_years--;
+
+    if (barin.how_many_years == 0) {
+        barin.random_barin_order();
     }
 
-    else {
-        // Барин берет новый приказ из массива приказов.
-        //std::cout << "Spring: Barin didn't order anything. " << grains[3].name << " is planted\n"; // пока сажает пшено
-    }
+    field.crop_index = barin.forced_crop;
+    std::cout << "Spring: " << grains[field.crop_index].name << " is planted\n";
+
+    barin.how_many_years--;
 }
 
 // Лето: сбор урожая
-void harvest_сrop(Season season) {
+void harvest_crop(Season season) {
     if (season != Summer) return;
+    if (field.crop_index < 0) return;
 
-    int grown_harvest = field.area * grains[field.crop_index].kg_for_desyatina; 
+    double random_harvest_coeff = random_harvest_coeff_init();
+    std::cout << "Harvest coefficient: " << random_harvest_coeff << "\n";
+
+    int grown_harvest = field.area * grains[field.crop_index].kg_for_desyatina * random_harvest_coeff;
 
     int obrok = grown_harvest * barin.percent_obrok;
     int ivan_part = grown_harvest - obrok;
@@ -120,26 +172,30 @@ void sell_crop(Season season) {
     if (season == Spring) return;
     if (season == Summer) return;
 
-    for (auto& grain : grains) {
-        if (grain.storage_kg == 0) continue;     // если текущий сейчас grain.storage_kg пустой или равен посадке то
-        if (grain.storage_kg == grain.kg_for_desyatina) continue;  // переходим к следующему grain в массиве
+    for (auto& grain : grains) { // & нужно чтобы у меня обновлялось storage_kg
+		int seed_needed = field.area * grain.kg_for_desyatina; // сколько нужно для посадки
 
-        ivan.money += (grain.storage_kg - grain.kg_for_desyatina) * grain.price_per_kg;
-        grain.storage_kg = grain.kg_for_desyatina; // продано
+        if (grain.storage_kg <= seed_needed) continue;  // переходим к следующему grain в массиве
 
-        std::cout << (grain.storage_kg - grain.kg_for_desyatina) << " kg of "
+
+        int sold = grain.storage_kg - seed_needed;
+
+        ivan.money += sold * grain.price_per_kg;
+
+        std::cout << sold << " kg of "
             << grain.name << " sold for "
-            << (grain.storage_kg - grain.kg_for_desyatina) * grain.price_per_kg << " KOP\n";
+            << sold * grain.price_per_kg << " DAR\n";
 
+        grain.storage_kg = grain.kg_for_desyatina;
     }
 }
 
 // Основная функция обработки сезона
 void process_cropping(Season season) {
     switch (season) {
-    case Spring: plant_сrop(season); break;
-    case Summer: harvest_сrop(season); break;
-    case Autumn:
+    case Spring: plant_crop(season); break;
+    case Summer: harvest_crop(season); break;
+    case Autumn: break;
     case Winter: sell_crop(season); break;
     }
 }
@@ -147,30 +203,31 @@ void process_cropping(Season season) {
 
 
 int main() {
-    ivan_init();
-    barin_init();
+
+    int year = random_year(1820, 1856);
+
+    int start_year = year;
+    Season current_season = Spring;
+    std::cout << "Start year: " << year << "\n";
+   
     grains_init();
     field_init();
 
-    int year = random_year(1820, 1856);
-    int start_year = year;
-    Season currentSeason = Spring;
-    std::cout << "Start year: " << year << "\n";
+	//family_init(); // если нужно, можно добавить семью и расходы на нее
+	//pets_init(); // если нужно, можно добавить животных и расходы на них,
+
+
     while (year < 1861) {
-        std::cout << ivan.money << "KOP \n";
-        process_cropping(currentSeason);
+        std::cout << ivan.money << " DAR \n";
+        process_cropping(current_season);
+        ivan.expenses();
 
-        currentSeason = static_cast<Season>((currentSeason + 1) % 4);
-
-        // ivan.money -= 500; // расходы на еду, условно
-
-        //std::cout << currentSeason + 1 << " season: Ivan spent 500 COP on food\n";
-
-        if (currentSeason == Spring) {
+        current_season = static_cast<Season>((current_season + 1) % 4);
+        if (current_season == Spring) {
             year++;
         }
     }
-
-    std::cout << "After " << year - start_year << " years, Ivan has " << ivan.money/100 << " RUB and "
-        << ivan.money%100  << " KOP \n";
+    // after 1861 будет совсем другая история, которую мы обязательно продолжим
+    std::cout << "After " << year - start_year << " years, Ivan has " << ivan.money/1000 << " RUB and "
+        << ivan.money%1000  << " DAR \n";
 }
