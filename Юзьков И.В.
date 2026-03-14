@@ -7,13 +7,13 @@
 #include <iostream>
 #include <iomanip>
 
-//--------------------ТИПЫ ДАННЫХ-----------------------
+
 
 using RUB = long long int;
 using USD = long long int;
 using Percent = float;
 
-//--------------------СТРУКТУРЫ-----------------------
+
 
 struct Bank
 {
