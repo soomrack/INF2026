@@ -1,14 +1,7 @@
 #include <iostream>
-#include <string>
-#include <cstdlib>
-#include <ctime>
-#include <iomanip>
 using namespace std;
 
-// ============================================================
-// СТРУКТУРЫ ДАННЫХ
-// ============================================================
-
+// СТРУКТУРЫ ДАННЫХ (расходов)
 struct Car {
 	string name;
 	int repairCost;
@@ -90,9 +83,7 @@ struct Food {
 	string category;
 };
 
-// ============================================================
-// ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
-// ============================================================
+// Основные переменные
 
 // Деньги
 int moneyOnCard = 200000;
@@ -101,9 +92,7 @@ int totalMoney = 200000;
 int startMoney = 200000;
 float bankPercent = 19.0;
 
-// ============================================================
-// БИЗНЕС 1 - БЕСПРОВОДНЫЕ НАУШНИКИ
-// ============================================================
+// БИЗНЕС 1: БЕСПРОВОДНЫЕ НАУШНИКИ
 
 string productName1 = "Беспроводные наушники";
 int buyPrice1 = 680;
@@ -118,9 +107,7 @@ int storageCost1 = 2200;
 int commissionPercent1 = 16;
 int returnsPerMonth1 = 3;
 
-// ============================================================
 // БИЗНЕС 2 - УМНЫЕ ЧАСЫ
-// ============================================================
 
 string productName2 = "Умные часы";
 int buyPrice2 = 1350;
@@ -135,9 +122,7 @@ int storageCost2 = 1800;
 int commissionPercent2 = 16;
 int returnsPerMonth2 = 2;
 
-// ============================================================
-// БИЗНЕС 3 - ВНЕШНИЙ АККУМУЛЯТОР
-// ============================================================
+// БИЗНЕС 3: Повер банк
 
 string productName3 = "Внешний аккумулятор";
 int buyPrice3 = 950;
@@ -152,9 +137,7 @@ int storageCost3 = 2000;
 int commissionPercent3 = 16;
 int returnsPerMonth3 = 2;
 
-// ============================================================
-// БИЗНЕС 4 - ФИТНЕС-БРАСЛЕТ
-// ============================================================
+// БИЗНЕС 4: ФИТНЕС-БРАСЛЕТ
 
 string productName4 = "Фитнес-браслет";
 int buyPrice4 = 850;
@@ -169,9 +152,7 @@ int storageCost4 = 1900;
 int commissionPercent4 = 16;
 int returnsPerMonth4 = 2;
 
-// ============================================================
 // БИЗНЕС 5 - ПОРТАТИВНАЯ КОЛОНКА
-// ============================================================
 
 string productName5 = "Портативная колонка";
 int buyPrice5 = 1450;
@@ -186,9 +167,7 @@ int storageCost5 = 1600;
 int commissionPercent5 = 16;
 int returnsPerMonth5 = 1;
 
-// ============================================================
-// МАШИНА ЛАДА ВЕСТА СПОРТЛАЙН
-// ============================================================
+// ЛАДА ВЕСТА СПОРТЛАЙН
 
 string carName = "Лада Веста Спортлайн";
 int carRepairCost = 5500;
@@ -206,7 +185,7 @@ int carWashCost = 1600;
 int carParkingCost = 2700;
 
 // ============================================================
-// КОТ ФЕЛИКС
+// КОТИК ФЕЛИКС
 // ============================================================
 
 string catName = "Феликс";
@@ -224,9 +203,7 @@ int catVitaminsCost = 850;
 int catBeddingCost = 950;
 int catBowlCost = 650;
 
-// ============================================================
 // ИНВЕСТИЦИИ
-// ============================================================
 
 string investName = "Сбер Инвестиции";
 int investDailyIncome = 220;
@@ -237,9 +214,7 @@ int investMinDeposit = 25000;
 int investCommission = 180;
 float investProfitPercent = 19.0;
 
-// ============================================================
-// ТЕЛЕФОН
-// ============================================================
+// ТЕЛЕФОН (S24+)
 
 string phoneModel = "";
 int phonePrice = 0;
@@ -253,9 +228,7 @@ int phoneBattery = 5000;
 string phoneColor = "Графитовый";
 int phoneCamera = 108;
 
-// ============================================================
 // МАКДОНАЛЬДС
-// ============================================================
 
 string mcFoodName = "БигМак Комбо";
 int mcFoodPrice = 580;
@@ -263,39 +236,29 @@ int mcBuyChance = 24;
 int mcTotalPurchases = 0;
 int mcTotalMoney = 0;
 
-// ============================================================
 // ШАВЕРМА
-// ============================================================
 
 int shawarmaPrice = 260;
 int shawarmaPerWeek = 1;
 int shawarmaTotalExpenses = 0;
 
-// ============================================================
 // ЧУПА-ЧУПС
-// ============================================================
 
 int chupaPrice = 52;
 int chupaPerWeek = 2;
 int chupaTotalExpenses = 0;
 
-// ============================================================
 // ПРОЕЗДНОЙ
-// ============================================================
 
-int travelCardPrice = 3100;
+int travelCardPrice = 1500;
 int travelCardTotal = 0;
 
-// ============================================================
 // КРОССОВКИ
-// ============================================================
 
 int sneakersPrice = 7200;
 bool sneakersAreBought = false;
 
-// ============================================================
 // КОММУНАЛЬНЫЕ ПЛАТЕЖИ
-// ============================================================
 
 int electricityBill = 4200;
 int waterBill = 2900;
@@ -307,9 +270,8 @@ int heatingBill = 3600;
 int renovationBill = 1050;
 int totalCommunalPayments = 0;
 
-// ============================================================
+
 // ОНЛАЙН ПОКУПКИ
-// ============================================================
 
 int ozonSpending = 4200;
 int wildberriesSpending = 3600;
@@ -317,9 +279,7 @@ int marketSpending = 2600;
 int aliexpressSpending = 3100;
 int totalOnlineSpending = 0;
 
-// ============================================================
 // КАФЕ
-// ============================================================
 
 int cafeVisitsCount = 0;
 int cafeAverageBill = 1550;
@@ -328,49 +288,37 @@ int deliveryTimesCount = 0;
 int deliveryAverageBill = 1050;
 int deliveryTotalSpending = 0;
 
-// ============================================================
 // КИНО
-// ============================================================
 
 int cinemaTicketPrice = 620;
 int cinemaVisitsPerMonth = 1;
 int cinemaTotalSpending = 0;
 
-// ============================================================
 // СПОРТ
-// ============================================================
 
 int gymMonthlyPrice = 3600;
 int gymTotalSpending = 0;
 
-// ============================================================
 // ТАКСИ
-// ============================================================
 
 int taxiTripsCount = 0;
 int taxiAveragePrice = 520;
 int taxiTotalSpending = 0;
 
-// ============================================================
 // АПТЕКА
-// ============================================================
 
 int medicineMonthly = 2100;
 int medicineTotal = 0;
 int vitaminsMonthly = 1250;
 int vitaminsTotal = 0;
 
-// ============================================================
 // КОФЕ С СОБОЙ
-// ============================================================
 
 int coffeePrice = 290;
 int coffeePerWeek = 3;
 int coffeeTotalSpending = 0;
 
-// ============================================================
-// ПИВО
-// ============================================================
+// ПИВО :)
 
 int beerPrice = 210;
 int beerPerWeek = 2;
@@ -379,9 +327,7 @@ int chipsPrice = 160;
 int chipsPerWeek = 1;
 int chipsTotalSpending = 0;
 
-// ============================================================
 // ДЕНЬ РОЖДЕНИЯ
-// ============================================================
 
 int birthdayGiftsAmount = 6500;
 int birthdayMonthNumber = 4;
@@ -390,47 +336,35 @@ int birthdayCakePrice = 2200;
 int birthdayRestaurantPrice = 5500;
 int birthdayTotalSpending = 0;
 
-// ============================================================
 // НАЛОГИ
-// ============================================================
 
 int monthlyTax = 3700;
 int monthlyTaxTotal = 0;
 int transportTax = 6800;
 
-// ============================================================
 // ОДЕЖДА
-// ============================================================
 
 int clothesMonthly = 4700;
 int clothesTotal = 0;
 int shoesMonthly = 3200;
 int shoesTotal = 0;
 
-// ============================================================
 // КНИГИ
-// ============================================================
 
 int booksMonthly = 1600;
 int booksTotalSpending = 0;
 
-// ============================================================
 // ХОББИ
-// ============================================================
 
 int hobbyMonthly = 2700;
 int hobbyTotalSpending = 0;
 
-// ============================================================
 // ПОДАРКИ
-// ============================================================
 
 int giftsMonthly = 2200;
 int giftsTotalSpending = 0;
 
-// ============================================================
-// БЕНЗИН
-// ============================================================
+// БЕНЗИН ДЛЯ ЛЮБИМОЙ ЛАДЫ ВЕСТЫ!
 
 int gasolineMonthly = 6200;
 int gasolineTotalSpending = 0;
@@ -439,24 +373,18 @@ int carWashTotalSpending = 0;
 int tireFittingCost = 4200;
 int tireStorageCost = 3200;
 
-// ============================================================
 // ЗДОРОВЬЕ
-// ============================================================
 
 int dentistVisitCost = 4500;
 int massageMonthly = 2200;
 int massageTotalSpending = 0;
 
-// ============================================================
 // ОБРАЗОВАНИЕ
-// ============================================================
 
 int englishMonthly = 2700;
 int englishTotalSpending = 0;
 
-// ============================================================
-// ПУТЕШЕСТВИЯ
-// ============================================================
+// ПУТЕШЕСТВИЯ БЕЗ ЛАДЫ ВЕСТЫ :(
 
 int vacationYearlyCost = 65000;
 int vacationMonthNumber = 7;
@@ -466,28 +394,22 @@ int weekendTripsTotal = 0;
 
 // ============================================================
 // ПРОДУКТЫ
-// ============================================================
-
 // Хлеб
 string breadName = "Хлеб";
 int breadPrice = 58;
 int breadCount = 0;
-
 // Молоко
 string milkName = "Молоко";
 int milkPrice = 98;
-int milkCount = 0;
-
+int milkСount = 0;
 // Яйца
 string eggsName = "Яйца";
 int eggsPrice = 135;
 int eggsCount = 0;
-
 // Сыр
 string cheeseName = "Сыр";
 int cheesePrice = 420;
 int cheeseCount = 0;
-
 // Курица
 string chickenName = "Курица";
 int chickenPrice = 470;
@@ -596,9 +518,7 @@ int icecreamCount = 0;
 // Общие расходы на продукты
 int totalFoodSpending = 0;
 
-// ============================================================
 // НАЗВАНИЯ МЕСЯЦЕВ
-// ============================================================
 
 string january = "Январь";
 string february = "Февраль";
@@ -617,9 +537,8 @@ string monthNamesArray[12] = {
 	january, february, march, april, may, june,
 	july, august, september, october, november, december
 };
-// ============================================================
+
 // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-// ============================================================
 
 string getMonthName(int monthNumber) {
 	if (monthNumber == 1) {
@@ -711,9 +630,7 @@ int getRandomInRange(int minimum, int maximum) {
 	randomNumber = randomNumber + minimum;
 	return randomNumber;
 }
-// ============================================================
 // БИЗНЕС 1 - БЕСПРОВОДНЫЕ НАУШНИКИ
-// ============================================================
 
 void processBusiness1(int currentMonth) {
 	int salesThisMonth = monthlySales1;
@@ -784,9 +701,7 @@ void processBusiness1(int currentMonth) {
 	cout << "    ПРИБЫЛЬ: +" << profit << " рублей" << endl;
 }
 
-// ============================================================
 // БИЗНЕС 2 - УМНЫЕ ЧАСЫ
-// ============================================================
 
 void processBusiness2(int currentMonth) {
 	int salesThisMonth = monthlySales2;
@@ -857,9 +772,7 @@ void processBusiness2(int currentMonth) {
 	cout << "    ПРИБЫЛЬ: +" << profit << " рублей" << endl;
 }
 
-// ============================================================
 // БИЗНЕС 3 - ВНЕШНИЙ АККУМУЛЯТОР
-// ============================================================
 
 void processBusiness3(int currentMonth) {
 	int salesThisMonth = monthlySales3;
@@ -930,9 +843,7 @@ void processBusiness3(int currentMonth) {
 	cout << "    ПРИБЫЛЬ: +" << profit << " рублей" << endl;
 }
 
-// ============================================================
 // БИЗНЕС 4 - ФИТНЕС-БРАСЛЕТ
-// ============================================================
 
 void processBusiness4(int currentMonth) {
 	int salesThisMonth = monthlySales4;
@@ -1003,9 +914,7 @@ void processBusiness4(int currentMonth) {
 	cout << "    ПРИБЫЛЬ: +" << profit << " рублей" << endl;
 }
 
-// ============================================================
 // БИЗНЕС 5 - ПОРТАТИВНАЯ КОЛОНКА
-// ============================================================
 
 void processBusiness5(int currentMonth) {
 	int salesThisMonth = monthlySales5;
@@ -1075,9 +984,8 @@ void processBusiness5(int currentMonth) {
 	cout << "    Расходы: -" << totalCosts << " рублей" << endl;
 	cout << "    ПРИБЫЛЬ: +" << profit << " рублей" << endl;
 }
-// ============================================================
+
 // ФУНКЦИИ ДОХОДОВ
-// ============================================================
 
 void calculateBankPercent(int currentMonth, int currentYear) {
 	int daysInCurrentMonth = getDaysInMonth(currentMonth, currentYear);
@@ -1126,9 +1034,6 @@ void calculateInvestIncome(int currentMonth, int currentYear) {
 	cout << "    Доход в день: " << investDailyIncome << " рублей" << endl;
 	cout << "    Дней в месяце: " << daysInCurrentMonth << endl;
 }
-// ============================================================
-// ФУНКЦИИ РАСХОДОВ - ЧАСТЬ 1
-// ============================================================
 
 void spendOnCat() {
 	moneyOnCard = moneyOnCard - catFoodCost;
@@ -1221,10 +1126,7 @@ void spendOnCar(int currentMonth, int currentYear) {
 		cout << "  Хранение шин: -" << tireStorageCost << " рублей" << endl;
 	}
 }
-// ============================================================
-// ФУНКЦИИ РАСХОДОВ - ЧАСТЬ 2
-// ============================================================
-
+// расходы
 void spendOnMcDonalds() {
 	int weeksInMonth = 4;
 	int purchasesThisMonth = 0;
@@ -1389,9 +1291,7 @@ void spendOnTaxi() {
 	cout << "    Поездок: " << tripsThisMonth << endl;
 	cout << "    Потрачено: -" << totalCost << " рублей" << endl;
 }
-// ============================================================
-// ФУНКЦИИ РАСХОДОВ - ЧАСТЬ 3
-// ============================================================
+// Расходы
 
 void spendOnMedicine() {
 	moneyOnCard = moneyOnCard - medicineMonthly;
@@ -1583,9 +1483,8 @@ void spendOnInsurance(int currentMonth) {
 		cout << "    Стоимость: -" << carInsuranceCost << " рублей" << endl;
 	}
 }
-// ============================================================
-// ФУНКЦИИ ДЛЯ ПРОДУКТОВ
-// ============================================================
+// 
+// Функции для всех продуктов
 
 void setupProductCounts(int currentMonth) {
 	if (currentMonth == 1) {
@@ -1970,9 +1869,8 @@ void spendOnPhone(int currentMonth, int currentYear) {
 		}
 	}
 }
-// ============================================================
-// ГЛАВНАЯ ФУНКЦИЯ СИМУЛЯЦИИ
-// ============================================================
+
+// ГЛАВНАЯ ФУНКЦИЯ СИМУЛЯЦИИ ВСЕГО 2026 ГОДА!
 
 void startSimulation() {
 	int currentMonth = 1;
@@ -2072,9 +1970,8 @@ void startSimulation() {
 		}
 	}
 }
-// ============================================================
+
 // ФУНКЦИЯ ВЫВОДА ИТОГОВОЙ СТАТИСТИКИ
-// ============================================================
 
 void printFinalStatistics() {
 	cout << "\n\n";
@@ -2250,9 +2147,8 @@ void printFinalStatistics() {
 	cout << "         ДЕНЬГИ НА КАРТЕ: " << moneyOnCard << " рублей" << endl;
 	cout << "==========================================" << endl;
 }
-// ============================================================
+
 // ГЛАВНАЯ ФУНКЦИЯ MAIN
-// ============================================================
 
 int main() {
 	system("chcp 65001 > nul");
