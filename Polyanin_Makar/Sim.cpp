@@ -298,7 +298,6 @@ void pay_mortgage(Person* person) {
             double monthly_rate = person->vtb.credit_rate / 100.0 / 12.0;
             double power = pow(1.0 + monthly_rate, person->vtb.credit_months_remaining);
             person->vtb.credit_monthly_payment = person->vtb.credit_amount * (monthly_rate * power) / (power - 1.0);
-        }
     }
 }
 
