@@ -2151,11 +2151,11 @@ void printFinalStatistics() {
 // ГЛАВНАЯ ФУНКЦИЯ MAIN
 
 int main() {
-	system("chcp 65001 > nul");
+	system("chcp 65001 > nul"); // Добавление русской раскладки
 	srand(time(0));
 	
 	cout << "==========================================" << endl;
-	cout << "    ФИНАНСОВЫЙ СИМУЛЯТОР 2026" << endl;
+	cout << "    Финансовый расчет 2026" << endl;
 	cout << "==========================================" << endl;
 	
 	startSimulation();
