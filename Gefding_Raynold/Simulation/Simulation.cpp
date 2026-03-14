@@ -126,9 +126,46 @@ struct Pet {
 };
 
 
+struct RandomEvent {
+    std::string name;
+    std::string description;
+    RUB min_impact;
+    RUB max_impact;
+    Percent probability;
+    bool affects_all;
+    std::string required_profession;
+    RUB min_age;
+    RUB max_age;
+};
+
+
+struct LifeEvent {
+    std::string event_name;
+    int month;
+    int year;
+    RUB financial_impact;
+    std::string description;
+};
+
+struct EventHistory {
+    std::vector<LifeEvent> events;
+    RUB total_impact_from_events;
+    RUB positive_events_count;
+    RUB negative_events_count;
+};
+
+
 struct Person {
     std::string name;
     std::string region;
+
+    int age;
+    std::string profession;
+    RUB work_experience;
+    RUB health_status;
+    RUB happiness;
+    EventHistory event_history;
+    bool is_alive;
 
     Bank vtb;
 
@@ -155,9 +192,12 @@ struct Person {
 };
 
 
+
 struct Person alice;
 
 struct Person bob;
+
+void print_event_history(Person& p);
 
 
 RUB calculate_income_tax(RUB monthly_income, Person& p, int month) {
@@ -429,6 +469,13 @@ void alice_init(Person &p)
     p.name = "Alice";
     p.region = "Moscow";
 
+    p.age = 30;
+    p.profession = "IT specialist";
+    p.work_experience = 8 * 12;
+    p.health_status = 90;
+    p.happiness = 80;
+    p.is_alive = true;
+    p.event_history = EventHistory();
 
     p.vtb.account = 0;
     p.vtb.deposite = 1'000'000;
@@ -472,6 +519,14 @@ void bob_init(Person &p)
 {
     p.name = "Bob";
     p.region = "SPb";
+
+    p.age = 28;
+    p.profession = "Engineer";
+    p.work_experience = 5 * 12;
+    p.health_status = 85;
+    p.happiness = 70;
+    p.is_alive = true;
+    p.event_history = EventHistory();
 
     p.vtb.account = 0;
     p.vtb.deposite = 100'000;
@@ -649,8 +704,14 @@ void person_investments(Person& p, int month, int year) {
 
 void print_person_results(Person &p)
 {
-    printf("\n=== %s ===\n", p.name.c_str());
-    printf("Salary: %lld RUB\n", p.salary);
+    printf("\n========================================\n");
+    printf("=== %s ===\n", p.name.c_str());
+    printf("Age: %d лет\n", p.age);
+    printf("Profession: %s\n", p.profession.c_str());
+    printf("Work experience: %lld months\n", p.work_experience);
+    printf("Health: %lld%%\n", p.health_status);
+    printf("Happiness: %lld%%\n", p.happiness);
+    printf("Status: %s\n", p.is_alive ? "Alive" : "Dead");
 
     calculate_investment_value(p);
 
@@ -685,7 +746,323 @@ void print_person_results(Person &p)
             p.investments.total_current_value - p.investments.total_purchase_value);
     }
 
+    print_event_history(p);
 }
+
+
+
+class EventManager {
+private:
+    std::vector<RandomEvent> possible_events;
+
+public:
+    EventManager() {
+        // Medicine
+        possible_events.push_back({
+            "Illness",
+            "Got sick and had to buy medicine",
+            -50000, -5000, 0.08, false, "", 0, 100
+            });
+        possible_events.push_back({
+            "Hospitalization",
+            "Serious illness with hospitalization",
+            -200000, -50000, 0.02, false, "", 0, 100
+            });
+        possible_events.push_back({
+            "Dentist",
+            "Dental problems",
+            -30000, -10000, 0.05, false, "", 0, 100
+            });
+
+        // Career
+        possible_events.push_back({
+            "Bonus",
+            "Received unexpected bonus at work",
+            50000, 200000, 0.06, false, "", 0, 100
+            });
+        possible_events.push_back({
+            "Promotion",
+            "Got promoted",
+            300000, 500000, 0.01, false, "", 25, 100
+            });
+        possible_events.push_back({
+            "Layoff",
+            "Lost job",
+            -500000, 0, 0.03, false, "", 0, 100
+            });
+        possible_events.push_back({
+            "New Project",
+            "Participated in profitable project",
+            100000, 300000, 0.04, false, "", 0, 100
+            });
+
+        // Family
+        possible_events.push_back({
+            "Wedding",
+            "Got married (wedding expenses)",
+            -500000, -200000, 0.005, false, "", 25, 100
+            });
+        possible_events.push_back({
+            "Child",
+            "Child birth",
+            -100000, 0, 0.008, false, "", 25, 45
+            });
+        possible_events.push_back({
+            "Divorce",
+            "Divorce (lost half of property)",
+            -2000000, -500000, 0.003, false, "", 30, 100
+            });
+
+        // Car
+        possible_events.push_back({
+            "Accident",
+            "Car accident (need repairs)",
+            -150000, -30000, 0.02, false, "", 0, 100
+            });
+        possible_events.push_back({
+            "Fine",
+            "Traffic fine",
+            -5000, -500, 0.1, false, "", 0, 100
+            });
+        possible_events.push_back({
+            "Car Breakdown",
+            "Serious car breakdown",
+            -80000, -20000, 0.04, false, "", 0, 100
+            });
+
+        // Housing
+        possible_events.push_back({
+            "Flood",
+            "Flooded neighbors (repairs + compensation)",
+            -100000, -20000, 0.01, false, "", 0, 100
+            });
+        possible_events.push_back({
+            "Burglary",
+            "Apartment burglary",
+            -300000, -50000, 0.005, false, "", 0, 100
+            });
+        possible_events.push_back({
+            "Lottery Win",
+            "Unexpected lottery win",
+            10000, 500000, 0.001, false, "", 0, 100
+            });
+
+        // Environment
+        possible_events.push_back({
+            "Hurricane",
+            "Hurricane damaged property",
+            -200000, -50000, 0.002, true, "", 0, 100
+            });
+        possible_events.push_back({
+            "Flood",
+            "Regional flood",
+            -300000, -100000, 0.001, true, "", 0, 100
+            });
+
+        // Financial
+        possible_events.push_back({
+            "Bank Bankruptcy",
+            "Bank went bankrupt (lost part of deposit)",
+            -500000, -10000, 0.001, false, "", 0, 100
+            });
+        possible_events.push_back({
+            "Crisis",
+            "Economic crisis (job loss/income reduction)",
+            -1000000, -200000, 0.02, true, "", 0, 100
+            });
+        possible_events.push_back({
+            "Boom",
+            "Economic boom (additional income)",
+            200000, 800000, 0.02, true, "", 0, 100
+            });
+
+        // Presents
+        possible_events.push_back({
+            "Inheritance",
+            "Received inheritance from distant relative",
+            100000, 2000000, 0.001, false, "", 30, 100
+            });
+        possible_events.push_back({
+            "Gift",
+            "Expensive gift from relatives",
+            10000, 100000, 0.03, false, "", 0, 100
+            });
+    }
+
+    std::vector<RandomEvent> getPossibleEvents() const {
+        return possible_events;
+    }
+
+    RUB calculateImpact(const RandomEvent& event) {
+        return event.min_impact + (rand() % (event.max_impact - event.min_impact + 1));
+    }
+};
+
+
+
+EventManager eventManager;
+
+
+void process_random_event(Person& p, int month, int year) {
+    if (!p.is_alive) return;
+
+    double event_chance = (rand() % 10000) / 10000.0;
+
+    auto events = eventManager.getPossibleEvents();
+
+    for (const auto& event : events) {
+        if (event_chance > event.probability) continue;
+
+        if (p.age < event.min_age || p.age > event.max_age) continue;
+
+        if (!event.required_profession.empty() &&
+            event.required_profession != p.profession) continue;
+
+        RUB impact = eventManager.calculateImpact(event);
+
+        if (impact > 0) {
+            p.vtb.account += impact;
+            p.event_history.positive_events_count++;
+        }
+        else {
+            RUB total_liquidity = p.vtb.account + p.vtb.deposite;
+            if (total_liquidity < -impact) {
+                printf("\nCRITICAL SITUATION for %s: %s\n",
+                    p.name.c_str(), event.description.c_str());
+                printf("   Need: %lld RUB, but have only %lld RUB\n",
+                    -impact, total_liquidity);
+
+                if (p.car.value > 0) {
+                    printf("   Sell car for %lld RUB\n", p.car.value);
+                    p.vtb.account += p.car.value;
+                    p.car.value = 0;
+                    p.car.gas = 0;
+                }
+
+                if (-impact > p.vtb.account) {
+                    RUB needed = -impact - p.vtb.account;
+                    if (p.vtb.deposite >= needed) {
+                        p.vtb.deposite -= needed;
+                        p.vtb.account += needed;
+                    }
+                    else {
+                        if (-impact > total_liquidity * 10) {
+                            printf("%s Died after random event!\n", p.name.c_str());
+                            p.is_alive = false;
+                            return;
+                        }
+                    }
+                }
+            }
+            p.vtb.account += impact;
+            p.event_history.negative_events_count++;
+        }
+
+        LifeEvent lifeEvent;
+        lifeEvent.event_name = event.name;
+        lifeEvent.month = month;
+        lifeEvent.year = year;
+        lifeEvent.financial_impact = impact;
+        lifeEvent.description = event.description;
+        p.event_history.events.push_back(lifeEvent);
+        p.event_history.total_impact_from_events += impact;
+
+        if (event.name == "Illness" || event.name == "Hospitalization") {
+            p.health_status -= 10 + (rand() % 30);
+            if (p.health_status < 0) p.health_status = 0;
+        }
+        if (event.name == "Wedding" || event.name == "Child") {
+            p.happiness += 20;
+            if (p.happiness > 100) p.happiness = 100;
+        }
+        if (event.name == "Divorce" || event.name == "Layoff") {
+            p.happiness -= 30;
+            if (p.happiness < 0) p.happiness = 0;
+        }
+
+        printf("\nEvent for %s (%d/%d): %s\n",
+            p.name.c_str(), month, year, event.name.c_str());
+        printf("   %s\n", event.description.c_str());
+        printf("   Financial effect: %lld RUB\n", impact);
+        if (p.health_status < 100)
+            printf("   Health: %lld%%\n", p.health_status);
+        if (p.happiness < 100)
+            printf("   Happiness: %lld%%\n", p.happiness);
+
+        break;
+    }
+}
+
+
+void update_person_stats(Person& p, int month) {
+    if (month == 1) {
+        p.age++;
+    }
+
+    if (p.salary > 0) {
+        p.work_experience++;
+    }
+
+    if (p.health_status < 100 && rand() % 100 < 30) {
+        p.health_status += 1;
+        if (p.health_status > 100) p.health_status = 100;
+    }
+
+    if (p.happiness < 50 && rand() % 100 < 20) {
+        p.happiness += 1;
+    }
+    if (p.happiness > 50 && rand() % 100 < 20) {
+        p.happiness -= 1;
+    }
+}
+
+
+void person_healthcare(Person& p, int month) {
+    RUB health_cost = 0;
+
+    if (month == 6) {
+        health_cost += 5000;
+        printf("  %s get disparization: -5000 RUB\n", p.name.c_str());
+    }
+
+    if (p.health_status < 70) {
+        health_cost += (100 - p.health_status) * 1000;
+        p.vtb.account -= health_cost;
+        printf("  %s healing: -%lld RUB (health %lld%%)\n",
+            p.name.c_str(), health_cost, p.health_status);
+    }
+}
+
+
+void calculate_pension(Person& p, int year) {
+    if (p.age >= 65 && p.salary > 0) {
+        printf("\n%s get pension in %d году\n", p.name.c_str(), year);
+        RUB pension = p.work_experience * 1000;
+        p.salary = pension;
+    }
+}
+
+void print_event_history(Person& p) {
+    printf("\nEvent chronos %s:\n", p.name.c_str());
+    printf("   Event count: %lld\n", p.event_history.events.size());
+    printf("   Positive: %lld\n", p.event_history.positive_events_count);
+    printf("   Negative: %lld\n", p.event_history.negative_events_count);
+    printf("   Full financial effect: %lld RUB\n", p.event_history.total_impact_from_events);
+
+    if (!p.event_history.events.empty()) {
+        printf("\n   Last 5 events:\n");
+        int start = p.event_history.events.size() > 5 ?
+            p.event_history.events.size() - 5 : 0;
+        for (size_t i = start; i < p.event_history.events.size(); i++) {
+            printf("   %d/%d: %-20s (%lld RUB)\n",
+                p.event_history.events[i].month,
+                p.event_history.events[i].year,
+                p.event_history.events[i].event_name.c_str(),
+                p.event_history.events[i].financial_impact);
+        }
+    }
+}
+
 
 
 void simulation(Person &p)
@@ -694,6 +1071,10 @@ void simulation(Person &p)
     int year = 2026;
 
     while (not (month == 3 and year == 2050)) {
+        if (!p.is_alive) {
+            printf("\n%s dead in %d/%d\n", p.name.c_str(), month, year);
+            break;
+        }
 
 
         person_salary(p, month, year);
@@ -705,6 +1086,10 @@ void simulation(Person &p)
         person_home(p, year);
         person_loans(p);
         person_investments(p, month, year);
+        person_healthcare(p, month);
+        process_random_event(p, month, year);
+        update_person_stats(p, month);
+        calculate_pension(p, year);
         person_deposite(p, month, year);
 
 
