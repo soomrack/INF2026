@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <iostream>
 
-using RUB = long long int; 
+
+using RUB = long long int;
+
 
 struct Mall{
     RUB clothes;
@@ -9,11 +11,14 @@ struct Mall{
     RUB accessories;
 };
 
+
 struct Car {
     RUB value;
     RUB gas;
     int years;
+    int months;
 };
+
 
 struct Cat {
     RUB food;
@@ -21,12 +26,15 @@ struct Cat {
     RUB toys;
 };
 
+
 struct Cosmetologist {
     RUB services;
     RUB cosmetic;
 };
 
+
 struct Vacation {
+    RUB cost;
     RUB tickets;
     RUB hotel;
     RUB souvenirs;
@@ -36,87 +44,126 @@ struct Vacation {
     RUB cruises;
 };
 
-struct Real_estate {
+
+struct RealEstate {
     RUB apartment1;
     RUB apartment2;
     RUB apartment3;
     RUB villa;
 };
 
-struct Utility_bills {
+
+struct UtilityBills {
     RUB apartment1;
     RUB apartment2;
     RUB apartment3;
     RUB villa;
 };
+
 
 struct Bank {
     RUB salary;
     RUB rent;
     RUB account;
     RUB deposit;
-    float pp = 14.5;
+    float interest_rate = 14.5;
 };
+
 
 struct Casino{
     RUB bet;
+    RUB winning;
     int casino_number;
     int person_number;
     int attempts;
+    float taxes;
+
 };
+
 
 struct Person { 
     RUB food;
     RUB capital;
     RUB fitness;
     struct Cosmetologist cosmetologist;
-    struct Utility_bills utility_bills;
+    struct UtilityBills utility_bills;
     struct Vacation vacation;
     struct Casino casino;
     struct Mall mall;
-    struct Real_estate real_estate;
+    struct RealEstate real_estate;
     struct Bank sber;
     struct Car car;
     struct Cat cat;
 };
 
+
 struct Person Alice;
+
 
 void alice_casino()
 {
+    Alice.casino.taxes = 0.13;
+    Alice.casino.bet *= 1.06;
+
     Alice.casino.attempts = 10;
 
-    for (int attempt = 0; attempt < Alice.casino.attempts; attempt++){
-        Alice.casino.person_number = rand() % 10;
-        Alice.casino.casino_number = rand() % 10;
+    if (Alice.sber.deposit >= Alice.casino.bet * Alice.casino.attempts){
+        Alice.sber.account += Alice.casino.bet * Alice.casino.attempts;
+        Alice.sber.deposit -= Alice.casino.bet * Alice.casino.attempts;
 
-        if (Alice.casino.person_number == Alice.casino.casino_number){
-            Alice.sber.account += Alice.casino.bet;
+        for (int attempt = 0; attempt < Alice.casino.attempts; attempt++){
+            Alice.casino.person_number = rand() % 10;
+            Alice.casino.casino_number = rand() % 10;
+
+            if (Alice.casino.person_number == Alice.casino.casino_number){
+                Alice.casino.winning = Alice.casino.bet - (Alice.casino.bet * Alice.casino.taxes);
+                Alice.sber.account += Alice.casino.winning;
+            }
+            else {
+                Alice.sber.account -= Alice.casino.bet;
+            };
         }
-        else {
-            Alice.sber.account -= Alice.casino.bet;
-        };
     }
 
 }
+
 
 void alice_income(const int month, const int year) 
 { 
     Alice.sber.account += Alice.sber.rent;
 
+    if ((month == 12)){
+        Alice.sber.salary *= 1.07;
+        Alice.sber.rent *= 1.07;
+
+        Alice.real_estate.apartment1 *= 1.07;
+        Alice.real_estate.apartment2 *= 1.07;
+        Alice.real_estate.apartment3 *= 1.07;
+        Alice.real_estate.villa *= 1.07;
+    };
+
     if ((month == 8) && (year == 2026)) { 
-        Alice.sber.salary *= 1.5; 
+        Alice.sber.salary *= 1.05; 
     } 
 
     Alice.sber.account += Alice.sber.salary;
 }
 
+
 void alice_deposit()
 {
-    Alice.sber.deposit += Alice.sber.deposit * (Alice.sber.pp / 12.0 / 100.0);
-    Alice.sber.deposit += Alice.sber.account - (Alice.sber.account * 0.4);
-    Alice.sber.account = Alice.sber.account * 0.4;
+    Alice.sber.deposit += Alice.sber.deposit * (Alice.sber.interest_rate / 12.0 / 100.0);
+
+    RUB transfer_amount;
+    RUB balance_amount;
+
+    transfer_amount = Alice.sber.account - (Alice.sber.account * 0.4);
+    balance_amount = Alice.sber.account * 0.4;
+
+    Alice.sber.deposit += transfer_amount;
+    Alice.sber.account = balance_amount;
 }
+
 
 void alice_capital() 
 {
@@ -127,13 +174,22 @@ void alice_capital()
     Alice.capital += Alice.real_estate.villa;
 }
 
+
 void utility_bills()
 {
     Alice.sber.deposit -= Alice.utility_bills.apartment1;
+    Alice.utility_bills.apartment1 *= (1.0 + 0.06 / 12);
+
     Alice.sber.deposit -= Alice.utility_bills.apartment2;
+    Alice.utility_bills.apartment2 *= (1.0 + 0.06 / 12);
+
     Alice.sber.deposit -= Alice.utility_bills.apartment3;
+    Alice.utility_bills.apartment3 *= (1.0 + 0.06 / 12);
+
     Alice.sber.deposit -= Alice.utility_bills.villa;
+    Alice.utility_bills.villa *= (1.0 + 0.06 / 12);
 }
+
 
 void print_result() 
 { 
@@ -143,103 +199,128 @@ void print_result()
     printf("Account = %lld", Alice.sber.account);
 }
 
+
 void alice_vacation()
 {
-    Alice.sber.account -= Alice.vacation.concerts;
-    Alice.sber.account -= Alice.vacation.cruises;
-    Alice.sber.account -=  Alice.vacation.excursions;
-    Alice.sber.account -= Alice.vacation.hotel;
-    Alice.sber.account -= Alice.vacation.restaurants;
-    Alice.sber.account -= Alice.vacation.souvenirs;
-    Alice.sber.account -= Alice.vacation.tickets;
+    Alice.vacation.cost *= 1.07;
+
+    if (Alice.sber.deposit >= Alice.vacation.cost){
+        Alice.sber.account += Alice.vacation.cost;
+        Alice.sber.deposit -= Alice.vacation.cost;
+
+        Alice.sber.account -= Alice.vacation.concerts;
+        Alice.vacation.concerts *= (1.0 + 0.06 / 12);
+
+        Alice.sber.account -= Alice.vacation.cruises;
+        Alice.vacation.cruises *= (1.0 + 0.06 / 12);
+
+        Alice.sber.account -=  Alice.vacation.excursions;
+        Alice.vacation.excursions *= (1.0 + 0.06 / 12);
+
+        Alice.sber.account -= Alice.vacation.hotel;
+        Alice.vacation.hotel *= (1.0 + 0.06 / 12);
+
+        Alice.sber.account -= Alice.vacation.restaurants;
+        Alice.vacation.restaurants *= (1.0 + 0.06 / 12);
+
+        Alice.sber.account -= Alice.vacation.souvenirs;
+        Alice.vacation.souvenirs *= (1.0 + 0.06 / 12);
+
+        Alice.sber.account -= Alice.vacation.tickets;
+        Alice.vacation.tickets *= (1.0 + 0.06 / 12);
+    }
 }
+
 
 void alice_food() 
 {
     Alice.sber.account -= Alice.food;
-    Alice.food *= (1 + 0.06 / 12);
+    Alice.food *= (1.0 + 0.06 / 12);
 }
+
 
 void alice_fitness()
 {
     Alice.sber.account -= Alice.fitness;
-    Alice.fitness *= (1 + 0.06 / 12);
+    Alice.fitness *= (1.0 + 0.06 / 12);
 }
+
 
 void alice_mall() 
 {
     Alice.sber.account -= Alice.mall.accessories;
-    Alice.mall.accessories *= (1 + 0.06 / 12);
+    Alice.mall.accessories *= (1.0 + 0.06 / 12);
 
     Alice.sber.account -= Alice.mall.clothes;
-    Alice.mall.clothes *= (1 + 0.06 / 12);
+    Alice.mall.clothes *= (1.0 + 0.06 / 12);
 
     Alice.sber.account -= Alice.mall.shoes; 
-    Alice.mall.shoes *= (1 + 0.06 / 12);
+    Alice.mall.shoes *= (1.0 + 0.06 / 12);
 }
+
 
 void alice_cosmetologist()
 {
     Alice.sber.account -= Alice.cosmetologist.cosmetic;
-    Alice.cosmetologist.cosmetic *= (1 + 0.06 / 12);
+    Alice.cosmetologist.cosmetic *= (1.0 + 0.06 / 12);
 
     Alice.sber.account -= Alice.cosmetologist.services;
-    Alice.cosmetologist.services *= (1 + 0.06 / 12);
-
+    Alice.cosmetologist.services *= (1.0 + 0.06 / 12);
 }
+
 
 void alice_cat()
 {
     Alice.sber.account -= Alice.cat.food;
-    Alice.cat.food *= (1 + 0.06 / 12);
+    Alice.cat.food *= (1.0 + 0.06 / 12);
 
     Alice.sber.account -= Alice.cat.toys;
-    Alice.cat.toys *= (1 + 0.06 / 12);
+    Alice.cat.toys *= (1.0 + 0.06 / 12);
 
     Alice.sber.account -= Alice.cat.vet;
-    Alice.cat.vet *= (1 + 0.06 / 12); 
+    Alice.cat.vet *= (1.0 + 0.06 / 12); 
 }
+
 
 void alice_car()
 {
     Alice.sber.account -= Alice.car.gas;
-    Alice.car.gas *= (1 + 0.06 / 12);
-}
+    Alice.car.gas *= (1.0 + 0.06 / 12);
 
-void alice_car_life()
-{
-    Alice.car.years ++;
+    Alice.car.months++;
 
-    if (Alice.car.years <= 3){
-        Alice.car.value *= 1.07;
-    }
-    else {
-        Alice.car.value *= 0.9;
-    };
+    if (Alice.car.months == 12){
+        Alice.car.years++;
 
-    if (Alice.car.years == 7){
-        Alice.sber.account += Alice.car.value;
-
-        Alice.car.value = 2'400'000;
-        if (Alice.sber.account >= Alice.car.value){
-            Alice.sber.account -= Alice.car.value;            
+        if (Alice.car.years <= 3){
+            Alice.car.value *= 1.07;
         }
         else {
-            Alice.sber.account += Alice.car.value - Alice.sber.account;
-            Alice.sber.account -= Alice.car.value;
-        }
+            Alice.car.value *= 0.9;
+        };
 
-        Alice.car.years = 0;
+        if (Alice.car.years == 7){
+            Alice.sber.account += Alice.car.value;
+
+            Alice.car.value = 2'400'000;
+            if (Alice.sber.account >= Alice.car.value){
+                Alice.sber.account -= Alice.car.value;            
+            }
+            else {
+                Alice.sber.account += Alice.car.value - Alice.sber.account;
+                Alice.sber.account -= Alice.car.value;
+            }
+
+            Alice.car.years = 0;
+        };
+
+        Alice.car.months = 0;
+
     };
 }
 
-void indexation()
-{
-    Alice.sber.salary *= 1.07;
-    Alice.sber.rent *= 1.07;
-}
 
-void alice_innit() 
+void alice_init() 
 {
     Alice.sber.account = 0;
     Alice.capital = 0;
@@ -259,6 +340,7 @@ void alice_innit()
 
     Alice.car.value = 2'400'000;
     Alice.car.gas = 17'000;
+    Alice.car.months = 0;
     Alice.car.years = 0;
 
     Alice.cat.food = 8'000;
@@ -271,8 +353,9 @@ void alice_innit()
     Alice.mall.clothes = 40'000;
     Alice.mall.shoes = 50'000;
 
-    Alice.casino.bet = 50'000;
+    Alice.casino.bet = 5'000;
 
+    Alice.vacation.cost = 500'000;
     Alice.vacation.concerts = 40'000;
     Alice.vacation.cruises = 50'000;
     Alice.vacation.excursions = 100'000;
@@ -286,6 +369,7 @@ void alice_innit()
 
 }
 
+
 void simulation() 
 {
     
@@ -293,36 +377,21 @@ void simulation()
     int year = 2026;
 
     while ( !((month == 3) && (year == 2057)) ) {
+        month++;
 
         alice_income(month, year);
+
         alice_mall();
         alice_cat();
         alice_food();
         alice_car();
         alice_fitness();
+
         alice_deposit();
 
-        ++month;
-
         if (month == 12) {
-
-            alice_car_life();
-
-            indexation();
-
-            if (Alice.sber.deposit >= 500'000){
-                Alice.sber.account += 500'000;
-                Alice.sber.deposit -= 500'000;
-
-                alice_vacation();
-            }
-            
-            if (Alice.sber.deposit >= 50'000){
-                Alice.sber.account += 50'000;
-                Alice.sber.deposit -= 50'000;
-
-                alice_casino();
-            }         
+            alice_vacation();
+            alice_casino();       
         }
 
         if (month == 12) {
@@ -334,10 +403,12 @@ void simulation()
     alice_capital();
 }
 
+
+
 int main()
 {
 
-    alice_innit();
+    alice_init();
 
     simulation();
 
