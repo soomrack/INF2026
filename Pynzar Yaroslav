@@ -1,1 +1,1153 @@
+#include <stdio.h>
+#include <iostream>
+#include <cmath>
 
+//typedef int RUB; // c
+using RUB = long long int;
+
+
+struct Car {
+    RUB value;
+    RUB gas;
+    RUB service;
+};
+
+
+struct Lotery {
+    RUB price_lotery;
+};
+
+
+struct NewYear {
+    RUB newyear_expenses;
+};
+
+
+struct Gifts {
+    RUB gifts_birthday;
+    
+};
+
+struct Cinema {
+    RUB cinema;
+    RUB popcorn;
+};
+
+
+struct Salary {
+    RUB salary;
+};
+
+
+struct Moto {
+    RUB value;
+    RUB gas;
+    RUB service;
+};
+
+
+struct Sneakers
+{
+    RUB nike1;
+    RUB adidas;
+    RUB puma;
+    RUB vans;
+    RUB nike2;
+};
+
+
+struct Boots
+{
+    RUB price_boots;
+};
+
+
+struct Flat {
+    RUB flat;
+    RUB utilitybills2026;
+    RUB utilitybills2027;
+    RUB utilitybills2028;
+    RUB utilitybills2029;
+    RUB utilitybills2030;
+    RUB utilitybills2031;
+};
+
+struct IraBankInterest {
+    RUB irabankinterest;
+};
+
+
+//struct utilitybills
+//{
+//    RUB utilitybills2027;
+//    RUB utilitybills2028;
+//    RUB utilitybills2029;
+//    RUB utilitybills2030;
+//    RUB utilitybills2031;
+//};
+
+
+struct Fastfood {
+    RUB fastfood;
+};
+
+struct Chips {
+    RUB chips;
+};
+
+struct TripIra {
+    RUB trip_ira;
+};
+
+
+struct TripYarik {
+    RUB trip_yarik;
+};
+
+
+struct Mortage {
+    RUB mortage;
+};
+
+
+struct BankAccountYarik {
+    RUB bank_account_yarik;
+};
+
+
+struct BankAccountIra {
+    RUB bank_account_ira;
+};
+
+
+struct BankAccountYarikIra {
+    RUB bank_account_yarikira;
+};
+
+
+struct Wedding {
+    RUB wedding;
+};
+
+
+struct WeddingAgenda {
+    RUB weddingagenda;
+};
+
+
+struct Cat {
+    RUB value;
+    RUB feed;
+    RUB vet;
+};
+
+
+struct Dog {
+    RUB value;
+    RUB feed;
+    RUB vet;
+};
+
+
+struct Clothes {
+    RUB jacket;
+    RUB shirt;
+    RUB jeans;
+};
+
+
+struct Freelance {
+    RUB freelance;
+};
+
+
+struct Restourant {
+    RUB restourant;
+};
+
+
+//struct Yarik_Ira {
+//    RUB Yarik_Ira_capital;
+//};
+
+struct Person {
+   // RUB salary;
+    RUB capital;
+     RUB bank_account_yarik;
+     RUB bank_account_ira;
+   // RUB freelance;
+    RUB food;
+    RUB trip;
+
+    RUB mortage_payment;
+
+    int mortage_months = 240;
+    int mortage_percent = 20;
+
+
+    //struct Mortage mortage;
+
+    struct Car car;
+
+    struct Moto moto;
+
+    struct Cat cat;
+
+    struct Dog dog;
+
+    struct Flat flat;
+
+    struct TripIra trip_ira;
+
+    struct TripYarik trip_yarik;
+
+    struct Chips chips;
+
+    struct Fastfood fastfood;
+
+    struct Sneakers sneakers;
+
+    struct Boots boots;
+
+    struct Clothes clothes;
+
+    struct Restourant restourant;
+
+    //struct UtilityBills utilitybills;
+
+    struct BankAccountYarik;
+
+    struct BankAccountIra;
+
+    //struct Mortage mortage;
+
+    struct Salary salary;
+
+    struct Freelance freelance;
+
+    struct Lotery lotery;
+
+    struct Cinema cinema;
+
+    struct IraBankInterest irabankinterest;
+
+    struct BankAccountYarikIra bank_account_yarikira;
+
+    struct Wedding wedding;
+
+    struct WeddingAgenda weddingagenda;
+
+    struct Gifts gifts;
+
+    struct NewYear newyear;
+
+};
+struct Person Ira;
+struct Person Yarik;
+struct Person YarikIra;
+
+
+float pp = 14.5; //115 - 1 +
+
+
+void IraSalary(const int month, const int year) {
+    if ((month == 8) && (year == 2026)) { //promotion
+        Ira.salary.salary *= 1.5;
+    }
+
+    if ((month == 9) && (year == 2026)) {
+        Ira.salary.salary *= 1.6;
+    }
+    Ira.bank_account_ira += Ira.salary.salary;
+}
+
+
+void IraFreelance(const int month, const int year) {
+    if ((month == 8) && (year == 2026)) { //promotion
+       Ira.freelance.freelance *= 1.5;
+    }
+
+
+    if ((month == 9) && (year == 2026)) {
+        Ira.freelance.freelance *= 1.6;
+    }
+    Ira.bank_account_ira += Ira.freelance.freelance;
+}
+
+
+void YarikSalary(const int month, const int year) {
+    if ((month == 10) && (year == 2026)) { //promotion
+        Yarik.salary.salary *= 1.8;
+    }
+
+
+    if ((month == 11) && (year == 2026)) {
+        Yarik.salary.salary *= 1.9;
+    }
+
+    Yarik.bank_account_yarik += Yarik.salary.salary;
+}
+
+
+void YarikFreelance(const int month, const int year) {
+    if ((month == 10) && (year == 2026)) { //promotion
+        Yarik.salary.salary *= 1.8;
+    }
+
+
+    if ((month == 11) && (year == 2026)) {
+        Yarik.salary.salary *= 1.9;
+    }
+
+    Yarik.bank_account_yarik += Yarik.freelance.freelance;
+}
+
+
+void print_results_ira()
+{
+    
+    printf("SalaryIra =  %11d\n", Ira.salary);
+    printf("CapitalIra = %11d\n", Ira.capital);
+    printf("bank_account_ira = %11d\n", Ira.bank_account_ira);
+}
+
+
+void print_results_yarik()
+{
+    printf("SalaryYarik =  %11lld\n", Yarik.salary);
+    printf("CapitalYarik = %11lld", Yarik.capital);
+    printf("bank_account_yarik = %11lld", Yarik.bank_account_yarik);
+}
+
+
+void IraBankInterest(const int month, const int year)
+{
+    Ira.capital += Ira.capital * (pp / 12.0 / 100.0);  // Bank interest
+}
+
+
+void YarikBankMortagePayment(const int month, const int year)
+{
+    while (year < 2030) {
+        Yarik.bank_account_yarik -= Yarik.mortage_payment;
+    }
+}
+
+
+void YarikSneakers(const int month, const int year)
+{
+    if ((month == 2) && (year == 2027))
+    {
+        Yarik.bank_account_yarik -= Yarik.sneakers.nike1;
+    }
+
+
+    if ((month == 5) && (year == 2027))
+    {
+        Yarik.bank_account_yarik -= Yarik.sneakers.adidas;
+    }
+
+
+    if ((month == 7) && (year == 2027))
+    {
+        Yarik.bank_account_yarik -= Yarik.sneakers.puma;
+    }
+
+
+    if ((month == 9) && (year == 2027))
+    {
+        Yarik.bank_account_yarik -= Yarik.sneakers.vans;
+    }
+
+
+    if ((month == 11) && (year == 2027))
+    {
+        Yarik.bank_account_yarik -= Yarik.sneakers.nike2;
+    }
+
+
+    if ((month == 2) && (year == 2028))
+    {
+        Yarik.bank_account_yarik -= Yarik.sneakers.nike1;
+    }
+
+
+    if ((month == 8) && (year == 2028))
+    {
+        Yarik.bank_account_yarik -= Yarik.sneakers.adidas;
+    }
+
+
+    if ((month == 5) && (year == 2029))
+    {
+        Yarik.bank_account_yarik -= Yarik.sneakers.puma;
+    }
+
+
+    if ((month == 9) && (year == 2029))
+    {
+        Yarik.bank_account_yarik -= Yarik.sneakers.vans;
+    }
+
+
+    if ((month == 11) && (year == 2030))
+    {
+        Yarik.bank_account_yarik -= Yarik.sneakers.nike2;
+    }
+}
+
+
+void IraSneakers(const int month, const int year)
+{
+    if ((month == 2) && (year == 2027))
+    {
+        Ira.bank_account_ira -= Ira.sneakers.nike1;
+    }
+
+
+    if ((month == 5) && (year == 2027))
+    {
+        Ira.bank_account_ira -= Ira.sneakers.adidas;
+    }
+
+
+    if ((month == 7) && (year == 2028))
+    {
+        Ira.bank_account_ira -= Ira.sneakers.puma;
+    }
+
+
+    if ((month == 9) && (year == 2029))
+    {
+        Ira.bank_account_ira -= Ira.sneakers.vans;
+    }
+
+
+    if ((month == 11) && (year == 2030))
+    {
+        Ira.bank_account_ira -= Ira.sneakers.nike2;
+    }
+}
+
+
+void YarikLotery(const int month, const int year)
+{
+    if ((month == 2) && (year == 2027))
+    {
+        Yarik.bank_account_yarik -= Yarik.lotery.price_lotery;
+        if ((rand() % 100) < 1) {
+            Yarik.capital += 10'000'000;
+            std::cout << "Yarik win in lotery" << std::endl;
+        }
+        else {
+            std::cout <<"loose" << std::endl;
+        }
+    }
+}
+
+
+void IraLotery(const int month, const int year)
+{
+    if ((month == 2) && (year == 2027))
+    {
+
+        Ira.bank_account_yarik -= Ira.lotery.price_lotery;
+        if ((rand() % 100) < 1) {
+            Yarik.capital += 10'000'000;
+            std::cout << "Ira win in lotery" << std::endl;
+        }
+        else {
+            std::cout << "loose" << std::endl;
+        }
+    }
+}
+
+
+void YarikIraLotery(const int month, const int year)
+{
+    if ((month == 2) && (year == 2035))
+    {
+
+        YarikIra.bank_account_yarik -= YarikIra.lotery.price_lotery;
+        if ((rand() % 100) < 1) {
+            YarikIra.capital += 10'000'000;
+            std::cout << "YarikIra win in lotery" << std::endl;
+        }
+        else {
+            std::cout << "loose" << std::endl;
+        }
+    }
+}
+
+
+void YarikBoots(const int month, const int year) {
+
+    if ((month == 11) && (year == 2027))
+    {
+        Yarik.bank_account_yarik -= Yarik.boots.price_boots;
+    }
+
+
+    if ((month == 11) && (year == 2027))
+    {
+        Yarik.bank_account_yarik -= Yarik.clothes.jacket;
+    }
+}
+
+
+void YarikClothes(const int month, const int year)
+{
+    if ((month == 2) && (year == 2027))
+    {
+        Yarik.bank_account_yarik -= Yarik.clothes.shirt;
+    }
+
+
+    if ((month == 2) && (year == 2028))
+    {
+        Yarik.bank_account_yarik -= Yarik.clothes.jacket;
+    }
+
+
+    if ((month == 2) && (year == 2029))
+    {
+        Yarik.bank_account_yarik -= Yarik.clothes.jacket;
+    }
+}
+
+
+void IraClothes(const int month, const int year)
+{
+    if ((month == 3) && (year == 2027))
+    {
+        Ira.bank_account_ira -= Ira.clothes.shirt;
+    }
+
+
+    if ((month == 10) && (year == 2028))
+    {
+        Ira.bank_account_ira -= Ira.clothes.jacket;
+    }
+
+
+    if ((month == 10) && (year == 2029))
+    {
+        Ira.bank_account_ira -= Ira.clothes.jacket;
+    }
+}
+
+
+void IraBoots(const int month, const int year) {
+
+    if ((month == 11) && (year == 2027))
+    {
+        Ira.bank_account_ira -= Ira.boots.price_boots;
+    }
+
+
+    if ((month == 11) && (year == 2028))
+    {
+        Ira.bank_account_ira -= Ira.boots.price_boots;
+    }
+
+
+    if ((month == 11) && (year == 2029))
+    {
+        Ira.bank_account_ira -= Ira.boots.price_boots;
+    }
+}
+
+
+void YarikUtilitybills(const int month, const int year) {
+
+    while (year == 2027)
+    {
+        Yarik.bank_account_yarik -= Yarik.flat.utilitybills2027;
+    }
+
+
+    while (year == 2028)
+    {
+        Yarik.bank_account_yarik -= Yarik.flat.utilitybills2028;
+    }
+
+
+    while (year == 2029)
+    {
+        Yarik.bank_account_yarik -= Yarik.flat.utilitybills2029;
+    }
+
+
+    while (year == 2030)
+    {
+        Yarik.bank_account_yarik -= Yarik.flat.utilitybills2030;
+    }
+}
+
+
+void IraUtilitybills(const int month, const int year) {
+
+    while (year == 2027)
+    {
+        Ira.bank_account_ira -= Ira.flat.utilitybills2027;
+    }
+
+
+    while (year == 2028)
+    {
+        Ira.bank_account_ira -= Ira.flat.utilitybills2028;
+    }
+
+
+    while (year == 2029)
+    {
+        Ira.bank_account_ira -= Ira.flat.utilitybills2029;
+    }
+
+
+    while (year == 2030)
+    {
+        Ira.bank_account_ira -= Ira.flat.utilitybills2030;
+    }
+}
+
+
+void IraFood(const int month, const int year)
+{
+    Ira.bank_account_ira -= Ira.food;
+}
+
+
+void IraFastfood(const int month, const int year)
+{
+    Ira.bank_account_ira -= Ira.fastfood.fastfood;
+}
+
+
+void TripIra(const int month, const int year)
+{
+    Ira.bank_account_ira -= Ira.trip;
+}
+
+
+void YarikNewYear(const int month, const int year)
+{
+    Yarik.bank_account_yarik -= Yarik.newyear.newyear_expenses;
+}
+
+
+void IraNewYear(const int month, const int year)
+{
+    Ira.bank_account_yarik -= Ira.newyear.newyear_expenses;
+}
+
+
+void yarik_restourant(const int month, const int year)
+{
+    Yarik.bank_account_yarik -= Yarik.restourant.restourant;
+}
+
+
+void IraRestourant(const int month, const int year)
+{
+    Ira.bank_account_ira -= Ira.restourant.restourant;
+}
+
+
+void YarikGifts(const int month, const int year)
+{
+    if ((month == 7) && (year == 2027))
+    {
+        Yarik.bank_account_yarik -= Yarik.gifts.gifts_birthday;
+    }
+
+    if ((month == 3) && (year == 2028))
+    {
+        Yarik.bank_account_yarik -= Yarik.gifts.gifts_birthday;
+    }
+
+    if ((month == 4) && (year == 2029))
+    {
+        Yarik.bank_account_yarik -= Yarik.gifts.gifts_birthday;
+    }
+
+    if ((month == 4) && (year == 2030))
+    {
+        Yarik.bank_account_yarik -= Yarik.gifts.gifts_birthday;
+    }
+
+
+    if ((month == 3) && (year == 2031))
+    {
+        Yarik.bank_account_yarik -= Yarik.gifts.gifts_birthday;
+    }
+
+    if ((month == 7) && (year == 2032))
+    {
+        Yarik.bank_account_yarik -= Yarik.gifts.gifts_birthday;
+    }
+
+}
+
+
+void IraGifts(const int month, const int year)
+{
+    if ((month == 7) && (year == 2027))
+    {
+        Ira.bank_account_yarik -= Ira.gifts.gifts_birthday;
+    }
+
+    if ((month == 3) && (year == 2028))
+    {
+        Ira.bank_account_yarik -= Ira.gifts.gifts_birthday;
+    }
+
+    if ((month == 4) && (year == 2029))
+    {
+        Ira.bank_account_yarik -= Ira.gifts.gifts_birthday;
+    }
+
+    if ((month == 4) && (year == 2030))
+    {
+        Ira.bank_account_yarik -= Ira.gifts.gifts_birthday;
+    }
+
+
+    if ((month == 3) && (year == 2031))
+    {
+        Ira.bank_account_yarik -= Ira.gifts.gifts_birthday;
+    }
+
+    if ((month == 7) && (year == 2032))
+    {
+        Ira.bank_account_yarik -= Ira.gifts.gifts_birthday;
+    }
+
+}
+
+
+void YarikFastfood(const int month, const int year)
+{
+    Yarik.bank_account_yarik -= Yarik.fastfood.fastfood;
+}
+
+void YarikTrip(const int month, const int year)
+{
+    Yarik.bank_account_yarik -= Yarik.trip;
+}
+
+
+void YarikFood(const int month, const int year)
+{
+    Yarik.bank_account_yarik -= Yarik.food;
+}
+
+
+void IraCat(const int month, const int year)
+{
+    Ira.bank_account_ira -= Ira.cat.feed;
+    Ira.bank_account_ira -= Ira.cat.vet;
+}
+
+
+void YarikDog(const int month, const int year)
+{
+    Yarik.bank_account_yarik -= Yarik.dog.feed;
+    Yarik.bank_account_yarik -= Yarik.dog.vet;
+}
+
+
+void YarikChips(const int month, const int year)
+{
+    Yarik.bank_account_yarik -= Yarik.chips.chips;
+}
+
+
+void IraCar(const int month, const int year)
+{
+    Ira.bank_account_ira -= Ira.car.gas;
+
+
+    Ira.bank_account_ira -= Ira.car.service;
+}
+
+
+void YarikMoto(const int month, const int year)
+{
+    Yarik.bank_account_yarik -= Yarik.moto.gas;
+
+
+    Yarik.bank_account_yarik -= Yarik.moto.service;
+}
+
+
+void YarikCinema(const int month, const int year)
+{
+    if ((month == 11) && (year == 2027))
+    {
+        Yarik.bank_account_yarik -= Yarik.cinema.cinema;
+        Yarik.bank_account_yarik -= Yarik.cinema.popcorn;
+    }
+}
+
+
+void IraCinema(const int month, const int year)
+{
+    if ((month == 11) && (year == 2027))
+    {
+        Ira.bank_account_ira -= Ira.cinema.cinema;
+        Ira.bank_account_yarik -= Ira.cinema.popcorn;
+    }
+}
+
+
+void YarikIraFunction(const int month, const int year)
+{
+    if (2030 < year << 2050) {
+        YarikIra.capital = Yarik.capital + Ira.capital;
+        YarikIra.bank_account_yarikira.bank_account_yarikira = Yarik.bank_account_yarik + Ira.bank_account_ira;
+        YarikIra.salary.salary = Yarik.salary.salary + Ira.salary.salary + YarikIra.freelance.freelance + YarikIra.freelance.freelance;
+    }
+}
+
+void YarikIraBank(const int month, const int year)
+{
+    YarikIra.bank_account_yarikira.bank_account_yarikira = YarikIra.salary.salary;
+}
+
+void YarikIraCar(const int month, const int year)
+{
+    if ((month == 11) && (year == 2036))
+    {
+        YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.car.value;
+        YarikIra.capital += YarikIra.car.value;
+    }
+
+    YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.car.gas;
+    YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.car.service;
+}
+
+
+void Wedding(const int month, const int year)
+{
+    if ((month == 7) && (year == 2030))
+    {
+        YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.wedding.wedding;
+    }
+}
+
+void WeddingAgenda (const int month, const int year)
+{
+    if ((month == 8) && (year == 2030))
+    {
+        YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.weddingagenda.weddingagenda;
+    }
+}
+
+
+void YarikIraBankMortagePayment(const int month, const int year)
+{
+    while (2030 < year < 2046) {
+        YarikIra.bank_account_yarik -= YarikIra.mortage_payment;
+    }
+}
+
+
+void YarikIraFlat(const int month, const int year)
+{
+    YarikIra.capital += YarikIra.flat.flat;
+}
+
+
+void YarikIraDog(const int  month, const int year)
+{
+    YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.dog.feed;
+    YarikIra.capital += YarikIra.dog.value;
+
+    if ((month == 9) && (year == 2031)) {
+        YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.dog.vet;
+    }
+
+    if ((month == 1) && (year == 2033)) {
+        YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.dog.vet;
+    }
+
+    if ((month == 3) && (year == 2034)) {
+        YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.dog.vet;
+    }
+
+    if ((month == 3) && (year == 2037)) {
+        YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.dog.vet;
+    }
+
+}
+
+
+void YarikIraCat(const int  month, const int year)
+{
+    YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.cat.feed;
+    YarikIra.capital += YarikIra.cat.value;
+
+    if ((month == 10) && (year == 2031)) {
+        YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.cat.vet;
+    }
+
+    if ((month == 9) && (year == 2032)) {
+        YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.cat.vet;
+    }
+
+    if ((month == 3) && (year == 2033)) {
+        YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.cat.vet;
+    }
+
+    if ((month == 3) && (year == 2035)) {
+        YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.cat.vet;
+    }
+
+}
+
+
+void YarikIraNewYear(const int month, const int year)
+{
+    YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.newyear.newyear_expenses;
+}
+
+
+void YarikIraGifts(const int month, const int year)
+{
+    if ((month == 7) && (year == 2030))
+    {
+        YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.gifts.gifts_birthday;
+    }
+
+    if ((month == 1) && (year == 2030))
+    {
+        YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.gifts.gifts_birthday;
+    }
+
+    if ((month == 7) && (year == 2031))
+    {
+        YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.gifts.gifts_birthday;
+    }
+
+    if ((month == 1) && (year == 2031))
+    {
+        YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.gifts.gifts_birthday;
+    }
+
+    if ((month == 7) && (year == 2032))
+    {
+        YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.gifts.gifts_birthday;
+    }
+
+    if ((month == 1) && (year == 2032))
+    {
+        YarikIra.bank_account_yarikira.bank_account_yarikira -= YarikIra.gifts.gifts_birthday;
+    }
+
+}
+
+
+void ira_init()
+{
+    Ira.capital = 0;
+    Ira.salary.salary = 120'000;
+    Ira.bank_account_ira = 0;
+    Ira.food = 20'000;
+    Ira.freelance.freelance = 40'000;
+    Ira.fastfood.fastfood = 1'000;
+    Ira.car.value = 2'400'000;
+    Ira.car.gas = 15'000;
+    Ira.car.service = 10'000;
+    Ira.sneakers.nike1 = 3'000;
+    Ira.sneakers.adidas = 2'000;
+    Ira.sneakers.puma = 2'000;
+    Ira.sneakers.vans = 3'000;
+    Ira.sneakers.nike2 = 3'500;
+    Ira.boots.price_boots = 3'000;
+    Ira.clothes.shirt = 1'000;
+    Ira.clothes.jacket = 5'000;
+    Ira.restourant.restourant = 3'000;
+    Ira.flat.utilitybills2027 = 3'000;
+    Ira.flat.utilitybills2028 = 3'200;
+    Ira.flat.utilitybills2029 = 3'500;
+    Ira.flat.utilitybills2029 = 3'600;
+    Ira.flat.utilitybills2030 = 3'800;
+    Ira.lotery.price_lotery = 200;
+    Ira.cat.value = 20'000;
+    Ira.cat.feed = 5'000;
+    Ira.cat.vet = 1'000;
+    Ira.flat.flat = 10'000'000;
+    Ira.trip = 50'000;
+    Ira.cinema.cinema = 500;
+    Ira.cinema.popcorn = 200;
+}
+
+
+void yarik_init()
+{
+    Yarik.capital = 0;
+    Yarik.bank_account_yarik = 0;
+    Yarik.salary.salary = 300'000;
+    Yarik.food = 30'000;
+    Yarik.freelance.freelance = 30'000;
+    Yarik.flat.flat = 10'000'000;
+    Yarik.trip = 25'000;
+    Yarik.chips.chips = 1'000;
+    Yarik.fastfood.fastfood = 2'000;
+    Yarik.sneakers.nike1 = 3'000;
+    Yarik.sneakers.adidas = 2'000;
+    Yarik.sneakers.puma = 2'000;
+    Yarik.sneakers.vans = 3'000;
+    Yarik.sneakers.nike2 = 3'500;
+    Yarik.boots.price_boots = 2'000;
+    //Yarik.mortage.mortage = 10'000'000;
+    Yarik.mortage_payment = 170'000;
+    Yarik.clothes.shirt = 1'500;
+    Yarik.clothes.jacket = 5'000;
+    Yarik.restourant.restourant = 3'000;
+    Yarik.flat.utilitybills2027 = 3'000;
+    Yarik.flat.utilitybills2028 = 3'500;
+    Yarik.flat.utilitybills2029 = 3'000;
+    Yarik.flat.utilitybills2030 = 3'500;
+    Yarik.lotery.price_lotery = 200;
+    Yarik.moto.value = 200'000;
+    Yarik.moto.gas = 15'000;
+    Yarik.moto.service = 5'000;
+    Yarik.cinema.cinema = 500;
+    Yarik.cinema.popcorn = 200;
+
+
+    Yarik.dog.value = 20'000;
+    Yarik.dog.feed = 6'000;
+    Yarik.dog.vet = 1'000;
+}
+
+void YarikIra_init()
+{
+    Yarik.capital = 0;
+    Yarik.bank_account_yarik = 0;
+    Yarik.salary.salary = 300'000;
+    Yarik.food = 30'000;
+    Yarik.freelance.freelance = 30'000;
+    Yarik.flat.flat = 10'000'000;
+    Yarik.trip = 25'000;
+    Yarik.chips.chips = 1'000;
+    Yarik.fastfood.fastfood = 2'000;
+    Yarik.sneakers.nike1 = 3'000;
+    Yarik.sneakers.adidas = 2'000;
+    Yarik.sneakers.puma = 2'000;
+    Yarik.sneakers.vans = 3'000;
+    Yarik.sneakers.nike2 = 3'500;
+    Yarik.boots.price_boots = 2'000;
+    //Yarik.mortage.mortage = 10'000'000;
+    Yarik.mortage_payment = 170'000;
+    Yarik.clothes.shirt = 1'500;
+    Yarik.clothes.jacket = 5'000;
+    Yarik.restourant.restourant = 3'000;
+    Yarik.flat.utilitybills2027 = 3'000;
+    Yarik.flat.utilitybills2028 = 3'500;
+    Yarik.flat.utilitybills2029 = 3'000;
+    Yarik.flat.utilitybills2030 = 3'500;
+    Yarik.lotery.price_lotery = 200;
+    Yarik.moto.value = 200'000;
+    Yarik.moto.gas = 15'000;
+    Yarik.moto.service = 5'000;
+    Yarik.cinema.cinema = 500;
+    Yarik.cinema.popcorn = 200;
+    YarikIra.wedding.wedding = 200'000;
+
+
+    Yarik.dog.value = 20'000;
+    Yarik.dog.feed = 6'000;
+    Yarik.dog.vet = 1'000;
+}
+
+void simulation()
+{
+    int month = 2;
+    int year = 2026;
+
+    while (!((month == 3) && (year == 2030))) {
+        IraCat(month, year);
+        TripIra(month, year);
+        IraFood(month, year);
+        IraCar(month, year);
+        IraBankInterest(month, year);
+        IraSalary(month, year);
+        IraFreelance(month, year);
+        //ira_utilitybills(month, year);
+        IraLotery(month, year);
+        print_results_ira();
+        print_results_yarik();
+        YarikBankMortagePayment(month, year);
+        YarikFood(month, year);
+        YarikMoto(month, year);
+        YarikChips(month, year);
+        YarikSalary(month, year);
+        YarikFreelance(month, year);
+        //Yarik_utilitybills(month, year);
+        YarikLotery(month, year);
+
+
+        ++month;
+        if (month == 13) {
+            month = 1;
+            ++year;
+        }
+    }
+}
+
+
+void simulation2()
+{
+    int month = 2;
+    int year = 2030;
+
+    while (!((month == 3) && (year == 2050))) {
+        IraCat(month, year);
+        TripIra(month, year);
+        IraFood(month, year);
+        IraBankInterest(month, year);
+       IraSalary(month, year);
+       IraFreelance(month, year);
+       IraFastfood(month, year);
+        IraLotery(month, year);
+
+        YarikBankMortagePayment(month, year);
+        YarikFood(month, year);
+        YarikMoto(month, year);
+        YarikLotery(month, year);
+
+        YarikSalary(month, year);
+        YarikFreelance(month, year);
+
+
+        ++month;
+        if (month == 13) {
+           month = 1;
+            ++year;
+        }
+    }
+}
+
+
+
+int main()
+{
+    ira_init();
+  
+
+    yarik_init();
+
+    YarikIra_init();
+
+    simulation();
+
+    //simulation2();
+
+    print_results_ira();
+
+    print_results_yarik();
+
+}
