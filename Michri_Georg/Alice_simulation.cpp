@@ -143,7 +143,7 @@ void alice_salary(const int month, const int year) {
 
 void alice_spending(const RUB spend){
     if ((Alice.Tbank.salary_account < spend)&&(Alice.Tbank.Deposit < spend)){
-        Bob.change_happiness(-spend/10000*Bob.happiness_multiplier);
+        Alice.change_happiness(-spend/10000);
         return;
     }
 
@@ -153,7 +153,7 @@ void alice_spending(const RUB spend){
     else{
         Alice.Tbank.salary_account-=spend;
     }
-    Alice.change_happiness(spend/10000*Alice.happiness_multiplier);
+    Alice.change_happiness(spend/10000);
 }
 
 
@@ -249,7 +249,7 @@ void alice_init()
     Alice.home.value=0; //rent an appartment
     Alice.home.expenses=50'000;
     
-    Alice.Tbank.salary_account = 0;
+    Alice.Tbank.salary_account = 200'000;
     Alice.Tbank.Deposit = 0;
     Alice.Tbank.interest = 14.5;
     Alice.Tbank.mortage_loan = Alice.home.value;
@@ -329,7 +329,7 @@ void bob_salary(const int month, const int year) {
 
 bool bob_spending(const RUB spend){
     if ((Bob.Tbank.salary_account < spend)&&(Bob.Tbank.Deposit < spend)){
-        Bob.change_happiness(-spend/10000);
+        Bob.change_happiness(-spend/20000);
         return false;
     }
     
