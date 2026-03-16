@@ -1129,8 +1129,6 @@ void simulation()
 
 int main()
 {
-    // Инициализация генератора случайных чисел
-    // Устанавливаем русскую локаль
     
     setlocale(LC_ALL, "Russian");
     srand(time(NULL));
