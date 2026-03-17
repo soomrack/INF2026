@@ -1,4 +1,6 @@
 #include <iostream>
+#include <math.h>
+#include <stdio.h>
 using namespace std;
 
 
@@ -98,6 +100,16 @@ void alice_init()
 }
 
 
+float normal_random(float mean, float stddev) {
+    const double PI = 3.14159265358979323846;
+    float u1 = (rand() + 1.0) / (RAND_MAX + 2.0);
+    float u2 = (rand() + 1.0) / (RAND_MAX + 2.0);
+
+    float z = sqrt(-2.0 * log(u1)) * cos(2.0 * PI * u2);
+    return mean + stddev * z;
+}
+
+
 float inflation(const int year) {
     switch (year) {
     case 2026: return (12.5);
@@ -110,48 +122,95 @@ float inflation(const int year) {
 
 void alice_vtb_stocks (int month)
 {
-    if (month == 3) {
-        alice.vtb.account_rub += alice.vtb.invest.stocks * (12 / 100);
+    if (month == 5) {
+        float mean_return = 17.0 / 100; 
+        float stddev = 3.0 / 100;
+
+        float random_return = normal_random(mean_return, stddev);
+
+        if (random_return < -5.0 / 100) random_return = -5.0 / 100;
+        if (random_return > 25.0 / 100) random_return = 25.0 / 100;
+
+        alice.vtb.account_rub += alice.vtb.invest.stocks * random_return;
     }
 }
 
 
 void alice_alfa_stocks (int month)
 {
-    if (month == 4) {
-        alice.vtb.account_rub += alice.alfa.invest.stocks * (20 / 100);
+    if (month == 5) {
+        float mean_return = 20.0 / 100;
+        float stddev = 7.0 / 100;
+
+        float random_return = normal_random(mean_return, stddev);
+
+        if (random_return < -5.0 / 100) random_return = -5.0 / 100;
+        if (random_return > 25.0 / 100) random_return = 25.0 / 100;
+
+        alice.vtb.account_rub += alice.alfa.invest.stocks * random_return;
     }
 }
 
 
 void alice_T_stocks(int month)
 {
-    if (month == 4) {
-        alice.vtb.account_rub += alice.T.invest.stocks * (15 / 100);
+    if (month == 5) {
+        float mean_return = 17.0 / 100;
+        float stddev = 2.0 / 100;
+
+        float random_return = normal_random(mean_return, stddev);
+
+        if (random_return < -5.0 / 100) random_return = -5.0 / 100;
+        if (random_return > 25.0 / 100) random_return = 25.0 / 100;
+
+        alice.vtb.account_rub += alice.T.invest.stocks * random_return;
     }
 }
 
 
 void alice_Gazprom_obligations(int month)
 {
-    if (month == 6) {
-        alice.vtb.account_rub += alice.Gazprom.obligation * (8 / 100);
+    if (month == 5) {
+        float mean_return = 11.0 / 100; 
+        float stddev = 8.0 / 100;
+
+        float random_return = normal_random(mean_return, stddev);
+
+        if (random_return < -5.0 / 100) random_return = -5.0 / 100;
+        if (random_return > 25.0 / 100) random_return = 25.0 / 100;
+
+        alice.vtb.account_rub += alice.Rosatom.obligation * random_return;
     }
 }
 
 
-void alice_Rosneft_obligations(int month)
-{
+void alice_Rosneft_obligations(int month) {
     if (month == 6) {
-        alice.vtb.account_rub += alice.Rosneft.obligation * (10 / 100);
+        float mean_return = 10.0 / 100;
+        float stddev = 2.0 / 100;
+
+        float random_return = normal_random(mean_return, stddev);
+
+        if (random_return < -5.0 / 100) random_return = -5.0 / 100;
+        if (random_return > 25.0 / 100) random_return = 25.0 / 100;
+
+        alice.vtb.account_rub += alice.Rosneft.obligation * random_return;
     }
 }
 
 
 void alice_Rosatom_obligations(int month)
 {
-    if (month == 6) {
-        alice.vtb.account_rub += alice.Rosatom.obligation * (5 / 100);
+    if (month == 5) {
+        float mean_return = 12.0 / 100;
+        float stddev = 4.0 / 100;
+
+        float random_return = normal_random(mean_return, stddev);
+
+        if (random_return < -5.0 / 100) random_return = -5.0 / 100;
+        if (random_return > 25.0 / 100) random_return = 25.0 / 100;
+
+        alice.vtb.account_rub += alice.Rosatom.obligation * random_return;
     }
 }
 
