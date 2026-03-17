@@ -320,12 +320,6 @@ void print_results()
     capital += alice_estate.apartments3 * market.price_3;
 
     printf("Capital = %lld\n", capital);
-
-    printf("aa = %d\n", alice.vtb.account_rub);
-
-    printf("Apartments1 = %d\n", alice_estate.apartments1);
-    printf("Apartments2 = %d\n", alice_estate.apartments2);
-    printf("Apartments3 = %d\n", alice_estate.apartments3);
 }
 
 
