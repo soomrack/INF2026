@@ -1,0 +1,338 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+using RUB = long long int;
+using USD = long long int;
+using Percent = float;
+
+
+
+struct Bank {
+    RUB account_rub;
+    USD account_usd;
+    float rate_usd_rub;
+};
+
+struct Car {
+    RUB value;
+    RUB gas;
+};
+
+struct Person {
+    Bank vtb;
+    RUB food;
+    RUB salary;
+    Car car;
+    RUB fitness;
+//    RUB clothes;
+   // RUB pets
+};
+
+struct RealEstateMarket {
+    RUB price_1;
+    RUB price_2;
+    RUB price_3;
+};
+
+struct RealEstate {
+    int apartments1;
+    int apartments2;
+    int apartments3;
+};
+
+struct Deposit {
+    RUB money;
+    Percent rate;
+};
+
+struct Health {
+    RUB base;
+};
+
+struct Person alice;
+
+struct RealEstateMarket market;
+struct RealEstate alice_estate;
+struct Deposit alice_deposit;
+struct Health alice_health;
+
+
+
+void alice_init()
+{
+    alice.vtb.rate_usd_rub = 78.76;
+    alice.vtb.account_usd = 1'000;
+    alice.food = 3'000;
+    alice.salary = 180'000;
+    alice.vtb.account_rub = 0;
+    alice.fitness = 3'000;
+
+    alice.car.value = 2'400'000;
+    alice.car.gas = 15'000;
+
+    market.price_1 = 6'000'000;
+    market.price_2 = 9'000'000;
+    market.price_3 = 13'000'000;
+
+    alice_estate.apartments1 = 0;
+    alice_estate.apartments2 = 0;
+    alice_estate.apartments3 = 0;
+
+    alice_deposit.money = 0;
+    alice_deposit.rate = 8.0;
+
+    alice_health.base = 2000;
+}
+
+void alice_food(const int month, const int year)
+{
+
+    if (month == 12) alice.vtb.account_rub -= 2000;
+    if (month == 5) alice.vtb.account_rub -= 3000;
+
+    Percent inflation_food;
+    switch (year) {
+        case 2026: inflation_food = 12.5; break;
+        case 2027: inflation_food = 14.0; break;
+        case 2028: inflation_food = 15.0; break;
+        case 2029: inflation_food = 16.0; break;
+        case 2030: inflation_food = 17.0; break;
+        default: inflation_food = 10.0;
+    }
+
+    alice.food += alice.food * (inflation_food / 100.0 / 12.0);
+
+    alice.vtb.account_rub -= alice.food;
+}
+
+void alice_salary(const int month, const int year)
+{
+    if (month == 1) {
+        alice.salary *= 1.03;
+    }
+
+    if (month == 12) {
+        alice.vtb.account_rub += (alice.salary * 0.1);
+    }
+
+    alice.vtb.account_rub += alice.salary;
+}
+
+void alice_car()
+{
+    alice.vtb.account_rub -= alice.car.gas;
+}
+
+void alice_fitness(const int month, const int year)
+{
+    if (month == 1) {
+        Percent inflation_fitness;
+        switch (year) {
+            case 2027: inflation_fitness = 7.0; break;
+            case 2028: inflation_fitness = 8.0; break;
+            case 2029: inflation_fitness = 9.0; break;
+            case 2030: inflation_fitness = 10.0; break;
+        }
+        alice.fitness += alice.fitness * (inflation_fitness / 100.0);
+    }
+
+    if (month % 3 == 0) {
+        RUB sport_food = 2'150;
+        alice.vtb.account_rub -= sport_food;
+    }
+
+    alice.vtb.account_rub -= alice.fitness;
+}
+
+
+
+void car_tax()
+{
+    RUB tax = alice.car.value * 0.01 / 12;
+    alice.vtb.account_rub -= tax;
+}
+
+void car_random_repair()
+{
+    int chance = rand() % 100;
+
+    if (chance < 5) {
+        RUB repair = 5000 + rand() % 40000;
+        alice.vtb.account_rub -= repair;
+    }
+}
+
+
+
+void medical_base()
+{
+    alice.vtb.account_rub -= alice_health.base;
+}
+
+void medical_random()
+{
+    int chance = rand() % 100;
+
+    if (chance < 8) {
+        RUB medicine = 2000 + rand() % 15000;
+        alice.vtb.account_rub -= medicine;
+    }
+}
+
+
+
+void real_estate_tax()
+{
+    RUB total = 0;
+
+    total += alice_estate.apartments1 * market.price_1;
+    total += alice_estate.apartments2 * market.price_2;
+    total += alice_estate.apartments3 * market.price_3;
+
+    RUB tax = total * 0.001 / 12;
+
+    alice.vtb.account_rub -= tax;
+}
+
+
+
+void buy_real_estate()
+{
+    if (alice.vtb.account_rub < market.price_3) return;
+
+    int choice = rand() % 3;
+
+    if (choice == 0) {
+        if (alice.vtb.account_rub >= market.price_1) {
+            alice.vtb.account_rub -= market.price_1;
+            alice_estate.apartments1++;
+        }
+    }
+
+    if (choice == 1) {
+        if (alice.vtb.account_rub >= market.price_2) {
+            alice.vtb.account_rub -= market.price_2;
+            alice_estate.apartments2++;
+        }
+    }
+
+    if (choice == 2) {
+        if (alice.vtb.account_rub >= market.price_3) {
+            alice.vtb.account_rub -= market.price_3;
+            alice_estate.apartments3++;
+        }
+    }
+}
+
+void market_inflation()
+{
+    Percent inflation = 5 + rand() % 6;
+
+    market.price_1 += market.price_1 * inflation / 100.0 / 12.0;
+    market.price_2 += market.price_2 * inflation / 100.0 / 12.0;
+    market.price_3 += market.price_3 * inflation / 100.0 / 12.0;
+}
+
+void market_crash()
+{
+    int chance = rand() % 1000;
+
+    if (chance < 5) {
+        market.price_1 *= 0.7;
+        market.price_2 *= 0.7;
+        market.price_3 *= 0.7;
+    }
+}
+
+
+
+void deposit_update()
+{
+    if (alice_deposit.money > 0) {
+        alice_deposit.money += alice_deposit.money *
+        alice_deposit.rate / 100.0 / 12.0;
+    }
+}
+
+
+
+void simulation()
+{
+    int year = 2026;
+    int month = 2;
+
+    srand(time(NULL));
+
+    while ( !(year == 2035 && month == 2) ) {
+
+        alice_salary(month, year);
+
+        alice_food(month, year);
+
+        alice_car();
+
+        alice_fitness(month, year);
+
+        car_tax();
+
+        car_random_repair();
+
+        medical_base();
+
+        medical_random();
+
+        real_estate_tax();
+
+        buy_real_estate();
+
+        deposit_update();
+
+        market_inflation();
+
+        market_crash();
+
+        ++month;
+
+        if (month == 13) {
+            ++year;
+            month = 1;
+        }
+    }
+}
+
+
+
+void print_results()
+{
+    printf("Salary = %lld\n", alice.salary);
+
+    RUB capital = 0;
+
+    capital += alice.vtb.account_rub;
+
+    capital += alice.vtb.account_usd * alice.vtb.rate_usd_rub;
+
+    capital += alice.car.value;
+
+    capital += alice_estate.apartments1 * market.price_1;
+    capital += alice_estate.apartments2 * market.price_2;
+    capital += alice_estate.apartments3 * market.price_3;
+
+    printf("Capital = %lld\n", capital);
+
+    printf("aa = %d\n", alice.vtb.account_rub);
+
+    printf("Apartments1 = %d\n", alice_estate.apartments1);
+    printf("Apartments2 = %d\n", alice_estate.apartments2);
+    printf("Apartments3 = %d\n", alice_estate.apartments3);
+}
+
+
+
+int main()
+{
+    alice_init();
+    simulation();
+    print_results();
+}
