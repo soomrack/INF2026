@@ -4,18 +4,15 @@
 #include <array>
 
 using DAR = int;
-                                /* =======================
-                                   ВСПОМОГАТЕЛЬНЫЕ КОМАНДЫ
-                                   ======================= */
-int random_year(const int min, const int max) {
-    static std::mt19937 gen(std::random_device{}());
-    std::uniform_int_distribution<> dist(min, max);
-    return dist(gen); 
-}
 
-                                /* =======================
-                                            ЗЕРНО 
-                                   ======================= */
+class Grain;
+class Barin;
+class Ivan;
+class Field;
+
+
+
+/* =============================ЗЕРНО============================ */
 
 class Grain {
 public:
@@ -24,7 +21,7 @@ public:
     int kg_for_desyatina;
     int storage_kg;
 
-};
+}; 
 
 std::array<Grain, 4> grains;
 
@@ -36,9 +33,8 @@ void grains_init() {
 }
 
 
-                                /* =======================
-                                            БАРИН 
-                                   ======================= */
+
+/* =============================БАРИН============================ */
 class Barin {
 public:
     double percent_obrok = 0.3;
@@ -48,6 +44,7 @@ public:
     void random_barin_order();
     void barin_init();
 };
+
 Barin barin;
 
 void Barin::random_barin_order() {
@@ -64,26 +61,28 @@ void Barin::random_barin_order() {
         << " for " << how_many_years
         << " years\n";
 }
-                                /* =======================
-                                            ИВАН 
-                                   ======================= */
+/* ==================================ИВАН=============================== */
 
 class Ivan {
 public:
     double age = 18.0;
     int birth_year;
     DAR money = 10000;
+    
 
-    void expenses() {
-        money -= 2000;
-        std::cout << "Ivan spend 2000 DAR for food \n";
-        // траты зерна на еду
-    }
+    void expenses();
 };
-
 Ivan ivan;
 
-class Depended_Ivan:Ivan {
+void Ivan::expenses() {
+    money -= 2000;
+    std::cout << "Ivan spend 2000 DAR for food \n";
+    // траты зерна на еду
+}
+
+
+
+class Depended_Ivan: public Ivan {
 
 };
 
@@ -99,11 +98,10 @@ struct Field {
 
 enum Season { Spring, Summer, Autumn, Winter };
 
-
-
 Field field;
 
-std::array <double, 16> harvest_coeff = {
+
+std::array <double, 16> harvest_coeff_gauss = {
     0.1,
     0.3,
     0.5, 0.5,
@@ -119,7 +117,7 @@ double random_harvest_coeff_init() {
 
     static std::mt19937 gen(std::random_device{}());
     std::uniform_int_distribution<> coeff(0, 15);
-    return harvest_coeff[coeff(gen)];
+    return harvest_coeff_gauss[coeff(gen)];
 }
 
 
@@ -200,22 +198,20 @@ void process_cropping(Season season) {
     }
 }
 
+/* ======================ВСПОМОГАТЕЛЬНЫЕ КОМАНДЫ======================= */
+int random_year(const int min, const int max) {
+    static std::mt19937 gen(std::random_device{}());
+    std::uniform_int_distribution<> dist(min, max);
+    return dist(gen);
+}
 
-
-int main() {
+void years_simulation() {
 
     int year = random_year(1820, 1856);
 
     int start_year = year;
     Season current_season = Spring;
     std::cout << "Start year: " << year << "\n";
-   
-    grains_init();
-    field_init();
-
-	//family_init(); // если нужно, можно добавить семью и расходы на нее
-	//pets_init(); // если нужно, можно добавить животных и расходы на них,
-
 
     while (year < 1861) {
         std::cout << ivan.money << " DAR \n";
@@ -227,7 +223,23 @@ int main() {
             year++;
         }
     }
+
+    std::cout << "After " << year - start_year << " years, Ivan has " << ivan.money / 1000 << " RUB and "
+        << ivan.money % 1000 << " DAR \n";
+}
+
+int main() {
+
+    
+   
+    grains_init();
+    field_init();
+
+	//family_init(); // если нужно, можно добавить семью и расходы на нее
+	//pets_init(); // если нужно, можно добавить животных и расходы на них,
+
+    years_simulation();
+    
     // after 1861 будет совсем другая история, которую мы обязательно продолжим
-    std::cout << "After " << year - start_year << " years, Ivan has " << ivan.money/1000 << " RUB and "
-        << ivan.money%1000  << " DAR \n";
+    
 }
