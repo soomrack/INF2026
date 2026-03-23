@@ -9,74 +9,74 @@
 #include <ctime>
 #include <algorithm>
 
-using RUB = long long int;          // Тип для хранения денежных значений в рублях
-const RUB CASH_LIMIT = 100'000;     // Лимит наличных денег
-using percent = double;              // Тип для хранения процентов
+using RUB = long long int;          
+const RUB CASH_LIMIT = 100'000;     
+using percent = double;             
 
 
 struct Car {
-    RUB value;      // Текущая стоимость автомобиля
-    RUB gas;        // Ежемесячные расходы на бензин
+    RUB value;      
+    RUB gas;        
 };
 
 struct Apartment {
-    RUB value;               // стоимость квартиры
+    RUB value;               
     RUB mortgage_debt;       // остаток ипотеки
     RUB total_mortgage_paid; // сколько выплачено по ипотеке
     RUB total_interest_paid; // сколько выплачено процентов
-    RUB property_tax_paid;   // налог на недвижимость
-    RUB total_repair_paid;   // расходы на ремонт
+    RUB property_tax_paid;   
+    RUB total_repair_paid;   
     RUB insurance_paid;      // страховка
 };
 
 struct Job {
-    RUB salary;                     // Зарплата
-    percent fire_probability;        // Вероятность увольнения
-    percent raise_probability;       // Вероятность внепланового повышения
-    percent annual_raise_percent;    // Годовой процент повышения
+    RUB salary;                   
+    percent fire_probability;       
+    percent raise_probability;       
+    percent annual_raise_percent;    
     int raise_month;                // Месяц ежегодного повышения
 };
 
 struct World {
-    percent inflation_rate;          // Годовая инфляция
-    percent crisis_probability;      // Вероятность экономического кризиса
+    percent inflation_rate;          
+    percent crisis_probability;      
     percent crisis_impact_percent;   // Насколько сильно кризис влияет на активы
-    percent apartment_growth_rate;   // Рост стоимости недвижимости
+    percent apartment_growth_rate;   
 };
 
 struct Deposit {
     RUB amount;         // Сумма депозита
     percent annual_rate; // Годовая ставка
-    int months_left;    // Срок вклада в месяцах
+    int months_left;    
     bool is_replenishable; // Можно ли пополнять вклад
 };
 
 struct Credit {
     RUB sumcredit;          // Остаток долга
-    RUB monthly_payment;    // Ежемесячный платёж
+    RUB monthly_payment;    
     percent interest_rate;   // Процентная ставка
     int months_left;        // Остаток срока кредита
 };
 
 struct Investment {
-    RUB amount;             // Сумма инвестиций
+    RUB amount;             
     percent expected_return; // Ожидаемая доходность
-    percent risk;            // Уровень риска
+    percent risk;            
 };
 
 struct YearlyReport {
-    int year;                   // год отчёта
-    RUB net_worth;              // чистый капитал
-    RUB capital;                // наличные деньги
+    int year;                   
+    RUB net_worth;              
+    RUB capital;                
     RUB deposit;                
     RUB car_value;              
-    RUB credit;                 // Остаток кредита
-    RUB mortgage_debt;          // Остаток ипотеки
-    RUB stock_value;            // стоимость инвестиций
-    RUB rent_paid;              // сколько уплачено аренды
-    RUB mortgage_paid;          // сколько уплачено по ипотеке
-    RUB interest_paid;          // сколько уплачено процентов
-    RUB property_tax_paid;      // налог на имущество
+    RUB credit;                
+    RUB mortgage_debt;          
+    RUB stock_value;            
+    RUB rent_paid;            
+    RUB mortgage_paid;       
+    RUB interest_paid;       
+    RUB property_tax_paid;      
     RUB stress_index;
 };
 
@@ -100,8 +100,8 @@ struct Person {
     int children_count;         
     RUB child_monthly_expense;  
 
-    percent early_mortgage_payment_rate; // процент досрочного погашения
-    RUB total_early_mortgage_paid;      // сколько досрочно погашено
+    percent early_mortgage_payment_rate; 
+    RUB total_early_mortgage_paid;     
 
     RUB stock_investment_amount; // инвестиции в акции
     percent stock_return_rate;    // доходность акций
@@ -1660,11 +1660,11 @@ void bob_make_year_report(int year)
     {
         int year = start_year;
         int month = 1;
+        int end_year = start_year + simulation_years;
 
-        while (year < start_year + simulation_years)
+        while (!(year == end_year && month == 1))
         {
             alice.capital += alice.salary;
-            // работа
             alice_check_job_loss();
             alice_process_unemployment();
             alice_check_annual_raise(month);
@@ -1674,13 +1674,11 @@ void bob_make_year_report(int year)
             alice_change_job();
             alice_burnout();
 
-            // расходы
             alice_pay_food(world);
             alice_pay_car_expenses(world);
             alice_depreciate_car();
             alice_pay_credit();
 
-            // дети и семья
             alice_check_child_birth();
             alice_pay_children_expenses();
             alice_child_preschool();
@@ -1688,16 +1686,13 @@ void bob_make_year_report(int year)
             alice_child_university();
             alice_maternity_leave();
 
-            // инвестиции
             alice_invest_in_stocks();
             alice_apply_stock_return();
             alice_panic_sell();
             alice_rebalance_portfolio();
 
-            // стресс
             alice_calculate_total_stress();
 
-            // случайные события
             alice_random_large_expense();
             alice_random_bonus_or_inheritance();
 
@@ -1718,15 +1713,13 @@ void bob_make_year_report(int year)
             alice_take_vacation(world);
             alice_take_courses(world);
 
-            // если декабрь — делаем годовой отчёт
             if (month == 12)
             {
-                alice_make_year_report(year);
+                bob_make_year_report(year);
                 year++;
             }
 
             month++;
-            if (month > 12) month = 1;
         }
     }
 
@@ -1735,11 +1728,12 @@ void bob_make_year_report(int year)
     {
         int year = start_year;
         int month = 1;
+        int end_year = start_year + simulation_years;
 
-        while (year < start_year + simulation_years)
+        while (!(year == end_year && month == 1))
         {
             bob.capital += bob.salary;
-            // работа
+            
             bob_check_job_loss();
             bob_process_unemployment();
             bob_check_annual_raise(month);
@@ -1749,13 +1743,11 @@ void bob_make_year_report(int year)
             bob_change_job();
             bob_burnout();
 
-            // расходы
             bob_pay_food();
             bob_pay_car_expenses();
             bob_depreciate_car();
             bob_pay_rent();
 
-            // дети и семья
             bob_check_child_birth();
             bob_pay_children_expenses();
             bob_child_preschool();
@@ -1763,16 +1755,13 @@ void bob_make_year_report(int year)
             bob_child_university();
             bob_maternity_leave();
 
-            // инвестиции
             bob_invest_in_stocks();
             bob_apply_stock_return();
             bob_panic_sell();
             bob_rebalance_portfolio();
-
-            // стресс
+  
             bob_calculate_total_stress();
 
-            // случайные события
             bob_random_large_expense();
             bob_random_bonus_or_inheritance();
 
@@ -1790,7 +1779,6 @@ void bob_make_year_report(int year)
             bob_take_vacation(world);
             bob_take_courses(world);
 
-            // если декабрь — делаем годовой отчёт
             if (month == 12)
             {
                 bob_make_year_report(year);
@@ -1970,7 +1958,8 @@ std::cout << "Year | Alice Capital | Bob Capital | Alice Deposit | Bob Deposit |
         print_bob_report();
         compare_strategies();
 
-		analyze_alice_bob();
+        analyze_alice_bob();
 
         return 0;
     }
+  
