@@ -1,0 +1,2004 @@
+#include <stdio.h>
+#include <iostream>
+
+using RUB = long long int;
+using USD = long long int;
+
+using Percent = float;
+
+const float income_tax_rate = 0.13f;   // НДФЛ 13 %
+const float property_tax_rate = 0.001f;  // Налог на имущество 0.1 % от стоимости в год
+const float transport_tax_rate = 0.01f; // Транспортный налог 1 % от стоимости авто в год
+
+struct Bank {
+	RUB account;
+	RUB deposite;
+	Percent interest;
+	RUB salary;
+
+	USD account_usd;
+	float rate_usd_rub;
+};
+
+struct Car {
+	RUB gas;
+	RUB value;
+};
+
+struct Investments {
+	RUB stocks; // акции 
+	RUB crypto; // крипта
+};
+
+struct Education {
+	RUB course_cost;
+	int duration_months; // длительность учебы в месяцах
+	float salary_boost_percent;
+	int months_remaining; // осталось месяцев до конца 
+};
+
+struct Pet {
+	RUB price;
+	RUB expenses_monthly; // ежемесячные расходы (корм, ветеринар и т. д.)
+	RUB toys;
+	RUB grooming;
+	RUB vaccination;
+};
+
+struct Clothing {
+	RUB winter_clothes;
+	RUB new_year_clothes;
+	RUB socks;
+	RUB spring_shoes;
+	RUB summer_hat;
+};
+
+struct Hobbies {
+	RUB books_audio;
+	RUB board_games;
+	RUB courses;          // онлайн-курсы
+	RUB equipment;        // хобби-оборудование
+};
+
+struct CarExpenses {
+	RUB gas;
+	RUB maintenance;
+	RUB seasonal_tires;
+	RUB accessories;
+};
+
+struct Communication {
+	RUB mobile;
+	RUB internet;
+	RUB tele_music;
+};
+
+struct Home {
+	RUB apartment_value;
+	RUB dacha_value;
+	RUB utilities; // расходы на ЖКХ
+	RUB home_decor;
+	RUB property_insurance; // страхование имущества
+};
+
+struct CoffeeShop {
+	RUB coffee;           // кофе в кофейне
+	RUB pastries;         // выпечка
+	RUB lunch;            // обеды вне дома
+};
+
+struct Health {
+	RUB vitamins;         // витамины
+	RUB sports_equipment; // спортивный инвентарь
+	RUB massage;          // массаж
+	RUB dentist;          // стоматолог
+};
+
+struct Beauty {
+	RUB haircut;
+	RUB manicure;
+	RUB cosmetics;
+	RUB spa;
+};
+
+struct EntertainmentExpenses {
+	RUB cinema;
+	RUB concerts;
+	RUB museums;
+	RUB hobbies;
+};
+
+struct AdditionalExpenses {
+	RUB car_accessories;    // автоаксессуары
+};
+
+struct Tax {
+
+	RUB income;           // НДФЛ
+	RUB property;         // Налог на недвижимость
+	RUB transport;       // Транспортный налог
+	RUB total_taxes_paid;    // Общая сумма уплаченных налогов
+
+};
+
+struct Person {
+	Bank vtb;
+	Car car;
+	Pet pet;
+	Clothing clothing;
+	Communication communication;
+	Home home;
+	CarExpenses carExpenses;
+	Tax tax;
+	CoffeeShop coffee_shop;
+	Beauty beauty;
+	Health health;
+	Hobbies hobbies;
+
+
+	RUB salary;
+	RUB food;
+	RUB flowers;
+	RUB shopping; // регулярный шоппинг
+	RUB medical; // медицина
+	RUB salary_second;// вторая работа макса
+	Education study;
+	RUB travel_expenses;// траты на путешествие 
+	EntertainmentExpenses entertainment;
+	RUB fine; // штраф
+	RUB gifts;
+	RUB repairs;// ремонт
+	RUB books; // учебные материалы
+	RUB gym;
+	Investments investments;
+	RUB investment_stocks_amount; // сумма для инвестиций в акции
+	RUB investment_crypto_amount;  //  сумма инвестиций в крипту
+	RUB car_maintenance;
+	RUB birthday_gifts;
+	RUB charity_donation;    // благотворительные пожертвования
+	RUB parking_fees;       // плата за парковку
+	RUB gadgets;
+	RUB plants;
+	RUB photo;                // фотосессии
+	RUB glasses;
+	AdditionalExpenses additional;
+
+};
+
+struct Inflation {
+	float rate;              // текущая ставка инфляции
+	float monthly_rate;      // месячная ставка инфляции
+	float cumulative;        // накопленная инфляция за период
+};
+Inflation inflation;
+
+
+void inflation_init() {
+	inflation.rate = 0.09f;        // 9% годовых в 2026 году
+	inflation.monthly_rate = 0.0072f;  // ~0.72% в месяц
+	inflation.cumulative = 1.0f;
+}
+
+void inflation_update_rate(int year) {
+	if (year == 2026) {
+		inflation.rate = 0.09f;
+		inflation.monthly_rate = 0.0072f;
+	}
+	else if (year == 2027) {
+		inflation.rate = 0.08f;
+		inflation.monthly_rate = 0.0064f;
+	}
+	else if (year == 2028) {
+		inflation.rate = 0.07f;
+		inflation.monthly_rate = 0.0056f;
+	}
+	else if (year == 2029) {
+		inflation.rate = 0.06f;
+		inflation.monthly_rate = 0.0049f;
+	}
+}
+
+struct Person alice;
+//struct Person max;
+
+
+
+void alice_init()
+{
+	alice.vtb.account = 0;
+	alice.vtb.deposite = 1'000'000;
+	alice.vtb.interest = 14.5;
+	alice.salary = 220'000;
+
+	alice.vtb.account_usd = 1'000;
+	alice.vtb.rate_usd_rub = 78.5;
+
+	alice.pet.price = 55'000;
+	alice.pet.expenses_monthly = 5'000;
+	alice.pet.toys = 1'500;
+	alice.pet.grooming = 3'000;
+	alice.pet.vaccination = 2'000;
+
+	alice.clothing.winter_clothes = 5'000;
+	alice.clothing.new_year_clothes = 5'000;
+	alice.clothing.socks = 200;
+	alice.clothing.spring_shoes = 3'500;
+	alice.clothing.summer_hat = 350;
+
+	alice.communication.mobile = 800;
+	alice.communication.internet = 600;
+	alice.communication.tele_music = 340;
+
+	alice.car.value = 2'400'000;
+	alice.carExpenses.gas = 15'000;
+	alice.carExpenses.maintenance = 15'000;
+	alice.carExpenses.seasonal_tires = 20'000;
+	alice.carExpenses.accessories = 4'000;
+
+	alice.food = 20'000;
+
+	alice.car.value = 2'400'000;
+	alice.car.gas = 15'000;
+	alice.shopping = 15'000;
+	alice.medical = 2'500;
+
+	alice.study.course_cost = 12'000;
+	alice.study.duration_months = 6;
+	alice.study.salary_boost_percent = 25.0f;
+	alice.study.months_remaining = 0;
+	alice.travel_expenses = 200'000;
+
+	alice.entertainment.cinema = 2'500;
+	alice.entertainment.concerts = 4'000;
+	alice.entertainment.museums = 1'500;
+	alice.entertainment.hobbies = 3'000;
+
+	alice.home.utilities = 5'000;
+	alice.home.home_decor = 3'000;
+	alice.home.property_insurance = 3'500;
+
+	alice.fine = 500;
+	alice.gifts = 3'000;
+	alice.repairs = 5'000;
+	alice.books = 1'000;
+	alice.gym = 25'000;
+
+	alice.investments.stocks = 0;
+	alice.investment_stocks_amount = 20'000; // инициализация суммы инвестиций
+	alice.investments.crypto = 0;
+	alice.investment_crypto_amount = 15'000;
+	alice.car_maintenance = 15'000;
+	alice.birthday_gifts = 7'000;
+
+	alice.charity_donation = 1'000;
+	alice.parking_fees = 2'500;
+	alice.gadgets = 15'000;
+
+	alice.additional.car_accessories = 4'000;
+
+	alice.tax.income = 0;
+
+	alice.coffee_shop.coffee = 1'500;
+	alice.coffee_shop.pastries = 1'000;
+	alice.coffee_shop.lunch = 3'000;
+
+	alice.beauty.haircut = 2'500;
+	alice.beauty.manicure = 1'800;
+	alice.beauty.cosmetics = 3'000;
+	alice.beauty.spa = 4'000;
+
+	alice.health.vitamins = 1'200;
+	alice.health.sports_equipment = 2'000;
+	alice.health.massage = 2'500;
+	alice.health.dentist = 3'500;
+
+	alice.hobbies.books_audio = 700;
+	alice.hobbies.board_games = 1'000;
+	alice.hobbies.courses = 2'000;
+	alice.hobbies.equipment = 1'500;
+
+	alice.plants = 800;
+	alice.photo = 2'000;
+	alice.glasses = 10'000;
+
+}
+
+void alice_glasses(int month, int year) {
+	if (month == 9 and year >= 2026) {
+		if (alice.vtb.account < alice.glasses) {
+			alice.glasses = 0;
+			std::cout << "Not enough funds for glasses! Balance:   " << alice.vtb.account << std::endl;
+			return;
+		}
+		alice.vtb.account -= alice.glasses;
+		std::cout << "Alice paid a glasses: " << alice.glasses << std::endl;
+	}
+}
+
+void alice_photo() {
+	if (alice.vtb.account < alice.photo) {
+		alice.photo = 0;
+		std::cout << "Not enough funds for photo! Balance:   " << alice.vtb.account << std::endl;
+		return;
+	}
+	alice.vtb.account -= alice.photo;
+	std::cout << "Alice paid a photo: " << alice.photo << std::endl;
+}
+
+void alice_plants() {
+	if (alice.vtb.account < alice.plants) {
+		alice.plants = 0;
+		std::cout << "Not enough funds for plants! Balance:   " << alice.vtb.account << std::endl;
+		return;
+	}
+	alice.vtb.account -= alice.plants;
+	std::cout << "Alice paid a plant: " << alice.plants << std::endl;
+}
+
+void alice_hobbies_pay() {
+	RUB total = alice.hobbies.books_audio + alice.hobbies.board_games + alice.hobbies.courses;
+	if (alice.vtb.account < total) {
+		total = 0;
+		std::cout << "Not enough funds for hobbies! Balance: " << alice.vtb.account << std::endl;
+		return;
+	}
+	alice.vtb.account -= total;
+	std::cout << "Alice spent on hobbies: " << total << std::endl;
+}
+
+void alice_coffee_shop() {
+	RUB total = alice.coffee_shop.coffee + alice.coffee_shop.pastries + alice.coffee_shop.lunch;
+	if (alice.vtb.account < total) {
+		total = 0;
+		std::cout << "Not enough funds for coffee shop! Balance: " << alice.vtb.account << std::endl;
+		return;
+	}
+	alice.vtb.account -= total;
+	std::cout << "Alice spent on coffee shop: " << total << " (coffee: "
+		<< alice.coffee_shop.coffee << ", pastries: " << alice.coffee_shop.pastries
+		<< ", lunch: " << alice.coffee_shop.lunch << ")" << std::endl;
+
+}
+
+void alice_beauty() {
+	RUB total = alice.beauty.haircut + alice.beauty.manicure + alice.beauty.cosmetics + alice.beauty.spa;
+	if (alice.vtb.account < total) {
+		total = 0;
+		std::cout << "Not enough funds for beauty! Balance: " << alice.vtb.account << std::endl;
+		return;
+	}
+	alice.vtb.account -= total;
+	std::cout << "Alice spent on beauty: " << total << std::endl;
+
+}
+
+void alice_health_care() {
+	RUB total = alice.health.vitamins + alice.health.sports_equipment + alice.health.massage;
+	if (alice.vtb.account < total) {
+		total = 0;
+		std::cout << "Not enough funds for health care! Balance: " << alice.vtb.account << std::endl;
+		return;
+	}
+	alice.vtb.account -= total;
+	std::cout << "Alice spent on health: " << total << std::endl;
+
+}
+
+void alice_salary_with_inflation(const int month, const int year) {
+	if (month == 12) {
+		alice.vtb.account += alice.salary;
+	}
+	if (month == 1 and year == 2027) {
+		alice.salary *= 1.5;
+		std::cout << "Alice got a promotion! New salary: " << alice.salary << std::endl;
+	}
+	alice.vtb.account += alice.salary;
+}
+
+void alice_deposite_with_inflation(const int month, const int year) {
+	if (year == 2026) alice.vtb.interest = 14.5;
+	if (year == 2027) alice.vtb.interest = 13.5;
+	if (year == 2028) alice.vtb.interest = 12.5;
+	if (year == 2029) alice.vtb.interest = 11.5;
+
+	alice.vtb.deposite += alice.vtb.deposite * (alice.vtb.interest / 12.0 / 100.0);
+	alice.vtb.deposite += alice.vtb.account;
+	alice.vtb.account = 0;
+
+	if (month == 12) {
+		float real_rate = alice.vtb.interest - inflation.rate * 100;
+		std::cout << "Alice's real deposit rate: " << real_rate
+			<< "% (nominal: " << alice.vtb.interest
+			<< "%, inflation: " << (inflation.rate * 100) << "%)" << std::endl;
+	}
+}
+
+void alice_calculate_purchasing_power(int month, int year) {
+	static RUB base_salary = 220000;
+	float purchasing_power = (float)alice.salary / base_salary * 100;
+	std::cout << " Purchasing power of salary: "
+		<< purchasing_power << "% of base  (" << alice.salary << ")" << std::endl;
+	std::cout << "Accumulated inflation " << (inflation.cumulative - 1.0f) * 100 << "%" << std::endl;
+}
+
+void alice_index_property(float yearly_rate) {
+	alice.home.apartment_value += alice.home.apartment_value * yearly_rate;
+	alice.home.dacha_value += alice.home.dacha_value * yearly_rate;
+
+	float depreciation = 0.85f;  // 15% амортизация в год
+	alice.car.value = alice.car.value * depreciation * (1.0f + yearly_rate);
+}
+
+void apply_yearly_inflation_alice(int year) {
+	inflation_update_rate(year);
+	alice_index_property(inflation.rate);
+
+	std::cout << "Annual inflation: " << (inflation.rate * 100) << "%" << std::endl;
+	std::cout << "New salary: " << alice.salary << std::endl;
+	std::cout << "New car price: " << alice.car.value << std::endl;
+}
+
+void alice_apply_inflation(float monthly_rate) {
+	if (monthly_rate <= 0)
+		return;
+
+	alice.salary += alice.salary * monthly_rate * 0.7f;
+	alice.food += alice.food * monthly_rate;
+	alice.shopping += alice.shopping * monthly_rate;
+	alice.medical += alice.medical * monthly_rate;
+	alice.gym += alice.gym * monthly_rate;
+
+	alice.communication.mobile += alice.communication.mobile * monthly_rate;
+	alice.communication.internet += alice.communication.internet * monthly_rate;
+	alice.communication.tele_music += alice.communication.tele_music * monthly_rate;
+
+	alice.car.gas += alice.car.gas * monthly_rate;
+	alice.carExpenses.gas += alice.carExpenses.gas * monthly_rate;
+	alice.carExpenses.maintenance += alice.carExpenses.maintenance * monthly_rate;
+	alice.carExpenses.seasonal_tires += alice.carExpenses.seasonal_tires * monthly_rate;
+	alice.car_maintenance += alice.car_maintenance * monthly_rate;
+	alice.additional.car_accessories += alice.additional.car_accessories * monthly_rate;
+
+	alice.home.utilities += alice.home.utilities * monthly_rate;
+	alice.home.home_decor += alice.home.home_decor * monthly_rate;
+	alice.home.property_insurance += alice.home.property_insurance * monthly_rate;
+
+	alice.pet.expenses_monthly += alice.pet.expenses_monthly * monthly_rate;
+	alice.pet.toys += alice.pet.toys * monthly_rate;
+	alice.pet.grooming += alice.pet.grooming * monthly_rate;
+	alice.pet.vaccination += alice.pet.vaccination * monthly_rate;
+
+	alice.clothing.winter_clothes += alice.clothing.winter_clothes * monthly_rate;
+	alice.clothing.new_year_clothes += alice.clothing.new_year_clothes * monthly_rate;
+	alice.clothing.socks += alice.clothing.socks * monthly_rate;
+	alice.clothing.spring_shoes += alice.clothing.spring_shoes * monthly_rate;
+	alice.clothing.summer_hat += alice.clothing.summer_hat * monthly_rate;
+
+	alice.entertainment.cinema += alice.entertainment.cinema * monthly_rate;
+	alice.entertainment.concerts += alice.entertainment.concerts * monthly_rate;
+	alice.entertainment.museums += alice.entertainment.museums * monthly_rate;
+	alice.entertainment.hobbies += alice.entertainment.hobbies * monthly_rate;
+
+	alice.gifts += alice.gifts * monthly_rate;
+	alice.repairs += alice.repairs * monthly_rate;
+	alice.books += alice.books * monthly_rate;
+	alice.birthday_gifts += alice.birthday_gifts * monthly_rate;
+	alice.charity_donation += alice.charity_donation * monthly_rate;
+	alice.parking_fees += alice.parking_fees * monthly_rate;
+	alice.gadgets += alice.gadgets * monthly_rate;
+	alice.travel_expenses += alice.travel_expenses * monthly_rate;
+
+	alice.investment_stocks_amount += alice.investment_stocks_amount * monthly_rate;
+	alice.investment_crypto_amount += alice.investment_crypto_amount * monthly_rate;
+
+	alice.coffee_shop.coffee += alice.coffee_shop.coffee * monthly_rate;
+	alice.coffee_shop.pastries += alice.coffee_shop.pastries * monthly_rate;
+	alice.coffee_shop.lunch += alice.coffee_shop.lunch * monthly_rate;
+
+	alice.beauty.haircut += alice.beauty.haircut * monthly_rate;
+	alice.beauty.manicure += alice.beauty.manicure * monthly_rate;
+	alice.beauty.cosmetics += alice.beauty.cosmetics * monthly_rate;
+	alice.beauty.spa += alice.beauty.spa * monthly_rate;
+
+	alice.health.vitamins += alice.health.vitamins * monthly_rate;
+	alice.health.sports_equipment += alice.health.sports_equipment * monthly_rate;
+	alice.health.massage += alice.health.massage * monthly_rate;
+
+	alice.hobbies.books_audio += alice.hobbies.books_audio * monthly_rate;
+	alice.hobbies.board_games += alice.hobbies.board_games * monthly_rate;
+	alice.hobbies.courses += alice.hobbies.courses * monthly_rate;
+
+	alice.plants += alice.plants * monthly_rate;
+}
+
+void alice_calculate_transport_tax() {
+	alice.tax.transport = static_cast<RUB>(alice.car.value * transport_tax_rate / 12.0);
+}
+
+void alice_calculate_property_tax() {
+	RUB property_value = alice.home.apartment_value + alice.home.dacha_value;
+	alice.tax.property = static_cast<RUB>(property_value * property_tax_rate / 12.0); // месячный налог
+}
+
+void alice_calculate_income_tax() {
+	alice.tax.income = static_cast<RUB>(alice.salary * income_tax_rate);
+}
+bool alice_pay_taxes() {
+	RUB total_taxes = alice.tax.transport + alice.tax.property + alice.tax.income;
+
+	if (alice.vtb.account < total_taxes) {
+		std::cout << "Not enough funds to pay taxes! Balance: " << alice.vtb.account
+			<< ", Required: " << total_taxes << std::endl;
+		return false;
+	}
+
+	alice.vtb.account -= total_taxes;
+	alice.tax.total_taxes_paid += total_taxes;
+
+	std::cout << "Taxes paid: " << total_taxes
+		<< " (Income: " << alice.tax.income
+		<< ", Property: " << alice.tax.property
+		<< ", Transport: " << alice.tax.transport << ")" << std::endl;
+	return true;
+}
+
+
+void alice_car_accessories(int month, int year) {
+	if (month == 6 and year >= 2026) {
+		if (alice.vtb.account < alice.additional.car_accessories) {
+			alice.additional.car_accessories = 0;
+			std::cout << "Not enough funds for car accessories! Balance:   " << alice.vtb.account << std::endl;
+			return;
+		}
+		alice.vtb.account -= alice.additional.car_accessories;
+		std::cout << "Alice paid for car accessories: " << alice.additional.car_accessories << std::endl;
+	}
+}
+
+void alice_pet_toys(int month, int year) {
+	if (month == 2 and year >= 2026) {
+		if (alice.vtb.account < alice.pet.toys) {
+			alice.pet.toys = 0;
+			std::cout << "Not enough funds for pet toys! Balance:   " << alice.vtb.account << std::endl;
+			return;
+		}
+		alice.vtb.account -= alice.pet.toys;
+		std::cout << "Alice paid for pet toys: " << alice.pet.toys << std::endl;
+	}
+}
+
+void alice_home_decor(int month, int year) {
+	if (month == 9 and year >= 2026 and year <= 2029) {
+		if (alice.vtb.account < alice.home.home_decor) {
+			alice.home.home_decor = 0;
+			std::cout << "Not enough funds for home_decor! Balance:   " << alice.vtb.account << std::endl;
+			return;
+		}
+		alice.vtb.account -= alice.home.home_decor;
+		std::cout << "Alice paid for home_decor: " << alice.home.home_decor << std::endl;
+	}
+}
+
+void alice_property_insurance(int month, int year) {
+	if (month == 1 and year >= 2026) {
+		if (alice.vtb.account < alice.home.property_insurance) {
+			alice.vtb.account -= alice.home.property_insurance;
+			std::cout << "Not enough funds for property_insurance! Balance:   " << alice.vtb.account << std::endl;
+			return;
+		}
+		alice.vtb.account -= alice.home.property_insurance;
+		std::cout << "Alice paid for property_insurance: " << alice.home.property_insurance << std::endl;
+	}
+}
+
+void alice_gadgets() {
+	if (alice.vtb.account < alice.gadgets) {
+		alice.gadgets = 0;
+		std::cout << "Not enough funds for gadgets ! Balance:   " << alice.vtb.account << std::endl;
+		return;
+	}
+	alice.vtb.account -= alice.gadgets;
+	std::cout << "Alice paid for gadgets: " << alice.gadgets << std::endl;
+}
+
+void alice_parking_fees() {
+	if (alice.vtb.account < alice.parking_fees) {
+		alice.parking_fees = 0;
+		std::cout << "Not enough funds for parking fees ! Balance:   " << alice.vtb.account << std::endl;
+		return;
+	}
+	alice.vtb.account -= alice.parking_fees;
+	std::cout << "Alice paid for parking fees: " << alice.parking_fees << std::endl;
+}
+
+void alice_charity_donation()
+{
+	if (alice.vtb.account < alice.charity_donation) {
+		alice.charity_donation = 0;
+		std::cout << "Not enough funds for charity donation ! Balance:   " << alice.vtb.account << std::endl;
+		return;
+	}
+	alice.vtb.account -= alice.charity_donation;
+	std::cout << "Alice paid for charity donation: " << alice.charity_donation << std::endl;
+}
+
+void alice_pet_grooming() {
+	if (alice.vtb.account < alice.pet.grooming) {
+		alice.pet.grooming = 0;
+		std::cout << "Not enough funds for pet grooming ! Balance:   " << alice.vtb.account << std::endl;
+		return;
+	}
+	alice.vtb.account -= alice.pet.grooming;
+	std::cout << "Alice paid for pet grooming: " << alice.pet.grooming << std::endl;
+}
+
+void alice_tele_music() {
+	if (alice.vtb.account < alice.communication.tele_music) {
+		alice.communication.tele_music = 0;
+		std::cout << "Not enough funds for communication ! Balance:   " << alice.vtb.account << std::endl;
+		return;
+	}
+	alice.vtb.account -= alice.communication.tele_music;
+	std::cout << "Alice paid for communication: " << alice.communication.tele_music << std::endl;
+}
+
+void alice_pet_vaccination(int month, int year) {
+	if (month == 3 and year >= 2026) {
+		if (alice.vtb.account < alice.pet.vaccination) {
+			alice.vtb.account -= alice.pet.vaccination;
+			std::cout << "Not enough funds for pet.vaccination ! Balance:   " << alice.vtb.account << std::endl;
+			return;
+		}
+		alice.vtb.account -= alice.pet.vaccination;
+		std::cout << "Alice paid for pet.vaccination: " << alice.pet.vaccination << std::endl;
+	}
+}
+
+void alice_seasonal_tires(int month, int year) {
+	if (month == 10 and year >= 2026) {
+		if (alice.vtb.account < alice.carExpenses.seasonal_tires) {
+			alice.carExpenses.seasonal_tires = 0;
+			std::cout << "Not enough funds for seasonal tires ! Balance:   " << alice.vtb.account << std::endl;
+			return;
+		}
+		alice.vtb.account -= alice.carExpenses.seasonal_tires;
+		std::cout << "Alice paid for seasonal tires: " << alice.carExpenses.seasonal_tires << std::endl;
+	}
+}
+
+void alice_birthday_gifts(int month, int year) {
+	if (month == 5 and year >= 2026 && year <= 2029) {
+		if (alice.vtb.account < alice.birthday_gifts) {
+			alice.birthday_gifts = 0;
+			std::cout << "Not enough funds for birthday gifts ! Balance:   " << alice.vtb.account << std::endl;
+			return;
+		}
+		alice.vtb.account -= alice.birthday_gifts;
+		std::cout << "Alice paid for birthday gifts: " << alice.birthday_gifts << std::endl;
+	}
+}
+
+void alice_car_maintenance(const int month, const int year) {
+	if (month == 8 and year >= 2026) {
+		if (alice.vtb.account < alice.car_maintenance) {
+			alice.car_maintenance = 0;
+			std::cout << "Not enough funds for car! Balance:   " << alice.vtb.account << std::endl;
+			return;
+		}
+		alice.vtb.account -= alice.car_maintenance;
+		std::cout << "Alice paid for car: " << alice.car_maintenance << std::endl;
+	}
+}
+
+void alice_invest_crypto(const int month, const int year) {
+	if (month == 5 and year >= 2026) {
+		if (alice.vtb.account >= alice.investment_crypto_amount) {
+			alice.vtb.account -= alice.investment_crypto_amount;
+			alice.investments.crypto += alice.investment_crypto_amount;
+			std::cout << " Alice invested in crypto:  " << alice.investment_crypto_amount << std::endl;
+		}
+		else {
+			std::cout << "Not enough funds to invest in crypto! Balance:  " << alice.vtb.account << std::endl;
+		}
+	}
+}
+
+void alice_invest_stocks(const int month, const int year) {
+	if (month == 5 and year >= 2026) {
+		if (alice.vtb.account >= alice.investment_stocks_amount) {
+			alice.vtb.account -= alice.investment_stocks_amount;
+			alice.investments.stocks += alice.investment_stocks_amount;
+			std::cout << " Alice invested in stocks:  " << alice.investment_stocks_amount << std::endl;
+		}
+		else {
+			std::cout << "Not enough funds to invest in stocks! Balance:  " << alice.vtb.account << std::endl;
+		}
+	}
+}
+
+void alice_summer_hat(int month, int year) {
+	if (month == 6 and year >= 2026 && year <= 2029) {
+		if (alice.vtb.account < alice.clothing.summer_hat) {
+			alice.clothing.summer_hat = 0;
+			std::cout << "Not enough funds for summer hat! Balance:   " << alice.vtb.account << std::endl;
+			return;
+		}
+		alice.vtb.account -= alice.clothing.summer_hat;
+		std::cout << "Alice paid for summer hat: " << alice.clothing.summer_hat << std::endl;
+	}
+}
+
+void alice_spring_shoes(int month, int year) {
+	if (month == 4 and year >= 2026 and year <= 2029) {
+		if (alice.vtb.account < alice.clothing.spring_shoes) {
+			alice.clothing.spring_shoes = 0;
+			std::cout << "Not enough funds for spring shoes! Balance:   " << alice.vtb.account << std::endl;
+			return;
+		}
+		alice.vtb.account -= alice.clothing.spring_shoes;
+		std::cout << "Alice paid for spring shoes: " << alice.clothing.spring_shoes << std::endl;
+	}
+}
+
+void alice_socks(int month, int year) {
+	if (month == 2 and year >= 2027 and year <= 2029) {
+		if (alice.vtb.account < alice.clothing.socks) {
+			alice.clothing.socks = 0;
+			std::cout << "Not enough funds for socks! Balance:   " << alice.vtb.account << std::endl;
+			return;
+		}
+		alice.vtb.account -= alice.clothing.socks;
+		std::cout << "Alice paid for socks: " << alice.clothing.socks << std::endl;
+	}
+}
+
+void alice_new_year_clothes(int month, int year) {
+	if (month == 12 and year >= 2026 and year <= 2029) {
+		if (alice.vtb.account < alice.clothing.new_year_clothes) {
+			alice.vtb.account -= alice.clothing.new_year_clothes;
+			std::cout << "Not enough funds for new year clothes! Balance:   " << alice.vtb.account << std::endl;
+			return;
+		}
+		alice.vtb.account -= alice.clothing.new_year_clothes;
+		std::cout << "Alice paid for new year clothes: " << alice.clothing.new_year_clothes << std::endl;
+	}
+}
+
+void alice_winter_clothes(int month, int year) {
+	if (month == 11 and year >= 2026 and year <= 2029) {
+		if (alice.vtb.account < alice.clothing.winter_clothes) {
+			alice.clothing.winter_clothes = 0;
+			std::cout << "Not enough funds for winter clothes! Balance:   " << alice.vtb.account << std::endl;
+			return;
+		}
+		alice.vtb.account -= alice.clothing.winter_clothes;
+		std::cout << "Alice paid for winter clothes: " << alice.clothing.winter_clothes << std::endl;
+	}
+}
+
+void alice_gym() {
+	if (alice.vtb.account < alice.gym) {
+		alice.gym = 0;
+		std::cout << "Not enough funds for gym! Balance:   " << alice.vtb.account << std::endl;
+		return;
+	}
+	alice.vtb.account -= alice.gym;
+	std::cout << "Alice paid for gym: " << alice.gym << std::endl;
+}
+
+void alice_dog_price() {
+	if (alice.vtb.account < alice.pet.price) {
+		alice.pet.price = 0;
+		std::cout << "Not enough funds for dog! Balance:   " << alice.vtb.account << std::endl;
+		return;
+	}
+
+	alice.vtb.account -= alice.pet.price;
+	std::cout << "Alice paid for dog: " << alice.pet.price << std::endl;
+
+}
+
+void alice_books() {
+	if (alice.vtb.account < alice.books) {
+		alice.books = 0;
+		std::cout << "Not enough funds for books! Balance:   " << alice.vtb.account << std::endl;
+		return;
+	}
+	alice.vtb.account -= alice.books;
+	std::cout << "Alice paid for books : " << alice.books << std::endl;
+}
+
+void alice_repairs() {
+	if (alice.vtb.account < alice.repairs) {
+		alice.repairs = 0;
+		std::cout << "Not enough funds for repairs! Balance:   " << alice.vtb.account << std::endl;
+		return;
+	}
+	alice.vtb.account -= alice.repairs;
+	std::cout << "Alice paid for repairs : " << alice.repairs << std::endl;
+}
+
+void alice_gifts() {
+	if (alice.vtb.account < alice.gifts) {
+		alice.gifts = 0;
+		std::cout << "Not enough funds for gifts! Balance:   " << alice.vtb.account << std::endl;
+		return;
+	}
+	alice.vtb.account -= alice.gifts;
+	std::cout << "Alice paid for gifts : " << alice.gifts << std::endl;
+}
+
+void alice_fine() {
+	if (alice.vtb.account < alice.fine) {
+		alice.fine = 0;
+		std::cout << "Not enough funds for fine! Balance:   " << alice.vtb.account << std::endl;
+		return;
+	}
+	alice.vtb.account -= alice.fine;
+	std::cout << "Alice paid a fine : " << alice.fine << std::endl;
+}
+
+void alice_communication() {
+	RUB total_communication = alice.communication.mobile + alice.communication.internet;
+	if (alice.vtb.account >= total_communication) {
+		alice.vtb.account -= total_communication;
+		std::cout << "Alice paid communication services : " << total_communication << std::endl;
+		std::cout << "  Mobile: " << alice.communication.mobile << std::endl;
+		std::cout << "Internet: " << alice.communication.internet << std::endl;
+	}
+	else {
+		std::cout << "Not enough funds for communication! Balance:   " << alice.vtb.account << std::endl;
+	}
+}
+
+void alice_pay_entertainment() {
+	RUB total_expenses = 0;
+
+	alice.vtb.account -= alice.entertainment.cinema;
+	total_expenses += alice.entertainment.cinema;
+
+	alice.vtb.account -= alice.entertainment.museums;
+	total_expenses += alice.entertainment.museums;
+
+	alice.vtb.account -= alice.entertainment.hobbies;
+	total_expenses += alice.entertainment.hobbies;
+
+	std::cout << "Alice entertainment expenses this month:  " << total_expenses << std::endl;
+	std::cout << "  Cinema: " << alice.entertainment.cinema << std::endl;
+	std::cout << "  Museums: " << alice.entertainment.museums << std::endl;
+	std::cout << "  Hobbies: " << alice.entertainment.hobbies << std::endl;
+}
+
+void alice_pay_travel_expenses(int month, int year) {
+	if (month == 7 and year > 2026) {
+		if (alice.vtb.account < alice.travel_expenses) {
+			alice.travel_expenses = 0;
+			std::cout << "Error. Insufficient funds in the account. Balance:  " << alice.vtb.account << std::endl;
+			return;
+		}
+	}
+	alice.vtb.account -= alice.travel_expenses;
+	std::cout << "Alice paid for travel: " << alice.travel_expenses << std::endl;
+}
+
+void alice_start_study() {
+	if (alice.study.months_remaining == 0 and alice.vtb.account >= alice.study.course_cost) {
+		alice.vtb.account -= alice.study.course_cost;
+		alice.study.months_remaining = alice.study.duration_months;
+		std::cout << "Alice started education! " << std::endl;
+	}
+	else if (alice.study.months_remaining > 0)
+	{
+		std::cout << "Alice is already in education program. " << std::endl;
+	}
+	else {
+		std::cout << "Alice can not start education. balance:  " << alice.vtb.account << std::endl;
+	}
+}
+
+void alice_progress_study() {
+	if (alice.study.months_remaining > 0) {
+		alice.study.months_remaining--;
+		if (alice.study.months_remaining <= 0) {
+			RUB salary_boost = alice.salary * (alice.study.salary_boost_percent / 100);
+			std::cout << "Alice completed education! " << std::endl;
+		}
+	}
+}
+
+
+void alice_medical()
+{
+	if (alice.vtb.account < alice.medical) {
+		alice.medical = 0;
+		std::cout << "Error. Insufficient funds in the account. Balance:  " << alice.vtb.account << std::endl;
+		return;
+	}
+	alice.vtb.account -= alice.medical;
+	std::cout << "Alice paid for medical: " << alice.medical << std::endl;
+}
+
+void alice_shopping()
+{
+	if (alice.vtb.account < alice.shopping) {
+		alice.shopping = 0;
+		std::cout << "Error. Insufficient funds in the account. Balance:  " << alice.vtb.account << std::endl;
+		return;
+	}
+	alice.vtb.account -= alice.shopping;
+	std::cout << "Alice paid for shopping: " << alice.food << std::endl;
+}
+
+void alice_salary(const int month, const int year)
+{
+	if (month == 12) {
+		alice.vtb.account += alice.salary;  // 13th salary
+	}
+
+	if (month == 1 and year == 2027) {
+		alice.salary *= 1.5;  // promotion
+	}
+
+	alice.vtb.account += alice.salary;
+}
+
+
+void alice_food() {
+	if (alice.vtb.account < alice.food) {
+		alice.food = 0;
+		std::cout << "Error. Insufficient funds in the account. Balance:  " << alice.vtb.account << std::endl;
+		return;
+	}
+	alice.vtb.account -= alice.food;
+	std::cout << "Alice paid for food: " << alice.food << std::endl;
+}
+
+void alice_car() {
+	{
+		alice.vtb.account -= alice.car.gas;
+		std::cout << "Alice paid for car: " << alice.vtb.account << std::endl;
+	}
+
+}
+
+void alice_deposite(const int month, const int year)
+{
+	if (year == 2026) alice.vtb.interest = 14.5;
+	if (year == 2027) alice.vtb.interest = 13.5;
+	if (year == 2028) alice.vtb.interest = 12.5;
+	if (year == 2029) alice.vtb.interest = 11.5;
+
+	alice.vtb.deposite += alice.vtb.deposite * (alice.vtb.interest / 12.0 / 100.0);
+
+	alice.vtb.deposite += alice.vtb.account;
+	alice.vtb.account = 0;
+}
+
+
+void alice_freelance(const int month, const int year)
+{
+	if (month == 3 and year == 2027) {
+		alice.vtb.account_usd += 3'000;
+	}
+}
+
+
+void print_results_alice()
+{
+	printf("Salary = %lld\n", alice.salary);
+
+	RUB capital = 0;
+	capital += alice.vtb.account;
+	capital += alice.car.value;
+	capital += alice.vtb.deposite;
+	capital += alice.vtb.account_usd * alice.vtb.rate_usd_rub;
+	printf("Capital = %lld", capital);
+}
+
+
+void simulation_alice()
+{
+	int month = 2;
+	int year = 2026;
+	int month_counter = 0;
+
+	inflation_init();
+
+
+	while (not (month == 3 and year == 2028)) {
+		if (month_counter > 0) {
+			alice_apply_inflation(inflation.monthly_rate);
+			inflation.cumulative *= (1.0f + inflation.monthly_rate);
+		}
+
+
+		alice_start_study();  // начать обучение
+		alice_salary(month, year);
+		alice_freelance(month, year);
+		alice_food();
+		alice_car();
+		alice_communication();
+		alice_pay_entertainment();
+		alice_shopping();
+		alice_medical();
+		alice_fine();
+		alice_gifts();
+		alice_repairs();
+		alice_dog_price();
+		alice_charity_donation();
+		alice_parking_fees();
+		alice_gadgets();
+		alice_property_insurance(month, year);
+		alice_seasonal_tires(month, year);
+		alice_birthday_gifts(month, year);
+		alice_car_maintenance(month, year);
+		alice_invest_crypto(month, year);
+		alice_invest_stocks(month, year);
+		alice_spring_shoes(month, year);
+		alice_summer_hat(month, year);
+		alice_socks(month, year);
+		alice_new_year_clothes(month, year);
+		alice_winter_clothes(month, year);
+		alice_gym();
+		alice_pet_grooming();
+		alice_books();
+		alice_coffee_shop();
+		alice_beauty();
+		alice_health_care();
+		alice_tele_music();
+		alice_home_decor(month, year);
+		alice_pet_toys(month, year);
+		alice_deposite(month, year);
+		alice_car_accessories(month, year);
+		alice_pet_vaccination(month, year);
+		alice_glasses(month, year);
+		alice_calculate_transport_tax();
+		alice_calculate_property_tax();
+		alice_calculate_income_tax();
+		alice_pay_taxes();
+		alice_progress_study();
+		alice_hobbies_pay();
+		alice_plants();
+		alice_photo();
+
+		++month;
+		if (month == 13) {
+			++year;
+			month = 1;
+			apply_yearly_inflation_alice(year);
+			inflation.cumulative = 1.0f;
+		}
+	}
+}
+
+
+struct Person max;
+
+
+void max_init()
+{
+	max.vtb.account = 0;
+	max.vtb.deposite = 2'000'000;
+	max.vtb.interest = 14;
+	max.vtb.salary = 420'000;
+	max.salary_second = 70'000;
+
+	max.vtb.account_usd = 2'802;
+	max.vtb.rate_usd_rub = 78.5;
+
+	max.pet.price = 33'000;  // cat
+	max.pet.expenses_monthly = 5'000;
+	max.pet.toys = 2'000;
+	max.pet.grooming = 4'500;
+	max.pet.vaccination = 2'000;
+
+	max.clothing.winter_clothes = 3'000;
+	max.clothing.new_year_clothes = 4'000;
+	max.clothing.spring_shoes = 2'200;
+	max.clothing.summer_hat = 350;
+
+	max.communication.mobile = 1'200;
+	max.communication.internet = 750;
+	max.communication.tele_music = 340;
+
+	max.home.apartment_value = 20'000'000;
+	max.home.dacha_value = 500'000;
+	max.home.utilities = 5'000;
+	max.home.home_decor = 5'000;
+	max.home.property_insurance = 6'000;
+
+	max.car.value = 4'500'000;
+	max.carExpenses.gas = 16'000;
+	max.carExpenses.maintenance = 25'000;
+	max.carExpenses.seasonal_tires = 20'000;
+	max.carExpenses.accessories = 6'000;
+
+	max.food = 20'000;
+
+	max.car.value = 4'500'000;
+	max.car.gas = 16'000;
+
+	max.medical = 2'500;
+
+	max.study.course_cost = 11'000;
+	max.study.duration_months = 7;
+	max.study.salary_boost_percent = 28.0f;
+	max.study.months_remaining = 0;
+	max.travel_expenses = 200'000;
+
+	max.entertainment.cinema = 1'000;
+	max.entertainment.museums = 500;
+	max.entertainment.hobbies = 5'000;
+	max.fine = 500;
+	max.gifts = 4'000;
+	max.repairs = 5'000;
+	max.books = 2'000;
+	max.gym = 25'000;
+	max.investments.stocks = 0;
+	max.investment_stocks_amount = 20'000;
+	max.investments.crypto = 0;
+	max.investment_crypto_amount = 15'000;
+	max.car_maintenance = 25'000;
+	max.birthday_gifts = 9'000;
+	max.charity_donation = 5'000;
+	max.parking_fees = 3'200;
+	max.gadgets = 25'000;
+	max.flowers = 3000;
+	max.additional.car_accessories = 6'000;
+
+	max.coffee_shop.coffee = 2'000;
+	max.coffee_shop.pastries = 1'200;
+	max.coffee_shop.lunch = 4'000;
+
+	max.beauty.haircut = 1'500;
+	max.beauty.manicure = 0;
+	max.beauty.cosmetics = 1'000;
+	max.beauty.spa = 2'500;
+
+	max.health.vitamins = 1'500;
+	max.health.sports_equipment = 3'000;
+	max.health.massage = 2'000;
+	max.health.dentist = 4'000;
+
+	max.hobbies.books_audio = 1'000;
+	max.hobbies.board_games = 2'000;
+	max.hobbies.courses = 3'000;
+	max.hobbies.equipment = 2'500;
+
+	max.plants = 500;
+	max.photo = 1700;
+	max.glasses = 7'000;
+}
+
+void max_glasses(int month, int year) {
+	if (month == 9 and year >= 2026) {
+		if (max.vtb.account < max.glasses) {
+			max.glasses = 0;
+			std::cout << "Not enough funds for glasses! Balance:   " << max.vtb.account << std::endl;
+			return;
+		}
+		max.vtb.account -= max.glasses;
+		std::cout << "max paid a glasses: " << max.glasses << std::endl;
+	}
+}
+
+void max_photo() {
+	if (max.vtb.account < max.photo) {
+		max.photo = 0;
+		std::cout << "Not enough funds for photo! Balance:   " << max.vtb.account << std::endl;
+		return;
+	}
+	max.vtb.account -= max.photo;
+	std::cout << "max paid a photo: " << max.photo << std::endl;
+}
+
+void max_plants() {
+	if (max.vtb.account < max.plants) {
+		max.plants = 0;
+		std::cout << "Not enough funds for plants! Balance:   " << max.vtb.account << std::endl;
+		return;
+	}
+	max.vtb.account -= max.plants;
+	std::cout << "Max paid a plant: " << max.plants << std::endl;
+}
+
+void max_hobbies_pay() {
+	RUB total = max.hobbies.books_audio + max.hobbies.board_games + max.hobbies.courses;
+	if (max.vtb.account < total) {
+		total = 0;
+		std::cout << "Not enough funds for hobbies! Balance: " << max.vtb.account << std::endl;
+	}
+	max.vtb.account -= total;
+	std::cout << "Max spent on hobbies: " << total << std::endl;
+
+}
+
+void max_coffee_shop() {
+	RUB total = max.coffee_shop.coffee + max.coffee_shop.pastries + max.coffee_shop.lunch;
+	if (max.vtb.account < total) {
+		total = 0;
+		std::cout << "Not enough funds for coffee shop! Balance: " << max.vtb.account << std::endl;
+	}
+	max.vtb.account -= total;
+	std::cout << "Max spent on coffee shop: " << total << std::endl;
+
+}
+
+void max_beauty() {
+	RUB total = max.beauty.haircut + max.beauty.cosmetics + max.beauty.spa;
+	if (max.vtb.account < total) {
+		total = 0;
+		std::cout << "Not enough funds for beauty! Balance: " << max.vtb.account << std::endl;
+		return;
+	}
+	max.vtb.account -= total;
+	std::cout << "Max spent on beauty: " << total << std::endl;
+
+}
+
+void max_health_care() {
+	RUB total = max.health.vitamins + max.health.sports_equipment + max.health.massage;
+	if (max.vtb.account < total) {
+		total = 0;
+		std::cout << "Not enough funds for health care! Balance: " << max.vtb.account << std::endl;
+		return;
+	}
+	max.vtb.account -= total;
+	std::cout << "Max spent on health: " << total << std::endl;
+
+}
+
+void max_calculate_purchasing_power(int month, int year) {
+	static RUB base_salary = 420000;
+	float purchasing_power = (float)max.salary / base_salary * 100;
+	std::cout << " Purchasing power of salary: "
+		<< purchasing_power << "% of base  (" << max.salary << ")" << std::endl;
+	std::cout << "Accumulated inflation " << (inflation.cumulative - 1.0f) * 100 << "%" << std::endl;
+}
+
+void max_salary_with_inflation(const int month, const int year) {
+	if (month == 12) {
+		max.vtb.account += max.salary;
+	}
+	if (month == 1 and year == 2027) {
+		max.salary *= 15;
+		std::cout << "max got a promotion! New salary: " << max.salary << std::endl;
+	}
+	max.vtb.account += max.salary;
+}
+
+void max_salary_second_with_inflation(const int month, const int year) {
+	max.vtb.account += max.salary_second;
+	if (month == 12) {
+		max.vtb.account += max.salary_second;
+	}
+	if (month == 1 and year == 2028) {
+		max.salary_second += 2.3;
+	}
+}
+
+void max_deposite_with_inflation(const int month, const int year) {
+	if (year == 2026) max.vtb.interest = 14.0f;
+	if (year == 2027) max.vtb.interest = 13;
+	if (year == 2028) max.vtb.interest = 12;
+	if (year == 2029) max.vtb.interest = 11;
+
+	max.vtb.deposite += max.vtb.deposite * (max.vtb.interest / 12.0 / 100.0);
+	max.vtb.deposite += max.vtb.account;
+	max.vtb.account = 0;
+
+	if (month == 12) {
+		float real_rate = max.vtb.interest - inflation.rate * 100;
+		std::cout << "max's real deposit rate: " << real_rate
+			<< "% (nominal: " << max.vtb.interest
+			<< "%, inflation: " << (inflation.rate * 100) << "%)" << std::endl;
+	}
+}
+
+void max_index_property(float yearly_rate) {
+	max.home.apartment_value += max.home.apartment_value * yearly_rate;
+	max.home.dacha_value += max.home.dacha_value * yearly_rate;
+
+	float depreciation = 0.85f;  // 15% амортизация в год
+	max.car.value = max.car.value * depreciation * (1.0f + yearly_rate);
+}
+
+void max_apply_yearly_inflation(int year) {
+	inflation_update_rate(year);
+	max_index_property(inflation.rate);
+
+	std::cout << "Annual inflation: " << (inflation.rate * 100) << "%" << std::endl;
+	std::cout << "New salary: " << max.salary << std::endl;
+	std::cout << "New car price: " << max.car.value << std::endl;
+}
+
+void max_apply_inflation(float monthly_rate) {
+	if (monthly_rate <= 0) return;
+
+	max.salary += max.salary * monthly_rate * 0.7f;
+	max.salary_second += max.salary_second * monthly_rate * 0.7f;
+
+	max.food += max.food * monthly_rate;
+	max.medical += max.medical * monthly_rate;
+	max.gym += max.gym * monthly_rate;
+	max.flowers += max.flowers * monthly_rate;
+
+	max.communication.mobile += max.communication.mobile * monthly_rate;
+	max.communication.internet += max.communication.internet * monthly_rate;
+	max.communication.tele_music += max.communication.tele_music * monthly_rate;
+
+	max.car.gas += max.car.gas * monthly_rate;
+	max.carExpenses.gas += max.carExpenses.gas * monthly_rate;
+	max.carExpenses.maintenance += max.carExpenses.maintenance * monthly_rate;
+	max.carExpenses.seasonal_tires += max.carExpenses.seasonal_tires * monthly_rate;
+	max.car_maintenance += max.car_maintenance * monthly_rate;
+	max.additional.car_accessories += max.additional.car_accessories * monthly_rate;
+
+	max.home.utilities += max.home.utilities * monthly_rate;
+	max.home.home_decor += max.home.home_decor * monthly_rate;
+	max.home.property_insurance += max.home.property_insurance * monthly_rate;
+
+	max.pet.expenses_monthly += max.pet.expenses_monthly * monthly_rate;
+	max.pet.toys += max.pet.toys * monthly_rate;
+	max.pet.grooming += max.pet.grooming * monthly_rate;
+	max.pet.vaccination += max.pet.vaccination * monthly_rate;
+
+	max.clothing.winter_clothes += max.clothing.winter_clothes * monthly_rate;
+	max.clothing.new_year_clothes += max.clothing.new_year_clothes * monthly_rate;
+	max.clothing.spring_shoes += max.clothing.spring_shoes * monthly_rate;
+	max.clothing.summer_hat += max.clothing.summer_hat * monthly_rate;
+
+	max.entertainment.cinema += max.entertainment.cinema * monthly_rate;
+	max.entertainment.museums += max.entertainment.museums * monthly_rate;
+	max.entertainment.hobbies += max.entertainment.hobbies * monthly_rate;
+
+	max.gifts += max.gifts * monthly_rate;
+	max.repairs += max.repairs * monthly_rate;
+	max.books += max.books * monthly_rate;
+	max.birthday_gifts += max.birthday_gifts * monthly_rate;
+	max.charity_donation += max.charity_donation * monthly_rate;
+	max.parking_fees += max.parking_fees * monthly_rate;
+	max.gadgets += max.gadgets * monthly_rate;
+	max.travel_expenses += max.travel_expenses * monthly_rate;
+
+	max.investment_stocks_amount += max.investment_stocks_amount * monthly_rate;
+	max.investment_crypto_amount += max.investment_crypto_amount * monthly_rate;
+
+	max.coffee_shop.coffee += max.coffee_shop.coffee * monthly_rate;
+	max.coffee_shop.pastries += max.coffee_shop.pastries * monthly_rate;
+	max.coffee_shop.lunch += max.coffee_shop.lunch * monthly_rate;
+
+	max.beauty.haircut += max.beauty.haircut * monthly_rate;
+	max.beauty.manicure += max.beauty.manicure * monthly_rate;
+	max.beauty.cosmetics += max.beauty.cosmetics * monthly_rate;
+	max.beauty.spa += max.beauty.spa * monthly_rate;
+
+	max.health.vitamins += max.health.vitamins * monthly_rate;
+	max.health.sports_equipment += max.health.sports_equipment * monthly_rate;
+	max.health.massage += max.health.massage * monthly_rate;
+
+	max.hobbies.books_audio += max.hobbies.books_audio * monthly_rate;
+	max.hobbies.board_games += max.hobbies.board_games * monthly_rate;
+	max.hobbies.courses += max.hobbies.courses * monthly_rate;
+
+}
+
+void max_calculate_transport_tax() {
+	max.tax.transport = static_cast<RUB>(max.car.value * transport_tax_rate / 12.0);
+}
+
+void max_calculate_property_tax() {
+	RUB property_value = max.home.apartment_value + max.home.dacha_value;
+	max.tax.property = static_cast<RUB>(property_value * property_tax_rate / 12.0); // месячный налог
+}
+
+void max_calculate_income_tax() {
+	max.tax.income = static_cast<RUB>(max.salary * income_tax_rate);
+}
+bool max_pay_taxes() {
+	RUB total_taxes = max.tax.transport + max.tax.property + max.tax.income;
+
+	if (max.vtb.account < total_taxes) {
+		std::cout << "Not enough funds to pay taxes! Balance: " << max.vtb.account
+			<< ", Required: " << total_taxes << std::endl;
+		return false;
+	}
+
+	max.vtb.account -= total_taxes;
+	max.tax.total_taxes_paid += total_taxes;
+
+	std::cout << "Taxes paid: " << total_taxes
+		<< " (Income: " << max.tax.income
+		<< ", Property: " << max.tax.property
+		<< ", Transport: " << max.tax.transport << ")" << std::endl;
+	return true;
+}
+
+void max_car_accessories(int month, int year) {
+	if (month == 7 and year >= 2026) {
+		if (max.vtb.account < max.additional.car_accessories) {
+			max.additional.car_accessories = 0;
+			std::cout << "Not enough funds for car accessories! Balance: " << max.vtb.account << std::endl;
+			return;
+		}
+		max.vtb.account -= max.additional.car_accessories;
+		max.vtb.account, max.additional.car_accessories;
+		std::cout << "Max bought car accessories: " << max.additional.car_accessories << std::endl;
+	}
+}
+
+void max_pet_toys(int month, int year) {
+	if (month == 1 and year >= 2026) {
+		if (max.vtb.account < max.pet.toys) {
+			max.pet.toys = 0;
+			std::cout << "Not enough funds for toys ! Balance: " << max.vtb.account << std::endl;
+			return;
+		}
+		max.vtb.account -= max.pet.toys;
+		std::cout << "Max bought pet toys: " << max.pet.toys << std::endl;
+	}
+}
+
+void max_home_decor(int month, int year) {
+	if (month == 5 and year >= 2026 and year <= 2029) {
+		if (max.vtb.account < max.home.home_decor) {
+			max.home.home_decor = 0;
+			std::cout << "Not enough funds for home decor! Balance: " << max.vtb.account << std::endl;
+			return;
+		}
+	}
+	max.vtb.account -= max.home.home_decor;
+	std::cout << "Max bought decor: " << max.home.home_decor << std::endl;
+}
+
+void max_property_insurance(int month, int year) {
+	if (month == 1 and year >= 2026) {
+		if (max.vtb.account < max.home.property_insurance) {
+			max.home.property_insurance = 0;
+			std::cout << "Not enough funds for property insurance! Balance: " << max.vtb.account << std::endl;
+			return;
+		}
+		max.vtb.account -= max.home.property_insurance;
+		std::cout << "Max bought property insurance: " << max.home.property_insurance << std::endl;
+	}
+}
+
+void max_gadgets() {
+	if (max.vtb.account < max.gadgets) {
+		max.gadgets = 0;
+		std::cout << "Not enough funds for gadgets! Balance: " << max.vtb.account << std::endl;
+		return;
+	}
+	max.vtb.account -= max.gadgets;
+	std::cout << "Max bought new gadget: " << max.gadgets << std::endl;
+}
+
+void max_parking_fees() {
+	if (max.vtb.account >= max.parking_fees) {
+		max.parking_fees = 0;
+		std::cout << "Not enough funds for parking fees ! Balance: " << max.vtb.account << std::endl;
+		return;
+	}
+	max.vtb.account -= max.parking_fees;
+	std::cout << "Max bought parking fees: " << max.parking_fees << std::endl;
+}
+
+void max_charity_donation() {
+	if (max.vtb.account < max.charity_donation) {
+		max.charity_donation = 0;
+		std::cout << "Not enough funds for charity donation ! Balance: " << max.vtb.account << std::endl;
+		return;
+	}
+	max.vtb.account -= max.charity_donation;
+	std::cout << "Max have money for charity donation : " << max.charity_donation << std::endl;
+}
+
+void max_pet_grooming() {
+	if (max.vtb.account < max.pet.grooming) {
+		max.pet.grooming = 0;
+		std::cout << "Not enough funds for pet grooming ! Balance: " << max.vtb.account << std::endl;
+		return;
+	}
+	max.vtb.account -= max.pet.grooming;
+	std::cout << "Max have money for pet grooming: " << max.pet.grooming << std::endl;
+}
+
+void max_cat() {
+	if (max.vtb.account < max.pet.price) {
+		max.pet.price = 0;
+		std::cout << "Not enough funds for cat ! Balance: " << max.vtb.account << std::endl;
+		return;
+	}
+	max.vtb.account -= max.pet.price;
+	std::cout << "Max paid for cat: " << max.pet.price << std::endl;
+}
+
+void max_tele_music() {
+	if (max.vtb.account < max.communication.tele_music) {
+		max.communication.tele_music = 0;
+		std::cout << "Not enough funds for communication! Balance: " << max.vtb.account << std::endl;
+		return;
+	}
+	max.vtb.account -= max.communication.tele_music;
+	std::cout << "Max paid for communication : " << max.communication.tele_music << std::endl;
+}
+
+void max_pet_vaccination(int month, int year) {
+	if (month == 3 and year >= 2026) {
+		if (max.vtb.account < max.pet.vaccination) {
+			max.pet.vaccination = 0;
+			std::cout << "Not enough funds for pet vaccination! Balance: " << max.vtb.account << std::endl;
+			return;
+		}
+	}
+	max.vtb.account -= max.pet.vaccination;
+	std::cout << "Max paid for pet vaccination : " << max.pet.vaccination << std::endl;
+
+}
+
+void max_seasonal_tires(int month, int year) {
+	if (month == 10 and year >= 2026) {
+		if (max.vtb.account < max.carExpenses.seasonal_tires) {
+			max.carExpenses.seasonal_tires = 0;
+			std::cout << "Not enough funds for tires! Balance: " << max.vtb.account << std::endl;
+			return;
+		}
+		max.vtb.account -= max.carExpenses.seasonal_tires;
+		std::cout << "Max paid a tires : " << max.carExpenses.seasonal_tires << std::endl;
+	}
+}
+
+void max_birthday_gifts(int month, int year) {
+	if (month == 11 and year >= 2026 and year <= 2029) {
+		if (max.vtb.account < max.birthday_gifts) {
+			max.birthday_gifts = 0;
+			std::cout << "Not enough funds for gifts! Balance: " << max.vtb.account << std::endl;
+			return;
+		}
+		max.vtb.account -= max.birthday_gifts;
+		std::cout << "Max paid gifts : " << max.birthday_gifts << std::endl;
+	}
+}
+
+void max_car_maintenance(const int month, const int year) {
+	if (month == 8 and year >= 2026) {
+		if (max.vtb.account < max.car_maintenance) {
+			max.car_maintenance = 0;
+			std::cout << "Not enough funds! Balance: " << max.vtb.account << std::endl;
+			return;
+		}
+		max.vtb.account -= max.car_maintenance;
+		std::cout << "Max paid car : " << max.car_maintenance << std::endl;
+	}
+}
+
+void max_invest_crypto(const int month, const int year) {
+	if (month == 5 and year >= 2026) {
+		if (max.vtb.account < max.investment_crypto_amount) {
+			max.vtb.account -= max.investment_crypto_amount;
+			max.investments.crypto += max.investment_crypto_amount;
+			std::cout << "Max paid crypta: " << max.investments.crypto << std::endl;
+		}
+		else {
+			std::cout << "Not enough funds to invest in crypto!Balance: " << max.vtb.account << std::endl;
+		}
+	}
+}
+
+void max_invest_stocks(const int month, const int year) {
+	if (month == 5 and year >= 2026) {
+		if (max.vtb.account >= max.investment_stocks_amount) {
+			max.vtb.account -= max.investment_stocks_amount;
+			max.investments.stocks += max.investment_stocks_amount;
+			std::cout << "Max invested in stocks:   " << max.investment_stocks_amount << std::endl;
+
+		}
+		else {
+			std::cout << " Not enough funds to invest in stocks! Balance:  " << max.vtb.account << std::endl;
+		}
+	}
+}
+
+void max_summer_hat(int month, int year) {
+	if (month == 6 and year >= 2026 and year <= 2029) {
+		if (max.vtb.account < max.clothing.summer_hat) {
+			max.clothing.summer_hat = 0;
+			std::cout << "Not enough funds for summer hat! Balance:   " << max.vtb.account << std::endl;
+			return;
+		}
+		max.vtb.account -= max.clothing.summer_hat;
+		std::cout << "Max paid for summer hat:  " << max.clothing.summer_hat << std::endl;
+	}
+}
+
+void max_spring_shoes(int month, int year) {
+	if (month == 4 and year >= 2027 and year <= 2029) {
+		if (max.vtb.account < max.clothing.spring_shoes) {
+			max.clothing.spring_shoes = 0;
+			std::cout << "Not enough funds for spring shoes ! Balance:   " << max.vtb.account << std::endl;
+			return;
+		}
+		max.vtb.account -= max.clothing.spring_shoes;
+		std::cout << "Max paid for spring shoes:  " << max.clothing.spring_shoes << std::endl;
+	}
+}
+
+void max_flowers(int month, int year) {
+	if (month == 3 and year >= 2027 and year <= 2029) {
+		if (max.vtb.account < max.flowers) {
+			max.flowers = 0;
+			std::cout << "Not enough funds for flowers! Balance:   " << max.vtb.account << std::endl;
+			return;
+		}
+		max.vtb.account -= max.flowers;
+		std::cout << "Max paid for flowers:  " << max.flowers << std::endl;
+	}
+}
+
+void max_new_year_clothes(int month, int year) {
+	if (month == 12 and year >= 2026 and year <= 2029) {
+		if (max.vtb.account < max.clothing.new_year_clothes) {
+			max.clothing.new_year_clothes = 0;
+			std::cout << "Not enough funds for new year clothes  ! Balance:   " << max.vtb.account << std::endl;
+			return;
+		}
+		max.vtb.account -= max.clothing.new_year_clothes;
+		std::cout << "Max paid for new year clothes:  " << max.clothing.new_year_clothes << std::endl;
+	}
+}
+
+void max_winter_clothes(int month, int year) {
+	if (month == 11 and year >= 2026 and year <= 2029) {
+		if (max.vtb.account < max.clothing.winter_clothes) {
+			max.clothing.winter_clothes = 0;
+			std::cout << "Not enough funds for winter clothes ! Balance:   " << max.vtb.account << std::endl;
+			return;
+		}
+		max.vtb.account -= max.clothing.winter_clothes;
+		std::cout << "Max paid for winter clothes:  " << max.clothing.winter_clothes << std::endl;
+	}
+}
+
+void max_gym() {
+	if (max.vtb.account < max.gym) {
+		max.gym = 0;
+		std::cout << "Not enough funds for gym! Balance:   " << max.vtb.account << std::endl;
+		return;
+	}
+	max.vtb.account -= max.gym;
+	std::cout << "Max paid for gym:  " << max.gym << std::endl;
+}
+
+void max_books() {
+	if (max.vtb.account < max.books) {
+		max.books = 0;
+		std::cout << "Not enough funds for books! Balance:   " << max.vtb.account << std::endl;
+		return;
+	}
+	max.vtb.account -= max.books;
+	std::cout << "Max paid for books:  " << max.books << std::endl;
+}
+
+void max_repairs() {
+	if (max.vtb.account < max.repairs) {
+		max.repairs = 0;
+		std::cout << "Not enough funds for repairs! Balance:   " << max.vtb.account << std::endl;
+		return;
+	}
+	max.vtb.account -= max.repairs;
+	std::cout << "Max paid for repairs:  " << max.repairs << std::endl;
+}
+
+void max_gifts() {
+	if (max.vtb.account < max.gifts) {
+		max.gifts = 0;
+		std::cout << "Not enough funds for gifts! Balance:   " << max.vtb.account << std::endl;
+		return;
+	}
+	max.vtb.account -= max.gifts;
+	std::cout << "Max paid for gifts:  " << max.gifts << std::endl;
+}
+
+void max_fine() {
+	if (max.vtb.account < max.fine) {
+		max.fine = 0;
+		std::cout << "Not enough funds for fine! Balance:   " << max.vtb.account << std::endl;
+		return;
+	}
+	max.vtb.account -= max.fine;
+	std::cout << "Max paid a fine:  " << max.fine << std::endl;
+}
+
+void max_pay_communication() {
+	RUB total_communication = max.communication.mobile + max.communication.internet;
+
+	if (max.vtb.account >= total_communication) {
+		max.vtb.account -= max.communication.mobile;
+		max.vtb.account -= max.communication.internet;
+
+		std::cout << "Max paid communication services : " << total_communication << std::endl;
+		std::cout << "  Mobile: " << max.communication.mobile << std::endl;
+		std::cout << "Internet: " << max.communication.internet << std::endl;
+	}
+	else {
+		std::cout << "Not enough funds for communication! Balance:   " << max.vtb.account << std::endl;
+	}
+}
+
+void max_pay_utilities() {
+	if (max.vtb.account < max.home.utilities) {
+		max.home.utilities = 0;
+		std::cout << "Not enough funds for utilities! Balance:  " << max.vtb.account << std::endl;
+		return;
+	}
+	max.vtb.account -= max.home.utilities;
+	std::cout << "Max paid utilities:  " << max.home.utilities << std::endl;
+}
+
+void max_pay_entertainment() {
+	RUB total_expenses = 0;
+
+	max.vtb.account -= max.entertainment.cinema;
+	total_expenses += max.entertainment.cinema;
+
+	max.vtb.account -= max.entertainment.museums;
+	total_expenses += max.entertainment.museums;
+
+	max.vtb.account -= max.entertainment.hobbies;
+	total_expenses += max.entertainment.hobbies;
+
+	std::cout << "Max entertainment expenses this month:  " << total_expenses << std::endl;
+	std::cout << "  Cinema: " << max.entertainment.cinema << std::endl;
+	std::cout << "  Museums: " << max.entertainment.museums << std::endl;
+	std::cout << "  Hobbies: " << max.entertainment.hobbies << std::endl;
+}
+
+void max_pay_travel_expenses(int month, int year) {
+	if (month == 7 and year > 2026) {
+		if (max.vtb.account < max.travel_expenses) {
+			max.travel_expenses = 0;
+			std::cout << "cannot afford travel. Balance:   " << max.vtb.account << std::endl;
+			return;
+		}
+	}
+	std::cout << "Paid for travel:  " << max.travel_expenses << std::endl;
+}
+
+void max_start_study() {
+	if (max.study.months_remaining == 0 and max.vtb.account >= max.study.course_cost) {
+		max.vtb.account -= max.study.course_cost;
+		max.study.months_remaining = max.study.duration_months;
+		std::cout << "Max started education! " << std::endl;
+	}
+	else if (max.study.months_remaining > 0)
+	{
+		std::cout << "Max is already in education program. " << std::endl;
+	}
+	else {
+		std::cout << "Max can not start education. balance:  " << max.vtb.account << std::endl;
+	}
+}
+
+void max_progress_study() {
+	if (max.study.months_remaining > 0) {
+		max.study.months_remaining--;
+		if (max.study.months_remaining <= 0) {
+			RUB salary_boost = max.salary * (max.study.salary_boost_percent / 100);
+			std::cout << "Max completed education! " << salary_boost << std::endl;
+		}
+	}
+}
+
+void max_salary_second(const int month, const int year)
+{
+	max.vtb.account += max.salary_second;
+
+	if (month == 12)
+	{
+		max.vtb.account += max.salary_second;
+	}
+	if (month == 1 and year == 2028)
+	{
+		max.salary_second += 2.3;
+	}
+}
+
+void max_medical()
+{
+	if (max.vtb.account < max.medical)
+	{
+		max.medical = 0;
+		std::cout << "Not enough money for medicals" << max.vtb.account << std::endl;
+		return;
+	}
+	max.vtb.account -= max.medical;
+	std::cout << "Paid medical " << max.medical << std::endl;
+}
+
+void max_salary(const int month, const int year)
+{
+	if (month == 12) {
+		max.vtb.account += max.salary;  // 13th salary 
+	}
+	if (month == 1 and year == 2027) {
+		max.salary *= 15;// promotion
+	}
+	max.vtb.account += max.salary;
+}
+
+void max_food()
+{
+	if (max.vtb.account < max.food) {
+		max.food = 0;
+		std::cout << "Error. Insufficient funds in the account." << max.vtb.account << std::endl;
+		return;
+	}
+	max.vtb.account -= max.food;
+	std::cout << "Paid food expenses: " << max.food << std::endl;
+}
+
+void max_car()
+{
+	if (max.vtb.account < max.car.gas) {
+		max.car.gas = 0;
+		std::cout << "Error. Insufficient funds in the account." << max.vtb.account << std::endl;
+		return;
+	} max.vtb.account -= max.car.gas;
+	std::cout << "Paid food expenses: " << max.car.gas << std::endl;
+}
+
+void max_dog_expenses()
+{
+	if (max.vtb.account < max.pet.expenses_monthly) {
+		max.pet.expenses_monthly = 0;
+		std::cout << "Not enough funds for pet expenses!" << max.vtb.account << std::endl;
+		return;
+	}
+	max.vtb.account -= max.pet.expenses_monthly;
+	std::cout << "Max paid pet expenses:  " << max.pet.expenses_monthly << std::endl;
+}
+
+void max_dacha_buy()
+{
+	const RUB dacha_price = 500'000;
+
+	if (max.vtb.account < dacha_price) {
+		max.home.dacha_value = 0;
+		std::cout << "There's no money for a country house( Balance: " << max.vtb.account << std::endl;
+		return;
+	}
+
+	max.home.dacha_value = dacha_price;
+	max.vtb.account -= dacha_price;
+	std::cout << "Now Max has a summer cottage!  " << dacha_price << std::endl;
+}
+
+void max_deposite(const int month, const int year)
+{
+	if (year == 2026) max.vtb.interest = 14.0f;
+	if (year == 2027) max.vtb.interest = 13;
+	if (year == 2028) max.vtb.interest = 12;
+	if (year == 2029) max.vtb.interest = 11;
+
+	max.vtb.deposite += max.vtb.deposite * (max.vtb.interest / 12.0 / 100.0);
+
+	max.vtb.deposite += max.vtb.account;
+	max.vtb.account = 0;
+}
+void max_freelance(const int month, const int year)
+{
+	if (month == 12 and year == 2027) {
+		max.vtb.account_usd += 4'500;
+	}
+}
+
+
+void print_results_max()
+{
+	printf("Salary = %lld\n", max.salary);
+
+	RUB capital = 0;
+	capital += max.vtb.account;
+	capital += max.car.value;
+	capital += max.vtb.deposite;
+	capital += max.vtb.account_usd * max.vtb.rate_usd_rub;
+	capital += max.home.apartment_value;
+	capital += max.home.dacha_value;
+	printf("Capital = %lld", capital);
+
+}
+
+
+void simulation_max()
+{
+	int month = 2;
+	int year = 2026;
+	int month_counter = 0;
+
+	inflation_init();
+
+
+	while (not (month == 3 and year == 2028)) {
+		if (month_counter > 0) {
+			max_apply_inflation(inflation.monthly_rate);
+			inflation.cumulative *= (1.0f + inflation.monthly_rate);
+		}
+
+
+		max_salary(month, year);
+		max_salary_second(month, year);
+		max_freelance(month, year);
+		max_start_study();
+		max_food();
+		max_car();
+		max_coffee_shop();
+		max_beauty();
+		max_health_care();
+		max_progress_study();
+		max_pay_entertainment();
+		max_medical();
+		max_pet_toys(month, year);
+		max_pay_utilities();
+		max_home_decor(month, year);
+		max_dog_expenses();
+		max_pay_communication();
+		max_fine();
+		max_gifts();
+		max_gym();
+		max_gadgets();
+		max_books();
+		max_cat();
+		max_tele_music();
+		max_pet_grooming();
+		max_charity_donation();
+		max_parking_fees();
+		max_car_accessories(month, year);
+		max_property_insurance(month, year);
+		max_pet_vaccination(month, year);
+		max_seasonal_tires(month, year);
+		max_birthday_gifts(month, year);
+		max_car_maintenance(month, year);
+		max_invest_crypto(month, year);
+		max_invest_stocks(month, year);
+		max_summer_hat(month, year);
+		max_flowers(month, year);
+		max_spring_shoes(month, year);
+		max_glasses(month, year);
+		max_new_year_clothes(month, year);
+		max_repairs();
+		max_calculate_transport_tax();
+		max_calculate_property_tax();
+		max_calculate_income_tax();
+		max_pay_taxes();
+		max_winter_clothes(month, year);
+		max_deposite(month, year);
+		max_pay_travel_expenses(month, year);
+		max_hobbies_pay();
+		max_plants();
+		max_photo();
+
+
+		++month;
+		if (month == 13) {
+			++year;
+			month = 1;
+			max_apply_yearly_inflation(year);
+			inflation.cumulative = 1.0f;
+		}
+	}
+}
+
+int main()
+
+{
+	alice_init();
+	max_init();
+
+	simulation_alice();
+	simulation_max();
+
+	print_results_alice();
+	print_results_max();
+
+	return 0;
+}
