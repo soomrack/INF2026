@@ -1,0 +1,339 @@
+#include <stdio.h>
+#include <math.h>
+
+using Percent = float;
+using RUB = long long int;
+using EUR = long long int;
+
+// Банковские счета
+struct Bank {
+    RUB rub;              // рубли на счету
+    EUR eur;              // евро на счету (для жизни за границей)
+    float rate_rub_eur;   // курс рублей к евро (сколько рублей за 1 евро)
+};
+
+// Жильё (аренда)
+struct RentFlat {
+    RUB monthly_rent;      // аренда в месяц 
+    RUB utilities;         // коммуналка 
+    RUB deposit;           // депозит 
+    RUB realtor_fee;       // комиссия риелтору 
+
+    // для жизни за границей 
+    EUR monthly_rent_eur;
+    EUR utilities_eur;
+};
+
+// Своя квартира (если купят)
+struct OwnFlat {
+    bool has_own;          // есть ли своя квартира
+    RUB cost;              // стоимость
+    RUB remaining_debt;    // остаток долга по ипотеке
+    RUB monthly_payment;   // ежемесячный платеж
+    RUB paid_interest;     // выплачено процентов
+    RUB paid_principal;    // выплачено основного долга
+    int payments_made;     // количество платежей
+    float rate;            // процентная ставка
+    int years;             // срок ипотеки
+};
+
+// Путешествия
+struct Trip {
+    RUB flight;
+    RUB hotel;
+    RUB meals;
+    RUB excursions;
+    RUB transport;
+    RUB insurance;
+    RUB souvenirs;
+    RUB total;
+};
+
+// Основные траты
+struct Person {
+    Bank bank;
+    RUB salary;            // зп в рублях (ежемесячная)
+    RUB food_expenses;     // расходы на еду в месяц 
+    RUB transport_expenses;// расходы на транспорт в месяц 
+    RUB other_expenses;    // прочие расходы (одежда, развлечения) 
+    RentFlat rent_flat;
+    OwnFlat own_flat;
+    Trip trip;
+    bool is_student;
+    bool lives_with_boyfriend;
+    RUB boyfriend_help;
+    bool is_abroad;
+
+    // Жизнь на границей
+    EUR salary_eur;         // зп в евро
+    EUR food_eur;           // расходы на еду 
+    EUR transport_eur;      // транспорт 
+    EUR other_eur;          // прочие расходы 
+};
+
+Person dasha;
+
+void dasha_init() {
+    dasha.bank.rate_rub_eur = 94.73f;   // курс
+    dasha.bank.rub = 15000;
+    dasha.bank.eur = 0;
+
+    dasha.is_student = true;
+    dasha.salary = 15000;
+    dasha.food_expenses = 8000;
+    dasha.transport_expenses = 1500;
+    dasha.other_expenses = 3000;
+
+    dasha.rent_flat.monthly_rent = 0;
+    dasha.rent_flat.utilities = 1000;
+    dasha.rent_flat.deposit = 0;
+    dasha.rent_flat.realtor_fee = 0;
+
+    dasha.lives_with_boyfriend = false;
+    dasha.boyfriend_help = 0;
+
+    dasha.own_flat.has_own = false;
+    dasha.own_flat.cost = 0;
+    dasha.own_flat.remaining_debt = 0;
+    dasha.own_flat.monthly_payment = 0;
+    dasha.own_flat.paid_interest = 0;
+    dasha.own_flat.paid_principal = 0;
+    dasha.own_flat.payments_made = 0;
+    dasha.own_flat.rate = 0;
+    dasha.own_flat.years = 0;
+
+    dasha.trip.flight = 30000;
+    dasha.trip.hotel = 40000;
+    dasha.trip.meals = 15000;
+    dasha.trip.excursions = 10000;
+    dasha.trip.transport = 5000;
+    dasha.trip.insurance = 2000;
+    dasha.trip.souvenirs = 5000;
+    dasha.trip.total = dasha.trip.flight + dasha.trip.hotel + dasha.trip.meals +
+        dasha.trip.excursions + dasha.trip.transport + dasha.trip.insurance +
+        dasha.trip.souvenirs;
+
+    dasha.is_abroad = false;
+    dasha.salary_eur = 0;
+    dasha.food_eur = 0;
+    dasha.transport_eur = 0;
+    dasha.other_eur = 0;
+    dasha.rent_flat.monthly_rent_eur = 0;
+    dasha.rent_flat.utilities_eur = 0;
+}
+
+// Инфляция (только для жизни в России)
+void apply_inflation(int month, int year) {
+    if (dasha.is_abroad) return;  // за границей инфляцию пока не учитываем
+
+    float monthly_inflation = 0.0064f;
+    if (year == 2026) monthly_inflation = 0.0070f;
+    if (year == 2027) monthly_inflation = 0.0065f;
+    if (year == 2028) monthly_inflation = 0.0060f;
+    if (year == 2029) monthly_inflation = 0.0055f;
+
+    dasha.food_expenses += dasha.food_expenses * monthly_inflation;
+    dasha.transport_expenses += dasha.transport_expenses * monthly_inflation;
+    dasha.other_expenses += dasha.other_expenses * monthly_inflation;
+    if (!dasha.own_flat.has_own) {
+        dasha.rent_flat.monthly_rent += dasha.rent_flat.monthly_rent * monthly_inflation;
+        dasha.rent_flat.utilities += dasha.rent_flat.utilities * monthly_inflation;
+    }
+    dasha.trip.flight += dasha.trip.flight * monthly_inflation * 1.2;
+    dasha.trip.hotel += dasha.trip.hotel * monthly_inflation * 1.2;
+    dasha.trip.meals += dasha.trip.meals * monthly_inflation * 1.1;
+    dasha.trip.excursions += dasha.trip.excursions * monthly_inflation * 1.1;
+    dasha.trip.transport += dasha.trip.transport * monthly_inflation;
+    dasha.trip.insurance += dasha.trip.insurance * monthly_inflation;
+    dasha.trip.souvenirs += dasha.trip.souvenirs * monthly_inflation;
+    dasha.trip.total = dasha.trip.flight + dasha.trip.hotel + dasha.trip.meals +
+        dasha.trip.excursions + dasha.trip.transport + dasha.trip.insurance +
+        dasha.trip.souvenirs;
+}
+
+// Ежемесячная зарплата
+void dasha_salary(int month, int year) {
+    if (dasha.is_abroad) {
+        dasha.bank.eur += dasha.salary_eur;
+        return;
+    }
+
+    if (dasha.is_student) {
+        dasha.bank.rub += dasha.salary;
+    }
+    else {
+        dasha.bank.rub += dasha.salary;
+    }
+
+    if (month == 3) {
+        if (year == 2027) dasha.salary = 50000;
+        if (year == 2028) dasha.salary = 60000;
+        if (year == 2029) dasha.salary = 70000;
+        if (year == 2030) dasha.salary = 80000;
+    }
+    if (month == 12) {
+        dasha.bank.rub += 10000;
+    }
+}
+
+// Ежемесячные расходы
+void dasha_expenses(int month, int year) {
+    if (dasha.is_abroad) {
+        EUR total_eur = dasha.food_eur + dasha.transport_eur + dasha.other_eur;
+        total_eur += dasha.rent_flat.monthly_rent_eur + dasha.rent_flat.utilities_eur;
+        dasha.bank.eur -= total_eur;
+        return;
+    }
+
+    RUB total_expenses = dasha.food_expenses + dasha.transport_expenses + dasha.other_expenses;
+    if (dasha.own_flat.has_own) {
+        total_expenses += dasha.own_flat.monthly_payment;
+        total_expenses += dasha.rent_flat.utilities;
+    }
+    else {
+        total_expenses += dasha.rent_flat.monthly_rent;
+        total_expenses += dasha.rent_flat.utilities;
+    }
+
+    dasha.bank.rub -= total_expenses;
+
+    if (dasha.lives_with_boyfriend) {
+        dasha.bank.rub += dasha.boyfriend_help;
+    }
+}
+
+// События по месяцам
+void monthly_events(int month, int year) {
+    if (month == 6 && year == 2026) {
+        dasha.is_student = false;
+        dasha.salary = 40000;
+    }
+
+    if (month == 8 && year == 2026) {
+        dasha.lives_with_boyfriend = true;
+        dasha.boyfriend_help = 25000;
+        dasha.rent_flat.monthly_rent = 35000;
+        dasha.rent_flat.utilities = 7000;
+        RUB move_cost = dasha.rent_flat.deposit + dasha.rent_flat.realtor_fee;
+        dasha.bank.rub -= move_cost;
+    }
+
+    if (!dasha.own_flat.has_own && month == 3 && year == 2028 && dasha.bank.rub > 1000000) {
+        dasha.own_flat.has_own = true;
+        dasha.own_flat.cost = 6500000;
+        RUB initial = dasha.own_flat.cost * 0.2;
+        dasha.bank.rub -= initial;
+        dasha.own_flat.remaining_debt = dasha.own_flat.cost - initial;
+        dasha.own_flat.rate = 8.5;
+        dasha.own_flat.years = 20;
+        double monthly_rate = dasha.own_flat.rate / 100.0 / 12.0;
+        int periods = dasha.own_flat.years * 12;
+        double annuity = (monthly_rate * pow(1 + monthly_rate, periods)) / (pow(1 + monthly_rate, periods) - 1);
+        dasha.own_flat.monthly_payment = dasha.own_flat.remaining_debt * annuity;
+    }
+
+    if (dasha.own_flat.has_own && dasha.own_flat.remaining_debt > 0) {
+        double monthly_rate = dasha.own_flat.rate / 100.0 / 12.0;
+        RUB interest = dasha.own_flat.remaining_debt * monthly_rate;
+        RUB principal = dasha.own_flat.monthly_payment - interest;
+        dasha.own_flat.remaining_debt -= principal;
+        dasha.own_flat.paid_interest += interest;
+        dasha.own_flat.paid_principal += principal;
+        dasha.own_flat.payments_made++;
+    }
+
+    if (month == 7 && (year == 2027 || year == 2028)) {
+        RUB trip_cost = dasha.trip.total;
+        if (year == 2027) trip_cost *= 0.8;
+        dasha.bank.rub -= trip_cost;
+    }
+
+    if (month == 9 && year == 2028) {
+        dasha.salary = 75000;
+    }
+
+    // Переезд в Германию (январь 2030)
+    if (!dasha.is_abroad && month == 1 && year == 2030) {
+        dasha.is_abroad = true;
+        RUB relocation_cost = 150000;
+        dasha.bank.rub -= relocation_cost;
+        // конвертируем оставшиеся рубли в евро
+        if (dasha.bank.rub > 0) {
+            dasha.bank.eur = dasha.bank.rub / dasha.bank.rate_rub_eur;
+            dasha.bank.rub = 0;
+        }
+
+        // ежемесячные расходы в евро
+        dasha.food_eur = 400;
+        dasha.transport_eur = 100;
+        dasha.other_eur = 200;
+        dasha.rent_flat.monthly_rent_eur = 1000;
+        dasha.rent_flat.utilities_eur = 200;
+
+        dasha.salary_eur = 2800;   // зп в евро
+        dasha.salary = 0;
+    }
+}
+
+// Подсчет капитала 
+RUB calculate_capital() {
+    RUB capital = 0;
+    if (dasha.is_abroad) {
+        capital = dasha.bank.eur * dasha.bank.rate_rub_eur;
+    }
+    else {
+        capital = dasha.bank.rub;
+    }
+    if (dasha.own_flat.has_own) {
+        capital += (dasha.own_flat.cost - dasha.own_flat.remaining_debt);
+    }
+    return capital;
+}
+
+void print_results() {
+    printf("Total capital (in RUB): %lld RUB\n", calculate_capital());
+
+    if (dasha.is_abroad) {
+        printf("Savings in EUR: %lld EUR\n", dasha.bank.eur);
+        printf("Savings in RUB (converted): %lld RUB\n", dasha.bank.eur * dasha.bank.rate_rub_eur);
+    }
+    else {
+        printf("Savings: %lld RUB\n", dasha.bank.rub);
+    }
+
+    if (dasha.own_flat.has_own) {
+        printf("\nApartment:\n");
+        printf("  Cost: %lld RUB\n", dasha.own_flat.cost);
+        printf("  Remaining debt: %lld RUB\n", dasha.own_flat.remaining_debt);
+        printf("  Paid interest: %lld RUB\n", dasha.own_flat.paid_interest);
+        printf("  Payments made: %d / %d\n", dasha.own_flat.payments_made, dasha.own_flat.years * 12);
+    }
+
+    printf("\nTotal spent on trips: %lld RUB\n", dasha.trip.total);
+    
+}
+
+void simulation() {
+    int year = 2026;
+    int month = 3;
+
+    while (!(year == 2031 && month == 1)) {
+        apply_inflation(month, year);
+        dasha_salary(month, year);
+        monthly_events(month, year);
+        dasha_expenses(month, year);
+
+        month++;
+        if (month == 13) {
+            month = 1;
+            year++;
+        }
+    }
+}
+
+int main() {
+    dasha_init();
+    simulation();
+    print_results();
+    return 0;
+}
