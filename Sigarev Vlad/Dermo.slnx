@@ -1,7 +1,0 @@
-<Solution>
-  <Configurations>
-    <Platform Name="x64" />
-    <Platform Name="x86" />
-  </Configurations>
-  <Project Path="Dermo/Dermo.vcxproj" Id="ea659fb2-f9ca-4b2a-9357-86a983786e87" />
-</Solution>
