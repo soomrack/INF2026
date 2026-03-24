@@ -124,8 +124,8 @@ struct Person
     Deposit deposit;
     Credit credit;
     Investment stocks;
-    Home flat_live;                   
-    Home flat_rent;                   
+    Home flat_to_live;                   
+    Home flat_to_rent;                   
     double avg_monthly_mileage;    
 
     bool is_unemployed;
@@ -223,18 +223,18 @@ void alice_init()
     alice.camry.maintenance_cost_per_year = 15'000;
     alice.camry.depreciation_percent = 5;
 
-    alice.flat_live.monthly_rent = 60'000;
-    alice.flat_live.rent_indexation = 1.04;
-    alice.flat_live.security_deposit = 60'000;
-    alice.flat_live.utilities = 7'500;
-    alice.flat_live.parking_lot = 5'000;
+    alice.flat_to_live.monthly_rent = 60'000;
+    alice.flat_to_live.rent_indexation = 1.04;
+    alice.flat_to_live.security_deposit = 60'000;
+    alice.flat_to_live.utilities = 7'500;
+    alice.flat_to_live.parking_lot = 5'000;
 
-    alice.flat_rent.value = 8'000'000;
-    alice.flat_rent.monthly_rent = 65'000;
-    alice.flat_rent.rent_indexation = 1.04;
-    alice.flat_rent.security_deposit = 65'000;
-    alice.flat_rent.utilities = 8'500;
-    alice.flat_rent.parking_lot = 6'000;
+    alice.flat_to_rent.value = 8'000'000;
+    alice.flat_to_rent.monthly_rent = 65'000;
+    alice.flat_to_rent.rent_indexation = 1.04;
+    alice.flat_to_rent.security_deposit = 65'000;
+    alice.flat_to_rent.utilities = 8'500;
+    alice.flat_to_rent.parking_lot = 6'000;
 
     alice.avg_monthly_mileage = 1200;  
     alice.is_unemployed = false;
@@ -299,11 +299,11 @@ void bob_init()
     bob.land_cruiser.maintenance_cost_per_year = 15'000;
     bob.land_cruiser.depreciation_percent = 5;
 
-    bob.flat_live.monthly_rent = 50'000;
-    bob.flat_live.rent_indexation = 1.04;
-    bob.flat_live.security_deposit = 50'000;
-    bob.flat_live.utilities = 6'500;
-    bob.flat_live.parking_lot = 7'000;
+    bob.flat_to_live.monthly_rent = 50'000;
+    bob.flat_to_live.rent_indexation = 1.04;
+    bob.flat_to_live.security_deposit = 50'000;
+    bob.flat_to_live.utilities = 6'500;
+    bob.flat_to_live.parking_lot = 7'000;
 
     bob.avg_monthly_mileage = 1500;
     bob.is_unemployed = false;
@@ -320,9 +320,10 @@ void bob_init()
 void alice_check_job_loss() 
 {
     if (alice.is_unemployed) return;
+
     double monthly_fire_prob = alice.job.fire_probability / 12.0;
-    if ((rand() % 10000) / 100.0 < monthly_fire_prob) 
-    {
+
+    if ((rand() % 10000) / 100.0 < monthly_fire_prob) {
         alice.is_unemployed = true;
         alice.unemployed_months_left = 6;  
         alice.stress_index += 10;
@@ -336,14 +337,13 @@ void alice_process_unemployment()
 
     alice.job.salary = 0;
     alice.unemployed_months_left--;
-    if (alice.unemployed_months_left <= 0) 
-    {
+
+    if (alice.unemployed_months_left <= 0) {
         alice.is_unemployed = false;
         alice.job.salary = 150'000;  // находим новую работу с зарплатой ниже
         alice.stress_index -= 5;
     }
-    else 
-    {
+    else {
         alice.stress_index += 2;
     }
 }
@@ -353,8 +353,7 @@ void alice_check_annual_raise(int month)
 {
     if (alice.is_unemployed) return;
 
-    if (month == alice.job.raise_month)
-    {
+    if (month == alice.job.raise_month) {
         alice.job.salary = static_cast<RUB>(alice.job.salary * (1 + alice.job.annual_raise_percent / 100.0));
         alice.stress_index -= 5;
     }
@@ -365,8 +364,7 @@ void alice_random_bonus()
 {
     if (alice.is_unemployed) return;
 
-    if ((rand() % 100) < 20) 
-    {  
+    if ((rand() % 100) < 20) {  
         RUB bonus = 30'000 + rand() % 70'000;
         alice.cash += bonus;
         alice.stress_index -= 2;
@@ -378,8 +376,7 @@ void alice_overtime_pay()
 {
     if (alice.is_unemployed) return;
 
-    if ((rand() % 100) < 25) 
-    { 
+    if ((rand() % 100) < 25) { 
         RUB overtime = 10'000 + rand() % 30'000;
         alice.cash += overtime;
         alice.stress_index += 1;  
@@ -392,8 +389,7 @@ void alice_salary_shock()
     if (alice.is_unemployed) return;
 
     double monthly_crisis_prob = world.crisis_probability / 12.0;
-    if ((rand() % 10000) / 100.0 < monthly_crisis_prob) 
-    {
+    if ((rand() % 10000) / 100.0 < monthly_crisis_prob) {
         alice.job.salary = static_cast<RUB>(alice.job.salary * 0.85); 
         alice.stress_index += 5;
     }
@@ -404,8 +400,7 @@ void alice_change_job()
 {
     if (alice.is_unemployed) return;
 
-    if ((rand() % 1000) < 3)
-    {
+    if ((rand() % 1000) < 3) {
         alice.job.salary = static_cast<RUB>(alice.job.salary * 0.95);  
         alice.stress_index += 3;
     }
@@ -414,22 +409,20 @@ void alice_change_job()
 
 void alice_burnout() 
 {
-    if (alice.stress_index > 60) 
-    {
+    if (alice.stress_index > 60) {
         alice.job.salary = static_cast<RUB>(alice.job.salary * 0.97);
         alice.stress_index += 1;
     }
 }
 
 
-
-
 void bob_check_job_loss()
 {
     if (bob.is_unemployed) return;
+
     double monthly_fire_prob = bob.job.fire_probability / 12.0;
-    if ((rand() % 10000) / 100.0 < monthly_fire_prob)
-    {
+
+    if ((rand() % 10000) / 100.0 < monthly_fire_prob) {
         bob.is_unemployed = true;
         bob.unemployed_months_left = 6;
         bob.stress_index += 10;
@@ -443,14 +436,13 @@ void bob_process_unemployment()
 
     bob.job.salary = 0;
     bob.unemployed_months_left--;
-    if (bob.unemployed_months_left <= 0)
-    {
+     
+    if (bob.unemployed_months_left <= 0) {
         bob.is_unemployed = false;
         bob.job.salary = 170'000;  
         bob.stress_index -= 5;
     }
-    else
-    {
+    else {
         bob.stress_index += 2;
     }
 }
@@ -460,8 +452,7 @@ void bob_check_annual_raise(int month)
 {
     if (bob.is_unemployed) return;
 
-    if (month == bob.job.raise_month)
-    {
+    if (month == bob.job.raise_month) {
         bob.job.salary = static_cast<RUB>(bob.job.salary * (1 + bob.job.annual_raise_percent / 100.0));
         bob.stress_index -= 5;
     }
@@ -472,8 +463,7 @@ void bob_random_bonus()
 {
     if (bob.is_unemployed) return;
 
-    if ((rand() % 100) < 20)
-    {
+    if ((rand() % 100) < 20) {
         RUB bonus = 30'000 + rand() % 70'000;
         bob.cash += bonus;
         bob.stress_index -= 2;
@@ -485,8 +475,7 @@ void bob_overtime_pay()
 {
     if (bob.is_unemployed) return;
 
-    if ((rand() % 100) < 25)
-    {
+    if ((rand() % 100) < 25) {
         RUB overtime = 10'000 + rand() % 30'000;
         bob.cash += overtime;
         bob.stress_index += 1;
@@ -499,8 +488,8 @@ void bob_salary_shock()
     if (bob.is_unemployed) return;
 
     double monthly_crisis_prob = world.crisis_probability / 12.0;
-    if ((rand() % 10000) / 100.0 < monthly_crisis_prob)
-    {
+
+    if ((rand() % 10000) / 100.0 < monthly_crisis_prob) {
         bob.job.salary = static_cast<RUB>(bob.job.salary * 0.85);
         bob.stress_index += 5;
     }
@@ -511,8 +500,7 @@ void bob_change_job()
 {
     if (bob.is_unemployed) return;
 
-    if ((rand() % 1000) < 3)
-    {
+    if ((rand() % 1000) < 3) {
         bob.job.salary = static_cast<RUB>(bob.job.salary * 0.95);
         bob.stress_index += 3;
     }
@@ -521,15 +509,14 @@ void bob_change_job()
 
 void bob_burnout()
 {
-    if (bob.stress_index > 60)
-    {
+    if (bob.stress_index > 60) {
         bob.job.salary = static_cast<RUB>(bob.job.salary * 0.97);
         bob.stress_index += 1;
     }
 }
 
 
-// ---------- Расходы (с индексацией) ----------
+// ---------- Расходы (с инфляцией) ----------
 void alice_pay_food() 
 {
     RUB cost = static_cast<RUB>(alice.food * (1 + world.inflation_rate / 100.0 / 12.0));
@@ -588,6 +575,7 @@ void alice_pay_sport()
 {
     RUB cost = static_cast<RUB>(alice.sport * (1 + world.inflation_rate / 100.0 / 12.0));
     alice.cash -= cost;
+
     if (alice.cash < 0) alice.stress_index += 1;
 }
 
@@ -596,6 +584,7 @@ void alice_pay_pets()
 {
     RUB cost = static_cast<RUB>(alice.pets * (1 + world.inflation_rate / 100.0 / 12.0));
     alice.cash -= cost;
+
     if (alice.cash < 0) alice.stress_index += 2;
 }
 
@@ -604,10 +593,9 @@ void alice_pay_subscriptions()
 {
     RUB cost = static_cast<RUB>(alice.subscriptions * (1 + world.inflation_rate / 100.0 / 12.0));
     alice.cash -= cost;
+
     if (alice.cash < 0) alice.stress_index += 1;
 }
-
-
 
 
 void bob_pay_food()
@@ -668,6 +656,7 @@ void bob_pay_sport()
 {
     RUB cost = static_cast<RUB>(bob.sport * (1 + world.inflation_rate / 100.0 / 12.0));
     bob.cash -= cost;
+
     if (bob.cash < 0) bob.stress_index += 1;
 }
 
@@ -676,6 +665,7 @@ void bob_pay_pets()
 {
     RUB cost = static_cast<RUB>(bob.pets * (1 + world.inflation_rate / 100.0 / 12.0));
     bob.cash -= cost;
+
     if (bob.cash < 0) bob.stress_index += 2;
 }
 
@@ -684,95 +674,138 @@ void bob_pay_subscriptions()
 {
     RUB cost = static_cast<RUB>(bob.subscriptions * (1 + world.inflation_rate / 100.0 / 12.0));
     bob.cash -= cost;
+
     if (bob.cash < 0) bob.stress_index += 1;
 }
 
 
-// ---------- Расходы на жильё (flat_live) ----------
-void alice_pay_rent() 
+// ---------- Расходы на жильё (flat_to_live) ----------
+void alice_pay_rent(int month) 
 {
-    RUB rent = static_cast<RUB>(alice.flat_live.monthly_rent * (1 + world.inflation_rate / 100.0 / 12.0));
+    RUB rent = alice.flat_to_live.monthly_rent;
     alice.cash -= rent;
     alice.total_rent_paid += rent;
+
+    if (month == 12) {
+        alice.flat_to_live.monthly_rent = 
+            static_cast<RUB>(alice.flat_to_live.monthly_rent * (1 + world.inflation_rate / 100.0 / 12.0));
+    }
 
     if (alice.cash < 0) alice.stress_index += 3;
 }
 
 
-void alice_pay_utilities() 
+void alice_pay_utilities(int month) 
 {
-    RUB utils = alice.flat_live.utilities;
+    
+    RUB utils = alice.flat_to_live.utilities;
     alice.cash -= utils;
+
+    if (month == 12) {
+        alice.flat_to_live.utilities =
+            static_cast<RUB>(alice.flat_to_live.utilities * (1 + world.inflation_rate / 100.0));
+    }
 
     if (alice.cash < 0) alice.stress_index += 2;
 }
 
 
-void alice_pay_parking() 
+void alice_pay_parking(int(month)) 
 {
-    RUB parking = alice.flat_live.parking_lot;
+    RUB parking = alice.flat_to_live.parking_lot;
     alice.cash -= parking;
+
+    if (month == 12) {
+        alice.flat_to_live.parking_lot =
+            static_cast<RUB>(alice.flat_to_live.parking_lot * (1 + world.inflation_rate / 100.0));
+    }
 
     if (alice.cash < 0) alice.stress_index += 1;
 }
 
 
-
-
-void bob_pay_rent()
+void bob_pay_rent(int month)
 {
-    RUB rent = static_cast<RUB>(bob.flat_live.monthly_rent * (1 + world.inflation_rate / 100.0 / 12.0));
+    RUB rent = bob.flat_to_live.monthly_rent;
     bob.cash -= rent;
     bob.total_rent_paid += rent;
+
+    if (month == 12) {
+        bob.flat_to_live.monthly_rent = 
+            static_cast<RUB>(bob.flat_to_live.monthly_rent * (1 + world.inflation_rate / 100.0 / 12.0));
+    }
 
     if (bob.cash < 0) bob.stress_index += 3;
 }
 
 
-void bob_pay_utilities()
+void bob_pay_utilities(int month)
 {
-    RUB utils = bob.flat_live.utilities;
+    RUB utils = bob.flat_to_live.utilities;
     bob.cash -= utils;
+
+    if (month == 12) {
+        bob.flat_to_live.utilities =
+            static_cast<RUB>(bob.flat_to_live.utilities * (1 + world.inflation_rate / 100.0 / 12.0));
+    }
 
     if (bob.cash < 0) bob.stress_index += 2;
 }
 
 
-void bob_pay_parking()
+void bob_pay_parking(int(month))
 {
-    RUB parking = bob.flat_live.parking_lot;
+    RUB parking = bob.flat_to_live.parking_lot;
     bob.cash -= parking;
+
+    if (month == 12) {
+        bob.flat_to_live.parking_lot =
+            static_cast<RUB>(bob.flat_to_live.parking_lot * (1 + world.inflation_rate / 100.0 / 12.0));
+    }
+
 
     if (bob.cash < 0) bob.stress_index += 1;
 }
 
 
-// ---------- Доходы и расходы от сдаваемой квартиры (flat_rent) ----------
-void alice_receive_rent() 
+// ---------- Доходы и расходы от сдаваемой квартиры (flat_to_rent) ----------
+void alice_receive_rent(int month) 
 {
-   
-    RUB rent_income = static_cast<RUB>(alice.flat_rent.monthly_rent * (1 + world.inflation_rate / 100.0 / 12.0));
+    RUB rent_income = alice.flat_to_rent.monthly_rent;
     alice.cash += rent_income;
     alice.total_rent_income += rent_income;
 
-
-    RUB utils = alice.flat_rent.utilities;
-    RUB parking = alice.flat_rent.parking_lot;
+    RUB utils = alice.flat_to_rent.utilities;
+    RUB parking = alice.flat_to_rent.parking_lot;
     alice.cash -= utils;
     alice.cash -= parking;
+
+    if (month == 12) {
+        alice.flat_to_rent.monthly_rent = 
+            static_cast<RUB>(alice.flat_to_rent.monthly_rent * (1 + world.inflation_rate / 100.0 / 12.0));
+        alice.flat_to_rent.value =
+            static_cast<RUB>(alice.flat_to_rent.value * (1 + world.inflation_rate / 100.0));
+        alice.flat_to_rent.utilities =
+            static_cast<RUB>(alice.flat_to_rent.utilities * (1 + world.inflation_rate / 100.0));
+        alice.flat_to_rent.parking_lot =
+            static_cast<RUB>(alice.flat_to_rent.parking_lot * (1 + world.inflation_rate / 100.0));
+    }
+    
 
     if (alice.cash < 0) alice.stress_index += 2;
 }
 
 
-void alice_pay_property_tax() 
+void alice_pay_property_tax(int(month))
 {
-
-    RUB apartment_value = alice.flat_rent.value; 
+    RUB apartment_value = alice.flat_to_rent.value; 
     RUB tax = static_cast<RUB>(apartment_value * 0.003); 
-
-    alice.cash -= tax ;  
-    alice.total_property_tax_paid += tax ;
+    
+    if (month == 12) {
+        alice.cash -= tax ;  
+        alice.total_property_tax_paid += tax ;
+    }
+    
     if (alice.cash < 0) alice.stress_index += 2;
 }
 
@@ -789,43 +822,63 @@ void alice_pay_fuel()
     if (alice.cash < 0) alice.stress_index += 2;
 }
 
-void alice_pay_car_tax() 
+
+void alice_pay_car_tax(int month) 
 {
     RUB tax = alice.camry.annual_car_tax;
-    alice.cash -= tax;
+
+    if (month == 12) {
+        alice.cash -= tax;
+    }
 
     if (alice.cash < 0) alice.stress_index += 1;
 }
 
-void alice_pay_insurance_osago() 
+
+void alice_pay_insurance_osago(int month) 
 {
-    RUB ins = static_cast<RUB>(alice.camry.insurance_osago * (1 + world.inflation_rate / 100.0));
-    alice.cash -= ins / 12;
+    RUB insurance = alice.camry.insurance_osago;
+    
+    if (month == 12) {
+        alice.cash -= insurance;
+        alice.camry.insurance_osago =
+            static_cast<RUB>(alice.camry.insurance_osago * (1 + world.inflation_rate / 100.0));
+    }
 
     if (alice.cash < 0) alice.stress_index += 1;
 }
 
-void alice_pay_insurance_kasko() 
+
+void alice_pay_insurance_kasko(int month) 
 {
-    RUB ins = static_cast<RUB>(alice.camry.insurance_kasko * (1 + world.inflation_rate / 100.0));
-    alice.cash -= ins / 12;
+    RUB insurance = alice.camry.insurance_kasko ;
+    
+    if (month == 12) {
+        alice.cash -= insurance;
+        alice.camry.insurance_kasko =
+            static_cast<RUB>(alice.camry.insurance_kasko * (1 + world.inflation_rate / 100.0));
+    }
 
     if (alice.cash < 0) alice.stress_index += 2;
 }
 
+
 void alice_pay_maintenance() 
 {
-    RUB maint = static_cast<RUB>(alice.camry.maintenance_cost_per_year * (1 + world.inflation_rate / 100.0));
-    alice.cash -= maint / 12;
+    RUB maintenance = static_cast<RUB>(alice.camry.maintenance_cost_per_year * (1 + world.inflation_rate / 100.0 ));
+    alice.cash -= maintenance / 12;
 
     if (alice.cash < 0) alice.stress_index += 1;
 }
 
-void alice_depreciate_car() 
-{
 
-    double monthly_depreciate = alice.camry.depreciation_percent / 12.0 / 100.0;
-    alice.camry.value = static_cast<RUB>(alice.camry.value * (1.0 - monthly_depreciate));
+void alice_depreciate_car(int month) 
+{
+    percent depreciate = alice.camry.depreciation_percent / 100.0;
+    if (month == 12) {
+        alice.camry.value = static_cast<RUB>(alice.camry.value * (1.0 - depreciate));
+
+    }
 }
 
 
@@ -842,66 +895,84 @@ void bob_pay_fuel()
     if (bob.cash < 0) bob.stress_index += 2;
 }
 
-void bob_pay_car_tax()
+
+void bob_pay_car_tax(int month)
 {
     RUB tax = bob.land_cruiser.annual_car_tax;
-    bob.cash -= tax;
+
+    if (month == 12) {
+        bob.cash -= tax;
+    }
 
     if (bob.cash < 0) bob.stress_index += 1;
 }
 
-void bob_pay_insurance_osago()
+
+void bob_pay_insurance_osago(int month)
 {
-    RUB ins = static_cast<RUB>(bob.land_cruiser.insurance_osago * (1 + world.inflation_rate / 100.0));
-    bob.cash -= ins / 12;
+    RUB insurance = bob.land_cruiser.insurance_osago;
+
+    if (month == 12) {
+        bob.cash -= insurance;
+        bob.land_cruiser.insurance_osago =
+            static_cast<RUB>(bob.land_cruiser.insurance_osago * (1 + world.inflation_rate / 100.0));
+    }
 
     if (bob.cash < 0) bob.stress_index += 1;
 }
 
-void bob_pay_insurance_kasko()
+
+void bob_pay_insurance_kasko(int month)
 {
-    RUB ins = static_cast<RUB>(bob.land_cruiser.insurance_kasko * (1 + world.inflation_rate / 100.0));
-    bob.cash -= ins / 12;
+    RUB insurance = bob.land_cruiser.insurance_kasko;
+
+    if (month == 12) {
+        bob.cash -= insurance;
+        bob.land_cruiser.insurance_kasko =
+            static_cast<RUB>(bob.land_cruiser.insurance_kasko * (1 + world.inflation_rate / 100.0));
+    }
 
     if (bob.cash < 0) bob.stress_index += 2;
 }
 
+
 void bob_pay_maintenance()
 {
-    RUB maint = static_cast<RUB>(bob.land_cruiser.maintenance_cost_per_year * (1 + world.inflation_rate / 100.0));
-    bob.cash -= maint / 12;
+    RUB maintenance = static_cast<RUB>(bob.land_cruiser.maintenance_cost_per_year * (1 + world.inflation_rate / 100.0));
+    bob.cash -= maintenance / 12;
 
     if (bob.cash < 0) bob.stress_index += 1;
 }
 
-void bob_depreciate_car()
-{
 
-    double monthly_depreciate = bob.land_cruiser.depreciation_percent / 12.0 / 100.0;
-    bob.land_cruiser.value = static_cast<RUB>(bob.land_cruiser.value * (1.0 - monthly_depreciate));
+void bob_depreciate_car(int month)
+{
+    percent depreciate = bob.land_cruiser.depreciation_percent / 100.0;
+    if (month == 12) {
+        bob.land_cruiser.value = static_cast<RUB>(bob.land_cruiser.value * (1.0 - depreciate));
+
+    }
 }
+
 
 
 // ---------- Депозит ----------
 void alice_update_deposit() 
 {
-    if (alice.deposit.amount > 0) 
-    {
+    if (alice.deposit.amount > 0) {
 
         RUB interest = static_cast<RUB>(alice.deposit.amount * (alice.deposit.annual_rate / 100.0 / 12.0));
         alice.deposit.amount += interest;
         alice.deposit.months_left--;
 
-        if (alice.deposit.months_left <= 0) 
-        {
+        if (alice.deposit.months_left <= 0) {
             alice.cash += alice.deposit.amount;
             alice.deposit.amount = 0;
 
         }
     }
 
-    if (alice.cash > 200'000) 
-    {
+    if (alice.cash > 200'000) {
         RUB to_deposit = std::min(alice.cash / 2, static_cast<RUB>( 500'000));
         alice.cash -= to_deposit;
         alice.deposit.amount += to_deposit;
@@ -914,23 +985,20 @@ void alice_update_deposit()
 
 void bob_update_deposit()
 {
-    if (bob.deposit.amount > 0)
-    {
+    if (bob.deposit.amount > 0) {
 
         RUB interest = static_cast<RUB>(bob.deposit.amount * (bob.deposit.annual_rate / 100.0 / 12.0));
         bob.deposit.amount += interest;
         bob.deposit.months_left--;
 
-        if (bob.deposit.months_left <= 0)
-        {
+        if (bob.deposit.months_left <= 0) {
             bob.cash += bob.deposit.amount;
             bob.deposit.amount = 0;
 
         }
     }
 
-    if (bob.cash > 200'000)
-    {
+    if (bob.cash > 200'000) {
         RUB to_deposit = std::min(bob.cash / 2, static_cast<RUB>(500'000));
         bob.cash -= to_deposit;
         bob.deposit.amount += to_deposit;
@@ -976,9 +1044,11 @@ void bob_take_credit_if_needed() {
 void alice_pay_credit() 
 {
     if (alice.credit.principal <= 0 || alice.credit.months_left <= 0) return;
+
     RUB payment = alice.credit.monthly_payment;
     RUB interest = static_cast<RUB>(alice.credit.principal * (alice.credit.interest_rate / 100.0 / 12.0));
     RUB principal_part = payment - interest;
+
     if (principal_part > alice.credit.principal) principal_part = alice.credit.principal;
     alice.cash -= payment;
     alice.credit.principal -= principal_part;
@@ -987,6 +1057,7 @@ void alice_pay_credit()
     alice.credit.months_left--;
 
     if (alice.cash < 0) alice.stress_index += 3;
+
     if (alice.credit.principal < 0) alice.credit.principal = 0;
 }
 
@@ -996,6 +1067,7 @@ void bob_pay_credit()
     RUB payment = bob.credit.monthly_payment;
     RUB interest = static_cast<RUB>(bob.credit.principal * (bob.credit.interest_rate / 100.0 / 12.0));
     RUB principal_part = payment - interest;
+
     if (principal_part > bob.credit.principal) principal_part = bob.credit.principal;
     bob.cash -= payment;
     bob.credit.principal -= principal_part;
@@ -1004,6 +1076,7 @@ void bob_pay_credit()
     bob.credit.months_left--;
 
     if (bob.cash < 0) bob.stress_index += 3;
+
     if (bob.credit.principal < 0) bob.credit.principal = 0;
 }
 
@@ -1049,9 +1122,7 @@ void alice_apply_stock_return()
         alice.cash += dividends;
         alice.stocks.total_dividends += dividends;
     }
-
-    else 
-    {
+    else {
         alice.stress_index += 1; 
     }
 
@@ -1060,8 +1131,7 @@ void alice_apply_stock_return()
 
 void alice_panic_sell() 
 {
-    if (alice.stocks.amount > 0 && (rand() % 100) < 3) 
-    { 
+    if (alice.stocks.amount > 0 && (rand() % 100) < 3) { 
 
         RUB loss = static_cast<RUB>(alice.stocks.amount * 0.1); 
         alice.stocks.amount -= loss;
@@ -1074,8 +1144,7 @@ void alice_panic_sell()
 
 void alice_rebalance_stocks() 
 {
-    if (alice.stocks.amount > 500'000) 
-    {
+    if (alice.stocks.amount > 500'000) {
         RUB sell = alice.stocks.amount / 4;
         alice.cash += sell;
         alice.stocks.amount -= sell;
@@ -1115,16 +1184,13 @@ void bob_apply_stock_return()
     RUB change = static_cast<RUB>(bob.stocks.amount * total_return);
     bob.stocks.amount += change;
 
-    if (change > 0)
-    {
+    if (change > 0) {
 
         RUB dividends = static_cast<RUB>(change * 0.3);
         bob.cash += dividends;
         bob.stocks.total_dividends += dividends;
     }
-
-    else
-    {
+    else {
         bob.stress_index += 1;
     }
 
@@ -1133,8 +1199,7 @@ void bob_apply_stock_return()
 
 void bob_panic_sell()
 {
-    if (bob.stocks.amount > 0 && (rand() % 100) < 3)
-    {
+    if (bob.stocks.amount > 0 && (rand() % 100) < 3) {
 
         RUB loss = static_cast<RUB>(bob.stocks.amount * 0.1);
         bob.stocks.amount -= loss;
@@ -1147,8 +1212,7 @@ void bob_panic_sell()
 
 void bob_rebalance_stocks()
 {
-    if (bob.stocks.amount > 500'000)
-    {
+    if (bob.stocks.amount > 500'000) {
         RUB sell = bob.stocks.amount / 4;
         bob.cash += sell;
         bob.stocks.amount -= sell;
@@ -1168,9 +1232,8 @@ void bob_investment()
 // ---------- Стресс ----------
 void alice_calculate_stress() 
 {
-
-
     if (alice.cash < 100'000) alice.stress_index += 5;
+
     if (alice.cash < 0) alice.stress_index += 15;
 
     if (alice.deposit.amount < 200'000) alice.stress_index += 2;
@@ -1180,18 +1243,16 @@ void alice_calculate_stress()
     if (alice.stocks.amount < 0) alice.stress_index += 2;
 
     if (alice.stress_index > 100) alice.stress_index = 100;
+
     if (alice.stress_index < 0) alice.stress_index = 0;
 
-    if (alice.stress_index > 70 && !alice.is_unemployed) 
-    {
+    if (alice.stress_index > 70 && !alice.is_unemployed) {
         alice.job.salary = static_cast<RUB>(alice.job.salary * 0.98);
     }
-    else if (alice.stress_index > 80 && !alice.is_unemployed)
-    {
+    else if (alice.stress_index > 80 && !alice.is_unemployed) {
         alice.job.salary = static_cast<RUB>(alice.job.salary * 0.95);
     }
-    else if (alice.stress_index > 90 && !alice.is_unemployed) 
-    {
+    else if (alice.stress_index > 90 && !alice.is_unemployed) {
         alice.job.salary = static_cast<RUB>(alice.job.salary * 0.93);
     }
    
@@ -1202,9 +1263,8 @@ void alice_calculate_stress()
 
 void bob_calculate_stress()
 {
-
-
     if (bob.cash < 100'000) bob.stress_index += 5;
+
     if (bob.cash < 0) bob.stress_index += 15;
 
     if (bob.deposit.amount < 200'000) bob.stress_index += 2;
@@ -1214,18 +1274,16 @@ void bob_calculate_stress()
     if (bob.stocks.amount < 0) bob.stress_index += 2;
 
     if (bob.stress_index > 100) bob.stress_index = 100;
+
     if (bob.stress_index < 0) bob.stress_index = 0;
 
-    if (bob.stress_index > 70 && !bob.is_unemployed)
-    {
+    if (bob.stress_index > 70 && !bob.is_unemployed) {
         bob.job.salary = static_cast<RUB>(bob.job.salary * 0.98);
     }
-    else if (bob.stress_index > 80 && !bob.is_unemployed)
-    {
+    else if (bob.stress_index > 80 && !bob.is_unemployed) {
         bob.job.salary = static_cast<RUB>(bob.job.salary * 0.95);
     }
-    else if (bob.stress_index > 90 && !bob.is_unemployed)
-    {
+    else if (bob.stress_index > 90 && !bob.is_unemployed) {
         bob.job.salary = static_cast<RUB>(bob.job.salary * 0.93);
     }
 
@@ -1235,8 +1293,7 @@ void bob_calculate_stress()
 // ---------- Случайные события ----------
 void alice_random_medical_expense()
 {
-    if ((rand() % 100) < 5) 
-    { 
+    if ((rand() % 100) < 5) { 
         RUB expense = 20'000 + rand() % 80'000;
         expense = static_cast<RUB>(expense * (1 + world.inflation_rate / 100.0));
         alice.cash -= expense;
@@ -1248,8 +1305,7 @@ void alice_random_medical_expense()
 
 void alice_random_car_repair() 
 {
-    if ((rand() % 100) < 4)
-    { 
+    if ((rand() % 100) < 4) { 
         RUB repair = 15'000 + rand() % 60'000;
         repair = static_cast<RUB>(repair * (1 + world.inflation_rate / 100.0));
         alice.cash -= repair;
@@ -1261,8 +1317,7 @@ void alice_random_car_repair()
 
 void alice_random_vacation() 
 {
-    if ((rand() % 100) < 3) 
-    { 
+    if ((rand() % 100) < 3) { 
         RUB cost = 50'000 + rand() % 150'000;
         cost = static_cast<RUB>(cost * (1 + world.inflation_rate / 100.0));
         alice.cash -= cost;
@@ -1274,8 +1329,7 @@ void alice_random_vacation()
 
 void alice_birthday(int month)
 {
-    if (month == alice.birthday_month)
-    {
+    if (month == alice.birthday_month) {
         RUB cost = 20000;
         RUB gifts = rand() % 50'000;
         alice.cash -= cost;
@@ -1287,8 +1341,7 @@ void alice_birthday(int month)
 
 void alice_random_gift() 
 {
-    if ((rand() % 100) < 8) 
-    { 
+    if ((rand() % 100) < 8) { 
         RUB gift = 5'000 + rand() % 20'000;
         alice.cash -= gift;
         alice.stress_index -= 1;
@@ -1298,8 +1351,7 @@ void alice_random_gift()
 
 void alice_random_inheritance() 
 {
-    if ((rand() % 1000) < 2) 
-    { 
+    if ((rand() % 1000) < 2) { 
         RUB inheritance = 200'000 + rand() % 800'000;
         alice.cash += inheritance;
         alice.stress_index -= 10;
@@ -1319,8 +1371,7 @@ void alice_random_fine()
 
 void alice_random_phone_break() 
 {
-    if ((rand() % 100) < 3) 
-    { 
+    if ((rand() % 100) < 3) { 
         RUB cost = 30'000 + rand() % 70'000;
         cost = static_cast<RUB>(cost * (1 + world.inflation_rate / 100.0));
         alice.cash -= cost;
@@ -1331,8 +1382,7 @@ void alice_random_phone_break()
 
 void alice_random_household_break() 
 {
-    if ((rand() % 100) < 4) 
-    { 
+    if ((rand() % 100) < 4) { 
         RUB cost = 10'000 + rand() % 40'000;
         cost = static_cast<RUB>(cost * (1 + world.inflation_rate / 100.0));
         alice.cash -= cost;
@@ -1365,8 +1415,7 @@ void alice_random_theft()
 
 void bob_random_medical_expense()
 {
-    if ((rand() % 100) < 5)
-    {
+    if ((rand() % 100) < 5) {
         RUB expense = 20'000 + rand() % 80'000;
         expense = static_cast<RUB>(expense * (1 + world.inflation_rate / 100.0));
         bob.cash -= expense;
@@ -1378,8 +1427,7 @@ void bob_random_medical_expense()
 
 void bob_random_car_repair()
 {
-    if ((rand() % 100) < 4)
-    {
+    if ((rand() % 100) < 4) {
         RUB repair = 15'000 + rand() % 60'000;
         repair = static_cast<RUB>(repair * (1 + world.inflation_rate / 100.0));
         bob.cash -= repair;
@@ -1391,8 +1439,7 @@ void bob_random_car_repair()
 
 void bob_random_vacation()
 {
-    if ((rand() % 100) < 3)
-    {
+    if ((rand() % 100) < 3) {
         RUB cost = 50'000 + rand() % 150'000;
         cost = static_cast<RUB>(cost * (1 + world.inflation_rate / 100.0));
         bob.cash -= cost;
@@ -1404,8 +1451,7 @@ void bob_random_vacation()
 
 void bob_birthday(int month)
 {
-    if (month == bob.birthday_month)
-    {
+    if (month == bob.birthday_month) {
         RUB cost = 20000;
         RUB gifts = rand() % 50'000;
         bob.cash -= cost;
@@ -1417,8 +1463,7 @@ void bob_birthday(int month)
 
 void bob_random_gift()
 {
-    if ((rand() % 100) < 8)
-    {
+    if ((rand() % 100) < 8) {
         RUB gift = 5'000 + rand() % 20'000;
         bob.cash -= gift;
         bob.stress_index -= 1;
@@ -1428,8 +1473,7 @@ void bob_random_gift()
 
 void bob_random_inheritance()
 {
-    if ((rand() % 1000) < 2)
-    {
+    if ((rand() % 1000) < 2) {
         RUB inheritance = 200'000 + rand() % 800'000;
         bob.cash += inheritance;
         bob.stress_index -= 10;
@@ -1449,8 +1493,7 @@ void bob_random_fine()
 
 void bob_random_phone_break()
 {
-    if ((rand() % 100) < 3)
-    {
+    if ((rand() % 100) < 3) {
         RUB cost = 30'000 + rand() % 70'000;
         cost = static_cast<RUB>(cost * (1 + world.inflation_rate / 100.0));
         bob.cash -= cost;
@@ -1461,8 +1504,7 @@ void bob_random_phone_break()
 
 void bob_random_household_break()
 {
-    if ((rand() % 100) < 4)
-    {
+    if ((rand() % 100) < 4) {
         RUB cost = 10'000 + rand() % 40'000;
         cost = static_cast<RUB>(cost * (1 + world.inflation_rate / 100.0));
         bob.cash -= cost;
@@ -1491,45 +1533,17 @@ void bob_random_theft()
 }
 
 
-void alice_annual_indexation() 
-{
-    alice.flat_rent.value = static_cast<RUB>(alice.flat_rent.value * (1 + world.inflation_rate / 100.0));
-    alice.flat_live.utilities = static_cast<RUB>(alice.flat_live.utilities * (1 + world.inflation_rate / 100.0));
-    alice.flat_rent.utilities = static_cast<RUB>(alice.flat_rent.utilities * (1 + world.inflation_rate / 100.0));
-    alice.flat_live.parking_lot = static_cast<RUB>(alice.flat_live.parking_lot * (1 + world.inflation_rate / 100.0));
-    alice.flat_rent.parking_lot = static_cast<RUB>(alice.flat_rent.parking_lot * (1 + world.inflation_rate / 100.0));
-
-    alice.camry.fuel_price = static_cast<RUB>(alice.camry.fuel_price * (1 + world.inflation_rate / 100.0));
-    alice.camry.insurance_osago = static_cast<RUB>(alice.camry.insurance_osago * (1 + world.inflation_rate / 100.0));
-    alice.camry.insurance_kasko = static_cast<RUB>(alice.camry.insurance_kasko * (1 + world.inflation_rate / 100.0));
-    alice.camry.maintenance_cost_per_year = static_cast<RUB>(alice.camry.maintenance_cost_per_year * (1 + world.inflation_rate / 100.0));
-}
-
-
-void bob_annual_indexation()
-{
-
-    bob.flat_live.utilities = static_cast<RUB>(bob.flat_live.utilities * (1 + world.inflation_rate / 100.0));
-    bob.flat_rent.utilities = static_cast<RUB>(bob.flat_rent.utilities * (1 + world.inflation_rate / 100.0));
-    bob.flat_live.parking_lot = static_cast<RUB>(bob.flat_live.parking_lot * (1 + world.inflation_rate / 100.0));
-
-
-    bob.land_cruiser.fuel_price = static_cast<RUB>(bob.land_cruiser.fuel_price * (1 + world.inflation_rate / 100.0));
-    bob.land_cruiser.insurance_osago = static_cast<RUB>(bob.land_cruiser.insurance_osago * (1 + world.inflation_rate / 100.0));
-    bob.land_cruiser.insurance_kasko = static_cast<RUB>(bob.land_cruiser.insurance_kasko * (1 + world.inflation_rate / 100.0));
-    bob.land_cruiser.maintenance_cost_per_year = static_cast<RUB>(bob.land_cruiser.maintenance_cost_per_year * (1 + world.inflation_rate / 100.0));
-}
-
 
 void alice_check_crisis() 
 {
 
-    if ((rand() % 100) < world.crisis_probability) 
-    {
-
-        alice.flat_rent.monthly_rent = static_cast<RUB>(alice.flat_rent.monthly_rent * (1 - world.crisis_impact_percent / 100.0));
-        alice.flat_rent.value = static_cast<RUB>(alice.flat_rent.value * (1 - world.crisis_impact_percent / 100.0));
-        alice.camry.value = static_cast<RUB>(alice.camry.value * (1 - world.crisis_impact_percent / 100.0));
+    if ((rand() % 100) < world.crisis_probability) {
+        alice.flat_to_rent.monthly_rent = 
+            static_cast<RUB>(alice.flat_to_rent.monthly_rent * (1 - world.crisis_impact_percent / 100.0));
+        alice.flat_to_rent.value = 
+            static_cast<RUB>(alice.flat_to_rent.value * (1 - world.crisis_impact_percent / 100.0));
+        alice.camry.value = 
+            static_cast<RUB>(alice.camry.value * (1 - world.crisis_impact_percent / 100.0));
         alice.stress_index += 15;
     }
 }
@@ -1538,11 +1552,10 @@ void alice_check_crisis()
 void bob_check_crisis()
 {
 
-    if ((rand() % 100) < world.crisis_probability)
-    {
+    if ((rand() % 100) < world.crisis_probability) {
 
-        bob.flat_rent.monthly_rent = static_cast<RUB>(bob.flat_rent.monthly_rent * (1 - world.crisis_impact_percent / 100.0));
-        bob.flat_rent.value = static_cast<RUB>(bob.flat_rent.value * (1 - world.crisis_impact_percent / 100.0));
+        bob.flat_to_rent.monthly_rent = static_cast<RUB>(bob.flat_to_rent.monthly_rent * (1 - world.crisis_impact_percent / 100.0));
+        bob.flat_to_rent.value = static_cast<RUB>(bob.flat_to_rent.value * (1 - world.crisis_impact_percent / 100.0));
         bob.land_cruiser.value = static_cast<RUB>(bob.land_cruiser.value * (1 - world.crisis_impact_percent / 100.0));
         bob.stress_index += 15;
     }
@@ -1551,7 +1564,7 @@ void bob_check_crisis()
 // ---------- Чистая стоимость и отчёт ----------
 RUB alice_calculate_net_worth() 
 {
-    RUB assets = alice.cash + alice.deposit.amount + alice.camry.value + alice.flat_rent.value + alice.stocks.amount;
+    RUB assets = alice.cash + alice.deposit.amount + alice.camry.value + alice.flat_to_rent.value + alice.stocks.amount;
     RUB liabilities = alice.credit.principal;
     return assets - liabilities;
 }
@@ -1559,60 +1572,65 @@ RUB alice_calculate_net_worth()
 
 RUB bob_calculate_net_worth()
 {
-    RUB assets = bob.cash + bob.deposit.amount + bob.land_cruiser.value + bob.flat_rent.value + bob.stocks.amount;
+    RUB assets = bob.cash + bob.deposit.amount + bob.land_cruiser.value + bob.flat_to_rent.value + bob.stocks.amount;
     RUB liabilities = bob.credit.principal;
     return assets - liabilities;
 }
 
 
-void alice_make_report(int year) 
-{
-    Report r;
-    r.year = year;
-    r.net_worth = alice_calculate_net_worth();
-    r.cash = alice.cash;
-    r.deposit = alice.deposit.amount;
-    r.car_value = alice.camry.value;
-    r.rent_paid = alice.total_rent_paid;
-    r.property_tax_paid = alice.total_property_tax_paid;
-    r.stress_index = alice.stress_index;
-    r.investment_value = alice.stocks.amount;
-    r.credit_remaining = alice.credit.principal;
+void alice_make_report(int year, int month, const int end_year, const int end_month) 
+{   
+    if ((month == 12)||((year == end_year)&&(month == end_month))){
+        Report report;
+        report.year = year;
+        report.net_worth = alice_calculate_net_worth();
+        report.cash = alice.cash;
+        report.deposit = alice.deposit.amount;
+        report.car_value = alice.camry.value;
+        report.rent_paid = alice.total_rent_paid;
+        report.property_tax_paid = alice.total_property_tax_paid;
+        report.stress_index = alice.stress_index;
+        report.investment_value = alice.stocks.amount;
+        report.credit_remaining = alice.credit.principal;
 
-    alice.total_rent_paid = 0;
-    alice.total_property_tax_paid = 0;
+        alice.total_rent_paid = 0;
+        alice.total_property_tax_paid = 0;
 
-    report_alice.push_back(r);
+        report_alice.push_back(report);
+    }
+    
 
 }
 
 
-void bob_make_report(int year)
+void bob_make_report(int year, int month, const int end_year, const int end_month)
 {
-    Report r;
-    r.year = year;
-    r.net_worth = bob_calculate_net_worth();
-    r.cash = bob.cash;
-    r.deposit = bob.deposit.amount;
-    r.car_value = bob.land_cruiser.value;
-    r.rent_paid = bob.total_rent_paid;
-    r.property_tax_paid = bob.total_property_tax_paid;
-    r.stress_index = bob.stress_index;
-    r.investment_value = alice.stocks.amount;
-    r.credit_remaining = alice.credit.principal;
+    if ((month == 12) || ((year == end_year) && (month == end_month))) {
+        Report report;
+        report.year = year;
+        report.net_worth = bob_calculate_net_worth();
+        report.cash = bob.cash;
+        report.deposit = bob.deposit.amount;
+        report.car_value = bob.land_cruiser.value;
+        report.rent_paid = bob.total_rent_paid;
+        report.property_tax_paid = bob.total_property_tax_paid;
+        report.stress_index = bob.stress_index;
+        report.investment_value = alice.stocks.amount;
+        report.credit_remaining = alice.credit.principal;
 
-    bob.total_rent_paid = 0;
-    bob.total_property_tax_paid = 0;
+        bob.total_rent_paid = 0;
+        bob.total_property_tax_paid = 0;
 
-    report_bob.push_back(r);
+        report_bob.push_back(report);
+    
+    }
     
 }
 
 
 void alice_job() 
 {
-    if (!alice.is_unemployed)
-    {
+    if (!alice.is_unemployed) {
         alice.cash += alice.job.salary;
     }
     alice_check_job_loss();
@@ -1624,40 +1642,29 @@ void alice_job()
     alice_burnout();
 }
 
-void alice_live_payments() 
+
+void alice_flat_to_live(int month) 
 {
-    alice_pay_pets();
-    alice_pay_subscriptions();
-    alice_pay_food();
-    alice_pay_mobile();
-    alice_pay_healthcare();
-    alice_pay_entertainment();
-    alice_pay_clothing();
-    alice_pay_unexpected();
-    alice_pay_sport();
+    alice_pay_rent(month);
+    alice_pay_utilities(month);
+    alice_pay_parking(month);
+}
+
+void alice_flat_to_rent(int month) 
+{
+    alice_receive_rent(month);
+    alice_pay_property_tax(month);
 }
 
 
-void alice_flat_live() 
-{
-    alice_pay_rent();
-    alice_pay_utilities();
-    alice_pay_parking();
-}
-
-void alice_flat_rent() 
-{
-    alice_receive_rent();
-}
-
-
-void alice_car_usage() 
+void alice_car_usage(int month) 
 {
     alice_pay_fuel();
-    alice_pay_insurance_osago();
-    alice_pay_insurance_kasko();
+    alice_pay_insurance_osago(month);
+    alice_pay_insurance_kasko(month);
     alice_pay_maintenance();
-    alice_depreciate_car();
+    alice_depreciate_car(month);
+    alice_pay_car_tax(month);
 }
 
 
@@ -1676,20 +1683,9 @@ void alice_events()
 }
 
 
-
-void alice_pay_taxes()
-{
-    alice_pay_property_tax();
-    alice_pay_car_tax();
-}
-
-
-
-
 void bob_job()
 {
-    if (!bob.is_unemployed)
-    {
+    if (!bob.is_unemployed) {
         bob.cash += bob.job.salary;
     }
     bob_check_job_loss();
@@ -1701,36 +1697,24 @@ void bob_job()
     bob_burnout();
 }
 
-void bob_live_payments()
-{
-    bob_pay_pets();
-    bob_pay_subscriptions();
-    bob_pay_food();
-    bob_pay_mobile();
-    bob_pay_healthcare();
-    bob_pay_entertainment();
-    bob_pay_clothing();
-    bob_pay_unexpected();
-    bob_pay_sport();
-}
 
-
-void bob_flat_live()
+void bob_flat_to_live(int month)
 {
-    bob_pay_rent();
-    bob_pay_utilities();
-    bob_pay_parking();
+    bob_pay_rent(month);
+    bob_pay_utilities(month);
+    bob_pay_parking(month);
 }
 
 
 
-void bob_car_usage()
+void bob_car_usage(int month)
 {
     bob_pay_fuel();
-    bob_pay_insurance_osago();
-    bob_pay_insurance_kasko();
+    bob_pay_insurance_osago(month);
+    bob_pay_insurance_kasko(month);
     bob_pay_maintenance();
-    bob_depreciate_car();
+    bob_depreciate_car(month);
+    bob_pay_car_tax(month);
 }
 
 
@@ -1749,56 +1733,44 @@ void bob_events()
 }
 
 
-
-void bob_pay_taxes()
-{
-bob_pay_car_tax();
-}
-
-
 // ---------- Основная симуляция ----------
-void simulate_alice(int start_year, int years) 
+void simulate_alice(const int start_year, const int start_month, const int end_year, const int end_month)
 {
     int year = start_year;
-    int month = 1;
+    int month = start_month;
 
-
-    while (year < start_year + years) 
-    {
+   
      
+    while (!(year > end_year) && ((year < end_year) || (month <= end_month))){
         alice_job();
-        
         alice_check_annual_raise(month);
+        
+        alice_pay_pets(); // вместо live_payments()
+        alice_pay_subscriptions();
+        alice_pay_food();
+        alice_pay_mobile();
+        alice_pay_healthcare();
+        alice_pay_entertainment();
+        alice_pay_clothing();
+        alice_pay_unexpected();
+        alice_pay_sport();
 
-        alice_live_payments();
-
-        alice_flat_live();
-
-        alice_flat_rent();
-
-        alice_car_usage();
-
+        alice_flat_to_live(month);
+        alice_flat_to_rent(month);
+        alice_car_usage(month);
         alice_update_deposit();
-        
         alice_investment();
-
         alice_events();
-
         alice_birthday(month);
-
         alice_credit();
-
         alice_calculate_stress();
+        alice_check_crisis();
 
+        alice_make_report(year, month, end_year, end_month);
         
-        if (month == 12) 
-        {
-            alice_pay_taxes();
-            alice_annual_indexation();
-            alice_check_crisis();
-            alice_make_report(year);
+        if (month == 12){
             year++;
-            month = 1;
+            month = 0;
         }
 
         month++;
@@ -1808,46 +1780,41 @@ void simulate_alice(int start_year, int years)
 }
 
 
-void simulate_bob(int start_year, int years)
+void simulate_bob(const int start_year, const int start_month,  const int end_year, const int end_month)
 {
     int year = start_year;
-    int month = 1;
+    int month = start_month;
 
 
-    while (year < start_year + years)
-    {
-
+    while (!(year > end_year) && ((year < end_year) || (month <= end_month))){
         bob_job();
-
         bob_check_annual_raise(month);
+       
+        bob_pay_pets(); // вместо live_payments()
+        bob_pay_subscriptions();
+        bob_pay_food();
+        bob_pay_mobile();
+        bob_pay_healthcare();
+        bob_pay_entertainment();
+        bob_pay_clothing();
+        bob_pay_unexpected();
+        bob_pay_sport();
 
-        bob_live_payments();
-
-        bob_flat_live();
-
-        bob_car_usage();
-
+        bob_flat_to_live(month);
+        bob_car_usage(month);
         bob_update_deposit(); 
-
         bob_investment();
-
         bob_events();
-
         bob_birthday(month);
-
         bob_credit();
-
         bob_calculate_stress();
+        bob_check_crisis();
 
+        bob_make_report(year,month, end_year, end_month);
 
-        if (month == 12)
-        {
-            bob_pay_taxes();
-            bob_annual_indexation();
-            bob_check_crisis();
-            bob_make_report(year);
+        if (month == 12){
             year++;
-            month = 1;
+            month = 0;
         }
 
         month++;
@@ -1904,8 +1871,8 @@ int main()
     alice_init();
     bob_init();
 
-    simulate_alice(2026, 20);
-    simulate_bob(2026, 20);
+    simulate_alice(2026, 5, 2040, 8);
+    simulate_bob(2026, 5, 2040, 8);
 
     alice_print_reports();
     bob_print_reports();
