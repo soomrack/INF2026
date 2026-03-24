@@ -6,7 +6,7 @@
 #include <iomanip>
 
 
-using RUB = long long int;
+using RUB = unsigned long long int;
 
 struct Birthdays
 {
