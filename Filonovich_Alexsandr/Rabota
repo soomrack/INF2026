@@ -1,17 +1,54 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#include <cmath>
 
 using Percent = float;
-using RUB = long long int;
-using USD = long long int;
+using RUB = long long;
+using USD = long long;
 
+enum LifestyleMode {
+    ECONOMY = 0,
+    NORMAL = 1,
+    RICH = 2
+};
+
+enum GoalType {
+    GOAL_EMERGENCY_FUND = 0,
+    GOAL_EARLY_MORTGAGE = 1,
+    GOAL_NEW_CAR = 2,
+    GOAL_TRAVEL = 3
+};
 
 struct Car {
     RUB value;
     RUB gas;
+    bool broken;
+    RUB last_repair_cost;
 };
 
+struct Apartment {
+    RUB value;
+    RUB initial_payment;
+    RUB mortgage_debt;
+    Percent mortgage_rate_year;
+    RUB monthly_payment;
+    bool purchased;
+    RUB utilities;
+    RUB furniture_value;
+};
+
+struct Deposit {
+    RUB balance;
+    Percent rate_year;
+    bool active;
+};
+
+struct InvestmentPortfolio {
+    RUB invested_total;
+    RUB current_value;
+    Percent expected_return_year;
+};
 
 struct Bank {
     RUB account_rub;
@@ -19,151 +56,1016 @@ struct Bank {
     float rate_usd_rub;
 };
 
-
 struct Disease {
     const char* name;
-    Percent probability_per_month; 
-    int min_duration;              
-    int max_duration;              
+    Percent probability_per_month;
+    int min_duration;
+    int max_duration;
 };
-
 
 struct Health {
     bool is_sick;
     int disease_id;
-    int severity;        
-    int start_day;       
+    int severity;
+    int start_day;
     int start_month;
     int start_year;
     int recovery_day;
     int recovery_month;
     int recovery_year;
+    bool has_dms;
+    RUB monthly_treatment_cost;
 };
 
+struct Lottery {
+    Percent chance_per_month;
+    RUB min_win;
+    RUB max_win;
+    bool won_ever;
+    RUB total_wins;
+    RUB last_win_amount;
+    int win_month;
+    int win_year;
+};
+
+struct Career {
+    bool employed;
+    int unemployment_months_left;
+    RUB previous_salary;
+    int months_without_raise;
+};
+
+struct Family {
+    bool married;
+    bool has_child;
+    RUB child_monthly_cost;
+};
+
+struct Goal {
+    GoalType type;
+    RUB target_amount;
+    bool achieved;
+};
 
 struct Person {
     Bank vtb;
     RUB salary;
     RUB food;
+    RUB hobbies;
+    RUB subscriptions;
+    RUB monthly_budget_reserve;
+
     Car car;
+    Apartment apartment;
+    Deposit deposit;
+    InvestmentPortfolio portfolio;
     Health health;
+    Lottery lottery;
+    Career career;
+    Family family;
+    Goal goal;
+
+    LifestyleMode mode;
+
+    Percent income_tax;
+    Percent annual_salary_indexation;
+    int stress;
+    bool took_vacation_this_year;
+
+    RUB total_tax_paid;
+    RUB total_mortgage_paid;
+    RUB total_treatment_paid;
+    RUB total_utilities_paid;
+    RUB total_repairs_paid;
+    RUB total_travel_paid;
+    RUB total_hobby_paid;
+    RUB total_unexpected_paid;
+    RUB total_child_paid;
+    RUB total_invested;
+    RUB total_lottery_spent;
+    RUB total_tax_deduction_received;
 };
 
-struct Person alice;
-
+Person alice;
 
 Disease diseases[] = {
-    {"Gripp (Flu)", 20.0, 1, 2},      
-    {"ORVI", 25.0, 1, 1},             
-    {"Chickenpox", 0.5, 2, 3},         
-    {"Measles", 0.2, 2, 3},  
-    {"Mononucleosis", 0.1, 3, 6}     
+    {"Gripp (Flu)", 20.0f, 1, 2},
+    {"ORVI", 25.0f, 1, 1},
+    {"Chickenpox", 0.5f, 2, 3},
+    {"Measles", 0.2f, 2, 3},
+    {"Mononucleosis", 0.1f, 3, 6}
 };
+
 const int DISEASE_COUNT = sizeof(diseases) / sizeof(diseases[0]);
 
+const char* month_name(int m) {
+    static const char* names[] = {
+        "", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    };
+    if (m < 1 || m > 12) return "Unknown";
+    return names[m];
+}
 
-void alice_init(){
-    alice.vtb.rate_usd_rub = 78.76;
-    alice.vtb.account_rub = 0;
-    alice.vtb.account_usd = 1'000;
+float random_percent() {
+    return static_cast<float>(rand()) / RAND_MAX * 100.0f;
+}
 
-    alice.salary = 180'000;
-    alice.food = 3'000;
+int random_int(int min_value, int max_value) {
+    return min_value + rand() % (max_value - min_value + 1);
+}
 
-    alice.car.value = 2'400'000;
-    alice.car.gas = 15'000;
+RUB random_rub(RUB min_value, RUB max_value) {
+    if (max_value <= min_value) return min_value;
+    RUB range = max_value - min_value + 1;
+    return min_value + static_cast<RUB>(rand()) % range;
+}
+
+float random_float(float min_value, float max_value) {
+    return min_value + (static_cast<float>(rand()) / RAND_MAX) * (max_value - min_value);
+}
+
+void add_stress(int value) {
+    alice.stress += value;
+    if (alice.stress > 100) alice.stress = 100;
+    if (alice.stress < 0) alice.stress = 0;
+}
+
+void print_month_event(int month, int year, const char* text) {
+    std::printf("[%s %d] %s\n", month_name(month), year, text);
+}
+
+void print_month_event_rub(int month, int year, const char* text, RUB value) {
+    std::printf("[%s %d] %s: %lld RUB\n", month_name(month), year, text, value);
+}
+
+void alice_init() {
+    alice.vtb.rate_usd_rub = 78.76f;
+    alice.vtb.account_rub = 300000;
+    alice.vtb.account_usd = 1000;
+
+    alice.salary = 180000;
+    alice.food = 30000;
+    alice.hobbies = 12000;
+    alice.subscriptions = 2500;
+    alice.monthly_budget_reserve = 0;
+
+    alice.car.value = 2400000;
+    alice.car.gas = 15000;
+    alice.car.broken = false;
+    alice.car.last_repair_cost = 0;
+
+    alice.apartment.value = 6500000;
+    alice.apartment.initial_payment = 1300000;
+    alice.apartment.mortgage_debt = alice.apartment.value - alice.apartment.initial_payment;
+    alice.apartment.mortgage_rate_year = 17.0f;
+    alice.apartment.monthly_payment = 75000;
+    alice.apartment.purchased = true;
+    alice.apartment.utilities = 9000;
+    alice.apartment.furniture_value = 350000;
+
+    alice.deposit.balance = 0;
+    alice.deposit.rate_year = 12.0f;
+    alice.deposit.active = true;
+
+    alice.portfolio.invested_total = 0;
+    alice.portfolio.current_value = 0;
+    alice.portfolio.expected_return_year = 14.0f;
 
     alice.health.is_sick = false;
     alice.health.disease_id = -1;
+    alice.health.severity = 0;
+    alice.health.start_day = 0;
+    alice.health.start_month = 0;
+    alice.health.start_year = 0;
+    alice.health.recovery_day = 0;
+    alice.health.recovery_month = 0;
+    alice.health.recovery_year = 0;
+    alice.health.has_dms = true;
+    alice.health.monthly_treatment_cost = 0;
+
+    alice.lottery.chance_per_month = 3.0f;
+    alice.lottery.min_win = 50000;
+    alice.lottery.max_win = 500000;
+    alice.lottery.won_ever = false;
+    alice.lottery.total_wins = 0;
+    alice.lottery.last_win_amount = 0;
+    alice.lottery.win_month = 0;
+    alice.lottery.win_year = 0;
+
+    alice.career.employed = true;
+    alice.career.unemployment_months_left = 0;
+    alice.career.previous_salary = alice.salary;
+    alice.career.months_without_raise = 0;
+
+    alice.family.married = false;
+    alice.family.has_child = false;
+    alice.family.child_monthly_cost = 0;
+
+    alice.goal.type = GOAL_EMERGENCY_FUND;
+    alice.goal.target_amount = 1000000;
+    alice.goal.achieved = false;
+
+    alice.mode = NORMAL;
+
+    alice.income_tax = 13.0f;
+    alice.annual_salary_indexation = 7.0f;
+    alice.stress = 20;
+    alice.took_vacation_this_year = false;
+
+    alice.total_tax_paid = 0;
+    alice.total_mortgage_paid = 0;
+    alice.total_treatment_paid = 0;
+    alice.total_utilities_paid = 0;
+    alice.total_repairs_paid = 0;
+    alice.total_travel_paid = 0;
+    alice.total_hobby_paid = 0;
+    alice.total_unexpected_paid = 0;
+    alice.total_child_paid = 0;
+    alice.total_invested = 0;
+    alice.total_lottery_spent = 0;
+    alice.total_tax_deduction_received = 0;
+
+    alice.vtb.account_rub -= alice.apartment.initial_payment;
+    print_month_event_rub(2, 2026, "Initial mortgage payment", alice.apartment.initial_payment);
 }
 
+void apply_monthly_inflation(RUB& value, Percent yearly_inflation) {
+    value += static_cast<RUB>(value * (yearly_inflation / 100.0f / 12.0f));
+}
 
-void alice_check_health(int month, int year){
+Percent inflation_for_year(int year) {
+    switch (year) {
+    case 2026: return 12.5f;
+    case 2027: return 14.0f;
+    case 2028: return 13.0f;
+    case 2029: return 11.5f;
+    default: return 10.0f;
+    }
+}
+
+void alice_update_prices_by_inflation(int month, int year) {
+    Percent inflation = inflation_for_year(year);
+
+    apply_monthly_inflation(alice.food, inflation);
+    apply_monthly_inflation(alice.car.gas, inflation);
+    apply_monthly_inflation(alice.apartment.utilities, inflation);
+    apply_monthly_inflation(alice.hobbies, inflation);
+    apply_monthly_inflation(alice.subscriptions, inflation);
+
+    if (alice.family.has_child) {
+        apply_monthly_inflation(alice.family.child_monthly_cost, inflation);
+    }
+
+    if (month == 1) {
+        char buffer[128];
+        std::snprintf(buffer, sizeof(buffer), "Inflation updated costs for year %d", year);
+        print_month_event(month, year, buffer);
+    }
+}
+
+void alice_salary_income(int month, int year) {
+    if (!alice.career.employed) return;
+
+    if (month == 3) {
+        RUB old_salary = alice.salary;
+        Percent indexation = alice.annual_salary_indexation;
+
+        if (random_percent() < 25.0f) {
+            indexation += random_float(5.0f, 12.0f);
+            print_month_event(month, year, "Alice got a promotion.");
+        }
+        else if (random_percent() < 15.0f) {
+            indexation = 0.0f;
+            print_month_event(month, year, "Alice got no raise this year.");
+        }
+
+        alice.salary += static_cast<RUB>(alice.salary * indexation / 100.0f);
+
+        if (alice.salary != old_salary) {
+            print_month_event_rub(month, year, "New salary", alice.salary);
+        }
+    }
+
+    if (month == 2 && year == 2026) {
+        alice.vtb.account_rub += 5000;
+        print_month_event_rub(month, year, "One-time work bonus", 5000);
+    }
+
+    RUB gross = alice.salary;
+    RUB tax = static_cast<RUB>(gross * alice.income_tax / 100.0f);
+    RUB net = gross - tax;
+
+    alice.total_tax_paid += tax;
+    alice.vtb.account_rub += net;
+}
+
+void alice_quarter_bonus(int month, int year) {
+    if (!alice.career.employed) return;
+    if (month != 3 && month != 6 && month != 9 && month != 12) return;
+
+    if (random_percent() < 20.0f) {
+        float multiplier = random_float(0.5f, 2.0f);
+        RUB bonus = static_cast<RUB>(alice.salary * multiplier);
+        RUB tax = static_cast<RUB>(bonus * alice.income_tax / 100.0f);
+        RUB net = bonus - tax;
+
+        alice.total_tax_paid += tax;
+        alice.vtb.account_rub += net;
+        print_month_event_rub(month, year, "Quarter bonus after tax", net);
+        add_stress(-5);
+    }
+}
+
+void alice_unemployment_logic(int month, int year) {
+    if (alice.career.employed) {
+        float risk = 2.0f;
+        if (alice.stress > 70) risk += 2.0f;
+        if (random_percent() < risk) {
+            alice.career.employed = false;
+            alice.career.unemployment_months_left = random_int(2, 5);
+            alice.career.previous_salary = alice.salary;
+            print_month_event(month, year, "Alice lost her job.");
+            add_stress(20);
+        }
+    }
+    else {
+        alice.career.unemployment_months_left--;
+        if (alice.career.unemployment_months_left <= 0) {
+            alice.career.employed = true;
+            float coeff = random_float(0.9f, 1.2f);
+            alice.salary = static_cast<RUB>(alice.career.previous_salary * coeff);
+            print_month_event_rub(month, year, "Alice found a new job, salary", alice.salary);
+            add_stress(-15);
+        }
+    }
+}
+
+void alice_car_expenses(int month, int year) {
+    alice.vtb.account_rub -= alice.car.gas;
+
+    float breakdown_chance = 8.0f;
+    if (random_percent() < breakdown_chance) {
+        int repair_type = random_int(1, 3);
+        RUB repair_cost = 0;
+
+        if (repair_type == 1) {
+            repair_cost = 5000;
+            print_month_event(month, year, "Minor car repair.");
+        }
+        else if (repair_type == 2) {
+            repair_cost = 25000;
+            print_month_event(month, year, "Medium car repair.");
+        }
+        else {
+            repair_cost = 120000;
+            print_month_event(month, year, "Major car repair.");
+        }
+
+        alice.car.last_repair_cost = repair_cost;
+        alice.vtb.account_rub -= repair_cost;
+        alice.total_repairs_paid += repair_cost;
+        alice.car.value -= repair_cost / 5;
+        if (alice.car.value < 400000) alice.car.value = 400000;
+        add_stress(10);
+    }
+
+    if (month == 11) {
+        RUB insurance = 18000;
+        alice.vtb.account_rub -= insurance;
+        alice.total_repairs_paid += insurance;
+        print_month_event_rub(month, year, "Annual car insurance", insurance);
+    }
+}
+
+void alice_food_and_life(int month, int year) {
+    RUB food_cost = alice.food;
+    RUB hobby_cost = alice.hobbies;
+    RUB subs_cost = alice.subscriptions;
+
+    if (alice.mode == ECONOMY) {
+        hobby_cost /= 2;
+    }
+    else if (alice.mode == RICH) {
+        hobby_cost *= 2;
+        food_cost = food_cost * 12 / 10;
+    }
+
+    if (month == 12) {
+        RUB gifts = 15000;
+        alice.vtb.account_rub -= gifts;
+        alice.total_unexpected_paid += gifts;
+        print_month_event_rub(month, year, "New Year gifts", gifts);
+    }
+
+    alice.vtb.account_rub -= food_cost;
+    alice.vtb.account_rub -= hobby_cost;
+    alice.vtb.account_rub -= subs_cost;
+
+    alice.total_hobby_paid += hobby_cost;
+}
+
+void alice_utilities(int month, int year) {
+    if (!alice.apartment.purchased) return;
+
+    RUB bill = alice.apartment.utilities;
+    alice.vtb.account_rub -= bill;
+    alice.total_utilities_paid += bill;
+
+    if (month == 1) {
+        RUB cap_repair = 5000;
+        alice.vtb.account_rub -= cap_repair;
+        alice.total_utilities_paid += cap_repair;
+        print_month_event_rub(month, year, "Annual apartment maintenance", cap_repair);
+    }
+}
+
+void alice_mortgage(int month, int year) {
+    if (!alice.apartment.purchased || alice.apartment.mortgage_debt <= 0) return;
+
+    RUB interest_part = static_cast<RUB>(
+        alice.apartment.mortgage_debt * (alice.apartment.mortgage_rate_year / 100.0f / 12.0f)
+        );
+
+    RUB payment = alice.apartment.monthly_payment;
+    RUB full_need = interest_part + alice.apartment.mortgage_debt;
+    if (payment > full_need) payment = full_need;
+
+    alice.vtb.account_rub -= payment;
+    alice.total_mortgage_paid += payment;
+
+    if (payment > interest_part) {
+        RUB real_principal = payment - interest_part;
+        alice.apartment.mortgage_debt -= real_principal;
+    }
+
+    if (alice.apartment.mortgage_debt < 0) {
+        alice.apartment.mortgage_debt = 0;
+    }
+
+    if (alice.apartment.mortgage_debt == 0) {
+        print_month_event(month, year, "Mortgage fully paid.");
+    }
+
+    if (alice.goal.type == GOAL_EARLY_MORTGAGE &&
+        alice.vtb.account_rub > 500000 &&
+        alice.apartment.mortgage_debt > 0) {
+        RUB extra_payment = alice.vtb.account_rub / 5;
+        if (extra_payment > alice.apartment.mortgage_debt) {
+            extra_payment = alice.apartment.mortgage_debt;
+        }
+        alice.vtb.account_rub -= extra_payment;
+        alice.apartment.mortgage_debt -= extra_payment;
+        alice.total_mortgage_paid += extra_payment;
+        print_month_event_rub(month, year, "Extra mortgage payment", extra_payment);
+    }
+}
+
+void alice_check_health(int month, int year) {
+    if (alice.health.is_sick) {
+        if (year > alice.health.recovery_year ||
+            (year == alice.health.recovery_year && month >= alice.health.recovery_month)) {
+            alice.health.is_sick = false;
+            alice.health.disease_id = -1;
+            alice.health.severity = 0;
+            alice.health.monthly_treatment_cost = 0;
+            print_month_event(month, year, "Alice recovered.");
+            add_stress(-10);
+        }
+        return;
+    }
+
     for (int i = 0; i < DISEASE_COUNT; ++i) {
-        float roll = (float)rand() / RAND_MAX * 100.0f;
-        if (roll < diseases[i].probability_per_month) {
+        float risk_modifier = 1.0f + alice.stress / 200.0f;
+        float roll = random_percent();
+
+        if (roll < diseases[i].probability_per_month * risk_modifier) {
             alice.health.is_sick = true;
             alice.health.disease_id = i;
-            alice.health.severity = rand() % 3 + 1; 
+            alice.health.severity = random_int(1, 3);
 
-           
-            alice.health.start_day = rand() % 28 + 1;
+            alice.health.start_day = random_int(1, 28);
             alice.health.start_month = month;
             alice.health.start_year = year;
 
-
-            int duration = diseases[i].min_duration + rand() %
-                (diseases[i].max_duration - diseases[i].min_duration + 1);
-
-
+            int duration = random_int(diseases[i].min_duration, diseases[i].max_duration);
             int total_months = month + duration - 1;
+
             alice.health.recovery_month = total_months % 12;
             if (alice.health.recovery_month == 0) alice.health.recovery_month = 12;
             alice.health.recovery_year = year + (total_months - 1) / 12;
+            alice.health.recovery_day = random_int(1, 28);
 
-            
-            alice.health.recovery_day = rand() % 28 + 1;
+            RUB cost = 5000LL * alice.health.severity;
+            if (alice.health.has_dms) cost /= 2;
+            alice.health.monthly_treatment_cost = cost;
 
+            char buffer[256];
+            std::snprintf(buffer, sizeof(buffer), "Alice got sick with %s", diseases[i].name);
+            print_month_event(month, year, buffer);
+            add_stress(15);
             break;
         }
     }
 }
 
+void alice_treatment(int month, int year) {
+    if (!alice.health.is_sick) return;
 
-void alice_food(const int month, const int year){
-    if (month == 12) alice.vtb.account_rub -= 2000;  
+    alice.vtb.account_rub -= alice.health.monthly_treatment_cost;
+    alice.total_treatment_paid += alice.health.monthly_treatment_cost;
 
-    Percent inflation = 12.0f;
-    switch (year) {
-    case 2026: inflation = 12.5f; break;
-    case 2027: inflation = 14.0f; break;
-    case 2028: inflation = 13.0f; break;
-    case 2029: inflation = 11.5f; break;
+    if (alice.health.has_dms) {
+        RUB dms_fee = 3000;
+        alice.vtb.account_rub -= dms_fee;
+        alice.total_treatment_paid += dms_fee;
     }
-    alice.food += alice.food * (inflation / 100.0f / 12.0f);
-    alice.vtb.account_rub -= alice.food;
+
+    if (alice.health.severity == 3 && random_percent() < 15.0f) {
+        RUB extra_tests = 12000;
+        alice.vtb.account_rub -= extra_tests;
+        alice.total_treatment_paid += extra_tests;
+        print_month_event_rub(month, year, "Extra medical tests", extra_tests);
+    }
 }
 
-void alice_salary(const int month, const int year){
-    if (month == 3) alice.salary *= 1.5f;
-    if (month == 2 && year == 2026) alice.vtb.account_rub += 5000; 
-    alice.vtb.account_rub += alice.salary;
+void alice_lottery(int month, int year) {
+    RUB ticket_cost = 1000;
+    if (alice.mode == RICH || random_percent() < 50.0f) {
+        alice.vtb.account_rub -= ticket_cost;
+        alice.total_lottery_spent += ticket_cost;
+
+        float roll = random_percent();
+        if (roll < alice.lottery.chance_per_month) {
+            RUB win = random_rub(alice.lottery.min_win, alice.lottery.max_win);
+            alice.vtb.account_rub += win;
+            alice.lottery.won_ever = true;
+            alice.lottery.total_wins += win;
+            alice.lottery.last_win_amount = win;
+            alice.lottery.win_month = month;
+            alice.lottery.win_year = year;
+            print_month_event_rub(month, year, "Lottery win", win);
+            add_stress(-8);
+        }
+    }
 }
 
-void alice_car() { alice.vtb.account_rub -= alice.car.gas; }
+void alice_vacation(int month, int year) {
+    if (alice.took_vacation_this_year) return;
+    if (month != 7 && month != 8) return;
 
+    float chance = 60.0f;
+    if (alice.mode == ECONOMY) chance = 30.0f;
+    if (alice.mode == RICH) chance = 90.0f;
 
-void print_results(){
-    printf("Salary = %lld\n", alice.salary);
+    if (random_percent() < chance) {
+        RUB vacation_cost = 0;
+
+        if (alice.mode == ECONOMY) vacation_cost = random_rub(30000, 70000);
+        else if (alice.mode == NORMAL) vacation_cost = random_rub(70000, 150000);
+        else vacation_cost = random_rub(150000, 300000);
+
+        if (alice.vtb.account_rub > vacation_cost || alice.goal.type == GOAL_TRAVEL) {
+            alice.vtb.account_rub -= vacation_cost;
+            alice.total_travel_paid += vacation_cost;
+            alice.took_vacation_this_year = true;
+            print_month_event_rub(month, year, "Vacation spending", vacation_cost);
+            add_stress(-20);
+        }
+    }
+}
+
+void alice_new_year_reset(int month, int year) {
+    if (month == 1) {
+        alice.took_vacation_this_year = false;
+
+        if (random_percent() < 8.0f && !alice.family.married) {
+            RUB wedding_cost = random_rub(200000, 700000);
+            alice.family.married = true;
+            alice.vtb.account_rub -= wedding_cost;
+            alice.total_unexpected_paid += wedding_cost;
+            print_month_event_rub(month, year, "Wedding expenses", wedding_cost);
+            add_stress(10);
+        }
+
+        if (alice.family.married && !alice.family.has_child && random_percent() < 10.0f) {
+            alice.family.has_child = true;
+            alice.family.child_monthly_cost = 25000;
+            RUB one_time = 80000;
+            alice.vtb.account_rub -= one_time;
+            alice.total_child_paid += one_time;
+            print_month_event_rub(month, year, "Birth-related expenses", one_time);
+            add_stress(15);
+        }
+    }
+}
+
+void alice_family_costs() {
+    if (alice.family.has_child) {
+        alice.vtb.account_rub -= alice.family.child_monthly_cost;
+        alice.total_child_paid += alice.family.child_monthly_cost;
+    }
+}
+
+void alice_furniture_and_appliances(int month, int year) {
+    float chance = 5.0f;
+    if (month == 3 && year == 2026) chance = 50.0f;
+
+    if (random_percent() < chance) {
+        int type = random_int(1, 4);
+        RUB cost = 0;
+        const char* name = "";
+
+        if (type == 1) { cost = 40000; name = "New washing machine"; }
+        if (type == 2) { cost = 70000; name = "New refrigerator"; }
+        if (type == 3) { cost = 90000; name = "Furniture purchase"; }
+        if (type == 4) { cost = 150000; name = "Apartment renovation"; }
+
+        alice.vtb.account_rub -= cost;
+        alice.apartment.furniture_value += cost * 8 / 10;
+        alice.total_unexpected_paid += cost;
+        print_month_event_rub(month, year, name, cost);
+    }
+}
+
+void alice_unexpected_events(int month, int year) {
+    float chance = 10.0f;
+    if (random_percent() >= chance) return;
+
+    int type = random_int(1, 6);
+    RUB amount = 0;
+
+    if (type == 1) {
+        amount = random_rub(1000, 5000);
+        alice.vtb.account_rub -= amount;
+        alice.total_unexpected_paid += amount;
+        print_month_event_rub(month, year, "Traffic fine", amount);
+        add_stress(5);
+    }
+    else if (type == 2) {
+        amount = random_rub(5000, 20000);
+        alice.vtb.account_rub += amount;
+        print_month_event_rub(month, year, "Gift from relatives", amount);
+        add_stress(-3);
+    }
+    else if (type == 3) {
+        amount = random_rub(10000, 50000);
+        alice.vtb.account_rub -= amount;
+        alice.total_unexpected_paid += amount;
+        print_month_event_rub(month, year, "Phone/laptop replacement", amount);
+        add_stress(7);
+    }
+    else if (type == 4) {
+        amount = random_rub(5000, 30000);
+        alice.vtb.account_rub -= amount;
+        alice.total_unexpected_paid += amount;
+        print_month_event_rub(month, year, "Help to relatives", amount);
+        add_stress(3);
+    }
+    else if (type == 5) {
+        amount = random_rub(5000, 25000);
+        alice.vtb.account_rub += amount;
+        print_month_event_rub(month, year, "Tax overpayment refund", amount);
+    }
+    else {
+        amount = random_rub(10000, 100000);
+        alice.vtb.account_rub -= amount;
+        alice.total_unexpected_paid += amount;
+        print_month_event_rub(month, year, "Unexpected emergency spending", amount);
+        add_stress(12);
+    }
+}
+
+void alice_change_usd_rate(int month, int year) {
+    float delta = random_float(-3.0f, 5.0f);
+    alice.vtb.rate_usd_rub *= (1.0f + delta / 100.0f);
+
+    if (alice.vtb.rate_usd_rub < 50.0f) alice.vtb.rate_usd_rub = 50.0f;
+    if (alice.vtb.rate_usd_rub > 160.0f) alice.vtb.rate_usd_rub = 160.0f;
+
+    if (month == 1 || month == 6 || month == 12) {
+        std::printf("[%s %d] USD/RUB rate = %.2f\n", month_name(month), year, alice.vtb.rate_usd_rub);
+    }
+}
+
+void alice_apartment_market(int month, int year) {
+    float delta = random_float(-1.0f, 1.5f);
+
+    if (random_percent() < 8.0f) {
+        delta = random_float(-4.0f, -1.0f);
+        print_month_event(month, year, "Real estate market downturn.");
+    }
+
+    alice.apartment.value += static_cast<RUB>(alice.apartment.value * delta / 100.0f);
+    if (alice.apartment.value < 3500000) alice.apartment.value = 3500000;
+}
+
+void alice_deposit_logic(int month, int year) {
+    if (!alice.deposit.active) return;
+
+    if (alice.vtb.account_rub > 400000) {
+        RUB transfer = alice.vtb.account_rub - 300000;
+        alice.vtb.account_rub -= transfer;
+        alice.deposit.balance += transfer;
+        print_month_event_rub(month, year, "Moved to deposit", transfer);
+    }
+
+    if (alice.deposit.balance > 0) {
+        RUB interest = static_cast<RUB>(alice.deposit.balance * alice.deposit.rate_year / 100.0f / 12.0f);
+        alice.deposit.balance += interest;
+
+        if (alice.vtb.account_rub < 0 && alice.deposit.balance > 0) {
+            RUB withdraw = (-alice.vtb.account_rub) + 50000;
+            if (withdraw > alice.deposit.balance) withdraw = alice.deposit.balance;
+            alice.deposit.balance -= withdraw;
+            alice.vtb.account_rub += withdraw;
+            print_month_event_rub(month, year, "Withdraw from deposit", withdraw);
+        }
+    }
+}
+
+void alice_investments(int month, int year) {
+    if (alice.vtb.account_rub > 250000 && alice.mode != ECONOMY) {
+        RUB invest = 30000;
+        if (invest > alice.vtb.account_rub - 150000) invest = alice.vtb.account_rub - 150000;
+        if (invest > 0) {
+            alice.vtb.account_rub -= invest;
+            alice.portfolio.invested_total += invest;
+            alice.portfolio.current_value += invest;
+            alice.total_invested += invest;
+            print_month_event_rub(month, year, "Investment purchase", invest);
+        }
+    }
+
+    if (alice.portfolio.current_value > 0) {
+        float monthly_return = random_float(-8.0f, 10.0f);
+        alice.portfolio.current_value += static_cast<RUB>(alice.portfolio.current_value * monthly_return / 100.0f);
+        if (alice.portfolio.current_value < 0) alice.portfolio.current_value = 0;
+
+        if (random_percent() < 4.0f) {
+            print_month_event(month, year, "Stock market volatility affected portfolio.");
+        }
+    }
+}
+
+void alice_tax_deduction(int month, int year) {
+    if (month != 4) return;
+    if (!alice.apartment.purchased) return;
+
+    RUB deduction = 0;
+    if (alice.total_tax_paid > 0) {
+        deduction = 52000;
+        if (deduction > alice.total_tax_paid) deduction = alice.total_tax_paid;
+    }
+
+    alice.vtb.account_rub += deduction;
+    alice.total_tax_deduction_received += deduction;
+    if (deduction > 0) {
+        print_month_event_rub(month, year, "Mortgage tax deduction", deduction);
+    }
+}
+
+void alice_lifestyle_choice(int month, int year) {
+    if (alice.vtb.account_rub < 50000) {
+        if (alice.mode != ECONOMY) {
+            alice.mode = ECONOMY;
+            print_month_event(month, year, "Alice switched to economy lifestyle.");
+        }
+    }
+    else if (alice.vtb.account_rub > 700000 && alice.stress < 40) {
+        if (alice.mode != RICH && random_percent() < 20.0f) {
+            alice.mode = RICH;
+            print_month_event(month, year, "Alice switched to rich lifestyle.");
+        }
+    }
+    else {
+        if (alice.mode != NORMAL) {
+            alice.mode = NORMAL;
+            print_month_event(month, year, "Alice switched to normal lifestyle.");
+        }
+    }
+}
+
+void alice_stress_update(int month, int year) {
+    add_stress(1);
+
+    if (alice.vtb.account_rub < 0) add_stress(15);
+    else if (alice.vtb.account_rub < 50000) add_stress(8);
+    else if (alice.vtb.account_rub > 400000) add_stress(-4);
+
+    if (alice.health.is_sick) add_stress(4);
+    if (!alice.career.employed) add_stress(7);
+    if (alice.family.has_child) add_stress(2);
+    if (month == 12) add_stress(4);
+
+    if (alice.stress > 80) {
+        RUB anti_stress = 10000;
+        if (alice.vtb.account_rub > anti_stress) {
+            alice.vtb.account_rub -= anti_stress;
+            alice.total_hobby_paid += anti_stress;
+            print_month_event_rub(month, year, "Anti-stress spending", anti_stress);
+            add_stress(-10);
+        }
+    }
+}
+
+void alice_goal_logic(int month, int year) {
+    RUB net_worth = 0;
+    net_worth += alice.vtb.account_rub;
+    net_worth += alice.deposit.balance;
+    net_worth += static_cast<RUB>(alice.vtb.account_usd * alice.vtb.rate_usd_rub);
+    net_worth += alice.car.value;
+    net_worth += (alice.apartment.value - alice.apartment.mortgage_debt);
+    net_worth += alice.apartment.furniture_value;
+    net_worth += alice.portfolio.current_value;
+
+    if (!alice.goal.achieved) {
+        if (alice.goal.type == GOAL_EMERGENCY_FUND) {
+            if (alice.vtb.account_rub + alice.deposit.balance >= alice.goal.target_amount) {
+                alice.goal.achieved = true;
+                print_month_event(month, year, "Emergency fund goal achieved.");
+                alice.goal.type = GOAL_EARLY_MORTGAGE;
+                alice.goal.target_amount = 0;
+                alice.goal.achieved = false;
+            }
+        }
+        else if (alice.goal.type == GOAL_EARLY_MORTGAGE) {
+            if (alice.apartment.mortgage_debt == 0) {
+                alice.goal.achieved = true;
+                print_month_event(month, year, "Mortgage repayment goal achieved.");
+                alice.goal.type = GOAL_NEW_CAR;
+                alice.goal.target_amount = 3000000;
+                alice.goal.achieved = false;
+            }
+        }
+        else if (alice.goal.type == GOAL_NEW_CAR) {
+            if (alice.vtb.account_rub + alice.deposit.balance >= alice.goal.target_amount) {
+                alice.goal.achieved = true;
+                print_month_event(month, year, "Goal for a new car achieved.");
+            }
+        }
+        else if (alice.goal.type == GOAL_TRAVEL) {
+            if (alice.total_travel_paid >= alice.goal.target_amount) {
+                alice.goal.achieved = true;
+                print_month_event(month, year, "Travel goal achieved.");
+            }
+        }
+    }
+
+    if (net_worth < 0) {
+        print_month_event(month, year, "Warning: negative net worth zone.");
+    }
+}
+
+void alice_buy_new_car_if_goal_reached(int month, int year) {
+    if (alice.goal.type == GOAL_NEW_CAR && alice.goal.achieved) {
+        RUB price = 3000000;
+        if (alice.vtb.account_rub + alice.deposit.balance >= price) {
+            if (alice.vtb.account_rub < price) {
+                RUB need = price - alice.vtb.account_rub;
+                if (need > alice.deposit.balance) need = alice.deposit.balance;
+                alice.deposit.balance -= need;
+                alice.vtb.account_rub += need;
+            }
+
+            alice.vtb.account_rub -= price;
+            alice.car.value = 3000000;
+            alice.car.gas = 18000;
+            print_month_event_rub(month, year, "Alice bought a new car", price);
+
+            alice.goal.type = GOAL_TRAVEL;
+            alice.goal.target_amount = 400000;
+            alice.goal.achieved = false;
+            add_stress(-5);
+        }
+    }
+}
+
+void print_results() {
+    std::printf("\n FINAL RESULTS \n");
+
+    std::printf("Salary = %lld RUB\n", alice.salary);
+    std::printf("Bank RUB = %lld RUB\n", alice.vtb.account_rub);
+    std::printf("Bank USD = %lld USD\n", alice.vtb.account_usd);
+    std::printf("USD/RUB rate = %.2f\n", alice.vtb.rate_usd_rub);
+
+    std::printf("Deposit balance = %lld RUB\n", alice.deposit.balance);
+    std::printf("Portfolio current value = %lld RUB\n", alice.portfolio.current_value);
+    std::printf("Car value = %lld RUB\n", alice.car.value);
+
+    std::printf("Apartment value = %lld RUB\n", alice.apartment.value);
+    std::printf("Apartment furniture value = %lld RUB\n", alice.apartment.furniture_value);
+    std::printf("Remaining mortgage debt = %lld RUB\n", alice.apartment.mortgage_debt);
+
+    std::printf("Stress level = %d / 100\n", alice.stress);
+    std::printf("Lifestyle mode = %d\n", static_cast<int>(alice.mode));
+
+    std::printf("Employed = %s\n", alice.career.employed ? "yes" : "no");
+    std::printf("Married = %s\n", alice.family.married ? "yes" : "no");
+    std::printf("Has child = %s\n", alice.family.has_child ? "yes" : "no");
 
     RUB capital = 0;
     capital += alice.vtb.account_rub;
-    capital += alice.vtb.account_usd * alice.vtb.rate_usd_rub;
+    capital += alice.deposit.balance;
+    capital += static_cast<RUB>(alice.vtb.account_usd * alice.vtb.rate_usd_rub);
     capital += alice.car.value;
-    printf("Capital = %lld\n", capital);
+    capital += (alice.apartment.value - alice.apartment.mortgage_debt);
+    capital += alice.apartment.furniture_value;
+    capital += alice.portfolio.current_value;
 
-    if (alice.health.is_sick) {
-        printf("Alice got sick with: %s\n", diseases[alice.health.disease_id].name);
-        printf("Severity level: %d\n", alice.health.severity);
-        printf("Got sick: %d/%d/%d\n", alice.health.start_day, alice.health.start_month, alice.health.start_year);
-        printf("Recovered: %d/%d/%d\n", alice.health.recovery_day, alice.health.recovery_month, alice.health.recovery_year);
+    std::printf("Total capital = %lld RUB\n", capital);
+
+    std::printf("\n TOTAL SPENDING / FLOWS \n");
+    std::printf("Total tax paid = %lld RUB\n", alice.total_tax_paid);
+    std::printf("Total mortgage paid = %lld RUB\n", alice.total_mortgage_paid);
+    std::printf("Total treatment paid = %lld RUB\n", alice.total_treatment_paid);
+    std::printf("Total utilities paid = %lld RUB\n", alice.total_utilities_paid);
+    std::printf("Total repairs/insurance paid = %lld RUB\n", alice.total_repairs_paid);
+    std::printf("Total travel paid = %lld RUB\n", alice.total_travel_paid);
+    std::printf("Total hobby paid = %lld RUB\n", alice.total_hobby_paid);
+    std::printf("Total unexpected paid = %lld RUB\n", alice.total_unexpected_paid);
+    std::printf("Total child/family paid = %lld RUB\n", alice.total_child_paid);
+    std::printf("Total invested = %lld RUB\n", alice.total_invested);
+    std::printf("Total lottery spent = %lld RUB\n", alice.total_lottery_spent);
+    std::printf("Total tax deduction received = %lld RUB\n", alice.total_tax_deduction_received);
+
+    std::printf("\n LOTTERY \n");
+    if (alice.lottery.won_ever) {
+        std::printf("Won ever: yes\n");
+        std::printf("Total lottery wins = %lld RUB\n", alice.lottery.total_wins);
+        std::printf("Last win = %lld RUB in %02d/%d\n",
+            alice.lottery.last_win_amount,
+            alice.lottery.win_month,
+            alice.lottery.win_year);
     }
     else {
-        printf("Alice did not get sick.\n");
+        std::printf("Won ever: no\n");
     }
+
+    std::printf("\n HEALTH \n");
+    if (alice.health.is_sick && alice.health.disease_id >= 0) {
+        std::printf("Alice is sick with: %s\n", diseases[alice.health.disease_id].name);
+        std::printf("Severity level: %d\n", alice.health.severity);
+        std::printf("Got sick: %02d/%02d/%d\n",
+            alice.health.start_day, alice.health.start_month, alice.health.start_year);
+        std::printf("Expected recovery: %02d/%02d/%d\n",
+            alice.health.recovery_day, alice.health.recovery_month, alice.health.recovery_year);
+    }
+    else {
+        std::printf("Alice is healthy at the end of simulation.\n");
+    }
+
+    std::printf("\n GOAL \n");
+    std::printf("Current goal type = %d\n", static_cast<int>(alice.goal.type));
+    std::printf("Current goal target = %lld RUB\n", alice.goal.target_amount);
+    std::printf("Current goal achieved = %s\n", alice.goal.achieved ? "yes" : "no");
 }
 
-
-void simulation()
-{
+void simulation() {
     int year = 2026;
     int month = 2;
 
-    while (!(year == 2028 && month == 2)) {
-        alice_salary(month, year);
-        alice_car();
-        alice_food(month, year);
+    while (!(year == 2031 && month == 2)) {
+        std::printf("\n %s %d \n", month_name(month), year);
+
+        alice_new_year_reset(month, year);
+        alice_lifestyle_choice(month, year);
+        alice_change_usd_rate(month, year);
+        alice_update_prices_by_inflation(month, year);
+
+        alice_unemployment_logic(month, year);
+        alice_salary_income(month, year);
+        alice_quarter_bonus(month, year);
+
+        alice_utilities(month, year);
+        alice_mortgage(month, year);
+        alice_car_expenses(month, year);
+        alice_food_and_life(month, year);
+
         alice_check_health(month, year);
+        alice_treatment(month, year);
+
+        alice_family_costs();
+        alice_furniture_and_appliances(month, year);
+        alice_unexpected_events(month, year);
+        alice_vacation(month, year);
+
+        alice_lottery(month, year);
+        alice_tax_deduction(month, year);
+
+        alice_deposit_logic(month, year);
+        alice_investments(month, year);
+        alice_apartment_market(month, year);
+
+        alice_stress_update(month, year);
+        alice_goal_logic(month, year);
+        alice_buy_new_car_if_goal_reached(month, year);
+
+        std::printf("Month-end RUB balance: %lld\n", alice.vtb.account_rub);
+        std::printf("Month-end deposit: %lld\n", alice.deposit.balance);
+        std::printf("Month-end portfolio: %lld\n", alice.portfolio.current_value);
+        std::printf("Month-end mortgage debt: %lld\n", alice.apartment.mortgage_debt);
+        std::printf("Stress: %d\n", alice.stress);
 
         ++month;
         if (month == 13) {
@@ -173,10 +1075,12 @@ void simulation()
     }
 }
 
+int main() {
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
-int main(){
     alice_init();
     simulation();
     print_results();
-    
+
+    return 0;
 }
