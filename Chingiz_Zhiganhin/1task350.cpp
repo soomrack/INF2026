@@ -1,0 +1,356 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <locale.h>
+
+using RUB = long long int;
+using USD = long long int;
+
+
+struct Car {
+	RUB value;
+	RUB gas;
+	RUB inshurance;
+	RUB maintenance;
+	RUB parking;
+	RUB fine;
+};
+
+
+struct RealEstate {
+	RUB apartment_value;
+	RUB mortgage_payment;
+	RUB utilities;
+	RUB property_tax;
+	RUB repair_fund;
+};
+
+
+struct Pets {
+	RUB cat_food;
+	RUB vet_visits;
+	RUB toys;
+	RUB insurance;
+	RUB grooming;
+};
+
+
+struct Investments {
+	RUB stocks;
+	RUB crypto;
+	RUB bonds;
+	float stocks_growth_rate;
+	float crypto_volatility;
+};
+
+
+struct Bank {
+	RUB account_rub;
+	USD account_usd;
+	float rate_usd_rub;
+	float deposit_rate;
+	RUB credit_card_debt;
+	RUB credit_card_limit;
+};
+
+
+struct Person {
+	RUB pets_expenses;
+	RUB lottery_tickets;
+	Bank vtb;
+	RUB food;
+	RUB salary;
+	Car car;
+	RealEstate home;
+	Pets animals;
+	Investments portfolio;
+	RUB subscriptions;
+	RUB fitness;
+	RUB clothes;
+	RUB entertainment;
+	RUB education;
+	RUB health_insurance;
+	RUB phone_internet;
+	RUB transportation;
+	RUB gifts;
+	RUB travel;
+	RUB emergency_fund;
+};
+
+
+struct Person alice;
+
+
+void alice_init()
+{
+	alice.vtb.rate_usd_rub = 78.76;
+	alice.vtb.deposit_rate = 0.10; // 10% годовых
+	alice.portfolio.stocks_growth_rate = 0.12; // 12% годовых
+	alice.portfolio.crypto_volatility = 0.3; // 30% волатильность
+
+	alice.vtb.account_rub = 500'000; // Накопления
+	alice.vtb.account_usd = 1'000;
+	alice.vtb.credit_card_debt = 0;
+	alice.vtb.credit_card_limit = 300'000;
+
+	alice.food = 3'000;
+	alice.salary = 180'000;
+	alice.subscriptions = 2'500; // Подписки
+	alice.fitness = 4'000;
+	alice.clothes = 8'000;
+	alice.entertainment = 10'000;
+	alice.education = 15'000; // Обучающие курсы
+	alice.health_insurance = 7'000;
+	alice.phone_internet = 2'000;
+	alice.transportation = 3'000; // Передвижение
+	alice.gifts = 5'000;
+	alice.travel = 30'000; // Накопления на путешествия
+	alice.emergency_fund = 10'000; // Подушка
+
+	alice.car.value = 2'400'000;
+	alice.car.gas = 15'000;
+	alice.car.inshurance = 20'000;
+	alice.car.maintenance = 8'000; // Техобслуживание
+	alice.car.parking = 5'000; // Парковки
+	alice.car.fine = 0; // Штрафы (случайное событие)
+
+	alice.home.apartment_value = 8'500'000;
+	alice.home.mortgage_payment = 45'000;
+	alice.home.utilities = 7'000;
+	alice.home.property_tax = 3'500;
+	alice.home.repair_fund = 5'000; // Накопления на ремонт
+
+	alice.animals.cat_food = 2'500;
+	alice.animals.vet_visits = 3'000;
+	alice.animals.toys = 1'000;
+	alice.animals.insurance = 1'500;
+	alice.animals.grooming = 2'000;
+
+	alice.portfolio.stocks = 200'000;
+	alice.portfolio.crypto = 50'000;
+	alice.portfolio.bonds = 100'000;
+
+	alice.lottery_tickets = 10'000;
+}
+
+
+void alice_lottery()
+{
+	const RUB JACKPOT = 500'000'000; // 500 млн рублей
+	const int JACKPOT_CHANCE = 15000000; // 1 к 15 миллионам
+
+	alice.vtb.account_rub -= alice.lottery_tickets;
+
+	int random_number = rand() % JACKPOT_CHANCE + 1;
+
+	// Проверяем выигрыш (только джекпот или ничего)
+	if (random_number == 1) { // Ровно 1 шанс из 15 миллионов
+		alice.vtb.account_rub += JACKPOT;
+		printf("\n*** УРРАА! ДЖЕКПОТ %lld РУБЛЕЙ! ***\n", JACKPOT);
+	}
+}
+
+
+void alice_salary(const int month, const int year)
+{
+	alice.vtb.account_rub += alice.salary;
+
+	if (month == 2 && year == 2026) {
+		alice.vtb.account_rub += 5'000;  // Премия
+	}
+
+	if (month == 12 && year == 2026) {
+		alice.vtb.account_rub += 30'000;  // Новогодняя премия
+	}
+
+	if (month == 3 && year == 2026) {
+		alice.salary = alice.salary * 1.5;
+	}
+
+	if (month == 1 && year > 2026) {
+		float indexation = 1.10; // 10% индексация
+		alice.salary = alice.salary * indexation;
+	}
+}
+
+
+void alice_food(const int month, const int year)
+{
+	float inflation = 0.12;
+	switch (year) {
+	case 2026: inflation = 0.125; break;
+	case 2027: inflation = 0.14; break;
+	case 2028: inflation = 0.13; break;
+	case 2029: inflation = 0.115; break;
+	}
+
+	alice.food += alice.food * (inflation / 12);
+
+	alice.vtb.account_rub -= alice.food;
+
+	if (month == 12) {
+		alice.vtb.account_rub -= 2'000;  // Новогодний стол
+	}
+
+	if (month == 2 && year == 2026) {
+		alice.vtb.account_rub -= 3'000;  // День рождения
+	}
+}
+
+
+void alice_car()
+{
+	alice.vtb.account_rub -= alice.car.gas;
+	alice.vtb.account_rub -= alice.car.inshurance;
+	alice.vtb.account_rub -= alice.car.maintenance;
+	alice.vtb.account_rub -= alice.car.parking;
+
+	if (rand() % 100 < 33) { // 33% шанс получить штраф
+		int fine_amount = (rand() % 5 + 1) * 500; // Штраф от 500 до 2500
+		alice.car.fine += fine_amount;
+		alice.vtb.account_rub -= fine_amount;
+	}
+}
+
+
+void alice_real_estate()
+{
+	alice.vtb.account_rub -= alice.home.mortgage_payment;
+	alice.vtb.account_rub -= alice.home.utilities;
+	alice.vtb.account_rub -= alice.home.property_tax;
+	alice.vtb.account_rub -= alice.home.repair_fund;
+}
+
+
+void alice_pets()
+{
+	alice.vtb.account_rub -= alice.animals.cat_food;
+	alice.vtb.account_rub -= alice.animals.vet_visits;
+	alice.vtb.account_rub -= alice.animals.toys;
+	alice.vtb.account_rub -= alice.animals.insurance;
+	alice.vtb.account_rub -= alice.animals.grooming;
+
+	if (rand() % 100 < 10) {
+		int vet_emergency = (rand() % 10 + 5) * 1000;
+		alice.vtb.account_rub -= vet_emergency;
+	}
+}
+
+
+void alice_investments(const int month, const int year)
+{
+	float stocks_return = 1.0 + (alice.portfolio.stocks_growth_rate / 12);
+	alice.portfolio.stocks = alice.portfolio.stocks * stocks_return;
+
+	float crypto_change = 1.0 + ((rand() % 200 - 100) / 100.0 * alice.portfolio.crypto_volatility / 12);
+	alice.portfolio.crypto = alice.portfolio.crypto * crypto_change;
+
+	float bonds_return = 1.0 + (0.06 / 12);
+	alice.portfolio.bonds = alice.portfolio.bonds * bonds_return;
+
+	if (alice.vtb.account_rub > 100'000) {
+		RUB investment_amount = alice.vtb.account_rub * 0.1; // 10% от остатка
+		if (investment_amount > 50'000) investment_amount = 50'000;
+
+		alice.vtb.account_rub -= investment_amount;
+
+		alice.portfolio.stocks += investment_amount * 0.5;
+		alice.portfolio.bonds += investment_amount * 0.3;
+		alice.portfolio.crypto += investment_amount * 0.2;
+	}
+}
+
+
+void alice_monthly_others()
+{
+	alice.vtb.account_rub -= alice.subscriptions;
+	alice.vtb.account_rub -= alice.fitness;
+	alice.vtb.account_rub -= alice.clothes;
+	alice.vtb.account_rub -= alice.entertainment;
+	alice.vtb.account_rub -= alice.education;
+	alice.vtb.account_rub -= alice.health_insurance;
+	alice.vtb.account_rub -= alice.phone_internet;
+	alice.vtb.account_rub -= alice.transportation;
+	alice.vtb.account_rub -= alice.gifts;
+	alice.vtb.account_rub -= alice.travel;
+	alice.vtb.account_rub -= alice.emergency_fund;
+}
+
+
+void alice_bank_operations()
+{
+	if (alice.vtb.account_rub > 0) {
+		RUB perc = alice.vtb.account_rub * (alice.vtb.deposit_rate / 12);
+		alice.vtb.account_rub += perc;
+	}
+
+	if (alice.vtb.credit_card_debt > 0) {
+		RUB min_payment = alice.vtb.credit_card_debt * 0.05; // 5% платеж
+		if (min_payment < 1000) min_payment = alice.vtb.credit_card_debt;
+
+		alice.vtb.account_rub -= min_payment;
+		alice.vtb.credit_card_debt -= min_payment;
+
+		RUB credit_perc = alice.vtb.credit_card_debt * (0.24 / 12);
+		alice.vtb.credit_card_debt += credit_perc;
+	}
+}
+
+
+void simulation()
+{
+	int year = 2026;
+	int month = 2;
+
+	while (!(year == 2027 && month == 2)) {
+
+		alice_salary(month, year);
+
+		alice_investments(month, year);
+
+		alice_real_estate();     // Ипотека и ЖКХ
+		alice_food(month, year); // Еда
+		alice_pets();            // Питомцы
+		alice_car();             // Автомобиль
+		alice_monthly_others(); // Остальные расходы
+
+		alice_bank_operations();
+
+		alice_lottery();
+
+		++month;
+		if (month == 13) {
+			++year;
+			month = 1;
+		}
+	}
+}
+
+
+void print_results()
+{
+	RUB capital = 0;
+	capital += alice.car.value;
+	capital += alice.home.apartment_value;
+	capital += alice.vtb.account_rub;
+	capital += alice.vtb.account_usd * alice.vtb.rate_usd_rub;
+	capital += alice.portfolio.stocks;
+	capital += alice.portfolio.crypto;
+	capital += alice.portfolio.bonds;
+
+	printf("\nИТОГОВЫЙ КАПИТАЛ: %lld руб\n", capital - alice.vtb.credit_card_debt);
+}
+
+
+int main()
+{
+	setlocale(LC_ALL, "Russian");
+
+	srand(time(NULL));
+
+	alice_init();
+	simulation();
+	print_results();
+
+	return 0;
+}
