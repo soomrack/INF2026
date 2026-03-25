@@ -1,4 +1,6 @@
 #include <iostream>
+#include <math.h>
+#include <stdio.h>
 using namespace std;
 
 
@@ -7,6 +9,15 @@ using Percent = float;
 using RUB = long long int;
 using USD = long long int;
 using percent = float;
+
+
+struct PoliticalSituation {
+    float tension_level;        // уровень напряженности (0-1)
+    float economic_sanctions;   // влияние санкций (0-1)
+    bool is_election_year;      // год выборов
+    bool has_protests;          // наличие протестов
+    RUB salary_adjustment;      // корректировка зарплаты
+};
 
 
 struct Taxes {
@@ -36,8 +47,117 @@ struct Bank {
     percent persent_deposit;
     USD account_usd;
     Invest invest;
-    
+
     float rate_usd_rub;
+};
+
+
+struct TaxDeductions {
+    bool uses_standard_deduction;    // использует ли стандартный вычет
+    RUB standard_deduction_amount;   // сумма стандартного вычета
+
+    bool has_property_deduction;
+    RUB property_deduction_used;      // уже использовано из вычета
+    RUB property_deduction_max;       // максимальная сумма вычета (2 млн руб)
+    RUB property_deduction_remaining; // остаток вычета
+
+    bool has_iis;                     // индивидуальный инвестиционный счет
+    RUB iis_contribution;             // внесено на ИИС в этом году
+    RUB iis_deduction_received;       // получено вычета по ИИС
+
+    RUB education_deduction;          // вычет на образование
+    RUB medical_deduction;            // вычет на лечение
+    RUB charity_deduction;            // вычет на благотворительность
+    RUB pension_deduction;            // вычет на пенсионные взносы
+
+    bool has_professional_deduction;
+    float professional_rate;          // процент вычета (20% для НПД)
+
+    RUB total_tax_paid_year;          // уплачено налогов за год
+    RUB tax_refund_due;               // причитающийся возврат
+    RUB tax_refund_received;          // получено возврата
+    bool filed_tax_return;            // подана ли декларация
+
+    bool hires_accountant;            // нанимает бухгалтера
+    RUB accountant_cost;              // стоимость бухгалтера
+};
+
+
+struct Gym {
+    RUB gym_membership;
+    RUB gym_clothes;
+    RUB medical_insurance;
+    int gym_visit_count;     // счетчик посещений спортзала (для бонусов)
+
+};
+
+
+struct Illness {
+    string name;
+    bool is_active;
+    int duration_months;        // длительность болезни в месяцах
+    int months_remaining;        // сколько месяцев осталось
+    RUB treatment_cost_per_month; // стоимость лечения в месяц
+    RUB one_time_cost;           // разовые затраты (операция и т.д.)
+    float work_efficiency;       // коэффициент эффективности работы (0-1)
+    float helth_impact;         // влияние на ментальное здоровье
+    float mortality_risk;        // риск смертности
+};
+
+struct Helth {
+    Illness flu;                    // грипп
+    Illness covid;                  // ковид
+    Illness hypertension;           // гипертония
+    Illness diabetes;               // диабет
+    Illness injury;                 // травма
+    Illness allergy;                // аллергия
+    Illness gastritis;              // гастрит
+    Illness migraine;               // мигрень
+    Illness back_pain;              // боль в спине
+
+    RUB therapy_cost;
+    RUB drugs_cost;
+    RUB missed_work_days;
+    RUB surgery_cost;
+
+    bool is_hospitalized;           // госпитализация
+    int hospitalization_days;       // дни в больнице
+    float helth_health;
+    int depression_months;
+    bool is_depressed;
+};
+
+
+struct Personality {
+    float risk_tolerance;        // толерантность к риску (0-100)
+    float impulsivity;           // импульсивность (0-100)
+    float discipline;            // дисциплинированность (0-100)
+    float optimism;              // оптимизм (0-100)
+    float sociability;           // общительность (0-100)
+    float emotional_stability;   // эмоциональная стабильность (0-100)
+    float conscientiousness;     // добросовестность (0-100)
+    float openness;              // открытость новому опыту (0-100)
+
+    bool is_planner;             // планирует ли будущее
+    bool is_impulsive_buyer;     // импульсивные покупки
+    bool is_risk_seeker;         // склонность к риску
+    bool is_anxious;             // тревожность
+
+    float current_mood;          // текущее настроение (0-100)
+    float stress_level;          // уровень стресса (0-100)
+    float satisfaction;          // удовлетворенность жизнью (0-100)
+
+    float spending_multiplier;    // множитель трат (0.5-1.5)
+    float savings_multiplier;     // множитель сбережений (0.5-1.5)
+    float investment_risk_premium; // премия за риск при инвестициях
+};
+
+
+struct Housing {
+    string location;
+    RUB rent;
+    float depression_factor;        // фактор влияния на депрессию (1.0 = нейтрально)
+    float health_factor;            // фактор влияния на здоровье
 };
 
 
@@ -53,266 +173,1238 @@ struct Person {
     RUB freelance;
     RUB food;
     RUB utilities;
-    RUB rent;
     RUB cat;
     RUB emotions;
     USD trip;
     Car car;
     Taxes tax;
+    TaxDeductions tax_deductions;
+    Gym sport;
+    Helth helth;
+    Housing housing;
+    PoliticalSituation politics;
+    Personality personality;
 };
-struct Person alice;
 
 
-void alice_init()
+struct Person person;
+struct Person karl;
+
+
+void person_init(Person& person, bool is_person)
 {
-    alice.vtb.rate_usd_rub = 78.76;
-    alice.vtb.account_rub = 0;
-    alice.vtb.account_usd = 1'000;
+    if (is_person) {
+        person.vtb.rate_usd_rub = 78.76;
+        person.vtb.account_rub = 0;
+        person.vtb.account_usd = 1000;
 
-    alice.salary = 180'000;
-    alice.freelance = 15'000;
-    alice.vtb.deposit = 0;
-    alice.vtb.persent_deposit = 20;
-    alice.food = 3'000;
-    alice.utilities = 3'500;
-    alice.rent = 120'000;
-    alice.cat = 3'000;
-    alice.trip = 8'000;
-    alice.emotions = 10'000;
-    alice.vtb.invest.stocks = 30 * 88;
-    alice.alfa.invest.stocks =  50 * 90;
-    alice.T.invest.stocks = 5 * 3'000;
-    alice.Gazprom.obligation = 13 * 950;
-    alice.Rosneft.obligation = 11 * 900;
-    alice.Rosatom.obligation = 10 * 1'000;
+        person.salary = 250'000;
+        person.freelance = 35'000;
+        person.vtb.deposit = 0;
+        person.vtb.persent_deposit = 20;
+        person.food = 3'000;
+        person.utilities = 3'500;
+        person.cat = 3'000;
+        person.trip = 8'000;
+        person.emotions = 10'000;
+        person.vtb.invest.stocks = 30 * 88;
+        person.alfa.invest.stocks = 50 * 90;
+        person.T.invest.stocks = 5 * 3'000;
+        person.Gazprom.obligation = 13 * 950;
+        person.Rosneft.obligation = 11 * 900;
+        person.Rosatom.obligation = 10 * 1'000;
 
-    alice.tax.car_log = 5'000;
-    alice.tax.NPD = 4;
-    alice.tax.car_log = 200;
-    alice.car.value = 2'400'000;
-    
-    alice.car.gas = 15'000;
-    alice.car.gas = 7'000;
-    alice.car.tires = 10'000;
+        person.housing.location = "Moscow";
+        person.housing.rent = 80'000;
+        person.housing.depression_factor = 1.0;
+        person.housing.health_factor = 1.0;
 
+        person.tax.car_log = 5'000;
+        person.tax.NPD = 4;
+        person.tax.car_log = 200;
+        person.car.value = 2'400'000;
+
+        person.car.gas = 15'000;
+        person.car.gas = 7'000;
+        person.car.tires = 10'000;
+
+        person.sport.gym_membership = 4'000;
+        person.sport.gym_clothes = 15'000;
+        person.sport.medical_insurance = 45'000;
+        person.sport.gym_visit_count = 0;
+
+        person.helth.helth_health = 100.0;        // начинаем со 100% здоровья
+        person.helth.depression_months = 0;
+        person.helth.therapy_cost = 3'500;          // стоимость сессии
+        person.helth.drugs_cost = 5'500;   // стоимость лекарств в месяц
+        person.helth.missed_work_days = 0;
+        person.helth.is_depressed = false;
+
+        person.personality.risk_tolerance = 75;
+        person.personality.impulsivity = 65;
+        person.personality.discipline = 55;
+        person.personality.optimism = 70;
+        person.personality.sociability = 80;
+        person.personality.emotional_stability = 60;
+        person.personality.conscientiousness = 65;
+        person.personality.openness = 85;
+    }
+    else {
+        person.vtb.rate_usd_rub = 78.76;
+        person.vtb.account_rub = 50'000;
+        person.vtb.account_usd = 50'000;
+
+        person.salary = 300'000;
+        person.freelance = 30'000;
+        person.vtb.deposit = 30'000;
+        person.vtb.persent_deposit = 18;
+        person.food = 5'000;
+        person.utilities = 4'500;
+        person.cat = 0;
+        person.trip = 12'000;
+        person.emotions = 15'000;
+
+        person.housing.location = "St. Petersburg City Center";
+        person.housing.rent = 100'000;  
+        person.housing.depression_factor = 1.0; 
+        person.housing.health_factor = 1.0;
+
+        person.vtb.invest.stocks = 40 * 95;   
+        person.alfa.invest.stocks = 0;         
+        person.T.invest.stocks = 20 * 2'800;    
+        person.Gazprom.obligation = 0;           
+        person.Rosneft.obligation = 25 * 850;     
+        person.Rosatom.obligation = 15 * 1'100;   
+        person.SpB.invest.stocks = 100 * 280;     
+        person.SpB.invest.obligation = 30 * 1'200; 
+
+        person.tax.car_log = 6'000;
+        person.tax.NPD = 6;
+        person.car.value = 3'000'000;
+
+        person.car.gas = 20'000;
+        person.car.osago = 8'000;
+        person.car.tires = 12'000;
+
+        person.sport.gym_membership = 5'000;
+        person.sport.gym_clothes = 20'000;
+        person.sport.medical_insurance = 50'000;
+        person.sport.gym_visit_count = 0;
+
+        person.helth.helth_health = 95.0;
+        person.helth.depression_months = 0;
+        person.helth.therapy_cost = 4'000;
+        person.helth.drugs_cost = 6'000;
+        person.helth.missed_work_days = 0;
+        person.helth.is_depressed = false;
+
+        person.tax_deductions.uses_standard_deduction = true;
+        person.tax_deductions.standard_deduction_amount = 500 * 12; // 500 руб/мес
+
+        person.tax_deductions.has_property_deduction = false;
+        person.tax_deductions.property_deduction_used = 0;
+        person.tax_deductions.property_deduction_max = 2'000'000;
+        person.tax_deductions.property_deduction_remaining = 2'000'000;
+
+        person.tax_deductions.has_iis = false;
+        person.tax_deductions.iis_contribution = 0;
+        person.tax_deductions.iis_deduction_received = 0;
+
+        person.tax_deductions.education_deduction = 0;
+        person.tax_deductions.medical_deduction = 0;
+        person.tax_deductions.charity_deduction = 0;
+        person.tax_deductions.pension_deduction = 0;
+
+        person.tax_deductions.has_professional_deduction = true;
+        person.tax_deductions.professional_rate = 0.20; // 20% для НПД
+
+        person.tax_deductions.total_tax_paid_year = 0;
+        person.tax_deductions.tax_refund_due = 0;
+        person.tax_deductions.tax_refund_received = 0;
+        person.tax_deductions.filed_tax_return = false;
+
+        person.tax_deductions.hires_accountant = false;
+        person.tax_deductions.accountant_cost = 5'000; // 5000 руб/мес
+
+        person.personality.risk_tolerance = 35;
+        person.personality.impulsivity = 40;
+        person.personality.discipline = 85;
+        person.personality.optimism = 55;
+        person.personality.sociability = 45;
+        person.personality.emotional_stability = 75;
+        person.personality.conscientiousness = 90;
+        person.personality.openness = 60;
+    }
+
+    person.helth.flu = { "Грипп", false, 1, 0, 5000, 0, 0.5, -15.0, 0.01 };
+    person.helth.covid = { "COVID-19", false, 2, 0, 15000, 0, 0.3, -25.0, 0.01 };
+    person.helth.hypertension = { "Гипертония", false, 0, 0, 3000, 5000, 0.9, -5.0, 0.02 };
+    person.helth.diabetes = { "Диабет", false, 0, 0, 8000, 10000, 0.85, -8.0, 0.03 };
+    person.helth.injury = { "Травма", false, 3, 0, 7000, 30000, 0.4, -20.0, 0.005 };
+    person.helth.allergy = { "Аллергия", false, 0, 0, 2000, 0, 0.95, -3.0, 0.0 };
+    person.helth.gastritis = { "Гастрит", false, 2, 0, 4000, 8000, 0.8, -7.0, 0.001 };
+    person.helth.migraine = { "Мигрень", false, 1, 0, 2000, 0, 0.6, -10.0, 0.0 };
+    person.helth.back_pain = { "Боль в спине", false, 0, 0, 3000, 15000, 0.7, -6.0, 0.0 };
+    person.helth.is_hospitalized = false;
+    person.helth.hospitalization_days = 0;
+    person.helth.surgery_cost = 0;
+
+    person.politics.tension_level = 0.3;
+    person.politics.economic_sanctions = 0.4;
+    person.politics.is_election_year = false;
+    person.politics.has_protests = false;
+    person.politics.salary_adjustment = 0;
+
+    person.personality.is_planner = (person.personality.discipline > 70);
+    person.personality.is_impulsive_buyer = (person.personality.impulsivity > 60);
+    person.personality.is_risk_seeker = (person.personality.risk_tolerance > 60);
+    person.personality.is_anxious = (person.personality.emotional_stability < 40);
+
+    person.personality.current_mood = 70.0;
+    person.personality.stress_level = 30.0;
+    person.personality.satisfaction = 65.0;
+}
+
+
+void person_init()
+{
+    person_init(person, true);
+}
+
+
+void karl_init()
+{
+    person_init(karl, false);
+}
+
+
+void update_personality_multipliers(Person& person) {
+    person.personality.spending_multiplier = 0.7 + 
+    (person.personality.impulsivity / 100) * 0.8 +
+    (1 - person.personality.discipline / 100) * 0.5;
+    if (person.personality.spending_multiplier > 1.5) person.personality.spending_multiplier = 1.5;
+    if (person.personality.spending_multiplier < 0.5) person.personality.spending_multiplier = 0.5;
+
+    person.personality.savings_multiplier =
+    (person.personality.discipline / 100) * 1.2 +
+    (1 - person.personality.impulsivity / 100) * 0.8;
+    if (person.personality.savings_multiplier > 1.5) person.personality.savings_multiplier = 1.5;
+    if (person.personality.savings_multiplier < 0.5) person.personality.savings_multiplier = 0.5;
+
+    person.personality.investment_risk_premium =      // Премия за риск
+    (person.personality.risk_tolerance / 100) * 1.5;
+    if (person.personality.investment_risk_premium > 1.2) person.personality.investment_risk_premium = 1.2;
+}
+
+
+void apply_personality_to_career(Person& person, int month, int year) {
+    float career_multiplier = 1.0;
+
+    career_multiplier *= (person.personality.conscientiousness / 50);
+
+    career_multiplier *= (person.personality.sociability / 50);
+
+    career_multiplier *= (2.0 - person.personality.impulsivity / 50);
+
+    if (person.personality.optimism > 70 && month == 3) {
+        career_multiplier *= 1.1;
+    }
+
+    if (month == 3) {
+        RUB salary_increase = person.salary * (career_multiplier - 1.0);
+        if (salary_increase > 0) {
+            person.salary += salary_increase;
+        }
+    }
+
+    float freelance_multiplier = (person.personality.openness / 50) *
+        (person.personality.conscientiousness / 50);
+    if (freelance_multiplier > 1.5) freelance_multiplier = 1.5;
+
+    person.freelance = person.freelance * freelance_multiplier;
+}
+
+
+void apply_personality_to_health(Person& person, int month, int year) {
+    if (person.helth.helth_health < 50) {       // Оптимисты лучше переносят болезни
+        float recovery_bonus = person.personality.optimism / 200;
+        person.helth.helth_health += recovery_bonus;
+    }
+
+    if (person.personality.emotional_stability < 40) { 
+        person.helth.helth_health -= 2.0;
+    }
+
+    if (person.personality.discipline > 70) {     // Дисциплинированные лучше следят за здоровьем
+        person.helth.helth_health += 1.0;
+    }
+
+    if (person.personality.stress_level > 70) {
+        person.helth.helth_health -= 3.0;
+    }
+
+    if (person.helth.helth_health > 100) person.helth.helth_health = 100;
+    if (person.helth.helth_health < 0) person.helth.helth_health = 0;
+}
+
+
+void update_personality_dynamics(Person& person, int month, int year) {
+    if (person.vtb.account_rub > 1'000'000 && month == 12) {    // Успехи повышают оптимизм
+        person.personality.optimism += 5;
+    }
+
+    if (person.vtb.account_rub < 100'000 && month == 12) {       // Неудачи снижают оптимизм
+        person.personality.optimism -= 5;
+    }
+
+    if (person.sport.gym_visit_count > 100 && month == 12) {
+        person.personality.discipline += 3;
+    }
+
+    if (person.tax_deductions.education_deduction > 50'000 && month == 12) {
+        person.personality.openness += 5;
+    }
+
+    if (person.personality.optimism > 100) person.personality.optimism = 100;
+    if (person.personality.optimism < 0) person.personality.optimism = 0;
+    if (person.personality.discipline > 100) person.personality.discipline = 100;
+    if (person.personality.discipline < 0) person.personality.discipline = 0;
+
+    update_personality_multipliers(person);
+}
+
+
+void apply_personality_to_expenses(Person& person, const string& expense_type, RUB& expense) {
+    float multiplier = 1.0;
+
+    if (expense_type == "emotions" || expense_type == "entertainment") {
+        multiplier *= person.personality.spending_multiplier;
+        if (person.personality.is_impulsive_buyer) {
+            multiplier *= 1.2;
+        }
+    }
+    else if (expense_type == "food") {
+        multiplier *= (2.0 - person.personality.savings_multiplier);// меньше тратят на еду
+    }
+    else if (expense_type == "gym") {
+        multiplier *= (person.personality.discipline / 50);// Дисциплинированные больше тратят на спорт
+    }
+    else if (expense_type == "travel") {
+        multiplier *= (person.personality.openness / 50);// Открытые новому опыту больше путешествуют
+    }
+
+    expense = expense * multiplier;
+}
+
+
+void apply_personality_to_investments(Person& person, int month) {
+    if (!person.personality.is_risk_seeker) {  // Консервативные инвесторы перекладываются в облигации
+        if (person.vtb.invest.stocks > 0 && month == 1) {
+            RUB stocks_to_bonds = person.vtb.invest.stocks * 0.3;
+            person.vtb.invest.stocks -= stocks_to_bonds;
+            person.Gazprom.obligation += stocks_to_bonds;
+        }
+    }
+    if (person.personality.is_risk_seeker) {            // Рисковые инвесторы покупают больше акций
+        if (person.vtb.account_rub > 100'000 && month == 6) {
+            RUB stocks_purchase = min(person.vtb.account_rub * 0.2, 200'000.0);
+            person.vtb.invest.stocks += stocks_purchase;
+            person.vtb.account_rub -= stocks_purchase;
+        }
+    }
+}
+
+
+void update_political_situation(Person& person, int year, int month) {
+    switch (year) {
+    case 2026:
+        person.politics.tension_level = 0.3;
+        person.politics.economic_sanctions = 0.4;
+        person.politics.is_election_year = false;
+        break;
+    case 2027:
+        person.politics.tension_level = 0.5;
+        person.politics.economic_sanctions = 0.6;
+        person.politics.is_election_year = false;
+        break;
+    case 2028:
+        person.politics.tension_level = 0.7;
+        person.politics.economic_sanctions = 0.8;
+        person.politics.is_election_year = true;  // год выборов
+        break;
+    case 2029:
+        person.politics.tension_level = 0.4;
+        person.politics.economic_sanctions = 0.5;
+        person.politics.is_election_year = false;
+        break;
+    }
+
+    if ((month >= 3 && month <= 5) || (month >= 9 && month <= 11)) {     // Сезонные протесты
+        if (rand() % 100 < 30) {  // 30% шанс протестов в сезон
+            person.politics.has_protests = true;
+            person.politics.tension_level += 0.2;
+        }
+    }
+    else {
+        person.politics.has_protests = false;
+    }
+
+    if (rand() % 100 < 5) {  // 5% шанс значимого события
+        int event = rand() % 3;
+        switch (event) {
+        case 0: // Новые санкции
+            person.politics.economic_sanctions += 0.1;
+            person.politics.tension_level += 0.15;
+            break;
+        case 1: // Отставка чиновника
+            person.politics.tension_level += 0.1;
+            break;
+        case 2: // Политическая реформа
+            person.politics.tension_level -= 0.2;
+            break;
+        }
+    }
+
+    if (person.politics.tension_level > 1.0) person.politics.tension_level = 1.0;
+    if (person.politics.tension_level < 0.0) person.politics.tension_level = 0.0;
+    if (person.politics.economic_sanctions > 1.0) person.politics.economic_sanctions = 1.0;
+    if (person.politics.economic_sanctions < 0.0) person.politics.economic_sanctions = 0.0;
+}
+
+
+void karl_move_to_mytishchi(Person& person, int year, int month)
+{
+    if (year == 2028 && month == 1) {
+        if (person.housing.location != "Mytishchi") {
+            person.housing.location = "Mytishchi";
+            person.housing.rent = 80'000; 
+            person.housing.depression_factor = 1.3;  
+            person.housing.health_factor = 0.9;  
+            person.housing.rent, 150'000 - person.housing.rent;
+
+            RUB moving_cost = 50'000;
+            person.vtb.account_rub -= moving_cost;
+        }
+    }
+}
+
+
+float normal_random(float mean, float stddev) {
+    const double PI = 3.14159265358979323846;
+    float u1 = (rand() + 1.0) / (RAND_MAX + 2.0);
+    float u2 = (rand() + 1.0) / (RAND_MAX + 2.0);
+
+    float z = sqrt(-2.0 * log(u1)) * cos(2.0 * PI * u2);
+    return mean + stddev * z;
 }
 
 
 float inflation(const int year) {
     switch (year) {
     case 2026: return (12.5);
-    case 2027: return (14.0); 
-    case 2028: return (13.0); 
-    case 2029: return (11.5); 
+    case 2027: return (14.0);
+    case 2028: return (13.0);
+    case 2029: return (11.5);
+    }
+    return 0;
+}
+
+
+bool check_mortality(Person& person, Illness& illness) {
+    if (illness.is_active) {
+        float random = (rand() % 1000) / 1000.0; // 0-1
+        if (random < illness.mortality_risk) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+void activate_illness(Person& person, int month, int year) {
+    float inflation_rate = inflation(year) / 100.0 / 12.0;
+    float base_chance = 0.05; // базовый шанс 5%
+
+    if (month == 12 || month == 1 || month == 2) {
+        base_chance += 0.10;
+    }
+
+    if (month == 3 || month == 4 || month == 5) {
+        base_chance += 0.05;
+    }
+
+    if (person.sport.gym_visit_count > 8) {
+        base_chance *= 0.7;
+    }
+
+    if (person.helth.helth_health < 40) {
+        base_chance *= 1.5;
+    }
+
+    float random = (rand() % 100) / 100.0;
+
+    if (random < base_chance) {
+        int illness_type = rand() % 9;
+
+        switch (illness_type) {
+        case 0: // Грипп
+            if (!person.helth.flu.is_active) {
+                person.helth.flu.is_active = true;
+                person.helth.flu.months_remaining = person.helth.flu.duration_months;
+                person.helth.flu.treatment_cost_per_month += person.helth.flu.treatment_cost_per_month * inflation_rate * person.helth.flu.duration_months;
+            }
+            break;
+
+        case 1: // Ковид
+            if (!person.helth.covid.is_active && rand() % 100 < 20) { // 20% шанс ковида среди болезней
+                person.helth.covid.is_active = true;
+                person.helth.covid.months_remaining = person.helth.covid.duration_months;
+                person.helth.covid.treatment_cost_per_month += person.helth.covid.treatment_cost_per_month * inflation_rate * person.helth.covid.duration_months;
+            }
+            break;
+
+        case 2: // Гипертония
+            if (!person.helth.hypertension.is_active && person.helth.helth_health < 50) {
+                person.helth.hypertension.is_active = true;
+                person.helth.hypertension.months_remaining = 999;
+            }
+            break;
+
+        case 3: // Диабет
+            if (!person.helth.diabetes.is_active && rand() % 100 < 5) {
+                person.helth.diabetes.is_active = true;
+                person.helth.diabetes.months_remaining = 999;
+            }
+            break;
+
+        case 4: // Травма
+            if (!person.helth.injury.is_active && person.sport.gym_visit_count > 15) {
+                person.helth.injury.is_active = true;
+                person.helth.injury.months_remaining = person.helth.injury.duration_months;
+                person.helth.injury.one_time_cost += person.helth.injury.one_time_cost * inflation_rate * 12;
+
+                if (rand() % 3 == 0) {
+                    person.helth.is_hospitalized = true;
+                    person.helth.hospitalization_days = 7 + rand() % 14;
+                }
+            }
+            break;
+
+        case 5: // Аллергия
+            if (!person.helth.allergy.is_active && (month == 4 || month == 5 || month == 6)) {
+                person.helth.allergy.is_active = true;
+                person.helth.allergy.months_remaining = 3; // на 3 месяца
+            }
+            break;
+
+        case 6: // Гастрит
+            if (!person.helth.gastritis.is_active && person.food > 4000) {
+                person.helth.gastritis.is_active = true;
+                person.helth.gastritis.months_remaining = person.helth.gastritis.duration_months;
+            }
+            break;
+
+        case 7: // Мигрень
+            if (!person.helth.migraine.is_active && person.helth.helth_health < 60) {
+                person.helth.migraine.is_active = true;
+                person.helth.migraine.months_remaining = person.helth.migraine.duration_months;
+            }
+            break;
+
+        case 8: // Боль в спине
+            if (!person.helth.back_pain.is_active && person.sport.gym_visit_count < 4) {
+                person.helth.back_pain.is_active = true;
+                person.helth.back_pain.months_remaining = 2;
+            }
+            break;
+        }
     }
 }
 
 
-void alice_vtb_stocks (int month)
+void process_illnesses(Person& person, int month, int year) {
+    Illness* illnesses[] = {
+        &person.helth.flu, &person.helth.covid, &person.helth.hypertension,
+        &person.helth.diabetes, &person.helth.injury, &person.helth.allergy,
+        &person.helth.gastritis, &person.helth.migraine, &person.helth.back_pain
+    };
+
+    float inflation_rate = inflation(year) / 100.0 / 12.0;
+    bool any_illness_active = false;
+    float total_work_efficiency = 1.0;
+
+    for (auto illness : illnesses) {
+        if (illness->is_active) {
+            any_illness_active = true;
+
+            // Проверка на смертность
+            if (check_mortality(person, *illness)) {
+                printf("Симуляция завершена досрочно\n");
+                exit(0);
+            }
+
+            person.vtb.account_rub -= illness->treatment_cost_per_month;
+
+            if (illness->one_time_cost > 0) {
+                person.vtb.account_rub -= illness->one_time_cost;
+                illness->one_time_cost = 0; // обнуляем разовые затраты
+            }
+
+            person.helth.helth_health += illness->helth_impact;      // Влияние на ментальное здоровье
+
+            total_work_efficiency *= illness->work_efficiency;        // Влияние на эффективность работы
+
+            if (illness->months_remaining > 0 && illness->months_remaining < 999) {
+                illness->months_remaining--;
+                if (illness->months_remaining <= 0) {
+                    illness->is_active = false;
+                }
+            }
+        }
+    }
+
+    if (person.helth.is_hospitalized) {
+        person.helth.hospitalization_days--;
+        total_work_efficiency = 0;
+
+        if (person.helth.hospitalization_days <= 0) {
+            person.helth.is_hospitalized = false;
+        }
+    }
+
+    if (total_work_efficiency < 1.0) {
+        RUB original_salary = person.salary;
+        person.salary *= total_work_efficiency;
+        person.freelance *= total_work_efficiency;
+    }
+}
+
+
+void person_depression(Person& person, int month, int year)
 {
-    if (month == 3) {
-        alice.vtb.account_rub += alice.vtb.invest.stocks * (12 / 100);
+    float inflation_rate = inflation(year) / 100.0 / 12.0;
+
+    float helth_health_change = 0;
+
+    update_political_situation(person, year, month);
+
+    float political_impact = 0;
+    political_impact -= person.politics.tension_level * 10.0;
+    political_impact -= person.politics.economic_sanctions * 8.0;
+
+    if (person.politics.has_protests) {
+        political_impact -= 5.0;
+        if (person.housing.location.find("Center") != string::npos ||         // Если живет в центре города - страдает больше
+            person.housing.location == "Moscow") {
+            political_impact -= 3.0;
+        }
+    }
+
+    if (person.politics.is_election_year) {
+        political_impact -= 7.0;
+        if (month >= 8 && month <= 11) {  // предвыборная гонка
+            political_impact -= 5.0;
+        }
+    }
+
+    int news_impact = rand() % 21 - 10; 
+    political_impact += news_impact / 2.0;
+
+    helth_health_change += political_impact;
+
+    if (person.sport.gym_visit_count > 10) {       // 1. Спортзал положительно влияет
+        helth_health_change += 2.0;
+    }
+
+    RUB total_expenses = person.housing.rent + person.food + person.utilities + person.cat + person.sport.gym_membership;     // 2. Финансовый стресс
+    RUB monthly_income = person.salary + person.freelance;
+
+    if (total_expenses > monthly_income * 0.7) {
+        helth_health_change -= 1.5;  // стресс от высоких расходов
+    }
+
+    if (person.cat > 0) {            // Одиночество (котик помогает)
+        helth_health_change += 1.0;
+    }
+
+    int random_event = rand() % 100;        //Случайные события
+    if (random_event < 5) {
+        helth_health_change -= 5.0;  // плохой день
+    }
+    else if (random_event > 95) {
+        helth_health_change += 5.0;  // отличный день
+    }
+
+    if (month == 11) {       // 5. Путешествия поднимают настроение (но временно)
+        helth_health_change += 10.0;
+    }
+
+    person.helth.helth_health += helth_health_change;     // Обновляем ментальное здоровье (ограничиваем 0-100)
+    if (person.helth.helth_health > 100) {
+        person.helth.helth_health = 100;
+    }
+    if (person.helth.helth_health < 0) {
+        person.helth.helth_health = 0;
+    }
+
+    if (person.helth.helth_health < 30 && !person.helth.is_depressed) {            // Проверяем, не впала ли в депрессию
+        person.helth.is_depressed = true;
+        person.helth.depression_months = 1;
+    }
+
+    if (person.helth.is_depressed) {
+        person.helth.depression_months++;
+
+        if (rand() % 3 == 0) {  // 33% шанс не работать на фрилансе
+            person.freelance = 0;
+        }
+
+        if (rand() % 2 == 0) {  // 50% шанс пропустить зал
+            person.sport.gym_visit_count = 0;
+        }
+
+        person.emotions *= 1.5;
+
+        if (month % 3 == 0) {
+            person.helth.missed_work_days = person.salary / 22 * 3;  // пропустила 3 дня
+            person.vtb.account_rub -= person.helth.missed_work_days;
+        }
+
+        if (person.helth.helth_health < 50) {
+            person.helth.therapy_cost += person.helth.therapy_cost * inflation_rate;
+            person.vtb.account_rub -= person.helth.therapy_cost;
+            person.helth.helth_health += 5.0;  // терапия помогает
+        }
+
+        if (person.helth.depression_months > 2) {
+            person.helth.depression_months += person.helth.drugs_cost * inflation_rate;
+            person.vtb.account_rub -= person.helth.drugs_cost;
+            person.helth.helth_health += 3.0;  // лекарства помогают
+        }
+
+        if (person.helth.helth_health > 60) {
+            person.helth.is_depressed = false;
+            person.helth.depression_months = 0;
+        }
     }
 }
 
 
-void alice_alfa_stocks (int month)
+void person_gym(Person& person, int month, int year)
 {
-    if (month == 4) {
-        alice.vtb.account_rub += alice.alfa.invest.stocks * (20 / 100);
+    float inflation_rate = inflation(year) / 100.0 / 12.0;
+    if (month == 1) {
+        person.sport.gym_membership += person.sport.gym_membership * inflation_rate * 12;
+    }
+
+    person.vtb.account_rub -= person.sport.gym_membership;
+
+    person.sport.gym_visit_count++;
+
+    if (person.sport.gym_visit_count >= 12) {        // Бонус: если ходит в зал больше 3 раз в неделю (12+ раз в месяц)
+        person.sport.gym_membership = person.sport.gym_membership * 0.9;
+        person.sport.gym_visit_count = 0;        // сбрасываем счетчик
+    }
+
+    if (month == 3 || month == 9) {     // Покупка одежды для спортзала (раз в 6 месяцев)
+        person.sport.gym_clothes += person.sport.gym_clothes * inflation_rate * 6;
+        person.vtb.account_rub -= person.sport.gym_clothes;
     }
 }
 
 
-void alice_T_stocks(int month)
+void person_medical_insurance(Person& person, int month, int year)
 {
-    if (month == 4) {
-        alice.vtb.account_rub += alice.T.invest.stocks * (15 / 100);
+    float inflation_rate = inflation(year) / 100.0;
+
+    if (month == 1) {
+        person.sport.medical_insurance += person.sport.medical_insurance * inflation_rate;
+    }
+
+    if (month == 1) {           // Оплата страховки раз в год в январе
+        person.vtb.account_rub -= person.sport.medical_insurance;
+    }
+
+    if (rand() % 100 < 5) {     // Случайные медицинские расходы // 5% шанс каждый месяц
+        RUB additional_cost = person.sport.medical_insurance * 0.1;  // 10% от страховки
+        person.vtb.account_rub -= additional_cost;
+    }
+
+    if (person.sport.gym_visit_count > 100) {  // если активно ходит в зал
+        person.sport.medical_insurance *= 0.95;
     }
 }
 
 
-void alice_Gazprom_obligations(int month)
+void person_vtb_stocks(Person& person, int month)
+{
+    if (month == 5) {
+        float mean_return = 17.0 / 100;
+        float stddev = 3.0 / 100;
+
+        float random_return = normal_random(mean_return, stddev);
+
+        if (random_return < -5.0 / 100) random_return = -5.0 / 100;
+        if (random_return > 25.0 / 100) random_return = 25.0 / 100;
+
+        person.vtb.account_rub += person.vtb.invest.stocks * random_return;
+    }
+}
+
+
+void person_alfa_stocks(Person& person, int month)
+{
+    if (month == 5) {
+        float mean_return = 20.0 / 100;
+        float stddev = 7.0 / 100;
+
+        float random_return = normal_random(mean_return, stddev);
+
+        if (random_return < -5.0 / 100) random_return = -5.0 / 100;
+        if (random_return > 25.0 / 100) random_return = 25.0 / 100;
+
+        person.vtb.account_rub += person.alfa.invest.stocks * random_return;
+    }
+}
+
+
+void person_T_stocks(Person& person, int month)
+{
+    if (month == 5) {
+        float mean_return = 17.0 / 100;
+        float stddev = 2.0 / 100;
+
+        float random_return = normal_random(mean_return, stddev);
+
+        if (random_return < -5.0 / 100) random_return = -5.0 / 100;
+        if (random_return > 25.0 / 100) random_return = 25.0 / 100;
+
+        person.vtb.account_rub += person.T.invest.stocks * random_return;
+    }
+}
+
+
+void person_Gazprom_obligations(Person& person, int month)
+{
+    if (month == 5) {
+        float mean_return = 11.0 / 100;
+        float stddev = 8.0 / 100;
+
+        float random_return = normal_random(mean_return, stddev);
+
+        if (random_return < -5.0 / 100) random_return = -5.0 / 100;
+        if (random_return > 25.0 / 100) random_return = 25.0 / 100;
+
+        person.vtb.account_rub += person.Rosatom.obligation * random_return;
+    }
+}
+
+
+void person_Rosneft_obligations(Person& person, int month) {
+    if (month == 6) {
+        float mean_return = 10.0 / 100;
+        float stddev = 2.0 / 100;
+
+        float random_return = normal_random(mean_return, stddev);
+
+        if (random_return < -5.0 / 100) random_return = -5.0 / 100;
+        if (random_return > 25.0 / 100) random_return = 25.0 / 100;
+
+        person.vtb.account_rub += person.Rosneft.obligation * random_return;
+    }
+}
+
+
+void person_Rosatom_obligations(Person& person, int month)
+{
+    if (month == 5) {
+        float mean_return = 12.0 / 100;
+        float stddev = 4.0 / 100;
+
+        float random_return = normal_random(mean_return, stddev);
+
+        if (random_return < -5.0 / 100) random_return = -5.0 / 100;
+        if (random_return > 25.0 / 100) random_return = 25.0 / 100;
+
+        person.vtb.account_rub += person.Rosatom.obligation * random_return;
+    }
+}
+
+
+void person_spbbank_stocks(Person& person, int month)
+{
+    if (month == 5) {
+        float mean_return = 15.0 / 100;  // Sberbank more conservative
+        float stddev = 4.0 / 100;
+
+        float random_return = normal_random(mean_return, stddev);
+
+        if (random_return < -5.0 / 100) random_return = -5.0 / 100;
+        if (random_return > 20.0 / 100) random_return = 20.0 / 100;
+
+        person.vtb.account_rub += person.SpB.invest.stocks * random_return;
+    }
+}
+
+
+void person_spbbank_obligations(Person& person, int month)
 {
     if (month == 6) {
-        alice.vtb.account_rub += alice.Gazprom.obligation * (8 / 100);
+        float mean_return = 8.0 / 100;   // Obligations lower return but stable
+        float stddev = 1.5 / 100;
+
+        float random_return = normal_random(mean_return, stddev);
+
+        if (random_return < -2.0 / 100) random_return = -2.0 / 100;
+        if (random_return > 12.0 / 100) random_return = 12.0 / 100;
+
+        person.vtb.account_rub += person.SpB.invest.obligation * random_return;
     }
 }
 
 
-void alice_Rosneft_obligations(int month)
-{
-    if (month == 6) {
-        alice.vtb.account_rub += alice.Rosneft.obligation * (10 / 100);
-    }
-}
 
-
-void alice_Rosatom_obligations(int month)
-{
-    if (month == 6) {
-        alice.vtb.account_rub += alice.Rosatom.obligation * (5 / 100);
-    }
-}
-
-
-void alice_food(const int month, const int year)
+void person_food(Person& person, const int month, const int year)
 {
     if (month == 12) {
-        alice.vtb.account_rub -= 2000;
+        person.vtb.account_rub -= 2000;
     }
 
-    alice.food += alice.food * (inflation(year) / 100. / 12.);
+    person.food += person.food * (inflation(year) / 100. / 12.);
 
-    alice.vtb.account_rub -= alice.food;
+    person.vtb.account_rub -= person.food;
 }
 
 
-void alice_utilities(const int month, const int year)
+void person_utilities(Person& person, const int month, const int year)
 {
-    if (month == 2) alice.vtb.account_rub -= alice.utilities - (3'500 / 30) * 2;
+    if (month == 2) person.vtb.account_rub -= person.utilities - (3'500 / 30) * 2;
 
-    alice.utilities += alice.utilities * (inflation(year) / 100. / 12.);
+    person.utilities += person.utilities * (inflation(year) / 100. / 12.);
 
-    alice.vtb.account_rub -= alice.utilities;
+    person.vtb.account_rub -= person.utilities;
 }
 
 
-void alice_rent(const int year){
-    alice.rent += alice.rent * (inflation(year) / 100. / 12.);
+void person_rent(Person& person, const int year) {
+    person.housing.rent += person.housing.rent * (inflation(year) / 100. / 12.);
 
-    alice.vtb.account_rub -= alice.rent;
+    person.vtb.account_rub -= person.housing.rent;
 }
 
 
-void alice_trip(const int month,const int year)
+void person_trip(Person& person, const int month, const int year)
 {
     if (year == 2026 && month == 11) {
-        alice.vtb.account_usd -= 10'000;
+        person.vtb.account_usd -= 10'000;
         return;
     }
 
     if (month == 11) {
-        alice.vtb.account_usd -= alice.trip;
+        person.vtb.account_usd -= person.trip;
     }
 }
 
 
-void alice_cat(const int month, const int year)
+void person_cat_food(Person& person, const int month, const int year)
 {
     if (month == 1 && year == 2027) {
-        alice.vtb.account_rub -= 10'000;  //кот заболел
+        person.vtb.account_rub -= 10'000;  //кот заболел
     }
 
-    alice.cat += alice.cat * (inflation(year) / 100. / 12.);
+    person.cat += person.cat * (inflation(year) / 100. / 12.);
 
-    alice.vtb.account_rub -= alice.cat;
+    person.vtb.account_rub -= person.cat;
+}
+
+void update_tax_credits(Person& person, int month, int year) {
+    // Сбрасываем счетчики в январе
+    if (month == 1) {
+        person.tax_deductions.total_tax_paid_year = 0;
+        person.tax_deductions.education_deduction = 0;
+        person.tax_deductions.medical_deduction = 0;
+        person.tax_deductions.charity_deduction = 0;
+        person.tax_deductions.pension_deduction = 0;
+        person.tax_deductions.iis_contribution = 0;
+        person.tax_deductions.filed_tax_return = false;
+        person.tax_deductions.tax_refund_due = 0;
+    }
 }
 
 
-void alice_salary(const int month, const int year)
-{
-    if (month == 3) {
-        alice.salary *= 1.5;  //
-    }
-
-    if (month == 2 && year == 2026) {
-        alice.vtb.account_rub += 5000;  //
-    }
-
-    alice.vtb.account_rub += alice.salary;
+void record_tax_paid(Person& person, RUB tax_amount) {
+    person.tax_deductions.total_tax_paid_year += tax_amount;
 }
 
 
-void alice_deposit(const int month)
+void education_deduction(Person& person, RUB education_cost) {
+    const RUB MAX_EDUCATION_DEDUCTION = 120'000;
+    if (education_cost <= MAX_EDUCATION_DEDUCTION) {
+        person.tax_deductions.education_deduction += education_cost;
+    }
+    else {
+        person.tax_deductions.education_deduction += MAX_EDUCATION_DEDUCTION;
+    }
+}
+
+
+void medical_deduction(Person& person, RUB medical_cost) {
+    const RUB MAX_MEDICAL_DEDUCTION = 120'000; // максимум 120 тыс руб в год
+
+    bool is_expensive_treatment = (medical_cost > 100'000);
+
+    if (is_expensive_treatment) {
+        person.tax_deductions.medical_deduction += medical_cost;
+    }
+    else {
+        RUB deduction = min(medical_cost, MAX_MEDICAL_DEDUCTION);
+        person.tax_deductions.medical_deduction += deduction;
+    }
+}
+
+
+void property_deduction(Person& person, RUB property_cost) {
+    if (!person.tax_deductions.has_property_deduction) {
+        person.tax_deductions.has_property_deduction = true;
+
+        RUB deduction_amount = min(property_cost, person.tax_deductions.property_deduction_max);
+        person.tax_deductions.property_deduction_used = deduction_amount;
+        person.tax_deductions.property_deduction_remaining =
+        person.tax_deductions.property_deduction_max - deduction_amount;
+    }
+}
+
+
+void iis_deduction(Person& person, RUB contribution) {
+    if (person.tax_deductions.has_iis) {
+        const RUB MAX_IIS_CONTRIBUTION = 400'000;
+        person.tax_deductions.iis_contribution += min(contribution, MAX_IIS_CONTRIBUTION);
+    }
+}
+
+
+RUB calculate_professional_deduction(Person& person, RUB freelance_income) {
+    if (person.tax_deductions.has_professional_deduction) {
+        RUB deduction = freelance_income * person.tax_deductions.professional_rate;
+        return deduction;
+    }
+    return 0;
+}
+
+
+RUB calculate_standard_deduction(Person& person) {
+    if (person.tax_deductions.uses_standard_deduction) {
+        return person.tax_deductions.standard_deduction_amount;
+    }
+    return 0;
+}
+
+
+RUB calculate_total_deduction(Person& person) {
+    RUB total_deduction = 0;
+
+    total_deduction += person.tax_deductions.education_deduction;
+    total_deduction += person.tax_deductions.medical_deduction;
+    total_deduction += person.tax_deductions.charity_deduction;
+    total_deduction += person.tax_deductions.pension_deduction;
+
+    if (person.tax_deductions.has_property_deduction) {
+        RUB yearly_property_deduction = min(person.tax_deductions.property_deduction_remaining,
+            person.salary * 12);
+        total_deduction += yearly_property_deduction;
+        person.tax_deductions.property_deduction_remaining -= yearly_property_deduction;
+        person.tax_deductions.property_deduction_used += yearly_property_deduction;
+    }
+
+    if (person.tax_deductions.has_iis && person.tax_deductions.iis_contribution > 0) {
+        total_deduction += person.tax_deductions.iis_contribution;
+    }
+
+    return total_deduction;
+}
+
+
+void file_tax_return(Person& person, int year) {
+    if (person.tax_deductions.filed_tax_return) return;
+
+    RUB total_deduction = calculate_total_deduction(person);
+
+    RUB tax_base = person.salary * 12 + person.freelance * 12;
+    RUB tax_without_deduction = tax_base * 0.13;
+    RUB tax_with_deduction = max(0LL, tax_base - total_deduction) * 0.13;
+
+    person.tax_deductions.tax_refund_due = tax_without_deduction - tax_with_deduction;
+
+    person.tax_deductions.tax_refund_due = min(person.tax_deductions.tax_refund_due,
+        person.tax_deductions.total_tax_paid_year);
+
+    if (person.tax_deductions.tax_refund_due > 0) {
+        person.vtb.account_rub += person.tax_deductions.tax_refund_due;
+        person.tax_deductions.tax_refund_received = person.tax_deductions.tax_refund_due;
+
+        person.tax_deductions.filed_tax_return = true;
+
+        if (person.tax_deductions.hires_accountant) {
+            RUB accountant_fee = person.tax_deductions.accountant_cost;
+            person.vtb.account_rub -= accountant_fee;
+        }
+    }
+}
+
+
+    void person_salary(Person & person, const int month, const int year)
+    {
+        float political_salary_factor = 1.0;
+
+        political_salary_factor -= person.politics.economic_sanctions * 0.15;
+        political_salary_factor -= person.politics.tension_level * 0.1;
+
+        if (person.politics.has_protests) {
+            political_salary_factor -= 0.05;
+        }
+
+        if (person.politics.is_election_year && (month == 3 || month == 8)) {     // социальные программы
+            political_salary_factor += 0.1;
+        }
+
+        if (political_salary_factor < 0.7) political_salary_factor = 0.7;
+        if (political_salary_factor > 1.2) political_salary_factor = 1.2;
+
+        RUB adjusted_salary = person.salary * political_salary_factor;
+
+        if (month == 3) {
+            adjusted_salary *= 1.5;
+        }
+
+        RUB monthly_standard_deduction = calculate_standard_deduction(person);
+        RUB taxable_income = max(0LL, adjusted_salary - monthly_standard_deduction);
+        RUB ndfl = taxable_income * 0.13; // 13% НДФЛ
+
+        record_tax_paid(person, ndfl);
+
+        person.vtb.account_rub += adjusted_salary - ndfl;
+
+        if (month == 2 && year == 2026) {
+            person.vtb.account_rub += 5000;
+        }
+    }
+
+
+void person_deposit(Person& person, const int month)
 {
     if (month == 1) {
-        alice.vtb.deposit *= alice.vtb.persent_deposit / 100 + 1;
-        alice.vtb.deposit += 20'000;
-        alice.vtb.account_rub -= 20'000;
+        person.vtb.deposit *= person.vtb.persent_deposit / 100 + 1;
+        person.vtb.deposit += 20'000;
+        person.vtb.account_rub -= 20'000;
     }
 }
 
 
-void alice_emotions() {
+void person_emotions(Person& person) {
     if (rand() % 7 == 0) {
-        alice.vtb.account_rub += alice.emotions;
+        person.vtb.account_rub += person.emotions;
         return;
     }
-    alice.vtb.account_rub -= alice.emotions;
+    person.vtb.account_rub -= person.emotions;
 }
 
 
-void alice_freelancing(int month, int year) {
+void person_freelancing(Person& person, int month, int year) {
     if (month >= 2 and year >= 2027) {
-        alice.vtb.account_rub -= (alice.tax.NPD / 100) * alice.freelance;
-        alice.vtb.deposit += alice.freelance;
+        RUB professional_deduction = calculate_professional_deduction(person, person.freelance);
+        RUB taxable_freelance = max(0LL, person.freelance - professional_deduction);
+        RUB npd_tax = taxable_freelance * (person.tax.NPD / 100.0);
+
+        person.vtb.account_rub -= npd_tax;
+        record_tax_paid(person, npd_tax);
+
+        person.vtb.deposit += person.freelance - npd_tax;
     }
-
-    alice.vtb.account_rub -= alice.tax.insurance;
+    person.vtb.account_rub -= person.tax.insurance;
 }
 
 
-void print_results()
+RUB calculate_capital(Person& person)
 {
-    printf("Salary = %lld\n", alice.salary);
-
     RUB capital = 0;
-    capital += alice.vtb.account_rub;
-    capital += alice.vtb.deposit;
-    capital += alice.vtb.invest.stocks;
-    capital += alice.T.invest.stocks;
-    capital += alice.alfa.invest.stocks;
-    capital += alice.Gazprom.obligation;
-    capital += alice.Rosatom.obligation;
-    capital += alice.Rosatom.obligation;
-    capital += alice.vtb.account_usd * alice.vtb.rate_usd_rub;
-    capital += alice.car.value;
-    printf("Capital = %lld", capital);
+    capital += person.vtb.account_rub;
+    capital += person.vtb.deposit;
+    capital += person.vtb.invest.stocks;
+    capital += person.T.invest.stocks;
+    capital += person.alfa.invest.stocks;
+    capital += person.Gazprom.obligation;
+    capital += person.Rosatom.obligation;
+    capital += person.vtb.account_usd * person.vtb.rate_usd_rub;
+    capital += person.car.value;
+    return capital;
 }
 
 
-void alice_car(int month, int year)
-{   
+void print_results(Person& person, const string& name)
+{
+    printf("%s's salary = %lld\n", name.c_str(), person.salary);
+    RUB capital = calculate_capital(person);
+    printf("%s's capital = %lld RUB\n\n", name.c_str(), capital);
+}
+
+
+void person_car(Person& person, int month, int year)
+{
     if (year == 2028) {
-        alice.car.gas == 6'000;  //повышение водительского стажа
+        person.car.gas == 6'000;  //повышение водительского стажа
     }
 
     if (month == 3) {
-        alice.vtb.account_rub -= alice.tax.car_log + alice.car.osago;
+        person.vtb.account_rub -= person.tax.car_log + person.car.osago;
     }
 
-    alice.vtb.account_rub -= alice.car.gas;
+    person.vtb.account_rub -= person.car.gas;
 
     if (month == 3 and year % 2 == 0) {
-        alice.vtb.account_rub -= alice.car.tires;
+        person.vtb.account_rub -= person.car.tires;
     }
 }
 
 
-void simulation()
+void simulation(Person& person)
 {
     int year = 2026;
     int month = 2;
 
-    while (!(year == 2029 && month == 2)) {
-        alice_salary(month, year);
-        alice_car(month, year);
-        alice_utilities(month, year);
-        alice_cat(month, year);
-        alice_trip(month, year);
-        alice_rent(year);
-        alice_deposit(month);
-        alice_vtb_stocks(month);
-        alice_alfa_stocks(month);
-        alice_T_stocks(month);
-        alice_Gazprom_obligations(month);
-        alice_Rosneft_obligations(month);
-        alice_Rosatom_obligations(month);
-        alice_freelancing(month, year);
-        alice_emotions();
-        alice_food(month, year);
+    while (!(year == 2027 && month == 6)) {
+        person_salary(person, month, year);
+        person_car(person, month, year);
+        person_utilities(person, month, year);
+        person_cat_food(person, month, year);
+        person_trip(person, month, year);
+        person_rent(person, year);
+        person_deposit(person, month);
+        person_vtb_stocks(person, month);
+        person_alfa_stocks(person, month);
+        person_T_stocks(person, month);
+        person_Gazprom_obligations(person, month);
+        person_Rosneft_obligations(person, month);
+        person_Rosatom_obligations(person, month);
+        person_spbbank_stocks(person, month);
+        person_spbbank_obligations(person, month);
+        person_freelancing(person, month, year);
+        person_emotions(person);
+        person_food(person, month, year);
+        person_depression(person, month, year);
+        person_gym(person, month, year);
+        person_medical_insurance(person, month, year);
+        karl_move_to_mytishchi(person, year, month);
+        activate_illness(person, month, year);
+        process_illnesses(person, month, year);
+        update_personality_multipliers(person);
+        update_personality_dynamics(person, month, year);
+        apply_personality_to_career(person, month, year);
+        apply_personality_to_health(person, month, year);
+        update_political_situation(person, year, month);
 
+        if (month == 4 && year > 2026) {
+            file_tax_return(person, year - 1);
+        }
         ++month;
         if (month == 13) {
             ++year;
@@ -324,7 +1416,13 @@ void simulation()
 
 int main()
 {
-    alice_init();
-    simulation();
-    print_results();
+    person_init();
+    simulation(person);
+    print_results(person, "Alice");
+
+    karl_init();
+    simulation(karl);
+    print_results(karl, "Karl");
+
+    return 0;
 }
