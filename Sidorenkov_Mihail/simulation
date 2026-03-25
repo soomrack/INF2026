@@ -1,0 +1,1875 @@
+#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_NONSTDC_NO_DEPRECATE
+#include <cstdio>
+#include <iostream>
+#include <cmath>
+#include <cstdint>
+#include <cstdarg>
+
+using RUB = float;
+using USD = float;
+using Percent = float;
+
+// Глобальные флаги (питомцы)
+bool have_parrot = false;
+bool have_rabbit = false;
+bool have_fish = false;
+bool have_turtle = false;
+
+float inflation = 9.4f / 100.0f;
+RUB new_apartment_price = 15'000'000; // цена новой квартиры
+
+struct BankAccount
+{
+    RUB rubles;
+    RUB deposit;
+    Percent interest_rate;
+    USD dollars;
+    float usd_rate;
+};
+
+struct Automobile
+{
+    RUB fuel;
+    RUB value;
+    RUB wash;
+    RUB fine;
+    RUB insurance_osago;
+    RUB insurance_kasko;
+    RUB washer_fluid;
+    RUB antifreeze;
+    RUB tires;
+    RUB tax;
+};
+
+struct AutoService
+{
+    RUB service;
+    RUB repair;
+};
+
+struct Partner
+{
+    RUB date;
+    RUB flowers;
+    RUB ring;
+    RUB earrings;
+    RUB necklace;
+    RUB bracelet;
+    RUB watch;
+};
+
+struct Apartment
+{
+    RUB rent;
+    RUB utilities;
+};
+
+struct Jewelry
+{
+    RUB gold_chain;
+    RUB cross;
+    RUB watch;
+    RUB ring;
+};
+
+struct Friends
+{
+    // мужские развлечения
+    RUB beer;
+    RUB fastfood;
+    RUB cinema;
+    RUB games;
+    RUB bowling;
+    RUB karaoke;
+    RUB concerts;
+    RUB billiard;
+
+    // женские развлечения
+    RUB coffee;
+    RUB brunch;
+    RUB cinema_girl;
+    RUB photoshoot;
+    RUB shopping;
+    RUB spa;
+    RUB massage;
+    RUB restaurant;
+    RUB taxi;
+    RUB club;
+};
+
+struct GymMembership
+{
+    RUB subscription;
+    RUB protein;
+};
+
+struct PetPurchase
+{
+    RUB parrot;
+    RUB rabbit;
+    RUB fish;
+    RUB turtle;
+};
+
+struct ParrotCare
+{
+    RUB food;
+    RUB litter;
+    RUB toys;
+    RUB vet;
+};
+
+struct RabbitCare
+{
+    RUB food;
+    RUB litter;
+    RUB toys;
+    RUB vet;
+};
+
+struct FishCare
+{
+    RUB food;
+    RUB filter;
+    RUB aquarium;
+    RUB vet;
+};
+
+struct TurtleCare
+{
+    RUB food;
+    RUB terrarium;
+    RUB lamp;
+    RUB vet;
+};
+
+struct Cosmetics
+{
+    RUB lipstick;
+    RUB mascara;
+    RUB foundation;
+    RUB total;
+};
+
+struct GiftsBudget
+{
+    RUB gifts;
+};
+
+struct PublicTransport
+{
+    RUB metro;
+    RUB bus;
+    RUB tram;
+    RUB taxi;
+    RUB train;
+    RUB trolley;
+};
+
+struct Hobbies
+{
+    // мужские
+    RUB guitar;
+    RUB gadgets;
+    RUB golf;
+    RUB skiing;
+    RUB tennis;
+    RUB fishing;
+    RUB hiking;
+    RUB books;
+    RUB videogames;
+    RUB cars;
+
+    // женские
+    RUB dancing;
+    RUB painting;
+    RUB art;
+    RUB fashion;
+    RUB sewing;
+    RUB jewelry_making;
+    RUB cooking;
+    RUB baking;
+    RUB photography;
+    RUB music;
+};
+
+struct Clothing
+{
+    RUB shoes;
+    RUB pants;
+    RUB shirt;
+    RUB jacket;
+    RUB hat;
+    RUB socks;
+    RUB underwear;
+    RUB accessories;
+    RUB coat;
+    RUB gloves;
+    RUB scarf;
+    RUB swimsuit;
+    RUB dress;
+    RUB tshirt;
+    RUB sweatshirt;
+    RUB sportswear;
+    RUB skirts;
+    RUB blouses;
+};
+
+struct Medicine
+{
+    RUB doctor_visit;
+
+    RUB aspirin_100mg;
+    RUB paracetamol_500mg;
+    RUB vitamin_c_effervescent;
+    RUB multivitamin;
+    RUB vitamin_b12;
+    RUB iron_supplement;
+    RUB omega3;
+    RUB plant_protein;
+    RUB whey_protein;
+    RUB creatine;
+    RUB bcaa;
+    RUB joint_support;
+    RUB electrolytes;
+    RUB caffeine;
+    RUB melatonin;
+    RUB probiotics;
+    RUB antacid;
+    RUB cough_syrup;
+    RUB bandage;
+    RUB magnesium;
+};
+
+struct Food
+{
+    RUB oatmeal;
+    RUB eggs;
+    RUB apples;
+    RUB chicken;
+    RUB buckwheat;
+    RUB broccoli;
+    RUB fish;
+    RUB rice;
+    RUB tomatoes;
+    RUB cucumbers;
+    RUB nuts;
+    RUB cottage_cheese;
+    RUB bananas;
+    RUB potatoes;
+    RUB spinach;
+    RUB yogurt;
+    RUB olive_oil;
+    RUB bread;
+    RUB frozen_berries;
+
+    RUB almonds;
+    RUB chia;
+    RUB tofu;
+    RUB quinoa;
+    RUB lentils;
+    RUB bell_pepper;
+    RUB chickpeas;
+    RUB brown_rice;
+    RUB avocados;
+    RUB carrots;
+    RUB oranges;
+    RUB hummus;
+    RUB oat_milk;
+
+    RUB dark_chocolate;
+    RUB protein_bar;
+    RUB honey;
+    RUB marshmallows;
+    RUB peanut_butter;
+    RUB salmon;
+    RUB beef;
+    RUB sweet_potato;
+    RUB cauliflower;
+    RUB chia_seeds;
+    RUB coconut_oil;
+    RUB green_tea;
+    RUB coffee_beans;
+
+    RUB vegan_chocolate;
+    RUB fruit_leather;
+    RUB coconut_chips;
+    RUB agave_syrup;
+    RUB vegan_cookies;
+    RUB smoked_tofu;
+    RUB tempeh;
+    RUB seitan;
+    RUB edamame;
+    RUB nutritional_yeast;
+    RUB soy_sauce;
+    RUB coconut_yogurt;
+    RUB matcha;
+    RUB dates;
+    RUB cacao_nibs;
+};
+
+struct Appliances
+{
+    RUB fridge;
+    RUB washing_machine;
+    RUB microwave;
+    RUB oven;
+    RUB dishwasher;
+    RUB vacuum;
+    RUB air_conditioner;
+    RUB tv;
+    RUB computer;
+    RUB headphones;
+    RUB gaming_console;
+    RUB blender;
+    RUB coffee_maker;
+    RUB toaster;
+    RUB iron;
+};
+
+struct Person
+{
+    BankAccount bank;
+    Automobile car;
+    GymMembership gym;
+    Apartment flat;
+    Partner partner;
+    Friends friends;
+    AutoService car_service;
+    ParrotCare parrot;
+    Cosmetics cosmetics;
+    GiftsBudget gifts;
+    Food food;
+    Medicine medicine;
+    Hobbies hobbies;
+    Clothing clothing;
+    Appliances appliances;
+    PetPurchase pets;
+    RabbitCare rabbit;
+    FishCare fish;
+    TurtleCare turtle;
+    PublicTransport transport;
+    Jewelry jewelry;
+
+    RUB partner_gift;   // то, что дарит партнёр (как boyfriend у Лизы)
+    RUB vacation;
+    RUB salary;
+};
+
+Person alex;   // вместо davis
+Person emma;   // вместо lisa
+Person couple; // общие покупки
+
+// Инициализация Алекса
+void alex_init()
+{
+    alex.bank.rubles = 0;
+    alex.bank.deposit = 1'000'000;
+    alex.bank.interest_rate = 14.5;
+    alex.salary = 400'000;
+
+    alex.bank.dollars = 5000;
+    alex.bank.usd_rate = 90.45;
+
+    alex.food.oatmeal = 20;
+    alex.food.eggs = 12;
+    alex.food.apples = 8;
+    alex.food.chicken = 25;
+    alex.food.buckwheat = 6;
+    alex.food.broccoli = 15;
+    alex.food.fish = 30;
+    alex.food.rice = 7;
+    alex.food.tomatoes = 12;
+    alex.food.cucumbers = 10;
+    alex.food.nuts = 80;
+    alex.food.cottage_cheese = 25;
+    alex.food.bananas = 9;
+    alex.food.avocados = 75;
+    alex.food.potatoes = 3;
+    alex.food.spinach = 20;
+    alex.food.oranges = 10;
+    alex.food.yogurt = 15;
+    alex.food.olive_oil = 66;
+    alex.food.bread = 20;
+    alex.food.frozen_berries = 30;
+
+    alex.food.dark_chocolate = 90;
+    alex.food.protein_bar = 120;
+    alex.food.honey = 40;
+    alex.food.marshmallows = 35;
+    alex.food.peanut_butter = 60;
+    alex.food.salmon = 80;
+    alex.food.beef = 70;
+    alex.food.sweet_potato = 8;
+    alex.food.bell_pepper = 15;
+    alex.food.cauliflower = 14;
+    alex.food.chia_seeds = 100;
+    alex.food.coconut_oil = 50;
+    alex.food.green_tea = 200;
+    alex.food.coffee_beans = 150;
+
+    alex.car.value = 1'800'000;
+    alex.car.fuel = 15'000;
+    alex.car.wash = 500;
+    alex.car.fine = 5'000;
+    alex.car.insurance_osago = 10'000;
+    alex.car.insurance_kasko = 20'000;
+    alex.car.washer_fluid = 300;
+    alex.car.antifreeze = 500;
+    alex.car.tires = 20'000;
+    alex.car.tax = 12'000;
+
+    alex.car_service.service = 10'000;
+    alex.car_service.repair = 20'000;
+
+    alex.partner.date = 10'000;
+    alex.partner.flowers = 2'000;
+    alex.partner.ring = 50'000;
+    alex.partner.earrings = 20'000;
+    alex.partner.necklace = 30'000;
+    alex.partner.bracelet = 15'000;
+    alex.partner.watch = 40'000;
+
+    alex.gym.subscription = 1'600;
+    alex.gym.protein = 1'000;
+
+    alex.flat.rent = 60'000;
+    alex.flat.utilities = 5'000;
+
+    alex.friends.beer = 2'000;
+    alex.friends.fastfood = 1'500;
+    alex.friends.cinema = 1'000;
+    alex.friends.games = 1'500;
+    alex.friends.bowling = 1'000;
+    alex.friends.karaoke = 1'000;
+    alex.friends.concerts = 2'000;
+    alex.friends.billiard = 1'000;
+
+    alex.gifts.gifts = 15'000;
+
+    alex.medicine.doctor_visit = 2'000;
+
+    alex.vacation = emma.vacation = 10'000;
+
+    alex.medicine.whey_protein = 2800;
+    alex.medicine.creatine = 1200;
+    alex.medicine.bcaa = 1500;
+    alex.medicine.joint_support = 1100;
+    alex.medicine.electrolytes = 400;
+    alex.medicine.caffeine = 200;
+    alex.medicine.aspirin_100mg = 85;
+    alex.medicine.paracetamol_500mg = 40;
+    alex.medicine.vitamin_c_effervescent = 250;
+    alex.medicine.multivitamin = 450;
+    alex.medicine.magnesium = 600;
+    alex.medicine.melatonin = 550;
+    alex.medicine.probiotics = 800;
+    alex.medicine.antacid = 250;
+    alex.medicine.cough_syrup = 380;
+    alex.medicine.bandage = 150;
+
+    alex.hobbies.guitar = 1'000;
+    alex.hobbies.gadgets = 1'500;
+    alex.hobbies.golf = 2'000;
+    alex.hobbies.skiing = 3'000;
+    alex.hobbies.tennis = 2'000;
+    alex.hobbies.fishing = 1'500;
+    alex.hobbies.hiking = 1'000;
+    alex.hobbies.books = 1'500;
+    alex.hobbies.videogames = 2'000;
+    alex.hobbies.cars = 3'000;
+
+    alex.pets.parrot = 10'000;
+    alex.pets.turtle = 15'000;
+
+    alex.parrot.food = 1'000;
+    alex.parrot.litter = 500;
+    alex.parrot.toys = 1'000;
+    alex.parrot.vet = 5'000;
+
+    alex.turtle.food = 1'200;
+    alex.turtle.terrarium = 600;
+    alex.turtle.lamp = 1'500;
+    alex.turtle.vet = 4'000;
+
+    alex.transport.metro = 50;
+    alex.transport.bus = 30;
+    alex.transport.tram = 20;
+    alex.transport.taxi = 200;
+    alex.transport.train = 100;
+    alex.transport.trolley = 25;
+
+    alex.jewelry.gold_chain = 20'000;
+    alex.jewelry.cross = 15'000;
+    alex.jewelry.watch = 40'000;
+    alex.jewelry.ring = 50'000;
+
+    // Инициализация одежды Алекса
+    alex.clothing.shoes = 5000;
+    alex.clothing.jacket = 7000;
+    alex.clothing.pants = 3000;
+    alex.clothing.tshirt = 1500;
+    alex.clothing.sweatshirt = 2000;
+    alex.clothing.underwear = 1000;
+    alex.clothing.socks = 500;
+    alex.clothing.accessories = 2000;
+    alex.clothing.swimsuit = 1500;
+    alex.clothing.sportswear = 3000;
+    // Остальные поля оставляем без инициализации (не используются)
+}
+
+// Инициализация Эммы
+void emma_init()
+{
+    emma.car.value = 0;
+    emma.car.fuel = 10'000;
+    emma.car.wash = 500;
+    emma.car.fine = 5'000;
+    emma.car.insurance_osago = 10'000;
+    emma.car.insurance_kasko = 20'000;
+    emma.car.washer_fluid = 300;
+    emma.car.antifreeze = 500;
+    emma.car.tires = 20'000;
+    emma.car.tax = 12'000;
+
+    emma.food.oatmeal = 20;
+    emma.food.frozen_berries = 30;
+    emma.food.almonds = 80;
+    emma.food.chia = 100;
+    emma.food.bananas = 9;
+    emma.food.apples = 8;
+    emma.food.tofu = 40;
+    emma.food.quinoa = 70;
+    emma.food.lentils = 15;
+    emma.food.spinach = 20;
+    emma.food.tomatoes = 12;
+    emma.food.cucumbers = 10;
+    emma.food.bell_pepper = 15;
+    emma.food.chickpeas = 20;
+    emma.food.brown_rice = 10;
+    emma.food.olive_oil = 66;
+    emma.food.avocados = 75;
+    emma.food.carrots = 5;
+    emma.food.broccoli = 15;
+    emma.food.oranges = 10;
+    emma.food.hummus = 50;
+    emma.food.oat_milk = 15;
+
+    emma.food.vegan_chocolate = 85;
+    emma.food.fruit_leather = 40;
+    emma.food.coconut_chips = 70;
+    emma.food.agave_syrup = 50;
+    emma.food.vegan_cookies = 45;
+    emma.food.smoked_tofu = 45;
+    emma.food.tempeh = 60;
+    emma.food.seitan = 50;
+    emma.food.edamame = 35;
+    emma.food.nutritional_yeast = 120;
+    emma.food.soy_sauce = 15;
+    emma.food.coconut_yogurt = 25;
+    emma.food.matcha = 300;
+    emma.food.dates = 30;
+    emma.food.cacao_nibs = 90;
+
+    emma.flat.rent = 10'000;
+
+    emma.bank.rubles = 0;
+    emma.bank.deposit = 5'000;
+    emma.bank.interest_rate = 14.5;
+    emma.salary = 100'000;
+
+    emma.partner_gift = 15'000;
+
+    emma.bank.dollars = 5000;
+    emma.bank.usd_rate = 90.45;
+
+    emma.cosmetics.lipstick = 3'000;
+    emma.cosmetics.mascara = 2'500;
+    emma.cosmetics.foundation = 4'000;
+    emma.cosmetics.total = 0;
+
+    emma.gifts.gifts = 10'000;
+
+    emma.medicine.doctor_visit = 2'000;
+
+    emma.medicine.vitamin_b12 = 500;
+    emma.medicine.iron_supplement = 700;
+    emma.medicine.omega3 = 900;
+    emma.medicine.plant_protein = 2500;
+    emma.medicine.aspirin_100mg = 85;
+    emma.medicine.paracetamol_500mg = 40;
+    emma.medicine.vitamin_c_effervescent = 250;
+    emma.medicine.multivitamin = 450;
+    emma.medicine.magnesium = 600;
+    emma.medicine.melatonin = 550;
+    emma.medicine.probiotics = 800;
+    emma.medicine.antacid = 250;
+    emma.medicine.cough_syrup = 380;
+    emma.medicine.bandage = 150;
+
+    emma.friends.coffee = 500;
+    emma.friends.brunch = 1'000;
+    emma.friends.cinema_girl = 1'000;
+    emma.friends.photoshoot = 2'000;
+    emma.friends.shopping = 5'000;
+    emma.friends.spa = 3'000;
+    emma.friends.massage = 2'000;
+    emma.friends.restaurant = 2'000;
+    emma.friends.taxi = 1'000;
+    emma.friends.club = 2'000;
+
+    emma.hobbies.dancing = 1'000;
+    emma.hobbies.painting = 1'500;
+    emma.hobbies.art = 2'000;
+    emma.hobbies.fashion = 3'000;
+    emma.hobbies.sewing = 1'500;
+    emma.hobbies.jewelry_making = 2'000;
+    emma.hobbies.cooking = 1'000;
+    emma.hobbies.baking = 1'500;
+    emma.hobbies.photography = 2'000;
+    emma.hobbies.music = 3'000;
+
+    emma.pets.rabbit = 10'000;
+    emma.pets.fish = 5'000;
+
+    emma.rabbit.food = 1'500;
+    emma.rabbit.litter = 500;
+    emma.rabbit.toys = 1'000;
+    emma.rabbit.vet = 5'000;
+
+    emma.fish.food = 500;
+    emma.fish.filter = 200;
+    emma.fish.aquarium = 300;
+    emma.fish.vet = 1'000;
+
+    // Инициализация одежды Эммы
+    emma.clothing.dress = 5000;
+    emma.clothing.skirts = 3000;
+    emma.clothing.blouses = 4000;
+    emma.clothing.tshirt = 1500;
+    emma.clothing.sweatshirt = 2000;
+    emma.clothing.underwear = 1000;
+    emma.clothing.socks = 500;
+    emma.clothing.accessories = 2000;
+    emma.clothing.swimsuit = 1500;
+    emma.clothing.sportswear = 3000;
+
+    // Инициализация автосервиса Эммы
+    emma.car_service.service = 10'000;
+    emma.car_service.repair = 20'000;
+}
+
+// Общая инициализация (покупки после свадьбы)
+void couple_init()
+{
+    alex_init();
+    emma_init();
+
+    couple.appliances.air_conditioner = 25'000;
+    couple.appliances.computer = 50'000;
+    couple.appliances.headphones = 15'000;
+    couple.appliances.gaming_console = 30'000;
+    couple.appliances.blender = 10'000;
+    couple.appliances.coffee_maker = 5'000;
+    couple.appliances.toaster = 3'000;
+    couple.appliances.iron = 4'000;
+    couple.appliances.dishwasher = 40'000;
+    couple.appliances.oven = 35'000;
+    couple.appliances.fridge = 60'000;
+    couple.appliances.washing_machine = 45'000;
+    couple.appliances.microwave = 20'000;
+    couple.appliances.vacuum = 15'000;
+    couple.appliances.tv = 40'000;
+}
+
+// Зарплата Эммы
+void emma_salary(int month, int year)
+{
+    if (month == 12)
+        emma.bank.rubles += emma.salary;
+
+    if (month == 1 && year == 2029)
+        emma.salary *= 1.2;
+
+    if (month == 1 && year == 2032)
+        emma.salary *= 1.25;
+
+    emma.bank.rubles += emma.salary;
+    emma.bank.rubles += emma.partner_gift;
+}
+
+// Депозит Эммы
+void emma_deposit(int month, int year)
+{
+    if (year == 2026)
+        emma.bank.interest_rate = 14.5;
+    else if (year == 2027)
+        emma.bank.interest_rate = 13.5;
+    else if (year == 2028)
+        emma.bank.interest_rate = 12.5;
+    else if (year >= 2029)
+        emma.bank.interest_rate = 11.5;
+
+    emma.bank.deposit += emma.bank.deposit * (emma.bank.interest_rate / 12.0 / 100.0);
+    emma.bank.deposit += emma.bank.rubles;
+    emma.bank.rubles = 0;
+}
+
+// Косметика Эммы
+void emma_cosmetics(int month, int year)
+{
+    if (month == 4 || month == 9)
+        emma.bank.rubles -= emma.cosmetics.lipstick;
+    if (month == 2 || month == 7)
+        emma.bank.rubles -= emma.cosmetics.mascara;
+    if (month == 3 || month == 8)
+        emma.bank.rubles -= emma.cosmetics.foundation;
+
+    emma.cosmetics.lipstick += emma.cosmetics.lipstick * inflation / 12;
+    emma.cosmetics.mascara += emma.cosmetics.mascara * inflation / 12;
+    emma.cosmetics.foundation += emma.cosmetics.foundation * inflation / 12;
+}
+
+// Зарплата Алекса
+void alex_salary(int month, int year)
+{
+    if (month == 12)
+        alex.bank.rubles += alex.salary;
+
+    if (month == 1 && year == 2028)
+        alex.salary *= 1.5;
+    if (month == 6 && year == 2030)
+        alex.salary *= 1.3;
+    if (month == 1 && year == 2033)
+        alex.salary *= 1.5;
+
+    alex.bank.rubles += alex.salary;
+}
+
+// Инфляция (раз в год)
+void alex_inflation(int month, int year)
+{
+    if (month == 1)
+        inflation += 0.5 / 100;
+}
+
+// Друзья Алекса
+void alex_friends(int month, int year)
+{
+    if (month == 2 || month == 5 || month == 9)
+        alex.bank.rubles -= alex.friends.beer;
+    alex.friends.beer += alex.friends.beer * inflation / 12;
+
+    if (month == 3 || month == 6 || month == 10)
+        alex.bank.rubles -= alex.friends.fastfood;
+    alex.friends.fastfood += alex.friends.fastfood * inflation / 12;
+
+    if (month == 4 || month == 7 || month == 11)
+        alex.bank.rubles -= alex.friends.cinema;
+    alex.friends.cinema += alex.friends.cinema * inflation / 12;
+
+    if (month == 1 || month == 8 || month == 12)
+        alex.bank.rubles -= alex.friends.games;
+    alex.friends.games += alex.friends.games * inflation / 12;
+
+    if (month == 2 || month == 4 || month == 6 || month == 8 || month == 10 || month == 12)
+        alex.bank.rubles -= alex.friends.bowling;
+    alex.friends.bowling += alex.friends.bowling * inflation / 12;
+
+    if (month == 3 || month == 6 || month == 9 || month == 12)
+        alex.bank.rubles -= alex.friends.karaoke;
+    alex.friends.karaoke += alex.friends.karaoke * inflation / 12;
+
+    if (month == 1 || month == 4 || month == 7 || month == 10)
+        alex.bank.rubles -= alex.friends.concerts;
+    alex.friends.concerts += alex.friends.concerts * inflation / 12;
+
+    if (month == 2 || month == 5 || month == 8 || month == 11)
+        alex.bank.rubles -= alex.friends.billiard;
+    alex.friends.billiard += alex.friends.billiard * inflation / 12;
+}
+
+// Друзья Эммы
+void emma_friends(int month, int year)
+{
+    if (month == 1 || month == 4 || month == 7 || month == 10)
+        emma.bank.rubles -= emma.friends.coffee;
+    emma.friends.coffee += emma.friends.coffee * inflation / 12;
+
+    if (month == 2 || month == 5 || month == 8 || month == 11)
+        emma.bank.rubles -= emma.friends.brunch;
+    emma.friends.brunch += emma.friends.brunch * inflation / 12;
+
+    if (month == 3 || month == 6 || month == 9 || month == 12)
+        emma.bank.rubles -= emma.friends.cinema_girl;
+    emma.friends.cinema_girl += emma.friends.cinema_girl * inflation / 12;
+
+    if (month == 1 || month == 5 || month == 9)
+        emma.bank.rubles -= emma.friends.photoshoot;
+    emma.friends.photoshoot += emma.friends.photoshoot * inflation / 12;
+
+    if (month == 2 || month == 6 || month == 10)
+        emma.bank.rubles -= emma.friends.shopping;
+    emma.friends.shopping += emma.friends.shopping * inflation / 12;
+
+    if (month == 3 || month == 7 || month == 11)
+        emma.bank.rubles -= emma.friends.spa;
+    emma.friends.spa += emma.friends.spa * inflation / 12;
+
+    if (month == 4 || month == 8 || month == 12)
+        emma.bank.rubles -= emma.friends.massage;
+    emma.friends.massage += emma.friends.massage * inflation / 12;
+
+    if (month == 1 || month == 5 || month == 9)
+        emma.bank.rubles -= emma.friends.restaurant;
+    emma.friends.restaurant += emma.friends.restaurant * inflation / 12;
+
+    if (month == 2 || month == 6 || month == 10)
+        emma.bank.rubles -= emma.friends.taxi;
+    emma.friends.taxi += emma.friends.taxi * inflation / 12;
+
+    if (month == 3 || month == 7 || month == 11)
+        emma.bank.rubles -= emma.friends.club;
+    emma.friends.club += emma.friends.club * inflation / 12;
+}
+
+// Хобби Алекса
+void alex_hobbies(int month, int year)
+{
+    if (month == 1 || month == 4 || month == 7 || month == 10)
+        alex.bank.rubles -= alex.hobbies.guitar;
+    alex.hobbies.guitar += alex.hobbies.guitar * inflation / 12;
+
+    if (month == 2 || month == 5 || month == 8 || month == 11)
+        alex.bank.rubles -= alex.hobbies.gadgets;
+    alex.hobbies.gadgets += alex.hobbies.gadgets * inflation / 12;
+
+    if (month == 3 || month == 6 || month == 9 || month == 12)
+        alex.bank.rubles -= alex.hobbies.golf;
+    alex.hobbies.golf += alex.hobbies.golf * inflation / 12;
+
+    if (month == 1 || month == 6 || month == 11)
+        alex.bank.rubles -= alex.hobbies.skiing;
+    alex.hobbies.skiing += alex.hobbies.skiing * inflation / 12;
+
+    if (month == 2 || month == 7 || month == 12)
+        alex.bank.rubles -= alex.hobbies.tennis;
+    alex.hobbies.tennis += alex.hobbies.tennis * inflation / 12;
+
+    if (month == 3 || month == 8 || month == 1)
+        alex.bank.rubles -= alex.hobbies.fishing;
+    alex.hobbies.fishing += alex.hobbies.fishing * inflation / 12;
+
+    if (month == 4 || month == 9 || month == 2)
+        alex.bank.rubles -= alex.hobbies.hiking;
+    alex.hobbies.hiking += alex.hobbies.hiking * inflation / 12;
+
+    if (month == 5 || month == 10 || month == 3)
+        alex.bank.rubles -= alex.hobbies.books;
+    alex.hobbies.books += alex.hobbies.books * inflation / 12;
+
+    if (month == 6 || month == 11 || month == 4)
+        alex.bank.rubles -= alex.hobbies.videogames;
+    alex.hobbies.videogames += alex.hobbies.videogames * inflation / 12;
+
+    if (month == 7 || month == 12 || month == 5)
+        alex.bank.rubles -= alex.hobbies.cars;
+    alex.hobbies.cars += alex.hobbies.cars * inflation / 12;
+}
+
+// Хобби Эммы
+void emma_hobbies(int month, int year)
+{
+    if (month == 1 || month == 4 || month == 7 || month == 10)
+        emma.bank.rubles -= emma.hobbies.dancing;
+    emma.hobbies.dancing += emma.hobbies.dancing * inflation / 12;
+
+    if (month == 2 || month == 5 || month == 8 || month == 11)
+        emma.bank.rubles -= emma.hobbies.painting;
+    emma.hobbies.painting += emma.hobbies.painting * inflation / 12;
+
+    if (month == 3 || month == 6 || month == 9 || month == 12)
+        emma.bank.rubles -= emma.hobbies.art;
+    emma.hobbies.art += emma.hobbies.art * inflation / 12;
+
+    if (month == 1 || month == 5 || month == 9)
+        emma.bank.rubles -= emma.hobbies.fashion;
+    emma.hobbies.fashion += emma.hobbies.fashion * inflation / 12;
+
+    if (month == 2 || month == 6 || month == 10)
+        emma.bank.rubles -= emma.hobbies.sewing;
+    emma.hobbies.sewing += emma.hobbies.sewing * inflation / 12;
+
+    if (month == 3 || month == 7 || month == 11)
+        emma.bank.rubles -= emma.hobbies.jewelry_making;
+    emma.hobbies.jewelry_making += emma.hobbies.jewelry_making * inflation / 12;
+
+    if (month == 4 || month == 8 || month == 12)
+        emma.bank.rubles -= emma.hobbies.cooking;
+    emma.hobbies.cooking += emma.hobbies.cooking * inflation / 12;
+
+    if (month == 1 || month == 5 || month == 9)
+        emma.bank.rubles -= emma.hobbies.baking;
+    emma.hobbies.baking += emma.hobbies.baking * inflation / 12;
+
+    if (month == 2 || month == 6 || month == 10)
+        emma.bank.rubles -= emma.hobbies.photography;
+    emma.hobbies.photography += emma.hobbies.photography * inflation / 12;
+
+    if (month == 3 || month == 7 || month == 11)
+        emma.bank.rubles -= emma.hobbies.music;
+    emma.hobbies.music += emma.hobbies.music * inflation / 12;
+}
+
+// Покупка питомцев
+void alex_emma_buy_pets(int month, int year)
+{
+    if (month == 1 && year == 2027)
+    {
+        alex.bank.rubles -= alex.pets.parrot;
+        have_parrot = true;
+    }
+    alex.pets.parrot += alex.pets.parrot * inflation / 12;
+
+    if (month == 1 && year == 2028)
+    {
+        emma.bank.rubles -= emma.pets.rabbit;
+        have_rabbit = true;
+    }
+    emma.pets.rabbit += emma.pets.rabbit * inflation / 12;
+
+    if (month == 1 && year == 2029)
+    {
+        emma.bank.rubles -= emma.pets.fish;
+        have_fish = true;
+    }
+    emma.pets.fish += emma.pets.fish * inflation / 12;
+
+    if (month == 1 && year == 2030)
+    {
+        alex.bank.rubles -= alex.pets.turtle;
+        have_turtle = true;
+    }
+    alex.pets.turtle += alex.pets.turtle * inflation / 12;
+}
+
+// Уход за попугаем Алекса
+void alex_parrot(int month, int year)
+{
+    if (have_parrot)
+    {
+        alex.bank.rubles -= alex.parrot.food;
+        alex.bank.rubles -= alex.parrot.litter;
+        alex.parrot.food += alex.parrot.food * inflation / 12;
+        alex.parrot.litter += alex.parrot.litter * inflation / 12;
+
+        if (month == 6 || month == 9)
+            alex.bank.rubles -= alex.parrot.toys;
+        alex.parrot.toys += alex.parrot.toys * inflation / 12;
+
+        if (month == 1 || month == 10)
+            alex.bank.rubles -= alex.parrot.vet;
+        alex.parrot.vet += alex.parrot.vet * inflation / 12;
+    }
+}
+
+// Уход за кроликом Эммы
+void emma_rabbit(int month, int year)
+{
+    if (have_rabbit)
+    {
+        emma.bank.rubles -= emma.rabbit.food;
+        emma.rabbit.food += emma.rabbit.food * inflation / 12;
+        emma.bank.rubles -= emma.rabbit.litter;
+        emma.rabbit.litter += emma.rabbit.litter * inflation / 12;
+
+        if (month == 6 || month == 9)
+            emma.bank.rubles -= emma.rabbit.toys;
+        emma.rabbit.toys += emma.rabbit.toys * inflation / 12;
+
+        if (month == 1 || month == 10)
+            emma.bank.rubles -= emma.rabbit.vet;
+        emma.rabbit.vet += emma.rabbit.vet * inflation / 12;
+    }
+}
+
+// Уход за рыбками Эммы
+void emma_fish(int month, int year)
+{
+    if (have_fish)
+    {
+        emma.bank.rubles -= emma.fish.food;
+        emma.fish.food += emma.fish.food * inflation / 12;
+        emma.bank.rubles -= emma.fish.filter;
+        emma.fish.filter += emma.fish.filter * inflation / 12;
+
+        if (month == 6 || month == 9)
+            emma.bank.rubles -= emma.fish.aquarium;
+        emma.fish.aquarium += emma.fish.aquarium * inflation / 12;
+
+        if (month == 1 || month == 10)
+            emma.bank.rubles -= emma.fish.vet;
+        emma.fish.vet += emma.fish.vet * inflation / 12;
+    }
+}
+
+// Уход за черепахой Алекса
+void alex_turtle(int month, int year)
+{
+    if (have_turtle)
+    {
+        alex.bank.rubles -= alex.turtle.food;
+        alex.turtle.food += alex.turtle.food * inflation / 12;
+        alex.bank.rubles -= alex.turtle.terrarium;
+        alex.turtle.terrarium += alex.turtle.terrarium * inflation / 12;
+
+        if (month == 6 || month == 9)
+            alex.bank.rubles -= alex.turtle.lamp;
+        alex.turtle.lamp += alex.turtle.lamp * inflation / 12;
+
+        if (month == 1 || month == 10)
+            alex.bank.rubles -= alex.turtle.vet;
+        alex.turtle.vet += alex.turtle.vet * inflation / 12;
+    }
+}
+
+// Еда Алекса
+void alex_food()
+{
+    alex.bank.rubles -= alex.food.oatmeal * 3.5;
+    alex.bank.rubles -= alex.food.eggs * 7;
+    alex.bank.rubles -= alex.food.apples * 10.5;
+    alex.bank.rubles -= alex.food.chicken * 14;
+    alex.bank.rubles -= alex.food.buckwheat * 6;
+    alex.bank.rubles -= alex.food.broccoli * 10.5;
+    alex.bank.rubles -= alex.food.fish * 10.5;
+    alex.bank.rubles -= alex.food.rice * 5.6;
+    alex.bank.rubles -= alex.food.tomatoes * 7;
+    alex.bank.rubles -= alex.food.cucumbers * 7;
+    alex.bank.rubles -= alex.food.nuts * 2.1;
+    alex.bank.rubles -= alex.food.cottage_cheese * 10.5;
+    alex.bank.rubles -= alex.food.bananas * 8.4;
+    alex.bank.rubles -= alex.food.avocados * 7;
+    alex.bank.rubles -= alex.food.potatoes * 14;
+    alex.bank.rubles -= alex.food.spinach * 3.5;
+    alex.bank.rubles -= alex.food.oranges * 10.5;
+    alex.bank.rubles -= alex.food.yogurt * 10.5;
+    alex.bank.rubles -= alex.food.olive_oil * 1.4;
+    alex.bank.rubles -= alex.food.bread * 3.5;
+    alex.bank.rubles -= alex.food.frozen_berries * 7;
+    alex.bank.rubles -= alex.food.dark_chocolate * 3;
+    alex.bank.rubles -= alex.food.protein_bar * 6;
+    alex.bank.rubles -= alex.food.honey * 5;
+    alex.bank.rubles -= alex.food.marshmallows * 4;
+    alex.bank.rubles -= alex.food.peanut_butter * 5;
+    alex.bank.rubles -= alex.food.salmon * 15;
+    alex.bank.rubles -= alex.food.beef * 15;
+    alex.bank.rubles -= alex.food.sweet_potato * 20;
+    alex.bank.rubles -= alex.food.bell_pepper * 10;
+    alex.bank.rubles -= alex.food.cauliflower * 10;
+    alex.bank.rubles -= alex.food.chia_seeds * 3;
+    alex.bank.rubles -= alex.food.coconut_oil * 4;
+    alex.bank.rubles -= alex.food.green_tea * 1.2;
+    alex.bank.rubles -= alex.food.coffee_beans * 1.5;
+}
+
+void alex_food_inflation()
+{
+    alex.food.oatmeal += alex.food.oatmeal * inflation / 12;
+    alex.food.eggs += alex.food.eggs * inflation / 12;
+    alex.food.apples += alex.food.apples * inflation / 12;
+    alex.food.chicken += alex.food.chicken * inflation / 12;
+    alex.food.buckwheat += alex.food.buckwheat * inflation / 12;
+    alex.food.broccoli += alex.food.broccoli * inflation / 12;
+    alex.food.fish += alex.food.fish * inflation / 12;
+    alex.food.rice += alex.food.rice * inflation / 12;
+    alex.food.tomatoes += alex.food.tomatoes * inflation / 12;
+    alex.food.cucumbers += alex.food.cucumbers * inflation / 12;
+    alex.food.nuts += alex.food.nuts * inflation / 12;
+    alex.food.cottage_cheese += alex.food.cottage_cheese * inflation / 12;
+    alex.food.bananas += alex.food.bananas * inflation / 12;
+    alex.food.avocados += alex.food.avocados * inflation / 12;
+    alex.food.potatoes += alex.food.potatoes * inflation / 12;
+    alex.food.spinach += alex.food.spinach * inflation / 12;
+    alex.food.oranges += alex.food.oranges * inflation / 12;
+    alex.food.yogurt += alex.food.yogurt * inflation / 12;
+    alex.food.olive_oil += alex.food.olive_oil * inflation / 12;
+    alex.food.bread += alex.food.bread * inflation / 12;
+    alex.food.frozen_berries += alex.food.frozen_berries * inflation / 12;
+    alex.food.dark_chocolate += alex.food.dark_chocolate * inflation / 12;
+    alex.food.protein_bar += alex.food.protein_bar * inflation / 12;
+    alex.food.honey += alex.food.honey * inflation / 12;
+    alex.food.marshmallows += alex.food.marshmallows * inflation / 12;
+    alex.food.peanut_butter += alex.food.peanut_butter * inflation / 12;
+    alex.food.salmon += alex.food.salmon * inflation / 12;
+    alex.food.beef += alex.food.beef * inflation / 12;
+    alex.food.sweet_potato += alex.food.sweet_potato * inflation / 12;
+    alex.food.bell_pepper += alex.food.bell_pepper * inflation / 12;
+    alex.food.cauliflower += alex.food.cauliflower * inflation / 12;
+    alex.food.chia_seeds += alex.food.chia_seeds * inflation / 12;
+    alex.food.coconut_oil += alex.food.coconut_oil * inflation / 12;
+    alex.food.green_tea += alex.food.green_tea * inflation / 12;
+    alex.food.coffee_beans += alex.food.coffee_beans * inflation / 12;
+}
+
+// Еда Эммы
+void emma_food()
+{
+    emma.bank.rubles -= emma.food.oatmeal * 3.5;
+    emma.bank.rubles -= emma.food.frozen_berries * 7;
+    emma.bank.rubles -= emma.food.almonds * 2.1;
+    emma.bank.rubles -= emma.food.chia * 1.4;
+    emma.bank.rubles -= emma.food.bananas * 8.4;
+    emma.bank.rubles -= emma.food.apples * 10.5;
+    emma.bank.rubles -= emma.food.tofu * 10.5;
+    emma.bank.rubles -= emma.food.quinoa * 10.6;
+    emma.bank.rubles -= emma.food.lentils * 5.6;
+    emma.bank.rubles -= emma.food.spinach * 7;
+    emma.bank.rubles -= emma.food.tomatoes * 7;
+    emma.bank.rubles -= emma.food.cucumbers * 7;
+    emma.bank.rubles -= emma.food.bell_pepper * 7;
+    emma.bank.rubles -= emma.food.chickpeas * 10.5;
+    emma.bank.rubles -= emma.food.brown_rice * 5.6;
+    emma.bank.rubles -= emma.food.olive_oil * 1.4;
+    emma.bank.rubles -= emma.food.avocados * 7;
+    emma.bank.rubles -= emma.food.carrots * 7;
+    emma.bank.rubles -= emma.food.broccoli * 10.5;
+    emma.bank.rubles -= emma.food.oranges * 10.5;
+    emma.bank.rubles -= emma.food.hummus * 3.5;
+    emma.bank.rubles -= emma.food.oat_milk * 14;
+    emma.bank.rubles -= emma.food.vegan_chocolate * 4;
+    emma.bank.rubles -= emma.food.fruit_leather * 5;
+    emma.bank.rubles -= emma.food.coconut_chips * 3;
+    emma.bank.rubles -= emma.food.agave_syrup * 6;
+    emma.bank.rubles -= emma.food.vegan_cookies * 10;
+    emma.bank.rubles -= emma.food.smoked_tofu * 8;
+    emma.bank.rubles -= emma.food.tempeh * 8;
+    emma.bank.rubles -= emma.food.seitan * 8;
+    emma.bank.rubles -= emma.food.edamame * 6;
+    emma.bank.rubles -= emma.food.nutritional_yeast * 2;
+    emma.bank.rubles -= emma.food.soy_sauce * 5;
+    emma.bank.rubles -= emma.food.coconut_yogurt * 15;
+    emma.bank.rubles -= emma.food.matcha * 1;
+    emma.bank.rubles -= emma.food.dates * 5;
+    emma.bank.rubles -= emma.food.cacao_nibs * 2;
+}
+
+void emma_food_inflation()
+{
+    emma.food.oatmeal += emma.food.oatmeal * inflation / 12;
+    emma.food.frozen_berries += emma.food.frozen_berries * inflation / 12;
+    emma.food.almonds += emma.food.almonds * inflation / 12;
+    emma.food.chia += emma.food.chia * inflation / 12;
+    emma.food.bananas += emma.food.bananas * inflation / 12;
+    emma.food.apples += emma.food.apples * inflation / 12;
+    emma.food.tofu += emma.food.tofu * inflation / 12;
+    emma.food.quinoa += emma.food.quinoa * inflation / 12;
+    emma.food.lentils += emma.food.lentils * inflation / 12;
+    emma.food.spinach += emma.food.spinach * inflation / 12;
+    emma.food.tomatoes += emma.food.tomatoes * inflation / 12;
+    emma.food.cucumbers += emma.food.cucumbers * inflation / 12;
+    emma.food.bell_pepper += emma.food.bell_pepper * inflation / 12;
+    emma.food.chickpeas += emma.food.chickpeas * inflation / 12;
+    emma.food.brown_rice += emma.food.brown_rice * inflation / 12;
+    emma.food.olive_oil += emma.food.olive_oil * inflation / 12;
+    emma.food.avocados += emma.food.avocados * inflation / 12;
+    emma.food.carrots += emma.food.carrots * inflation / 12;
+    emma.food.broccoli += emma.food.broccoli * inflation / 12;
+    emma.food.oranges += emma.food.oranges * inflation / 12;
+    emma.food.hummus += emma.food.hummus * inflation / 12;
+    emma.food.oat_milk += emma.food.oat_milk * inflation / 12;
+    emma.food.vegan_chocolate += emma.food.vegan_chocolate * inflation / 12;
+    emma.food.fruit_leather += emma.food.fruit_leather * inflation / 12;
+    emma.food.coconut_chips += emma.food.coconut_chips * inflation / 12;
+    emma.food.agave_syrup += emma.food.agave_syrup * inflation / 12;
+    emma.food.vegan_cookies += emma.food.vegan_cookies * inflation / 12;
+    emma.food.smoked_tofu += emma.food.smoked_tofu * inflation / 12;
+    emma.food.tempeh += emma.food.tempeh * inflation / 12;
+    emma.food.seitan += emma.food.seitan * inflation / 12;
+    emma.food.edamame += emma.food.edamame * inflation / 12;
+    emma.food.nutritional_yeast += emma.food.nutritional_yeast * inflation / 12;
+    emma.food.soy_sauce += emma.food.soy_sauce * inflation / 12;
+    emma.food.coconut_yogurt += emma.food.coconut_yogurt * inflation / 12;
+    emma.food.matcha += emma.food.matcha * inflation / 12;
+    emma.food.dates += emma.food.dates * inflation / 12;
+    emma.food.cacao_nibs += emma.food.cacao_nibs * inflation / 12;
+}
+
+// Автомобиль Алекса
+void alex_car(int month, int year)
+{
+    alex.bank.rubles -= alex.car.fuel;
+    alex.car.fuel += alex.car.fuel * inflation / 12;
+
+    alex.bank.rubles -= alex.car.wash;
+    alex.car.wash += alex.car.wash * inflation / 12;
+
+    alex.bank.rubles -= alex.car.fine;
+    alex.car.fine += alex.car.fine * inflation / 12;
+
+    alex.bank.rubles -= alex.car.tax;
+    alex.car.tax += alex.car.tax * inflation / 12;
+
+    if (month == 2 || month == 4 || month == 8 || month == 10 || month == 12)
+        alex.bank.rubles -= alex.car.washer_fluid;
+    alex.car.washer_fluid += alex.car.washer_fluid * inflation / 12;
+
+    if (month == 2 || month == 10)
+        alex.bank.rubles -= alex.car.antifreeze;
+    alex.car.antifreeze += alex.car.antifreeze * inflation / 12;
+
+    if (month == 3 || month == 11)
+        alex.bank.rubles -= alex.car.tires;
+    alex.car.tires += alex.car.tires * inflation / 12;
+
+    if (month == 1)
+        alex.bank.rubles -= alex.car.insurance_osago;
+    alex.car.insurance_osago += alex.car.insurance_osago * inflation / 12;
+
+    if (month == 1)
+        alex.bank.rubles -= alex.car.insurance_kasko;
+    alex.car.insurance_kasko += alex.car.insurance_kasko * inflation / 12;
+}
+
+// Транспорт Алекса
+void alex_transport(int month, int year)
+{
+    alex.bank.rubles -= alex.transport.metro;
+    alex.transport.metro += alex.transport.metro * inflation / 12;
+
+    alex.bank.rubles -= alex.transport.bus;
+    alex.transport.bus += alex.transport.bus * inflation / 12;
+
+    alex.bank.rubles -= alex.transport.tram;
+    alex.transport.tram += alex.transport.tram * inflation / 12;
+
+    alex.bank.rubles -= alex.transport.trolley;
+    alex.transport.trolley += alex.transport.trolley * inflation / 12;
+
+    alex.bank.rubles -= alex.transport.taxi;
+    alex.transport.taxi += alex.transport.taxi * inflation / 12;
+
+    if (month == 1 || month == 6 || month == 11)
+        alex.bank.rubles -= alex.transport.train;
+    alex.transport.train += alex.transport.train * inflation / 12;
+}
+
+// Ювелирка Алекса
+void alex_jewelry(int month, int year)
+{
+    if (month == 2 && year == 2027)
+        alex.bank.rubles -= alex.jewelry.ring;
+    alex.jewelry.ring += alex.jewelry.ring * inflation / 12;
+
+    if (month == 6 && year == 2028)
+        alex.bank.rubles -= alex.jewelry.cross;
+    alex.jewelry.cross += alex.jewelry.cross * inflation / 12;
+
+    if (month == 9 && year == 2029)
+        alex.bank.rubles -= alex.jewelry.watch;
+    alex.jewelry.watch += alex.jewelry.watch * inflation / 12;
+
+    if (month == 12 && year == 2030)
+        alex.bank.rubles -= alex.jewelry.ring;
+    alex.jewelry.ring += alex.jewelry.ring * inflation / 12;
+}
+
+// Отношения с партнёршей
+void alex_partner(int month, int year)
+{
+    alex.bank.rubles -= alex.partner.date;
+    alex.bank.rubles -= alex.partner.flowers;
+    alex.bank.rubles -= emma.partner_gift; // то, что дарит Эмма
+
+    if (month == 2 && year == 2027)
+        alex.bank.rubles -= alex.partner.ring;
+    alex.partner.ring += alex.partner.ring * inflation / 12;
+
+    if (month == 6 && year == 2028)
+        alex.bank.rubles -= alex.partner.earrings;
+    alex.partner.earrings += alex.partner.earrings * inflation / 12;
+
+    if (month == 9 && year == 2029)
+        alex.bank.rubles -= alex.partner.necklace;
+    alex.partner.necklace += alex.partner.necklace * inflation / 12;
+
+    if (month == 12 && year == 2030)
+        alex.bank.rubles -= alex.partner.bracelet;
+    alex.partner.bracelet += alex.partner.bracelet * inflation / 12;
+
+    if (month == 8 && year == 2031)
+        alex.bank.rubles -= alex.partner.watch;
+    alex.partner.watch += alex.partner.watch * inflation / 12;
+
+    alex.partner.date += alex.partner.date * inflation / 12;
+    alex.partner.flowers += alex.partner.flowers * inflation / 12;
+}
+
+// Спортзал (общий абонемент)
+void alex_gym()
+{
+    alex.bank.rubles -= alex.gym.protein;
+    alex.bank.rubles -= alex.gym.subscription;
+    emma.bank.rubles -= alex.gym.subscription;
+
+    alex.gym.subscription += alex.gym.subscription * inflation / 12;
+    alex.gym.protein += alex.gym.protein * inflation / 12;
+}
+
+// Квартира
+void alex_flat(int month, int year)
+{
+    if (new_apartment_price > 0) // пока не купили свою
+    {
+        alex.bank.rubles -= alex.flat.rent;
+        alex.bank.rubles -= alex.flat.utilities;
+        alex.bank.rubles += emma.flat.rent;
+        emma.bank.rubles -= emma.flat.rent;
+
+        alex.flat.utilities += alex.flat.utilities * inflation / 12;
+        emma.flat.rent += emma.flat.rent * inflation / 12;
+        alex.flat.rent += alex.flat.rent * inflation / 12;
+    }
+}
+
+// Сервис авто Алекса
+void alex_car_service(int month, int year)
+{
+    if (month == 6)
+        alex.bank.rubles -= alex.car_service.service;
+    alex.car_service.service += alex.car_service.service * inflation / 12;
+
+    if (month == 1 && year == 2030)
+        alex.bank.rubles -= alex.car_service.repair;
+    alex.car_service.repair += alex.car_service.repair * inflation / 12;
+}
+
+void emma_car_service(int month, int year)
+{
+    if (month == 6)
+        emma.bank.rubles -= emma.car_service.service;
+    emma.car_service.service += emma.car_service.service * inflation / 12;
+
+    if (month == 1 && year == 2030)
+        emma.bank.rubles -= emma.car_service.repair;
+    emma.car_service.repair += emma.car_service.repair * inflation / 12;
+}
+
+// Одежда Алекса
+void alex_clothing(int month, int year)
+{
+    if (month == 3 || month == 9)
+        alex.bank.rubles -= alex.clothing.shoes;
+    alex.clothing.shoes += alex.clothing.shoes * inflation / 12;
+
+    if (month == 4 || month == 10)
+        alex.bank.rubles -= alex.clothing.jacket;
+    alex.clothing.jacket += alex.clothing.jacket * inflation / 12;
+
+    if (month == 5 || month == 11)
+        alex.bank.rubles -= alex.clothing.pants;
+    alex.clothing.pants += alex.clothing.pants * inflation / 12;
+
+    if (month == 6 || month == 12)
+        alex.bank.rubles -= alex.clothing.tshirt;
+    alex.clothing.tshirt += alex.clothing.tshirt * inflation / 12;
+
+    if (month == 7 || month == 1)
+        alex.bank.rubles -= alex.clothing.sweatshirt;
+    alex.clothing.sweatshirt += alex.clothing.sweatshirt * inflation / 12;
+
+    if (month == 8 || month == 2)
+        alex.bank.rubles -= alex.clothing.underwear;
+    alex.clothing.underwear += alex.clothing.underwear * inflation / 12;
+
+    if (month == 9 || month == 3)
+        alex.bank.rubles -= alex.clothing.socks;
+    alex.clothing.socks += alex.clothing.socks * inflation / 12;
+
+    if (month == 10 || month == 4)
+        alex.bank.rubles -= alex.clothing.accessories;
+    alex.clothing.accessories += alex.clothing.accessories * inflation / 12;
+
+    if (month == 11 || month == 5)
+        alex.bank.rubles -= alex.clothing.swimsuit;
+    alex.clothing.swimsuit += alex.clothing.swimsuit * inflation / 12;
+
+    if (month == 12 || month == 6)
+        alex.bank.rubles -= alex.clothing.sportswear;
+    alex.clothing.sportswear += alex.clothing.sportswear * inflation / 12;
+}
+
+// Одежда Эммы
+void emma_clothing(int month, int year)
+{
+    if (month == 3 || month == 9)
+        emma.bank.rubles -= emma.clothing.dress; // исправлено с dresses на dress
+    emma.clothing.dress += emma.clothing.dress * inflation / 12;
+
+    if (month == 4 || month == 10)
+        emma.bank.rubles -= emma.clothing.skirts;
+    emma.clothing.skirts += emma.clothing.skirts * inflation / 12;
+
+    if (month == 5 || month == 11)
+        emma.bank.rubles -= emma.clothing.blouses;
+    emma.clothing.blouses += emma.clothing.blouses * inflation / 12;
+
+    if (month == 6 || month == 12)
+        emma.bank.rubles -= emma.clothing.tshirt;
+    emma.clothing.tshirt += emma.clothing.tshirt * inflation / 12;
+
+    if (month == 7 || month == 1)
+        emma.bank.rubles -= emma.clothing.sweatshirt;
+    emma.clothing.sweatshirt += emma.clothing.sweatshirt * inflation / 12;
+
+    if (month == 8 || month == 2)
+        emma.bank.rubles -= emma.clothing.underwear;
+    emma.clothing.underwear += emma.clothing.underwear * inflation / 12;
+
+    if (month == 9 || month == 3)
+        emma.bank.rubles -= emma.clothing.socks;
+    emma.clothing.socks += emma.clothing.socks * inflation / 12;
+
+    if (month == 10 || month == 4)
+        emma.bank.rubles -= emma.clothing.accessories;
+    emma.clothing.accessories += emma.clothing.accessories * inflation / 12;
+
+    if (month == 11 || month == 5)
+        emma.bank.rubles -= emma.clothing.swimsuit;
+    emma.clothing.swimsuit += emma.clothing.swimsuit * inflation / 12;
+
+    if (month == 12 || month == 6)
+        emma.bank.rubles -= emma.clothing.sportswear;
+    emma.clothing.sportswear += emma.clothing.sportswear * inflation / 12;
+}
+
+// Депозит Алекса
+void alex_deposit(int month, int year)
+{
+    if (year == 2026)
+        alex.bank.interest_rate = 14.5;
+    else if (year == 2027)
+        alex.bank.interest_rate = 13.5;
+    else if (year == 2028)
+        alex.bank.interest_rate = 12.5;
+    else if (year == 2029)
+        alex.bank.interest_rate = 11.5;
+    else if (year >= 2030)
+        alex.bank.interest_rate = 9.5;
+
+    alex.bank.deposit += alex.bank.deposit * (alex.bank.interest_rate / 12.0 / 100.0);
+    alex.bank.deposit += alex.bank.rubles;
+    alex.bank.rubles = 0;
+}
+
+// Лекарства Алекса
+void alex_medicine(int month, int year)
+{
+    if (month == 2 || month == 11)
+        alex.bank.rubles -= alex.medicine.doctor_visit;
+    alex.medicine.doctor_visit += alex.medicine.doctor_visit * inflation / 12;
+
+    alex.bank.rubles -= alex.medicine.whey_protein;
+    alex.bank.rubles -= alex.medicine.creatine;
+    alex.bank.rubles -= alex.medicine.bcaa;
+    alex.bank.rubles -= alex.medicine.joint_support;
+    alex.bank.rubles -= alex.medicine.electrolytes;
+    alex.bank.rubles -= alex.medicine.caffeine;
+    alex.bank.rubles -= alex.medicine.aspirin_100mg;
+    alex.bank.rubles -= alex.medicine.paracetamol_500mg;
+    alex.bank.rubles -= alex.medicine.vitamin_c_effervescent;
+    alex.bank.rubles -= alex.medicine.multivitamin;
+    alex.bank.rubles -= alex.medicine.magnesium;
+    alex.bank.rubles -= alex.medicine.melatonin;
+    alex.bank.rubles -= alex.medicine.probiotics;
+    alex.bank.rubles -= alex.medicine.antacid;
+    alex.bank.rubles -= alex.medicine.cough_syrup;
+    alex.bank.rubles -= alex.medicine.bandage;
+
+    alex.medicine.whey_protein += alex.medicine.whey_protein * inflation / 12;
+    alex.medicine.creatine += alex.medicine.creatine * inflation / 12;
+    alex.medicine.bcaa += alex.medicine.bcaa * inflation / 12;
+    alex.medicine.joint_support += alex.medicine.joint_support * inflation / 12;
+    alex.medicine.electrolytes += alex.medicine.electrolytes * inflation / 12;
+    alex.medicine.caffeine += alex.medicine.caffeine * inflation / 12;
+    alex.medicine.aspirin_100mg += alex.medicine.aspirin_100mg * inflation / 12;
+    alex.medicine.paracetamol_500mg += alex.medicine.paracetamol_500mg * inflation / 12;
+    alex.medicine.vitamin_c_effervescent += alex.medicine.vitamin_c_effervescent * inflation / 12;
+    alex.medicine.multivitamin += alex.medicine.multivitamin * inflation / 12;
+    alex.medicine.magnesium += alex.medicine.magnesium * inflation / 12;
+    alex.medicine.melatonin += alex.medicine.melatonin * inflation / 12;
+    alex.medicine.probiotics += alex.medicine.probiotics * inflation / 12;
+    alex.medicine.antacid += alex.medicine.antacid * inflation / 12;
+    alex.medicine.cough_syrup += alex.medicine.cough_syrup * inflation / 12;
+    alex.medicine.bandage += alex.medicine.bandage * inflation / 12;
+}
+
+// Лекарства Эммы
+void emma_medicine(int month, int year)
+{
+    if (month == 3 || month == 10)
+        emma.bank.rubles -= emma.medicine.doctor_visit;
+    emma.medicine.doctor_visit += emma.medicine.doctor_visit * inflation / 12;
+
+    emma.bank.rubles -= emma.medicine.vitamin_b12;
+    emma.bank.rubles -= emma.medicine.iron_supplement;
+    emma.bank.rubles -= emma.medicine.omega3;
+    emma.bank.rubles -= emma.medicine.plant_protein;
+    emma.bank.rubles -= emma.medicine.aspirin_100mg;
+    emma.bank.rubles -= emma.medicine.paracetamol_500mg;
+    emma.bank.rubles -= emma.medicine.vitamin_c_effervescent;
+    emma.bank.rubles -= emma.medicine.multivitamin;
+    emma.bank.rubles -= emma.medicine.magnesium;
+    emma.bank.rubles -= emma.medicine.melatonin;
+    emma.bank.rubles -= emma.medicine.probiotics;
+    emma.bank.rubles -= emma.medicine.antacid;
+    emma.bank.rubles -= emma.medicine.cough_syrup;
+    emma.bank.rubles -= emma.medicine.bandage;
+
+    emma.medicine.vitamin_b12 += emma.medicine.vitamin_b12 * inflation / 12;
+    emma.medicine.iron_supplement += emma.medicine.iron_supplement * inflation / 12;
+    emma.medicine.omega3 += emma.medicine.omega3 * inflation / 12;
+    emma.medicine.plant_protein += emma.medicine.plant_protein * inflation / 12;
+    emma.medicine.aspirin_100mg += emma.medicine.aspirin_100mg * inflation / 12;
+    emma.medicine.paracetamol_500mg += emma.medicine.paracetamol_500mg * inflation / 12;
+    emma.medicine.vitamin_c_effervescent += emma.medicine.vitamin_c_effervescent * inflation / 12;
+    emma.medicine.multivitamin += emma.medicine.multivitamin * inflation / 12;
+    emma.medicine.magnesium += emma.medicine.magnesium * inflation / 12;
+    emma.medicine.melatonin += emma.medicine.melatonin * inflation / 12;
+    emma.medicine.probiotics += emma.medicine.probiotics * inflation / 12;
+    emma.medicine.antacid += emma.medicine.antacid * inflation / 12;
+    emma.medicine.cough_syrup += emma.medicine.cough_syrup * inflation / 12;
+    emma.medicine.bandage += emma.medicine.bandage * inflation / 12;
+}
+
+// Подарки на праздники
+void couple_gifts(int month, int year)
+{
+    if (month == 1) // Новый год и Рождество
+    {
+        alex.bank.rubles -= alex.gifts.gifts;
+        emma.bank.rubles -= emma.gifts.gifts;
+    }
+    if (month == 2) // День всех влюблённых
+    {
+        alex.bank.rubles -= alex.gifts.gifts * 0.5;
+        emma.bank.rubles -= emma.gifts.gifts * 0.5;
+    }
+    if (month == 10) // Годовщина
+    {
+        alex.bank.rubles -= alex.gifts.gifts;
+        emma.bank.rubles -= emma.gifts.gifts;
+    }
+    if (month == 11) // День рождения Алекса
+        emma.bank.rubles -= emma.gifts.gifts * 1.5;
+    if (month == 12) // День рождения Эммы
+        alex.bank.rubles -= alex.gifts.gifts * 1.5;
+}
+
+// Отпуск
+void couple_holiday(int month, int year)
+{
+    if (year > 2030) // после свадьбы
+    {
+        if (month == 6)
+        {
+            alex.bank.rubles -= alex.vacation * 5;
+            emma.bank.rubles -= emma.vacation * 2;
+        }
+        if (month == 1 && year == 2032)
+        {
+            alex.bank.rubles -= alex.vacation * 3;
+            emma.bank.rubles -= emma.vacation * 1.5;
+        }
+    }
+    alex.vacation += alex.vacation * inflation / 12;
+    emma.vacation += emma.vacation * inflation / 12;
+}
+
+// Свадьба
+void couple_wedding(int month, int year)
+{
+    if (month == 7 && year == 2035)
+    {
+        alex.bank.rubles -= 1'500'000;
+        emma.bank.rubles -= 1'000'000;
+    }
+}
+
+// Ипотека
+void mortgage_payment()
+{
+    float annual_rate = 20.7;
+    new_apartment_price += new_apartment_price * annual_rate / 100 / 12;
+    float years = 15;
+    float total_months = years * 12;
+    float monthly_rate = (annual_rate / 100) / 12;
+    float common_pow = std::pow(1 + monthly_rate, total_months);
+    float annuity_payment = new_apartment_price * (monthly_rate * common_pow) / (common_pow - 1);
+
+    alex.bank.rubles -= annuity_payment;
+    new_apartment_price -= annuity_payment;
+}
+
+// Своя квартира
+void couple_own_flat(int month, int year)
+{
+    if (month == 1 && year == 2032)
+    {
+        new_apartment_price -= 5'000'000; // первый взнос
+        // флаг, что теперь своя квартира, но мы используем new_apartment_price == 0? Нет, после первого взноса new_apartment_price > 0, начинаем платить ипотеку.
+        // В исходном коде был флаг newflat_own, но мы используем new_apartment_price как индикатор: если >0, то не своя (аренда), после покупки - ипотека.
+    }
+    if (new_apartment_price > 0 && new_apartment_price < 15'000'000) // после первого взноса идёт ипотека
+    {
+        mortgage_payment();
+    }
+}
+
+// Новый автомобиль
+void couple_new_car(int month, int year)
+{
+    if (month == 12)
+    {
+        alex.car.value -= alex.car.value * 0.15;
+        emma.car.value -= emma.car.value * 0.15;
+    }
+    if (alex.bank.deposit > 15'000'000)
+    {
+        alex.bank.deposit -= 4'000'000;
+        alex.car.value += 4'000'000;
+    }
+    if (month == 1 && year == 2039)
+    {
+        alex.bank.deposit -= 4'000'000;
+        emma.car.value += 4'000'000;
+    }
+}
+
+// Автомобиль Эммы
+void emma_car(int month, int year)
+{
+    if (emma.car.value > 0)
+    {
+        emma.bank.rubles -= emma.car.fuel;
+        emma.car.fuel += emma.car.fuel * inflation / 12;
+
+        emma.bank.rubles -= emma.car.wash;
+        emma.car.wash += emma.car.wash * inflation / 12;
+
+        emma.bank.rubles -= emma.car.fine;
+        emma.car.fine += emma.car.fine * inflation / 12;
+
+        emma.bank.rubles -= emma.car.tax;
+        emma.car.tax += emma.car.tax * inflation / 12;
+
+        if (month == 2 || month == 4 || month == 8 || month == 10 || month == 12)
+            emma.bank.rubles -= emma.car.washer_fluid;
+        emma.car.washer_fluid += emma.car.washer_fluid * inflation / 12;
+
+        if (month == 2 || month == 10)
+            emma.bank.rubles -= emma.car.antifreeze;
+        emma.car.antifreeze += emma.car.antifreeze * inflation / 12;
+
+        if (month == 3 || month == 11)
+            emma.bank.rubles -= emma.car.tires;
+        emma.car.tires += emma.car.tires * inflation / 12;
+
+        if (month == 1)
+            emma.bank.rubles -= emma.car.insurance_osago;
+        emma.car.insurance_osago += emma.car.insurance_osago * inflation / 12;
+
+        if (month == 1)
+            emma.bank.rubles -= emma.car.insurance_kasko;
+        emma.car.insurance_kasko += emma.car.insurance_kasko * inflation / 12;
+    }
+}
+
+// Бытовая техника после покупки квартиры
+void couple_appliances(int month, int year)
+{
+    if (month == 1 && year == 2033)
+    {
+        alex.bank.rubles -= couple.appliances.fridge * 0.5;
+        emma.bank.rubles -= couple.appliances.fridge * 0.5;
+    }
+    couple.appliances.fridge += couple.appliances.fridge * inflation / 12;
+
+    if (month == 2 && year == 2033)
+    {
+        alex.bank.rubles -= couple.appliances.washing_machine * 0.5;
+        emma.bank.rubles -= couple.appliances.washing_machine * 0.5;
+    }
+    couple.appliances.washing_machine += couple.appliances.washing_machine * inflation / 12;
+
+    if (month == 3 && year == 2033)
+    {
+        alex.bank.rubles -= couple.appliances.dishwasher * 0.5;
+        emma.bank.rubles -= couple.appliances.dishwasher * 0.5;
+    }
+    couple.appliances.dishwasher += couple.appliances.dishwasher * inflation / 12;
+
+    if (month == 4 && year == 2033)
+    {
+        alex.bank.rubles -= couple.appliances.microwave * 0.5;
+        emma.bank.rubles -= couple.appliances.microwave * 0.5;
+    }
+    couple.appliances.microwave += couple.appliances.microwave * inflation / 12;
+
+    if (month == 5 && year == 2033)
+    {
+        alex.bank.rubles -= couple.appliances.tv * 0.5;
+        emma.bank.rubles -= couple.appliances.tv * 0.5;
+    }
+    couple.appliances.tv += couple.appliances.tv * inflation / 12;
+
+    if (month == 6 && year == 2033)
+    {
+        alex.bank.rubles -= couple.appliances.vacuum * 0.5;
+        emma.bank.rubles -= couple.appliances.vacuum * 0.5;
+    }
+    couple.appliances.vacuum += couple.appliances.vacuum * inflation / 12;
+
+    if (month == 7 && year == 2033)
+    {
+        alex.bank.rubles -= couple.appliances.coffee_maker * 0.5;
+        emma.bank.rubles -= couple.appliances.coffee_maker * 0.5;
+    }
+    couple.appliances.coffee_maker += couple.appliances.coffee_maker * inflation / 12;
+
+    if (month == 8 && year == 2033)
+    {
+        alex.bank.rubles -= couple.appliances.air_conditioner * 0.5;
+        emma.bank.rubles -= couple.appliances.air_conditioner * 0.5;
+    }
+    couple.appliances.air_conditioner += couple.appliances.air_conditioner * inflation / 12;
+
+    if (month == 9 && year == 2033)
+    {
+        alex.bank.rubles -= couple.appliances.iron * 0.5;
+        emma.bank.rubles -= couple.appliances.iron * 0.5;
+    }
+    couple.appliances.iron += couple.appliances.iron * inflation / 12;
+
+    if (month == 10 && year == 2033)
+    {
+        alex.bank.rubles -= couple.appliances.computer * 0.5;
+        emma.bank.rubles -= couple.appliances.computer * 0.5;
+    }
+    couple.appliances.computer += couple.appliances.computer * inflation / 12;
+
+    if (month == 12 && year == 2033)
+    {
+        alex.bank.rubles -= couple.appliances.gaming_console * 0.5;
+        emma.bank.rubles -= couple.appliances.gaming_console * 0.5;
+    }
+    couple.appliances.gaming_console += couple.appliances.gaming_console * inflation / 12;
+
+    if (month == 1 && year == 2034)
+    {
+        alex.bank.rubles -= couple.appliances.toaster * 0.5;
+        emma.bank.rubles -= couple.appliances.toaster * 0.5;
+    }
+    couple.appliances.toaster += couple.appliances.toaster * inflation / 12;
+
+    if (month == 2 && year == 2034)
+    {
+        alex.bank.rubles -= couple.appliances.oven * 0.5;
+        emma.bank.rubles -= couple.appliances.oven * 0.5;
+    }
+    couple.appliances.oven += couple.appliances.oven * inflation / 12;
+
+    if (month == 3 && year == 2034)
+    {
+        alex.bank.rubles -= couple.appliances.blender * 0.5;
+        emma.bank.rubles -= couple.appliances.blender * 0.5;
+    }
+    couple.appliances.blender += couple.appliances.blender * inflation / 12;
+}
+
+// Вывод результатов
+void print_results()
+{
+    printf("Salary Alex = %.2f\n", alex.salary);
+    RUB capital_alex = 0;
+    capital_alex += alex.car.value;
+    capital_alex += alex.bank.deposit;
+    capital_alex += alex.bank.dollars * alex.bank.usd_rate;
+    printf("Capital Alex = %.2f\n", capital_alex);
+    printf("Bank Alex = %.2f\n", alex.bank.deposit);
+    printf("Car Alex = %.2f\n", alex.car.value);
+
+    printf("Salary Emma = %.2f\n", emma.salary);
+    RUB capital_emma = 0;
+    capital_emma += emma.bank.rubles;
+    capital_emma += emma.bank.deposit;
+    capital_emma += emma.bank.dollars * emma.bank.usd_rate;
+    printf("Capital Emma = %.2f\n", capital_emma);
+    printf("Bank Emma = %.2f\n", emma.bank.deposit);
+    printf("Car Emma = %.2f\n", emma.car.value);
+
+    RUB total_capital = capital_alex + capital_emma;
+    printf("Total capital = %.2f\n", total_capital);
+}
+
+// Основная симуляция
+void simulation()
+{
+    int month = 2;
+    int year = 2026;
+
+    while (!(month == 3 && year == 2040))
+    {
+        alex_salary(month, year);
+        alex_car(month, year);
+        alex_gym();
+        alex_partner(month, year);
+        alex_flat(month, year);
+        alex_car_service(month, year);
+        alex_inflation(month, year);
+        alex_parrot(month, year);
+        alex_food();
+        alex_food_inflation();
+        alex_friends(month, year);
+        alex_medicine(month, year);
+        alex_emma_buy_pets(month, year);
+        alex_clothing(month, year);
+        alex_transport(month, year);
+        alex_jewelry(month, year);
+
+        emma_salary(month, year);
+        emma_cosmetics(month, year);
+        emma_food();
+        emma_food_inflation();
+        emma_medicine(month, year);
+        emma_car(month, year);
+        emma_car_service(month, year); // добавлен вызов
+        emma_rabbit(month, year);
+        emma_fish(month, year);
+
+        couple_gifts(month, year);
+        couple_holiday(month, year);
+        couple_new_car(month, year);
+        couple_wedding(month, year);
+        couple_own_flat(month, year);
+
+        alex_deposit(month, year);
+        emma_deposit(month, year);
+
+        ++month;
+        if (month == 13)
+        {
+            ++year;
+            month = 1;
+        }
+    }
+}
+
+int main()
+{
+    couple_init();
+    simulation();
+    print_results();
+    return 0;
+}
