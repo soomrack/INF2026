@@ -1,0 +1,2089 @@
+#include <stdio.h>
+#include <string>
+#include <ctime>
+
+/// variables
+
+using Percent = float;
+using COUNTER = int;
+using RUB = long long int;
+using USD = long long int;
+using TXT = std::string;
+using SEED = unsigned int;
+
+Percent current_inflation = 12.0;
+SEED current_seed = 0;
+
+///
+
+
+/// Struct blocks for Alice's
+
+struct Trip {
+  RUB Tickets;
+  RUB Hotel;
+  USD Food_foreign;
+  USD Trip_expenses_unexpected;
+  USD Trip_expenses_expected;
+};
+
+struct Rent {
+    RUB GVS;
+    RUB Landlord_rent;
+    RUB HVS;
+    RUB Electricity;
+};
+
+struct Relationships
+{
+    COUNTER landlord_opinion;
+    COUNTER neighbours_opinion;
+};
+
+struct Car {
+    RUB value;
+    RUB gas;
+    RUB original_value;
+};
+
+struct Cat {
+    RUB Cat_food;
+    RUB vet_visits;
+    RUB toys;
+};
+
+struct Bank {
+    RUB account_rub;
+    USD account_usd;
+    float rate_usd_rub;
+};
+
+struct Job
+{
+    RUB salary;
+    RUB bonus;
+    TXT rank;
+    COUNTER experience_years;
+};
+
+
+struct Health {
+    RUB gym_membership;
+    RUB medications;
+    RUB vitamins;
+    RUB doctor_visits;
+    RUB dentist;
+    COUNTER sick_days;
+    bool has_health_insurance;
+    RUB insurance_monthly;
+};
+
+struct Education {
+    RUB courses;
+    RUB books;
+    RUB certifications;
+    TXT current_course;
+    COUNTER skill_level;
+};
+
+struct Investments {
+    RUB stocks_rub;
+    USD stocks_usd;
+    RUB crypto;
+    RUB bonds;
+    RUB mutual_funds;
+    RUB dividends;
+    RUB capital_gains;
+};
+
+struct Credit {
+    RUB credit_card_debt;
+    RUB personal_loan;
+    RUB mortgage;
+    RUB interest_rate;
+    RUB monthly_payment;
+    COUNTER credit_score;
+};
+
+struct Taxes {
+    RUB income_tax;
+    RUB property_tax;
+    RUB social_contributions;
+    RUB tax_refund;
+};
+
+struct Insurance {
+    RUB car_insurance;
+    RUB life_insurance;
+    RUB home_insurance;
+    RUB liability_insurance;
+};
+
+struct Subscriptions {
+    RUB streaming;
+    RUB cloud_services;
+    RUB magazines;
+    RUB software_licenses;
+    RUB delivery_services;
+};
+
+struct Gifts {
+    RUB birthday_gifts;
+    RUB holiday_gifts;
+    RUB charity;
+};
+
+struct SideHustle {
+    RUB freelance_income;
+    RUB passive_income;
+    RUB bonus_side;
+    TXT side_job;
+    bool active;
+};
+
+struct SocialEvents {
+    RUB restaurants;
+    RUB bars;
+    RUB movies;
+    RUB concerts;
+    RUB parties;
+};
+
+struct SavingsGoals {
+    RUB emergency_fund;
+    RUB vacation_fund;
+    RUB education_fund;
+    RUB retirement_fund;
+    RUB down_payment_fund;
+};
+
+struct Utilities {
+    RUB internet;
+    RUB mobile_phone;
+    RUB water;
+    RUB heating;
+    RUB trash;
+};
+
+struct Miscellaneous {
+    RUB clothing;
+    RUB electronics;
+    RUB furniture;
+    RUB hobbies;
+    RUB unexpected;
+};
+
+
+struct Hobbies {
+    RUB photography;
+    RUB music_instruments;
+    RUB sports_gear;
+    RUB travel_accessories;
+    RUB art_supplies;
+    RUB gaming;
+    bool active_photography;
+    bool active_music;
+};
+
+struct CareerHistory {
+    TXT company_name;
+    RUB starting_salary;
+    RUB current_salary;
+    COUNTER promotions_count;
+    COUNTER job_changes;
+    RUB total_bonus_collected;
+    bool looking_for_new_job;
+};
+
+struct RealEstate {
+    bool owns_apartment;
+    RUB apartment_value;
+    RUB mortgage_remaining;
+    RUB down_payment_made;
+    RUB renovation_costs;
+    RUB property_tax_annual;
+    bool renting_out;
+    RUB rental_income;
+};
+
+struct Emergency {
+    RUB rainy_day_fund;
+    RUB insurance_payouts;
+    RUB theft_losses;
+    RUB natural_disaster_loss;
+    COUNTER emergencies_count;
+};
+
+struct RandomEventsLog {
+    TXT last_event;
+    RUB last_event_cost;
+    RUB last_event_gain;
+    COUNTER lucky_events;
+    COUNTER unlucky_events;
+};
+
+struct Psychological {
+    RUB therapy_cost;
+    RUB meditation_app;
+    RUB self_care_budget;
+    RUB happiness_boost;
+    RUB stress_boost;
+};
+
+struct FinancialAdvisor {
+    RUB advisor_fee;
+    bool has_advisor;
+    TXT advisor_advice;
+    RUB recommended_savings;
+};
+
+struct PetExpansion {
+    bool has_second_cat;
+    RUB second_cat_food;
+    RUB second_cat_vet;
+    RUB second_cat_toys;
+};
+
+struct TravelHistory {
+    RUB total_spent_on_trips;
+    COUNTER trips_count;
+    RUB last_trip_cost;
+    TXT last_destination;
+};
+
+struct StockPortfolio {
+    RUB tech_stocks;
+    RUB energy_stocks;
+    RUB healthcare_stocks;
+    RUB financial_stocks;
+    RUB consumer_stocks;
+    RUB total_value;
+    RUB daily_volatility;
+    RUB monthly_return;
+};
+
+struct CryptoSpecific {
+    RUB bitcoin;
+    RUB ethereum;
+    RUB altcoins;
+    bool mining_active;
+    RUB mining_costs;
+    RUB staking_rewards;
+};
+
+struct CharityLog {
+    RUB animal_welfare;
+    RUB environmental;
+    RUB education_charity;
+    RUB medical_research;
+    RUB homeless_support;
+    RUB total_donated;
+    COUNTER donation_events;
+};
+
+struct DebtManagement {
+    RUB snowball_payment;
+    RUB avalanche_payment;
+    RUB consolidation_savings;
+    RUB interest_paid_ytd;
+    RUB principal_paid_ytd;
+    bool debt_free_goal;
+};
+
+struct RetirementPlanning {
+    RUB pension_contributions;
+    RUB ira_contributions;
+    RUB projected_retirement_age;
+    RUB target_retirement_savings;
+    RUB current_retirement_savings;
+};
+
+struct FamilyPlanning {
+    bool has_partner;
+    bool has_children;
+    RUB child_education_fund;
+    RUB child_healthcare;
+    RUB child_activities;
+    RUB partner_income;
+    bool married;
+};
+
+struct HomeManagement {
+    RUB repairs;
+    RUB renovations;
+    RUB furniture_upgrades;
+    RUB appliances;
+    RUB landscaping;
+};
+
+struct TransportAlternatives {
+    RUB bicycle;
+    RUB public_transport;
+    RUB taxi_rides;
+    RUB car_sharing;
+    RUB micro_mobility;
+};
+
+struct DigitalAssets {
+    RUB software_subscriptions;
+    RUB domain_names;
+    RUB hosting_costs;
+    RUB digital_art;
+    RUB nft_purchases;
+};
+
+struct BusinessVenture {
+    bool has_business;
+    TXT business_type;
+    RUB business_investment;
+    RUB business_revenue;
+    RUB business_expenses;
+    RUB business_profit;
+};
+
+struct LuxuryExpenses {
+    RUB designer_clothing;
+    RUB jewelry;
+    RUB watches;
+    RUB luxury_travel;
+    RUB fine_dining;
+};
+
+struct WellnessBudget {
+    RUB spa_treatments;
+    RUB massages;
+    RUB yoga_classes;
+    RUB supplements;
+    RUB fitness_trainer;
+};
+
+struct UtilitySavings {
+    RUB solar_panels;
+    RUB energy_efficient_appliances;
+    RUB insulation_upgrade;
+    RUB smart_home_devices;
+    RUB monthly_savings;
+};
+
+struct TravelPoints {
+    RUB airline_miles;
+    RUB hotel_points;
+    RUB credit_card_points;
+    RUB points_used;
+    RUB points_earned;
+};
+
+struct TaxOptimization {
+    RUB deductions;
+    RUB credits;
+    RUB capital_losses;
+    RUB charitable_deductions;
+    RUB retirement_deductions;
+};
+
+struct InsuranceDetails {
+    RUB health_deductible;
+    RUB car_deductible;
+    RUB home_deductible;
+    RUB umbrella_coverage;
+    RUB disability_insurance;
+};
+
+struct ProfessionalNetwork {
+    COUNTER networking_events;
+    RUB conference_fees;
+    RUB membership_dues;
+    RUB business_meals;
+    RUB career_coach;
+};
+
+struct DigitalNomad {
+    bool remote_work;
+    RUB coworking_membership;
+    RUB travel_internet;
+    RUB temporary_accommodation;
+    RUB work_travel_expenses;
+};
+
+struct RealEstatePortfolio {
+    RUB investment_properties;
+    RUB rental_income_total;
+    RUB property_management_fees;
+    RUB repairs_rentals;
+    RUB vacancies_loss;
+};
+
+struct ArtCollection {
+    RUB paintings;
+    RUB sculptures;
+    RUB antiques;
+    RUB art_insurance;
+    RUB appraisals;
+};
+
+struct PersonalGrowth {
+    RUB life_coach;
+    RUB books_nonfiction;
+    RUB seminars;
+    RUB online_courses;
+    RUB mentorship;
+};
+
+struct Person {
+    Bank vtb;
+    Job salary;
+    RUB food;
+    Car car;
+    Trip trip;
+    Job job;
+    Job rank;
+    Cat cat;
+    Relationships opinions;
+    Rent rent_bills;
+    Health health;
+    Education education;
+    Investments investments;
+    Credit credit;
+    Taxes taxes;
+    Insurance insurance;
+    Subscriptions subscriptions;
+    Gifts gifts;
+    SideHustle sideHustle;
+    SocialEvents social;
+    SavingsGoals savings;
+    Utilities utils;
+    Miscellaneous misc;
+    RUB net_worth_history[12];
+    RUB happiness;
+    RUB stress;
+    COUNTER luck_counter;
+    TXT last_major_event;
+    Hobbies hobbies;
+    CareerHistory career;
+    RealEstate realEstate;
+    Emergency emergency;
+    RandomEventsLog randomEvents;
+    Psychological psych;
+    FinancialAdvisor finAdvisor;
+    PetExpansion petEx;
+    TravelHistory travelHistory;
+    StockPortfolio stocks;
+    CryptoSpecific crypto;
+    CharityLog charity;
+    DebtManagement debt;
+    RetirementPlanning retirement;
+    FamilyPlanning family;
+    HomeManagement home;
+    TransportAlternatives transport;
+    DigitalAssets digital;
+    BusinessVenture business;
+    LuxuryExpenses luxury;
+    WellnessBudget wellness;
+    UtilitySavings utilities_savings;
+    TravelPoints travel_points;
+    TaxOptimization tax_opt;
+    InsuranceDetails insurance_details;
+    ProfessionalNetwork network;
+    DigitalNomad nomad;
+    RealEstatePortfolio re_portfolio;
+    ArtCollection art;
+    PersonalGrowth growth;
+    RUB total_income_lifetime;
+    RUB total_expenses_lifetime;
+    RUB net_worth_peak;
+    RUB net_worth_trough;
+};
+
+///
+
+
+/// Alice's data
+
+struct Person alice;
+
+void alice_init()
+{
+    current_seed = time(NULL);
+    srand(current_seed);
+    
+    alice.vtb.rate_usd_rub = 78.76;
+    alice.vtb.account_rub = 0;
+    alice.vtb.account_usd = 1'000;
+    
+    alice.job.salary = 150'000;
+    alice.job.bonus = 0;
+    alice.job.rank = "junior";
+    alice.job.experience_years = 0;
+
+    alice.food = 3'000;
+
+    alice.car.value = 2'400'000;
+    alice.car.gas = 15'000;
+    alice.car.original_value = 2'400'000;
+
+    alice.trip.Tickets = 80'000;
+    alice.trip.Hotel = 70'000;
+    alice.trip.Food_foreign = 25'000;
+    alice.trip.Trip_expenses_expected = 20'000;
+    alice.trip.Trip_expenses_unexpected = 10'000;
+
+    alice.cat.Cat_food = 500;
+    alice.cat.vet_visits = 200;
+    alice.cat.toys = 100;
+
+    alice.rent_bills.Electricity = 4'000;
+    alice.rent_bills.GVS = 5'000;
+    alice.rent_bills.HVS = 2'000;
+    alice.rent_bills.Landlord_rent = 40'000;
+
+    alice.opinions.landlord_opinion = 1;
+    alice.opinions.neighbours_opinion = 0;
+
+
+    alice.health.gym_membership = 3'000;
+    alice.health.medications = 500;
+    alice.health.vitamins = 1'000;
+    alice.health.doctor_visits = 2'000;
+    alice.health.dentist = 1'500;
+    alice.health.sick_days = 0;
+    alice.health.has_health_insurance = true;
+    alice.health.insurance_monthly = 4'000;
+
+    alice.education.courses = 0;
+    alice.education.books = 2'000;
+    alice.education.certifications = 0;
+    alice.education.current_course = "none";
+    alice.education.skill_level = 2;
+
+    alice.investments.stocks_rub = 0;
+    alice.investments.stocks_usd = 0;
+    alice.investments.crypto = 0;
+    alice.investments.bonds = 0;
+    alice.investments.mutual_funds = 0;
+    alice.investments.dividends = 0;
+    alice.investments.capital_gains = 0;
+
+    alice.credit.credit_card_debt = 0;
+    alice.credit.personal_loan = 0;
+    alice.credit.mortgage = 0;
+    alice.credit.interest_rate = 12.5;
+    alice.credit.monthly_payment = 0;
+    alice.credit.credit_score = 700;
+
+    alice.taxes.income_tax = 0;
+    alice.taxes.property_tax = 0;
+    alice.taxes.social_contributions = 0;
+    alice.taxes.tax_refund = 0;
+
+    alice.insurance.car_insurance = 8'000;
+    alice.insurance.life_insurance = 2'000;
+    alice.insurance.home_insurance = 1'500;
+    alice.insurance.liability_insurance = 1'000;
+
+    alice.subscriptions.streaming = 800;
+    alice.subscriptions.cloud_services = 300;
+    alice.subscriptions.magazines = 200;
+    alice.subscriptions.software_licenses = 1'000;
+    alice.subscriptions.delivery_services = 500;
+
+    alice.gifts.birthday_gifts = 2'000;
+    alice.gifts.holiday_gifts = 3'000;
+    alice.gifts.charity = 1'000;
+
+    alice.sideHustle.freelance_income = 0;
+    alice.sideHustle.passive_income = 0;
+    alice.sideHustle.bonus_side = 0;
+    alice.sideHustle.side_job = "none";
+    alice.sideHustle.active = false;
+
+    alice.social.restaurants = 2'000;
+    alice.social.bars = 1'000;
+    alice.social.movies = 500;
+    alice.social.concerts = 0;
+    alice.social.parties = 1'000;
+
+    alice.savings.emergency_fund = 0;
+    alice.savings.vacation_fund = 0;
+    alice.savings.education_fund = 0;
+    alice.savings.retirement_fund = 0;
+    alice.savings.down_payment_fund = 0;
+
+    alice.utils.internet = 1'000;
+    alice.utils.mobile_phone = 800;
+    alice.utils.water = 500;
+    alice.utils.heating = 3'000;
+    alice.utils.trash = 200;
+
+    alice.misc.clothing = 2'000;
+    alice.misc.electronics = 1'000;
+    alice.misc.furniture = 0;
+    alice.misc.hobbies = 1'000;
+    alice.misc.unexpected = 0;
+
+    alice.happiness = 70.0;
+    alice.stress = 30.0;
+    alice.luck_counter = 0;
+    alice.last_major_event = "nothing";
+    for (int i = 0; i < 12; ++i) alice.net_worth_history[i] = 0;
+
+    alice.hobbies.photography = 0;
+    alice.hobbies.music_instruments = 0;
+    alice.hobbies.sports_gear = 0;
+    alice.hobbies.travel_accessories = 0;
+    alice.hobbies.art_supplies = 0;
+    alice.hobbies.gaming = 0;
+    alice.hobbies.active_photography = false;
+    alice.hobbies.active_music = false;
+
+    alice.career.company_name = "StartupSoft";
+    alice.career.starting_salary = 150'000;
+    alice.career.current_salary = 150'000;
+    alice.career.promotions_count = 0;
+    alice.career.job_changes = 0;
+    alice.career.total_bonus_collected = 0;
+    alice.career.looking_for_new_job = false;
+
+    alice.realEstate.owns_apartment = false;
+    alice.realEstate.apartment_value = 0;
+    alice.realEstate.mortgage_remaining = 0;
+    alice.realEstate.down_payment_made = 0;
+    alice.realEstate.renovation_costs = 0;
+    alice.realEstate.property_tax_annual = 0;
+    alice.realEstate.renting_out = false;
+    alice.realEstate.rental_income = 0;
+
+    alice.emergency.rainy_day_fund = 0;
+    alice.emergency.insurance_payouts = 0;
+    alice.emergency.theft_losses = 0;
+    alice.emergency.natural_disaster_loss = 0;
+    alice.emergency.emergencies_count = 0;
+
+    alice.randomEvents.last_event = "none";
+    alice.randomEvents.last_event_cost = 0;
+    alice.randomEvents.last_event_gain = 0;
+    alice.randomEvents.lucky_events = 0;
+    alice.randomEvents.unlucky_events = 0;
+
+    alice.psych.therapy_cost = 0;
+    alice.psych.meditation_app = 0;
+    alice.psych.self_care_budget = 1'000;
+    alice.psych.happiness_boost = 0;
+    alice.psych.stress_boost = 0;
+
+    alice.finAdvisor.advisor_fee = 0;
+    alice.finAdvisor.has_advisor = false;
+    alice.finAdvisor.advisor_advice = "none";
+    alice.finAdvisor.recommended_savings = 0;
+
+    alice.petEx.has_second_cat = false;
+    alice.petEx.second_cat_food = 0;
+    alice.petEx.second_cat_vet = 0;
+    alice.petEx.second_cat_toys = 0;
+
+    alice.travelHistory.total_spent_on_trips = 0;
+    alice.travelHistory.trips_count = 0;
+    alice.travelHistory.last_trip_cost = 0;
+    alice.travelHistory.last_destination = "none";
+
+    alice.total_income_lifetime = 0;
+    alice.total_expenses_lifetime = 0;
+    alice.net_worth_peak = 0;
+    alice.net_worth_trough = 0;
+
+    alice.stocks.tech_stocks = 0;
+    alice.stocks.energy_stocks = 0;
+    alice.stocks.healthcare_stocks = 0;
+    alice.stocks.financial_stocks = 0;
+    alice.stocks.consumer_stocks = 0;
+    alice.stocks.total_value = 0;
+    alice.stocks.daily_volatility = 0.02;
+    alice.stocks.monthly_return = 0;
+
+    alice.crypto.bitcoin = 0;
+    alice.crypto.ethereum = 0;
+    alice.crypto.altcoins = 0;
+    alice.crypto.mining_active = false;
+    alice.crypto.mining_costs = 0;
+    alice.crypto.staking_rewards = 0;
+
+    alice.charity.animal_welfare = 0;
+    alice.charity.environmental = 0;
+    alice.charity.education_charity = 0;
+    alice.charity.medical_research = 0;
+    alice.charity.homeless_support = 0;
+    alice.charity.total_donated = 0;
+    alice.charity.donation_events = 0;
+
+    alice.debt.snowball_payment = 0;
+    alice.debt.avalanche_payment = 0;
+    alice.debt.consolidation_savings = 0;
+    alice.debt.interest_paid_ytd = 0;
+    alice.debt.principal_paid_ytd = 0;
+    alice.debt.debt_free_goal = false;
+
+    alice.retirement.pension_contributions = 0;
+    alice.retirement.ira_contributions = 0;
+    alice.retirement.projected_retirement_age = 65;
+    alice.retirement.target_retirement_savings = 10'000'000;
+    alice.retirement.current_retirement_savings = 0;
+
+    alice.family.has_partner = false;
+    alice.family.has_children = false;
+    alice.family.child_education_fund = 0;
+    alice.family.child_healthcare = 0;
+    alice.family.child_activities = 0;
+    alice.family.partner_income = 0;
+    alice.family.married = false;
+
+    alice.home.repairs = 0;
+    alice.home.renovations = 0;
+    alice.home.furniture_upgrades = 0;
+    alice.home.appliances = 0;
+    alice.home.landscaping = 0;
+
+    alice.transport.bicycle = 0;
+    alice.transport.public_transport = 0;
+    alice.transport.taxi_rides = 0;
+    alice.transport.car_sharing = 0;
+    alice.transport.micro_mobility = 0;
+
+    alice.digital.software_subscriptions = 0;
+    alice.digital.domain_names = 0;
+    alice.digital.hosting_costs = 0;
+    alice.digital.digital_art = 0;
+    alice.digital.nft_purchases = 0;
+
+    alice.business.has_business = false;
+    alice.business.business_type = "none";
+    alice.business.business_investment = 0;
+    alice.business.business_revenue = 0;
+    alice.business.business_expenses = 0;
+    alice.business.business_profit = 0;
+
+    alice.luxury.designer_clothing = 0;
+    alice.luxury.jewelry = 0;
+    alice.luxury.watches = 0;
+    alice.luxury.luxury_travel = 0;
+    alice.luxury.fine_dining = 0;
+
+    alice.wellness.spa_treatments = 0;
+    alice.wellness.massages = 0;
+    alice.wellness.yoga_classes = 0;
+    alice.wellness.supplements = 0;
+    alice.wellness.fitness_trainer = 0;
+
+    alice.utilities_savings.solar_panels = 0;
+    alice.utilities_savings.energy_efficient_appliances = 0;
+    alice.utilities_savings.insulation_upgrade = 0;
+    alice.utilities_savings.smart_home_devices = 0;
+    alice.utilities_savings.monthly_savings = 0;
+
+    alice.travel_points.airline_miles = 0;
+    alice.travel_points.hotel_points = 0;
+    alice.travel_points.credit_card_points = 0;
+    alice.travel_points.points_used = 0;
+    alice.travel_points.points_earned = 0;
+
+    alice.tax_opt.deductions = 0;
+    alice.tax_opt.credits = 0;
+    alice.tax_opt.capital_losses = 0;
+    alice.tax_opt.charitable_deductions = 0;
+    alice.tax_opt.retirement_deductions = 0;
+
+    alice.insurance_details.health_deductible = 5000;
+    alice.insurance_details.car_deductible = 1000;
+    alice.insurance_details.home_deductible = 1000;
+    alice.insurance_details.umbrella_coverage = 0;
+    alice.insurance_details.disability_insurance = 0;
+
+    alice.network.networking_events = 0;
+    alice.network.conference_fees = 0;
+    alice.network.membership_dues = 0;
+    alice.network.business_meals = 0;
+    alice.network.career_coach = 0;
+
+    alice.nomad.remote_work = false;
+    alice.nomad.coworking_membership = 0;
+    alice.nomad.travel_internet = 0;
+    alice.nomad.temporary_accommodation = 0;
+    alice.nomad.work_travel_expenses = 0;
+
+    alice.re_portfolio.investment_properties = 0;
+    alice.re_portfolio.rental_income_total = 0;
+    alice.re_portfolio.property_management_fees = 0;
+    alice.re_portfolio.repairs_rentals = 0;
+    alice.re_portfolio.vacancies_loss = 0;
+
+    alice.art.paintings = 0;
+    alice.art.sculptures = 0;
+    alice.art.antiques = 0;
+    alice.art.art_insurance = 0;
+    alice.art.appraisals = 0;
+
+    alice.growth.life_coach = 0;
+    alice.growth.books_nonfiction = 0;
+    alice.growth.seminars = 0;
+    alice.growth.online_courses = 0;
+    alice.growth.mentorship = 0;
+}
+
+void alice_food(const int month, const int year)
+{
+    if (month == 12) alice.vtb.account_rub -= 2000;  // christmas party
+
+    alice.food += alice.food * (current_inflation / 100. / 12.);
+        
+    alice.vtb.account_rub -= alice.food;
+    alice.total_expenses_lifetime += alice.food;
+}
+
+void alice_job(const int month, const int year)
+{
+    if (month == 3) {
+        alice.job.salary *= 1.3; // был 1.2, теперь 1.3
+    }
+    if (month == 2 && year == 2026) {
+        alice.vtb.account_rub += 10000; // было 5000
+        alice.total_income_lifetime += 10000;
+    }
+    alice.vtb.account_rub += alice.job.salary;
+    alice.total_income_lifetime += alice.job.salary;
+    if (month == 9) {
+        alice.job.bonus += 15000; // было 10000
+    }
+    if (month == 12) {
+        // Добавляем 13-ю зарплату
+        RUB thirteenth = alice.job.salary;
+        alice.vtb.account_rub += thirteenth;
+        alice.total_income_lifetime += thirteenth;
+
+        alice.vtb.account_rub += alice.job.bonus;
+        alice.total_income_lifetime += alice.job.bonus;
+        alice.career.total_bonus_collected += alice.job.bonus;
+        alice.job.experience_years += 1;
+        if (alice.job.experience_years == 3) {
+            alice.job.rank = "middle";
+            alice.job.salary *= 1.4; // было 1.3
+            alice.career.promotions_count++;
+        }
+        if (alice.job.experience_years == 6) {
+            alice.job.rank = "senior";
+            alice.job.salary *= 1.6; // было 1.5
+            alice.career.promotions_count++;
+        }
+    }
+}
+
+void alice_trip(const int month, const int year)
+{
+    if (month == 7 && alice.vtb.account_rub > 0 && alice.vtb.account_usd > 0) {
+        RUB tickets = alice.trip.Tickets;
+        RUB hotel = alice.trip.Hotel;
+        USD extra = alice.trip.Trip_expenses_expected + alice.trip.Trip_expenses_unexpected;
+        if (current_inflation > 18.0) {
+            tickets = (RUB)(tickets * 1.15);
+            hotel = (RUB)(hotel * 1.12);
+            extra = (RUB)(extra * 1.10);
+        }
+        RUB total_rub_cost = tickets + hotel;
+        if (alice.vtb.account_rub >= total_rub_cost && alice.vtb.account_usd >= extra) {
+            alice.vtb.account_rub -= total_rub_cost;
+            alice.vtb.account_usd -= extra;
+            alice.total_expenses_lifetime += total_rub_cost + (RUB)(extra * alice.vtb.rate_usd_rub);
+            alice.travelHistory.total_spent_on_trips += total_rub_cost;
+            alice.travelHistory.trips_count++;
+            alice.travelHistory.last_trip_cost = total_rub_cost;
+            alice.travelHistory.last_destination = "summer resort";
+        }
+    }
+    if (month == 1 && alice.vtb.account_rub > 0 && alice.vtb.account_usd > 0) {
+        RUB tickets = (alice.trip.Tickets * 0.5);
+        RUB hotel = (alice.trip.Hotel * 0.7);
+        USD extra = (alice.trip.Trip_expenses_expected + alice.trip.Trip_expenses_unexpected) * 0.9;
+        RUB total_rub_cost = tickets + hotel;
+        if (alice.vtb.account_rub >= total_rub_cost && alice.vtb.account_usd >= extra) {
+            alice.vtb.account_rub -= total_rub_cost;
+            alice.vtb.account_usd -= extra;
+            alice.total_expenses_lifetime += total_rub_cost + (RUB)(extra * alice.vtb.rate_usd_rub);
+            alice.travelHistory.total_spent_on_trips += total_rub_cost;
+            alice.travelHistory.trips_count++;
+            alice.travelHistory.last_trip_cost = total_rub_cost;
+            alice.travelHistory.last_destination = "winter mountains";
+        }
+    }
+}
+
+void alice_rent(const int month, const int year)
+{
+    // rent expenses
+    RUB utilities = alice.rent_bills.GVS + alice.rent_bills.HVS + alice.rent_bills.Electricity;
+
+    if (month == 1 && year > 2026) {
+        alice.rent_bills.Landlord_rent = (alice.rent_bills.Landlord_rent * (1.0 + (current_inflation / 100.0) * 0.25));
+    }
+
+    RUB total_rent = alice.rent_bills.Landlord_rent + utilities;
+    alice.vtb.account_rub -= total_rent;
+    alice.total_expenses_lifetime += total_rent;
+}
+
+void alice_cat(const int month, const int year)
+{
+    // Cat expenses
+    RUB cat_total = alice.cat.Cat_food + alice.cat.vet_visits + alice.cat.toys;
+    alice.vtb.account_rub -= cat_total;
+    alice.total_expenses_lifetime += cat_total;
+    int rand_roll = rand() % 20 + 1; // random number between 1 and 20
+    if (rand_roll == 1) {
+        alice.vtb.account_rub -= 5000; // serious cat illness
+        alice.total_expenses_lifetime += 5000;
+        int rand_roll2 = rand() % 20 + 1;
+        if (rand_roll2 == 1) {
+            alice.vtb.account_rub -= 10000; // cat surgery
+            alice.total_expenses_lifetime += 10000;
+        }
+    }
+    // Second cat if exists
+    if (alice.petEx.has_second_cat) {
+        RUB second_total = alice.petEx.second_cat_food + alice.petEx.second_cat_vet + alice.petEx.second_cat_toys;
+        alice.vtb.account_rub -= second_total;
+        alice.total_expenses_lifetime += second_total;
+        // Random events for second cat
+        if (rand() % 30 == 1) {
+            alice.vtb.account_rub -= 3000;
+            alice.total_expenses_lifetime += 3000;
+        }
+    }
+}
+
+void alice_car(const int month, const int year)
+{
+    alice.vtb.account_rub -= alice.car.gas;
+    alice.total_expenses_lifetime += alice.car.gas;
+    if (month == 6) {
+        alice.car.gas *= 1.1; // gas price increase
+    }
+    if (month == 9) {
+        RUB maintenance = alice.car.value * 0.1;
+        alice.vtb.account_rub -= maintenance;
+        alice.total_expenses_lifetime += maintenance;
+    }
+    if (month == 12 && alice.car.value > alice.car.original_value * 0.5) {
+        alice.car.value *= 0.9; // car depreciation
+    }
+}
+
+// New functions for extended simulation
+
+void alice_health(const int month, const int year)
+{
+    // Monthly health expenses
+    RUB health_total = alice.health.gym_membership + alice.health.vitamins + alice.health.medications;
+    if (alice.health.has_health_insurance) health_total += alice.health.insurance_monthly;
+    alice.vtb.account_rub -= health_total;
+    alice.total_expenses_lifetime += health_total;
+    // Random health events
+    int rand_roll = rand() % 100 + 1;
+    if (rand_roll <= 5) {
+        // sickness
+        RUB cost = (RUB)(2000 + (rand() % 8000));
+        alice.vtb.account_rub -= cost;
+        alice.total_expenses_lifetime += cost;
+        alice.health.sick_days += (rand() % 5 + 1);
+        alice.happiness -= 10.0;
+        alice.stress += 15.0;
+        alice.last_major_event = "sick";
+        if (rand_roll == 1) {
+            // hospitalization
+            RUB hospital_cost = (RUB)(30000 + (rand() % 70000));
+            alice.vtb.account_rub -= hospital_cost;
+            alice.total_expenses_lifetime += hospital_cost;
+            alice.happiness -= 20.0;
+            alice.stress += 30.0;
+            alice.last_major_event = "hospitalized";
+        }
+    }
+    // Dentist visits
+    if (month == 6 || month == 12) {
+        alice.vtb.account_rub -= alice.health.dentist;
+        alice.total_expenses_lifetime += alice.health.dentist;
+    }
+    // Doctor visits (every 3 months)
+    if (month % 3 == 0) {
+        alice.vtb.account_rub -= alice.health.doctor_visits;
+        alice.total_expenses_lifetime += alice.health.doctor_visits;
+    }
+    // Gym membership increases inflation
+    alice.health.gym_membership += (RUB)(alice.health.gym_membership * (current_inflation / 100.0 / 12.0));
+    alice.health.insurance_monthly += (RUB)(alice.health.insurance_monthly * (current_inflation / 100.0 / 12.0));
+}
+
+void alice_education(const int month, const int year)
+{
+    // Education expenses
+    alice.vtb.account_rub -= alice.education.books;
+    alice.total_expenses_lifetime += alice.education.books;
+    if (month == 9) {
+        // start of academic year
+        alice.education.courses = 15000;
+        alice.vtb.account_rub -= alice.education.courses;
+        alice.total_expenses_lifetime += alice.education.courses;
+        alice.education.current_course = "professional development";
+        alice.education.skill_level += 1;
+    }
+    // Certifications
+    if (month == 5 && alice.education.skill_level >= 3) {
+        RUB cert_cost = 20000;
+        alice.vtb.account_rub -= cert_cost;
+        alice.total_expenses_lifetime += cert_cost;
+        alice.education.certifications += 1;
+        alice.job.salary += 5000; // salary increase due to certification
+        alice.happiness += 5.0;
+    }
+    // Random learning event
+    int rand_roll = rand() % 50 + 1;
+    if (rand_roll == 1) {
+        alice.education.skill_level += 1;
+        alice.happiness += 10.0;
+        alice.last_major_event = "new skill";
+    }
+}
+
+void alice_investments(const int month, const int year)
+{
+    // Auto-invest if savings exceed threshold
+    RUB total_rub = alice.vtb.account_rub;
+    if (total_rub > 100000) {
+        RUB invest = total_rub * 0.1;
+        alice.vtb.account_rub -= invest;
+        alice.investments.stocks_rub += invest;
+    }
+    // Stock market returns (random)
+    int rand_ret = (rand() % 21) - 10; // -10% to +10%
+    alice.investments.stocks_rub += (RUB)(alice.investments.stocks_rub * rand_ret / 100.0);
+    // Dividends (quarterly)
+    if (month % 3 == 0) {
+        RUB dividends = (RUB)(alice.investments.stocks_rub * 0.02);
+        alice.vtb.account_rub += dividends;
+        alice.total_income_lifetime += dividends;
+        alice.investments.dividends += dividends;
+    }
+    // Crypto volatility
+    int crypto_change = (rand() % 41) - 20; // -20% to +20%
+    alice.investments.crypto += (RUB)(alice.investments.crypto * crypto_change / 100.0);
+    // Bonds: stable but low yield
+    alice.investments.bonds += (RUB)(alice.investments.bonds * 0.005);
+}
+
+void alice_credit(const int month, const int year)
+{
+    // Credit card payment
+    if (alice.credit.credit_card_debt > 0) {
+        RUB payment = alice.credit.credit_card_debt * 0.05;
+        if (payment > alice.vtb.account_rub) payment = alice.vtb.account_rub;
+        alice.vtb.account_rub -= payment;
+        alice.credit.credit_card_debt -= payment;
+    }
+    // Interest accrual
+    alice.credit.credit_card_debt += (RUB)(alice.credit.credit_card_debt * alice.credit.interest_rate / 100.0 / 12.0);
+    // Loan repayment
+    if (alice.credit.personal_loan > 0) {
+        RUB loan_payment = alice.credit.monthly_payment;
+        if (loan_payment > alice.vtb.account_rub) loan_payment = alice.vtb.account_rub;
+        alice.vtb.account_rub -= loan_payment;
+        alice.credit.personal_loan -= loan_payment;
+    }
+    // Credit score update based on debt ratio
+    RUB total_debt = alice.credit.credit_card_debt + alice.credit.personal_loan;
+    RUB total_assets = alice.vtb.account_rub + alice.vtb.account_usd * alice.vtb.rate_usd_rub + alice.car.value;
+    if (total_assets > 0) {
+        float debt_ratio = (float)total_debt / total_assets;
+        if (debt_ratio < 0.1) alice.credit.credit_score += 5;
+        else if (debt_ratio > 0.5) alice.credit.credit_score -= 10;
+        if (alice.credit.credit_score > 850) alice.credit.credit_score = 850;
+        if (alice.credit.credit_score < 300) alice.credit.credit_score = 300;
+    }
+}
+
+void alice_taxes(const int month, const int year)
+{
+    // Monthly tax withholding
+    RUB monthly_income = alice.job.salary + (alice.job.bonus / 12);
+    RUB income_tax_month = monthly_income * 0.13;
+    alice.taxes.income_tax += income_tax_month;
+    alice.vtb.account_rub -= income_tax_month;
+    alice.total_expenses_lifetime += income_tax_month;
+    // Year-end tax return (April)
+    if (month == 4 && year > 2026) {
+        RUB refund = alice.taxes.income_tax * 0.05; // 5% refund (simplified)
+        alice.vtb.account_rub += refund;
+        alice.total_income_lifetime += refund;
+        alice.taxes.tax_refund += refund;
+        alice.taxes.income_tax = 0;
+    }
+    // Property tax (annual)
+    if (month == 11) {
+        RUB property_tax = (alice.car.value + (alice.rent_bills.Landlord_rent * 12)) * 0.01;
+        alice.taxes.property_tax += property_tax;
+        alice.vtb.account_rub -= property_tax;
+        alice.total_expenses_lifetime += property_tax;
+    }
+}
+
+void alice_insurance(const int month, const int year)
+{
+    // Monthly insurance premiums
+    RUB insurance_total = alice.insurance.car_insurance + alice.insurance.life_insurance +
+                          alice.insurance.home_insurance + alice.insurance.liability_insurance;
+    alice.vtb.account_rub -= insurance_total;
+    alice.total_expenses_lifetime += insurance_total;
+    // Car insurance claim (random)
+    int rand_claim = rand() % 100 + 1;
+    if (rand_claim <= 3) {
+        RUB claim = alice.car.value * 0.1;
+        alice.vtb.account_rub -= claim; // deductible
+        alice.total_expenses_lifetime += claim;
+        alice.insurance.car_insurance += claim * 0.05; // premium increase
+        alice.happiness -= 15.0;
+        alice.last_major_event = "car accident";
+        alice.emergency.insurance_payouts += claim;
+    }
+}
+
+void alice_subscriptions(const int month, const int year)
+{
+    // Monthly subscription costs
+    RUB subs_total = alice.subscriptions.streaming + alice.subscriptions.cloud_services +
+                     alice.subscriptions.magazines + alice.subscriptions.software_licenses +
+                     alice.subscriptions.delivery_services;
+    alice.vtb.account_rub -= subs_total;
+    alice.total_expenses_lifetime += subs_total;
+    // Random price increases
+    if (month == 1) {
+        alice.subscriptions.streaming += (RUB)(alice.subscriptions.streaming * 0.05);
+        alice.subscriptions.cloud_services += (RUB)(alice.subscriptions.cloud_services * 0.07);
+    }
+}
+
+void alice_gifts(const int month, const int year)
+{
+    // Gift expenses
+    if (month == 12) {
+        alice.vtb.account_rub -= alice.gifts.holiday_gifts;
+        alice.total_expenses_lifetime += alice.gifts.holiday_gifts;
+        alice.happiness += 5.0;
+    }
+    if (month == 6) {
+        alice.vtb.account_rub -= alice.gifts.birthday_gifts; // birthday month
+        alice.total_expenses_lifetime += alice.gifts.birthday_gifts;
+        alice.happiness += 5.0;
+    }
+    // Charity (monthly)
+    alice.vtb.account_rub -= alice.gifts.charity;
+    alice.total_expenses_lifetime += alice.gifts.charity;
+    // Random gift from others
+    int rand_gift = rand() % 50 + 1;
+    if (rand_gift == 1) {
+        RUB gift = 5000 + (rand() % 15000);
+        alice.vtb.account_rub += gift;
+        alice.total_income_lifetime += gift;
+        alice.happiness += 10.0;
+        alice.last_major_event = "received gift";
+        alice.randomEvents.last_event_gain = gift;
+        alice.randomEvents.lucky_events++;
+    }
+}
+
+void alice_side_hustle(const int month, const int year)
+{
+    if (alice.sideHustle.active) {
+        // Freelance income (variable)
+        RUB freelance = (rand() % 10000) + 5000;
+        alice.vtb.account_rub += freelance;
+        alice.total_income_lifetime += freelance;
+        alice.sideHustle.freelance_income += freelance;
+        // Passive income (dividends, interest)
+        RUB passive = alice.investments.stocks_rub * 0.005;
+        alice.vtb.account_rub += passive;
+        alice.total_income_lifetime += passive;
+        alice.sideHustle.passive_income += passive;
+        // Bonus side income
+        if (month == 12) {
+            RUB bonus = 10000 + (rand() % 20000);
+            alice.vtb.account_rub += bonus;
+            alice.total_income_lifetime += bonus;
+            alice.sideHustle.bonus_side += bonus;
+        }
+        // Stress increases with side hustle
+        alice.stress += 5.0;
+    }
+    // Option to start side hustle
+    if (alice.job.experience_years >= 2 && !alice.sideHustle.active) {
+        int rand_start = rand() % 12 + 1;
+        if (rand_start == 1) {
+            alice.sideHustle.active = true;
+            alice.sideHustle.side_job = "freelance developer";
+            alice.last_major_event = "started side hustle";
+        }
+    }
+}
+
+void alice_social_events(const int month, const int year)
+{
+    // Social spending
+    RUB social_total = alice.social.restaurants + alice.social.bars + alice.social.movies + alice.social.parties;
+    if (month == 7 || month == 12) social_total += alice.social.concerts;
+    alice.vtb.account_rub -= social_total;
+    alice.total_expenses_lifetime += social_total;
+    // Happiness and stress adjustment
+    alice.happiness += 3.0;
+    alice.stress -= 2.0;
+    // Random social event (positive)
+    int rand_social = rand() % 20 + 1;
+    if (rand_social == 1) {
+        alice.happiness += 15.0;
+        alice.stress -= 10.0;
+        alice.last_major_event = "great party";
+        alice.randomEvents.lucky_events++;
+    }
+    // Negative social event
+    if (rand_social == 2) {
+        alice.happiness -= 10.0;
+        alice.stress += 5.0;
+        alice.last_major_event = "argument with friend";
+        alice.randomEvents.unlucky_events++;
+    }
+}
+
+void alice_savings_goals(const int month, const int year)
+{
+    RUB total_savings = alice.savings.emergency_fund + alice.savings.vacation_fund +
+                        alice.savings.education_fund + alice.savings.retirement_fund +
+                        alice.savings.down_payment_fund;
+    RUB monthly_savings = alice.vtb.account_rub * 0.1;
+    if (monthly_savings > 0 && alice.vtb.account_rub > monthly_savings) {
+        alice.vtb.account_rub -= monthly_savings;
+        alice.savings.emergency_fund += monthly_savings * 0.3;
+        alice.savings.vacation_fund += monthly_savings * 0.2;
+        alice.savings.education_fund += monthly_savings * 0.1;
+        alice.savings.retirement_fund += monthly_savings * 0.3;
+        alice.savings.down_payment_fund += monthly_savings * 0.1;
+    }
+    RUB interest = total_savings * 0.005;
+    alice.savings.emergency_fund += interest * 0.3;
+    alice.savings.vacation_fund += interest * 0.2;
+    alice.savings.education_fund += interest * 0.1;
+    alice.savings.retirement_fund += interest * 0.3;
+    alice.savings.down_payment_fund += interest * 0.1;
+}
+
+void alice_utilities(const int month, const int year)
+{
+    // Additional utilities
+    RUB utils_total = alice.utils.internet + alice.utils.mobile_phone +
+                      alice.utils.water + alice.utils.heating + alice.utils.trash;
+    alice.vtb.account_rub -= utils_total;
+    alice.total_expenses_lifetime += utils_total;
+    // Seasonal heating variation
+    if (month >= 10 || month <= 3) {
+        RUB extra_heating = alice.utils.heating * 0.5;
+        alice.vtb.account_rub -= extra_heating;
+        alice.total_expenses_lifetime += extra_heating;
+    }
+}
+
+void alice_miscellaneous(const int month, const int year)
+{
+    // Misc expenses
+    RUB misc_total = alice.misc.clothing + alice.misc.electronics + alice.misc.furniture + alice.misc.hobbies;
+    alice.vtb.account_rub -= misc_total;
+    alice.total_expenses_lifetime += misc_total;
+    if (alice.misc.unexpected > 0) {
+        alice.vtb.account_rub -= alice.misc.unexpected;
+        alice.total_expenses_lifetime += alice.misc.unexpected;
+        alice.misc.unexpected = 0;
+    }
+    // Random unexpected expense
+    int rand_unexp = rand() % 30 + 1;
+    if (rand_unexp == 1) {
+        RUB expense = (RUB)(5000 + (rand() % 20000));
+        alice.vtb.account_rub -= expense;
+        alice.total_expenses_lifetime += expense;
+        alice.misc.unexpected = expense;
+        alice.happiness -= 10.0;
+        alice.stress += 15.0;
+        alice.last_major_event = "unexpected expense";
+        alice.randomEvents.unlucky_events++;
+        alice.randomEvents.last_event_cost = expense;
+    }
+}
+
+void alice_happiness_stress(const int month, const int year)
+{
+    // Adjust happiness and stress
+    RUB capital = alice.vtb.account_rub + alice.vtb.account_usd * alice.vtb.rate_usd_rub + alice.car.value;
+    if (capital > 1'000'000) alice.happiness += 2.0;
+    else if (capital < 0) alice.happiness -= 5.0;
+    // Cap values
+    if (alice.happiness > 100) alice.happiness = 100;
+    if (alice.happiness < 0) alice.happiness = 0;
+    if (alice.stress > 100) alice.stress = 100;
+    if (alice.stress < 0) alice.stress = 0;
+}
+
+void alice_record_net_worth(int month)
+{
+    RUB capital = alice.vtb.account_rub + alice.vtb.account_usd * alice.vtb.rate_usd_rub + alice.car.value;
+    alice.net_worth_history[month-1] = capital;
+    if (capital > alice.net_worth_peak) alice.net_worth_peak = capital;
+    if (capital < alice.net_worth_trough || alice.net_worth_trough == 0) alice.net_worth_trough = capital;
+}
+
+void alice_luck_event()
+{
+    // Random luck events
+    int rand_luck = rand() % 100 + 1;
+    if (rand_luck <= 2) {
+        RUB windfall = (RUB)(20000 + (rand() % 100000));
+        alice.vtb.account_rub += windfall;
+        alice.total_income_lifetime += windfall;
+        alice.happiness += 20.0;
+        alice.last_major_event = "lottery win";
+        alice.randomEvents.last_event_gain = windfall;
+        alice.randomEvents.lucky_events++;
+    } else if (rand_luck <= 4) {
+        RUB loss = (RUB)(10000 + (rand() % 50000));
+        alice.vtb.account_rub -= loss;
+        alice.total_expenses_lifetime += loss;
+        alice.happiness -= 15.0;
+        alice.stress += 20.0;
+        alice.last_major_event = "theft";
+        alice.randomEvents.last_event_cost = loss;
+        alice.randomEvents.unlucky_events++;
+        alice.emergency.theft_losses += loss;
+    }
+}
+
+void alice_relationship_updates(const int month, const int year)
+{
+    // Landlord opinion changes based on payment behavior
+    if (alice.vtb.account_rub < alice.rent_bills.Landlord_rent) {
+        alice.opinions.landlord_opinion -= 1;
+    } else {
+        if (month == 12) alice.opinions.landlord_opinion += 1;
+    }
+    // Neighbors opinion
+    int rand_neigh = rand() % 20 + 1;
+    if (rand_neigh == 1) alice.opinions.neighbours_opinion -= 1;
+    else if (rand_neigh == 2) alice.opinions.neighbours_opinion += 1;
+    // Clamp
+    if (alice.opinions.landlord_opinion > 10) alice.opinions.landlord_opinion = 10;
+    if (alice.opinions.landlord_opinion < -10) alice.opinions.landlord_opinion = -10;
+    if (alice.opinions.neighbours_opinion > 10) alice.opinions.neighbours_opinion = 10;
+    if (alice.opinions.neighbours_opinion < -10) alice.opinions.neighbours_opinion = -10;
+}
+
+// --- New functions ---
+
+void alice_hobbies_update(const int month, const int year)
+{
+    // Hobby expenses
+    RUB hobby_total = alice.hobbies.photography + alice.hobbies.music_instruments +
+                      alice.hobbies.sports_gear + alice.hobbies.travel_accessories +
+                      alice.hobbies.art_supplies + alice.hobbies.gaming;
+    alice.vtb.account_rub -= hobby_total;
+    alice.total_expenses_lifetime += hobby_total;
+    // Random hobby events
+    if (alice.hobbies.active_photography && (rand() % 12 == 0)) {
+        RUB photo_gear = 5000 + (rand() % 15000);
+        alice.vtb.account_rub -= photo_gear;
+        alice.total_expenses_lifetime += photo_gear;
+        alice.happiness += 5.0;
+        alice.last_major_event = "new camera lens";
+    }
+    if (alice.hobbies.active_music && (rand() % 10 == 0)) {
+        RUB music_gear = 3000 + (rand() % 10000);
+        alice.vtb.account_rub -= music_gear;
+        alice.total_expenses_lifetime += music_gear;
+        alice.happiness += 4.0;
+        alice.last_major_event = "new instrument accessory";
+    }
+    // Activate hobbies based on income
+    if (!alice.hobbies.active_photography && alice.job.salary > 200000) {
+        alice.hobbies.active_photography = true;
+        alice.hobbies.photography = 10000;
+    }
+    if (!alice.hobbies.active_music && alice.job.salary > 180000) {
+        alice.hobbies.active_music = true;
+        alice.hobbies.music_instruments = 8000;
+    }
+}
+
+void alice_career_events(const int month, const int year)
+{
+    // Job change opportunity
+    if (alice.career.looking_for_new_job && (month == 3 || month == 9)) {
+        int chance = rand() % 100 + 1;
+        if (chance <= 30) {
+            // New job offer
+            RUB new_salary = alice.job.salary * (1.0 + (rand() % 30 + 10) / 100.0);
+            alice.job.salary = new_salary;
+            alice.career.current_salary = new_salary;
+            alice.career.job_changes++;
+            alice.career.looking_for_new_job = false;
+            alice.happiness += 15.0;
+            alice.last_major_event = "changed job";
+            alice.randomEvents.lucky_events++;
+        }
+    }
+    // Consider looking for new job when salary is low or unhappy
+    if (!alice.career.looking_for_new_job && alice.job.experience_years >= 3 && alice.happiness < 50) {
+        alice.career.looking_for_new_job = true;
+    }
+    // Promotion from skill
+    if (alice.education.skill_level >= 4 && alice.career.promotions_count < 2) {
+        alice.job.salary *= 1.1;
+        alice.career.promotions_count++;
+        alice.last_major_event = "skill-based promotion";
+    }
+}
+
+void alice_real_estate_update(const int month, const int year)
+{
+    if (!alice.realEstate.owns_apartment && alice.savings.down_payment_fund > 500000) {
+        // Consider buying an apartment
+        int buy_chance = rand() % 100 + 1;
+        if (buy_chance <= 10) {
+            alice.realEstate.owns_apartment = true;
+            alice.realEstate.apartment_value = 5'000'000 + (rand() % 3'000'000);
+            alice.realEstate.down_payment_made = alice.savings.down_payment_fund;
+            alice.realEstate.mortgage_remaining = alice.realEstate.apartment_value - alice.realEstate.down_payment_made;
+            alice.savings.down_payment_fund = 0;
+            alice.last_major_event = "bought apartment";
+            alice.happiness += 20.0;
+        }
+    }
+    // Mortgage payment
+    if (alice.realEstate.owns_apartment && alice.realEstate.mortgage_remaining > 0) {
+        RUB mortgage_payment = alice.realEstate.mortgage_remaining * 0.005; // 0.5% monthly
+        if (mortgage_payment > alice.vtb.account_rub) mortgage_payment = alice.vtb.account_rub;
+        alice.vtb.account_rub -= mortgage_payment;
+        alice.total_expenses_lifetime += mortgage_payment;
+        alice.realEstate.mortgage_remaining -= mortgage_payment;
+        // Property tax annual
+        if (month == 11) {
+            RUB prop_tax = alice.realEstate.apartment_value * 0.01;
+            alice.vtb.account_rub -= prop_tax;
+            alice.total_expenses_lifetime += prop_tax;
+            alice.realEstate.property_tax_annual = prop_tax;
+        }
+        // Rental income if renting out (simplified)
+        if (alice.realEstate.renting_out) {
+            RUB rent_income = 15000 + (rand() % 10000);
+            alice.vtb.account_rub += rent_income;
+            alice.total_income_lifetime += rent_income;
+            alice.realEstate.rental_income += rent_income;
+        }
+    }
+}
+
+void alice_emergency_management(const int month, const int year)
+{
+    // Emergency fund contribution
+    if (alice.savings.emergency_fund < 200000) {
+        RUB add = alice.vtb.account_rub * 0.05;
+        if (add > 0) {
+            alice.vtb.account_rub -= add;
+            alice.savings.emergency_fund += add;
+        }
+    }
+    // If emergency fund is used, replenish
+    if (alice.emergency.emergencies_count > 0 && alice.savings.emergency_fund < 100000) {
+        alice.emergency.emergencies_count = 0; // reset after using
+    }
+    // Natural disaster (rare)
+    if (rand() % 500 == 0) {
+        RUB loss = (RUB)(50000 + (rand() % 150000));
+        alice.vtb.account_rub -= loss;
+        alice.total_expenses_lifetime += loss;
+        alice.emergency.natural_disaster_loss += loss;
+        alice.emergency.emergencies_count++;
+        alice.happiness -= 30.0;
+        alice.stress += 40.0;
+        alice.last_major_event = "natural disaster";
+        alice.randomEvents.unlucky_events++;
+    }
+}
+
+void alice_psychological_care(const int month, const int year)
+{
+    // Therapy if stress high
+    if (alice.stress > 80) {
+        RUB therapy = 5000;
+        alice.vtb.account_rub -= therapy;
+        alice.total_expenses_lifetime += therapy;
+        alice.psych.therapy_cost += therapy;
+        alice.stress -= 20.0;
+        alice.happiness += 5.0;
+        alice.last_major_event = "therapy session";
+    }
+    // Meditation app subscription
+    if (alice.stress > 60 && alice.psych.meditation_app == 0) {
+        alice.psych.meditation_app = 500;
+    }
+    if (alice.psych.meditation_app > 0) {
+        alice.vtb.account_rub -= alice.psych.meditation_app;
+        alice.total_expenses_lifetime += alice.psych.meditation_app;
+        alice.stress -= 5.0;
+    }
+    // Self-care budget
+    if (alice.psych.self_care_budget > 0) {
+        alice.vtb.account_rub -= alice.psych.self_care_budget;
+        alice.total_expenses_lifetime += alice.psych.self_care_budget;
+        alice.happiness += 3.0;
+        alice.stress -= 2.0;
+    }
+}
+
+void alice_financial_advisor(const int month, const int year)
+{
+    if (!alice.finAdvisor.has_advisor && alice.vtb.account_rub > 500000) {
+        int chance = rand() % 100 + 1;
+        if (chance <= 5) {
+            alice.finAdvisor.has_advisor = true;
+            alice.finAdvisor.advisor_fee = 10000;
+            alice.finAdvisor.advisor_advice = "diversify investments";
+            alice.last_major_event = "hired financial advisor";
+        }
+    }
+    if (alice.finAdvisor.has_advisor) {
+        alice.vtb.account_rub -= alice.finAdvisor.advisor_fee;
+        alice.total_expenses_lifetime += alice.finAdvisor.advisor_fee;
+        // Advisor's advice improves returns
+        alice.investments.stocks_rub += (RUB)(alice.investments.stocks_rub * 0.02);
+        alice.investments.bonds += (RUB)(alice.investments.bonds * 0.01);
+        // Recommended savings
+        alice.finAdvisor.recommended_savings = alice.vtb.account_rub * 0.15;
+        if (alice.savings.emergency_fund < alice.finAdvisor.recommended_savings) {
+            RUB topup = (alice.finAdvisor.recommended_savings - alice.savings.emergency_fund) * 0.1;
+            if (topup > alice.vtb.account_rub) topup = alice.vtb.account_rub;
+            alice.vtb.account_rub -= topup;
+            alice.savings.emergency_fund += topup;
+        }
+    }
+}
+
+void alice_pet_expansion(const int month, const int year)
+{
+    if (!alice.petEx.has_second_cat && alice.job.salary > 180000 && alice.happiness > 60) {
+        int chance = rand() % 12 + 1;
+        if (chance == 1) {
+            alice.petEx.has_second_cat = true;
+            alice.petEx.second_cat_food = 400;
+            alice.petEx.second_cat_vet = 150;
+            alice.petEx.second_cat_toys = 80;
+            alice.last_major_event = "adopted second cat";
+            alice.happiness += 10.0;
+        }
+    }
+    // Increase expenses with inflation
+    if (alice.petEx.has_second_cat) {
+        alice.petEx.second_cat_food += (RUB)(alice.petEx.second_cat_food * (current_inflation / 100.0 / 12.0));
+        alice.petEx.second_cat_vet += (RUB)(alice.petEx.second_cat_vet * (current_inflation / 100.0 / 12.0));
+        alice.petEx.second_cat_toys += (RUB)(alice.petEx.second_cat_toys * (current_inflation / 100.0 / 12.0));
+    }
+}
+
+void alice_stocks_update(const int month, const int year)
+{
+    // Sector-specific stock returns
+    alice.stocks.tech_stocks += (RUB)(alice.stocks.tech_stocks * ((rand() % 20 - 5) / 100.0));
+    alice.stocks.energy_stocks += (RUB)(alice.stocks.energy_stocks * ((rand() % 15 - 2) / 100.0));
+    alice.stocks.healthcare_stocks += (RUB)(alice.stocks.healthcare_stocks * ((rand() % 12 - 1) / 100.0));
+    alice.stocks.financial_stocks += (RUB)(alice.stocks.financial_stocks * ((rand() % 10 + 1) / 100.0));
+    alice.stocks.consumer_stocks += (RUB)(alice.stocks.consumer_stocks * ((rand() % 18 - 3) / 100.0));
+    alice.stocks.total_value = alice.stocks.tech_stocks + alice.stocks.energy_stocks +
+                                alice.stocks.healthcare_stocks + alice.stocks.financial_stocks +
+                                alice.stocks.consumer_stocks;
+    // Monthly return logging
+    alice.stocks.monthly_return = (alice.stocks.total_value - alice.stocks.total_value) / (alice.stocks.total_value + 1);
+}
+
+void alice_crypto_update(const int month, const int year)
+{
+    // Crypto volatility
+    alice.crypto.bitcoin += (RUB)(alice.crypto.bitcoin * ((rand() % 40 - 20) / 100.0));
+    alice.crypto.ethereum += (RUB)(alice.crypto.ethereum * ((rand() % 35 - 15) / 100.0));
+    alice.crypto.altcoins += (RUB)(alice.crypto.altcoins * ((rand() % 50 - 25) / 100.0));
+    // Staking rewards
+    alice.crypto.staking_rewards += alice.crypto.ethereum * 0.01;
+    alice.crypto.ethereum += alice.crypto.staking_rewards;
+    // Mining
+    if (alice.crypto.mining_active) {
+        RUB mining_cost = alice.crypto.mining_costs;
+        alice.vtb.account_rub -= mining_cost;
+        alice.total_expenses_lifetime += mining_cost;
+        RUB mined = (rand() % 10000) + 5000;
+        alice.vtb.account_rub += mined;
+        alice.total_income_lifetime += mined;
+    }
+}
+
+void alice_charity_update(const int month, const int year)
+{
+    // Monthly charity contributions
+    if (month == 12) {
+        // End-of-year charity
+        RUB donate = alice.vtb.account_rub * 0.05;
+        if (donate > 0) {
+            alice.vtb.account_rub -= donate;
+            alice.total_expenses_lifetime += donate;
+            alice.charity.total_donated += donate;
+            alice.charity.donation_events++;
+            // Allocate to categories
+            alice.charity.animal_welfare += donate * 0.2;
+            alice.charity.environmental += donate * 0.2;
+            alice.charity.education_charity += donate * 0.2;
+            alice.charity.medical_research += donate * 0.2;
+            alice.charity.homeless_support += donate * 0.2;
+            // Tax deduction
+            alice.tax_opt.charitable_deductions += donate;
+        }
+    }
+}
+
+void alice_debt_management(const int month, const int year)
+{
+
+    if (alice.credit.credit_card_debt > 0 || alice.credit.personal_loan > 0) {
+        RUB debt_repayment = alice.job.salary * 0.15;
+        if (debt_repayment > alice.vtb.account_rub) debt_repayment = alice.vtb.account_rub;
+        if (debt_repayment > 0) {
+            alice.vtb.account_rub -= debt_repayment;
+            if (alice.credit.credit_card_debt > 0) {
+                RUB pay = debt_repayment;
+                if (pay > alice.credit.credit_card_debt) pay = alice.credit.credit_card_debt;
+                alice.credit.credit_card_debt -= pay;
+                alice.debt.principal_paid_ytd += pay;
+                debt_repayment -= pay;
+            }
+            if (debt_repayment > 0 && alice.credit.personal_loan > 0) {
+                RUB pay = debt_repayment;
+                if (pay > alice.credit.personal_loan) pay = alice.credit.personal_loan;
+                alice.credit.personal_loan -= pay;
+                alice.debt.principal_paid_ytd += pay;
+            }
+        }
+    }
+}
+
+void alice_retirement_update(const int month, const int year)
+{
+    // Monthly contribution to retirement
+    RUB contrib = alice.job.salary * 0.05;
+    alice.vtb.account_rub -= contrib;
+    alice.retirement.current_retirement_savings += contrib;
+    alice.retirement.pension_contributions += contrib;
+    // Investment growth
+    alice.retirement.current_retirement_savings += (RUB)(alice.retirement.current_retirement_savings * 0.007);
+}
+
+void alice_family_update(const int month, const int year)
+{
+    if (alice.family.has_partner && alice.family.partner_income > 0) {
+        alice.vtb.account_rub += alice.family.partner_income;
+        alice.total_income_lifetime += alice.family.partner_income;
+    }
+    if (alice.family.has_children) {
+        // Child expenses
+        RUB child_cost = alice.family.child_healthcare + alice.family.child_activities;
+        alice.vtb.account_rub -= child_cost;
+        alice.total_expenses_lifetime += child_cost;
+        // Education fund
+        RUB edu_save = alice.vtb.account_rub * 0.02;
+        alice.vtb.account_rub -= edu_save;
+        alice.family.child_education_fund += edu_save;
+    }
+}
+
+void alice_home_update(const int month, const int year)
+{
+    // Home repairs and renovations
+    if (alice.realEstate.owns_apartment) {
+        if (month == 6) {
+            RUB repair = alice.home.repairs;
+            alice.vtb.account_rub -= repair;
+            alice.total_expenses_lifetime += repair;
+        }
+        if (month == 9) {
+            RUB renovation = alice.home.renovations;
+            alice.vtb.account_rub -= renovation;
+            alice.total_expenses_lifetime += renovation;
+            alice.realEstate.apartment_value += renovation * 0.5;
+        }
+    }
+    // Furniture and appliances
+    alice.vtb.account_rub -= alice.home.furniture_upgrades;
+    alice.vtb.account_rub -= alice.home.appliances;
+    alice.total_expenses_lifetime += alice.home.furniture_upgrades + alice.home.appliances;
+    // Landscaping (seasonal)
+    if (month == 5 || month == 9) {
+        alice.vtb.account_rub -= alice.home.landscaping;
+        alice.total_expenses_lifetime += alice.home.landscaping;
+    }
+}
+
+void alice_transport_update(const int month, const int year)
+{
+    // Alternative transport expenses
+    RUB trans_total = alice.transport.bicycle + alice.transport.public_transport +
+                      alice.transport.taxi_rides + alice.transport.car_sharing +
+                      alice.transport.micro_mobility;
+    alice.vtb.account_rub -= trans_total;
+    alice.total_expenses_lifetime += trans_total;
+    // If public transport used, reduce car gas
+    if (alice.transport.public_transport > 500) {
+        alice.car.gas -= (alice.car.gas * 0.1);
+        if (alice.car.gas < 0) alice.car.gas = 0;
+    }
+}
+
+void alice_digital_assets_update(const int month, const int year)
+{
+    RUB digital_total = alice.digital.software_subscriptions + alice.digital.domain_names +
+                        alice.digital.hosting_costs + alice.digital.digital_art +
+                        alice.digital.nft_purchases;
+    alice.vtb.account_rub -= digital_total;
+    alice.total_expenses_lifetime += digital_total;
+    // NFT value fluctuation
+    alice.digital.nft_purchases += (RUB)(alice.digital.nft_purchases * ((rand() % 30 - 10) / 100.0));
+}
+
+void alice_business_venture_update(const int month, const int year)
+{
+    if (alice.business.has_business) {
+        // Random business revenue
+        RUB revenue = alice.business.business_revenue + (rand() % 20000);
+        alice.vtb.account_rub += revenue;
+        alice.total_income_lifetime += revenue;
+        alice.business.business_revenue = revenue;
+        // Expenses
+        RUB expense = alice.business.business_expenses + (rand() % 10000);
+        alice.vtb.account_rub -= expense;
+        alice.total_expenses_lifetime += expense;
+        alice.business.business_expenses = expense;
+        alice.business.business_profit = revenue - expense;
+        // Reinvest profit
+        if (alice.business.business_profit > 0) {
+            RUB reinvest = alice.business.business_profit * 0.3;
+            alice.business.business_investment += reinvest;
+            alice.vtb.account_rub -= reinvest;
+        }
+    } else {
+        // Option to start business
+        if (alice.job.experience_years >= 4 && alice.vtb.account_rub > 200000) {
+            int chance = rand() % 12 + 1;
+            if (chance == 1) {
+                alice.business.has_business = true;
+                alice.business.business_type = "ecommerce";
+                alice.business.business_investment = 50000;
+                alice.vtb.account_rub -= 50000;
+                alice.total_expenses_lifetime += 50000;
+                alice.last_major_event = "started business";
+            }
+        }
+    }
+}
+
+void alice_luxury_update(const int month, const int year)
+{
+    // Luxury purchases (sporadic)
+    if (month == 11 && alice.job.salary > 250000) {
+        RUB luxury_total = alice.luxury.designer_clothing + alice.luxury.jewelry +
+                           alice.luxury.watches + alice.luxury.luxury_travel +
+                           alice.luxury.fine_dining;
+        alice.vtb.account_rub -= luxury_total;
+        alice.total_expenses_lifetime += luxury_total;
+        alice.happiness += 10.0;
+    }
+}
+
+void alice_wellness_update(const int month, const int year)
+{
+    RUB wellness_total = alice.wellness.spa_treatments + alice.wellness.massages +
+                         alice.wellness.yoga_classes + alice.wellness.supplements +
+                         alice.wellness.fitness_trainer;
+    alice.vtb.account_rub -= wellness_total;
+    alice.total_expenses_lifetime += wellness_total;
+    // Wellness reduces stress
+    alice.stress -= wellness_total / 5000.0;
+    if (alice.stress < 0) alice.stress = 0;
+    alice.happiness += wellness_total / 3000.0;
+}
+
+void alice_travel_points_update(const int month, const int year)
+{
+    // Earn points based on spending
+    RUB spend = alice.trip.Tickets + alice.trip.Hotel + alice.trip.Food_foreign * alice.vtb.rate_usd_rub;
+    alice.travel_points.points_earned += spend * 0.02;
+    // Use points for travel
+    if (alice.travel_points.points_used > 0 && alice.travel_points.points_used <= alice.travel_points.points_earned) {
+        alice.travel_points.points_earned -= alice.travel_points.points_used;
+        // Discount on trip
+        alice.trip.Tickets -= alice.travel_points.points_used * 0.5;
+        if (alice.trip.Tickets < 0) alice.trip.Tickets = 0;
+    }
+}
+
+void alice_tax_optimization_update(const int month, const int year)
+{
+    // Year-end tax planning
+    if (month == 12) {
+        alice.tax_opt.deductions = alice.tax_opt.charitable_deductions + alice.tax_opt.retirement_deductions;
+        alice.tax_opt.credits = alice.tax_opt.credits + alice.tax_opt.capital_losses * 0.3;
+        // Reduce tax liability
+        RUB tax_saved = (alice.tax_opt.deductions + alice.tax_opt.credits) * 0.13;
+        alice.vtb.account_rub += tax_saved;
+        alice.total_income_lifetime += tax_saved;
+        alice.last_major_event = "tax optimization";
+    }
+}
+
+void alice_insurance_details_update(const int month, const int year)
+{
+    // Update deductibles and coverage based on income
+    if (alice.job.salary > 200000) {
+        alice.insurance_details.umbrella_coverage = 1'000'000;
+    }
+    if (alice.job.salary > 300000) {
+        alice.insurance_details.disability_insurance = 5000;
+    }
+}
+
+void alice_professional_network_update(const int month, const int year)
+{
+    // Attend networking events
+    if (month == 4 || month == 10) {
+        RUB cost = alice.network.conference_fees + alice.network.membership_dues + alice.network.business_meals;
+        alice.vtb.account_rub -= cost;
+        alice.total_expenses_lifetime += cost;
+        alice.network.networking_events++;
+        // Career boost
+        int rand_boost = rand() % 20 + 1;
+        if (rand_boost == 1) {
+            alice.job.salary *= 1.05;
+            alice.last_major_event = "career breakthrough from networking";
+        }
+    }
+}
+
+void alice_digital_nomad_update(const int month, const int year)
+{
+    if (alice.nomad.remote_work) {
+        RUB nomad_cost = alice.nomad.coworking_membership + alice.nomad.travel_internet +
+                         alice.nomad.temporary_accommodation + alice.nomad.work_travel_expenses;
+        alice.vtb.account_rub -= nomad_cost;
+        alice.total_expenses_lifetime += nomad_cost;
+        // Happiness boost
+        alice.happiness += 5.0;
+        alice.stress -= 3.0;
+    }
+}
+
+void alice_real_estate_portfolio_update(const int month, const int year)
+{
+    // Rental properties
+    if (alice.re_portfolio.investment_properties > 0) {
+        RUB rental = alice.re_portfolio.rental_income_total;
+        alice.vtb.account_rub += rental;
+        alice.total_income_lifetime += rental;
+        // Management fees
+        RUB fees = alice.re_portfolio.property_management_fees;
+        alice.vtb.account_rub -= fees;
+        alice.total_expenses_lifetime += fees;
+        // Repairs
+        RUB repairs = alice.re_portfolio.repairs_rentals;
+        alice.vtb.account_rub -= repairs;
+        alice.total_expenses_lifetime += repairs;
+        // Vacancy loss
+        if (alice.re_portfolio.vacancies_loss > 0) {
+            alice.vtb.account_rub -= alice.re_portfolio.vacancies_loss;
+            alice.total_expenses_lifetime += alice.re_portfolio.vacancies_loss;
+        }
+    }
+}
+
+void alice_art_collection_update(const int month, const int year)
+{
+    // Art value appreciation
+    alice.art.paintings += (RUB)(alice.art.paintings * 0.05);
+    alice.art.sculptures += (RUB)(alice.art.sculptures * 0.03);
+    alice.art.antiques += (RUB)(alice.art.antiques * 0.02);
+    // Art insurance
+    RUB insurance = alice.art.art_insurance;
+    alice.vtb.account_rub -= insurance;
+    alice.total_expenses_lifetime += insurance;
+    // Appraisals every 2 years
+    if (year % 2 == 0 && month == 6) {
+        RUB appraise = alice.art.appraisals;
+        alice.vtb.account_rub -= appraise;
+        alice.total_expenses_lifetime += appraise;
+    }
+}
+
+void alice_personal_growth_update(const int month, const int year)
+{
+    RUB growth_cost = alice.growth.life_coach + alice.growth.books_nonfiction +
+                      alice.growth.seminars + alice.growth.online_courses +
+                      alice.growth.mentorship;
+    alice.vtb.account_rub -= growth_cost;
+    alice.total_expenses_lifetime += growth_cost;
+    // Happiness and skill increase
+    alice.happiness += 2.0;
+    alice.education.skill_level += 0.1;
+}
+
+
+///
+
+
+/// Simulation and results
+
+void simulation()
+{
+    int year = 2026;
+    int month = 2;
+    
+    while ( !(year == 2029 && month == 2) ) {
+        alice_job(month, year);
+        alice_car(month, year);
+        alice_cat(month, year);
+        alice_trip(month, year);
+        alice_rent(month, year);
+        alice_food(month, year);
+        alice_health(month, year);
+        alice_education(month, year);
+        alice_investments(month, year);
+        alice_credit(month, year);
+        alice_taxes(month, year);
+        alice_insurance(month, year);
+        alice_subscriptions(month, year);
+        alice_gifts(month, year);
+        alice_side_hustle(month, year);
+        alice_social_events(month, year);
+        alice_savings_goals(month, year);
+        alice_utilities(month, year);
+        alice_miscellaneous(month, year);
+        alice_happiness_stress(month, year);
+        alice_relationship_updates(month, year);
+        alice_luck_event();
+        alice_record_net_worth(month);
+        alice_hobbies_update(month, year);
+        alice_career_events(month, year);
+        alice_real_estate_update(month, year);
+        alice_emergency_management(month, year);
+        alice_psychological_care(month, year);
+        alice_financial_advisor(month, year);
+        alice_pet_expansion(month, year);
+        alice_stocks_update(month, year);
+        alice_crypto_update(month, year);
+        alice_charity_update(month, year);
+        alice_debt_management(month, year);
+        alice_retirement_update(month, year);
+        alice_family_update(month, year);
+        alice_home_update(month, year);
+        alice_transport_update(month, year);
+        alice_digital_assets_update(month, year);
+        alice_business_venture_update(month, year);
+        alice_luxury_update(month, year);
+        alice_wellness_update(month, year);
+        alice_travel_points_update(month, year);
+        alice_tax_optimization_update(month, year);
+        alice_insurance_details_update(month, year);
+        alice_professional_network_update(month, year);
+        alice_digital_nomad_update(month, year);
+        alice_real_estate_portfolio_update(month, year);
+        alice_art_collection_update(month, year);
+        alice_personal_growth_update(month, year);
+        
+        ++month;
+        if (month == 13) {
+            ++year;
+            month = 1;
+            // Adjust inflation
+            int rand_num = rand() % 4 + 1;
+            if (rand_num > 2) {
+                current_inflation += rand_num;
+            } else {
+                current_inflation -= rand_num;
+            }
+            if (current_inflation < 0) current_inflation = 0;
+            int rand_roll = rand() % 20 + 1;
+            if (rand_roll == 1) {
+                current_inflation += 5;
+            }
+        }
+    }
+}
+
+void print_results(const int month, const int year)
+{
+    printf("Simulation ended at %d/%d\n", month, year);
+    printf("Salary = %lld RUB\n", alice.job.salary);
+    printf("Rank = %s\n", alice.job.rank.c_str());
+    printf("Experience = %d years\n", alice.job.experience_years);
+    printf("Bank RUB = %lld, USD = %lld (rate = %.2f)\n", alice.vtb.account_rub, alice.vtb.account_usd, alice.vtb.rate_usd_rub);
+    printf("Car value = %lld RUB\n", alice.car.value);
+    printf("Investments: stocks RUB = %lld, crypto = %lld\n", alice.investments.stocks_rub, alice.investments.crypto);
+    printf("Credit score = %d\n", alice.credit.credit_score);
+    printf("Happiness = %.1f, Stress = %.1f\n", alice.happiness, alice.stress);
+    printf("Last major event: %s\n", alice.last_major_event.c_str());
+    RUB capital = 0;
+    capital += alice.vtb.account_rub;
+    capital += alice.vtb.account_usd * alice.vtb.rate_usd_rub;
+    capital += alice.car.value;
+    capital += alice.investments.stocks_rub;
+    capital += alice.investments.crypto;
+    capital += alice.investments.bonds;
+    capital += alice.investments.mutual_funds;
+    capital += alice.savings.emergency_fund + alice.savings.vacation_fund + alice.savings.education_fund + alice.savings.retirement_fund + alice.savings.down_payment_fund;
+    if (alice.realEstate.owns_apartment) {
+        capital += alice.realEstate.apartment_value - alice.realEstate.mortgage_remaining;
+    }
+    printf("Total Capital = %lld RUB\n", capital);
+    printf("Net worth peak = %lld, trough = %lld\n", alice.net_worth_peak, alice.net_worth_trough);
+    printf("Lifetime income = %lld, expenses = %lld\n", alice.total_income_lifetime, alice.total_expenses_lifetime);
+    printf("Career promotions = %d, job changes = %d\n", alice.career.promotions_count, alice.career.job_changes);
+    printf("Trips taken = %d, total spent on trips = %lld\n", alice.travelHistory.trips_count, alice.travelHistory.total_spent_on_trips);
+    printf("Random events: lucky = %d, unlucky = %d\n", alice.randomEvents.lucky_events, alice.randomEvents.unlucky_events);
+    printf("Net worth history (last 12 months):\n");
+    for (int i = 0; i < 12; ++i) {
+        printf("Month %d: %lld RUB\n", i+1, alice.net_worth_history[i]);
+    }
+    printf("\nExtras\n");
+    printf("Stock Portfolio Value: %lld RUB\n", alice.stocks.total_value);
+    printf("Crypto Holdings: BTC=%.2f, ETH=%.2f\n", (float)alice.crypto.bitcoin, (float)alice.crypto.ethereum);
+    printf("Retirement Savings: %lld RUB\n", alice.retirement.current_retirement_savings);
+    printf("Charity Donated: %lld RUB\n", alice.charity.total_donated);
+    printf("Business Profit: %lld RUB\n", alice.business.business_profit);
+    printf("Real Estate Portfolio Value: %lld RUB\n", alice.re_portfolio.investment_properties);
+    printf("Art Collection Value: %lld RUB\n", alice.art.paintings + alice.art.sculptures + alice.art.antiques);
+    printf("Personal Growth Investments: %lld RUB\n", alice.growth.life_coach + alice.growth.books_nonfiction +
+           alice.growth.seminars + alice.growth.online_courses + alice.growth.mentorship);
+}
+
+///
+
+
+/// Main function
+
+int main()
+{
+    alice_init();
+    printf("Seed = %u\n", current_seed);
+    simulation();
+    print_results(2, 2029);
+    return 0;
+}
+
+///
