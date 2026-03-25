@@ -1,0 +1,2277 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+using RUB = long long int;
+using PLN = long long int;
+using USD = long long int;
+using EUR = long long int;
+
+// Для Даши
+
+struct Bank {
+    RUB account_rub;
+    PLN account_pln;
+    USD account_usd;
+    EUR account_eur;
+    float rate_pln_rub;
+    float rate_usd_rub;
+    float rate_eur_rub;
+};
+
+struct Dormitory {
+    RUB monthly_fee;
+    RUB internet;
+    bool isLiving;
+};
+
+struct Flat {
+    RUB rent;
+    RUB utilities;
+    RUB food;
+    bool isLiving;
+};
+
+struct Education {
+    bool isStudying;
+    int course;
+    RUB scholarship;
+    int months_left;
+    RUB diploma_cost;
+    RUB re_exam_cost;
+};
+
+struct Job {
+    bool hasJob;
+    RUB salary_rub;
+    PLN salary_pln;
+    int months_worked;
+    bool isBurnedOut;
+    int burnout_month;
+    int burnout_year;
+    RUB tax_paid;
+    RUB bonus;
+    bool gotFired;
+    RUB severance_pay;
+};
+
+struct Relocation {
+    bool decidedToLeave;
+    int decision_month;
+    int decision_year;
+    RUB visa_cost;
+    RUB tickets;
+    PLN initial_expenses;
+    bool isInPoland;
+    int arrival_month;
+    int arrival_year;
+    RUB language_exam;
+    RUB document_translation;
+    RUB medical_insurance_abroad;
+};
+
+struct Courses {
+    bool isLearning;
+    RUB cost;
+    int duration_months;
+    int months_done;
+    RUB monthly_payment;
+    bool gotCertificate;
+};
+
+struct Investments {
+    RUB crypto_invested;
+    RUB crypto_value;
+    bool sold;
+    int sell_month;
+    int sell_year;
+    RUB profit;
+    RUB stocks_invested;
+    RUB stocks_value;
+    bool stocks_sold;
+    RUB bonds_invested;
+    RUB bonds_value;
+};
+
+struct Freelance {
+    bool isActive;
+    RUB monthly_income;
+    int months_active;
+    RUB total_earned;
+};
+
+struct Gambling {
+    RUB total_spent;
+    RUB total_won;
+    RUB net_result;
+    int casino_visits;
+    RUB last_bet;
+    bool has_big_win;
+    RUB big_win_amount;
+    bool has_big_loss;
+    RUB big_loss_amount;
+};
+
+struct Taxes {
+    RUB income_tax;
+    RUB property_tax;
+    RUB vehicle_tax;
+    RUB total_paid;
+    RUB tax_return;
+};
+
+struct Car {
+    bool hasCar;
+    RUB price;
+    RUB monthly_gas;
+    RUB insurance;
+    RUB maintenance;
+    bool isBought;
+    int buy_month;
+    int buy_year;
+    RUB fine_gibdd;
+    int fines_count;
+    bool hadAccident;
+    RUB accident_cost;
+};
+
+struct Wedding {
+    bool isMarried;
+    int wedding_month;
+    int wedding_year;
+    RUB ring_cost;
+    RUB dress_cost;
+    RUB party_cost;
+    RUB honeymoon_cost;
+    bool honeymoon_done;
+    RUB gift_money_received;
+};
+
+struct Child {
+    bool isPregnant;
+    bool hasChild;
+    int pregnancy_month;
+    int pregnancy_year;
+    int birth_month;
+    int birth_year;
+    RUB medical_costs;
+    RUB monthly_expenses;
+    RUB total_spent;
+    RUB kindergarten_cost;
+    bool inKindergarten;
+};
+
+struct CriminalRecord {
+    bool hasRecord;
+    int incident_month;
+    int incident_year;
+    RUB fine;
+    bool isJailed;
+    int jail_months;
+    RUB lawyer_cost;
+};
+
+struct Travel {
+    bool hasTraveled;
+    RUB trip_cost;
+    int trip_month;
+    int trip_year;
+    bool isAbroad;
+    RUB visa_cost;
+    RUB souvenirs;
+};
+
+struct Health {
+    bool isSick;
+    int sick_months;
+    RUB medical_expenses;
+    bool hasInsurance;
+    RUB insurance_cost;
+    bool hadOperation;
+    RUB operation_cost;
+    int operation_month;
+    int operation_year;
+};
+
+struct Hobby {
+    bool hasHobby;
+    RUB monthly_cost;
+    RUB equipment_cost;
+    int months_active;
+    bool soldEquipment;
+    RUB equipment_sale;
+};
+
+struct Credit {
+    bool hasCredit;
+    RUB amount;
+    RUB monthly_payment;
+    int months_left;
+    RUB total_paid;
+    float interest_rate;
+    bool isOverdue;
+    RUB penalty;
+};
+
+struct Deposit {
+    bool hasDeposit;
+    RUB amount;
+    float interest_rate;
+    int months_left;
+    RUB profit;
+    bool early_withdrawal;
+    RUB early_penalty;
+};
+
+struct Pet {
+    bool hasPet;
+    RUB purchase_cost;
+    RUB monthly_food;
+    RUB vet_costs;
+    RUB total_spent;
+    bool isAlive;
+    int got_sick_month;
+};
+
+struct Gifts {
+    RUB received_monthly;
+    RUB given_monthly;
+    RUB total_received;
+    RUB total_given;
+};
+
+struct SideJob {
+    bool isActive;
+    RUB monthly_income;
+    int months_active;
+    RUB total_earned;
+};
+
+struct TechRepair {
+    RUB phone_repair;
+    RUB laptop_repair;
+    RUB total_spent;
+    int repairs_count;
+};
+
+struct Lottery {
+    bool plays;
+    RUB ticket_cost;
+    int tickets_per_month;
+    RUB total_spent;
+    RUB total_won;
+    bool had_jackpot;
+    RUB jackpot_amount;
+};
+
+struct Cashback {
+    RUB total_received;
+    float cashback_percent;
+};
+
+struct Inheritance {
+    bool received;
+    RUB amount;
+    int month;
+    int year;
+};
+
+struct Debt {
+    bool hasDebt;
+    RUB amount;
+    RUB monthly_payment;
+    int months_left;
+    RUB total_paid;
+    bool toFriend;
+};
+
+struct YearStats {
+    RUB income;
+    RUB expenses;
+    RUB net;
+};
+
+struct Person {
+    Bank bank;
+    Dormitory dorm;
+    Flat flat;
+    Education edu;
+    Job job;
+    Relocation move;
+    Courses courses;
+    Investments invest;
+    Freelance freelance;
+    Gambling gamble;
+    Taxes taxes;
+    Car car;
+    Wedding wedding;
+    Child child;
+    CriminalRecord crime;
+    Travel travel;
+    Health health;
+    Hobby hobby;
+    Credit credit;
+    Deposit deposit;
+    Pet pet;
+    Gifts gifts;
+    SideJob sidejob;
+    TechRepair tech;
+    Lottery lottery;
+    Cashback cashback;
+    Inheritance inheritance;
+    Debt debt;
+    YearStats stats[6];
+    RUB total_earned;
+    RUB total_spent;
+    int current_year_index;
+};
+
+// Для Маши
+
+struct MashaBank {
+    RUB account_rub;
+    USD account_usd;
+    float rate_usd_rub;
+};
+
+struct MashaFlat {
+    bool isRented;
+    RUB rent;
+    RUB utilities;
+    bool isBought;
+    RUB price;
+    RUB mortgage_monthly;
+    int mortgage_years;
+    RUB mortgage_paid;
+    RUB mortgage_left;
+    bool hasMortgage;
+    RUB renovation_cost;
+    bool renovated;
+};
+
+struct MashaJob {
+    bool hasJob;
+    RUB salary;
+    int months_worked;
+    bool isFired;
+    int fire_month;
+    int fire_year;
+    RUB severance;
+    bool foundNewJob;
+    RUB new_salary;
+    bool gotPromotion;
+    int promotion_month;
+};
+
+struct MashaBusiness {
+    bool hasBusiness;
+    RUB investment;
+    RUB monthly_profit;
+    RUB monthly_loss;
+    int months_active;
+    bool isProfitable;
+    RUB total_profit;
+    RUB total_loss;
+    bool bankrupt;
+    int bankrupt_month;
+};
+
+struct MashaGambling {
+    RUB betting_total;
+    RUB betting_won;
+    RUB betting_lost;
+    bool isAddicted;
+    int addiction_start_month;
+    int addiction_start_year;
+    bool inDebt;
+    RUB debt_amount;
+};
+
+struct MashaFamily {
+    bool isMarried;
+    RUB husband_income;
+    bool hasParentsSupport;
+    RUB parents_support;
+    bool hasChild;
+    RUB child_expenses;
+    bool divorced;
+    int divorce_month;
+    RUB alimony;
+};
+
+struct MashaCar {
+    bool hasCar;
+    RUB price;
+    RUB credit_payment;
+    int credit_months_left;
+    bool boughtOnCredit;
+    RUB monthly_gas;
+    RUB insurance;
+    RUB maintenance;
+    bool stolen;
+    int stolen_month;
+    RUB insurance_payout;
+};
+
+struct MashaEducation {
+    bool isStudying;
+    RUB cost;
+    int months_left;
+    bool isMBA;
+};
+
+struct MashaHealth {
+    bool hasChronicDisease;
+    RUB monthly_treatment;
+    bool hadSurgery;
+    RUB surgery_cost;
+    bool hadTherapy;
+    RUB therapy_cost;
+};
+
+struct MashaInvestments {
+    RUB forex_invested;
+    RUB forex_profit;
+    bool inForex;
+    RUB gold_invested;
+    RUB gold_value;
+    bool inGold;
+};
+
+struct MashaHobby {
+    bool hasHobby;
+    RUB monthly_cost;
+    RUB equipment_cost;
+};
+
+struct MashaPet {
+    bool hasPet;
+    RUB purchase_cost;
+    RUB monthly_cost;
+    bool ranAway;
+    int ran_away_month;
+};
+
+struct MashaSideJob {
+    bool tutoring;
+    RUB tutoring_income;
+    bool handmade;
+    RUB handmade_income;
+};
+
+struct MashaUnexpected {
+    bool wasRobbed;
+    RUB stolen_amount;
+    bool foundMoney;
+    RUB found_amount;
+    bool helpedFriend;
+    RUB lent_to_friend;
+    bool friendReturned;
+    RUB returned_amount;
+};
+
+struct MashaPerson {
+    MashaBank bank;
+    MashaFlat flat;
+    MashaJob job;
+    MashaBusiness business;
+    MashaGambling gamble;
+    MashaFamily family;
+    MashaCar car;
+    MashaEducation edu;
+    MashaHealth health;
+    MashaInvestments invest;
+    MashaHobby hobby;
+    MashaPet pet;
+    MashaSideJob sidejob;
+    MashaUnexpected unexpected;
+    YearStats stats[6];
+    RUB total_earned;
+    RUB total_spent;
+    int current_year_index;
+};
+
+struct Person dasha;
+struct MashaPerson masha;
+
+// Данные Даши
+
+void dasha_init()
+{
+    dasha.bank.account_rub = 150000;
+    dasha.bank.account_pln = 0;
+    dasha.bank.account_usd = 500;
+    dasha.bank.account_eur = 0;
+    dasha.bank.rate_pln_rub = 23.0f;
+    dasha.bank.rate_usd_rub = 92.0f;
+    dasha.bank.rate_eur_rub = 98.0f;
+
+    dasha.dorm.monthly_fee = 2500;
+    dasha.dorm.internet = 500;
+    dasha.dorm.isLiving = true;
+
+    dasha.flat.rent = 0;
+    dasha.flat.utilities = 0;
+    dasha.flat.food = 0;
+    dasha.flat.isLiving = false;
+
+    dasha.edu.isStudying = true;
+    dasha.edu.course = 4;
+    dasha.edu.scholarship = 3000;
+    dasha.edu.months_left = 4;
+    dasha.edu.diploma_cost = 15000;
+    dasha.edu.re_exam_cost = 3000;
+
+    dasha.job.hasJob = false;
+    dasha.job.salary_rub = 0;
+    dasha.job.salary_pln = 0;
+    dasha.job.months_worked = 0;
+    dasha.job.isBurnedOut = false;
+    dasha.job.tax_paid = 0;
+    dasha.job.bonus = 0;
+    dasha.job.gotFired = false;
+    dasha.job.severance_pay = 0;
+
+    dasha.move.decidedToLeave = false;
+    dasha.move.visa_cost = 45000;
+    dasha.move.tickets = 35000;
+    dasha.move.initial_expenses = 8000;
+    dasha.move.isInPoland = false;
+    dasha.move.language_exam = 12000;
+    dasha.move.document_translation = 8000;
+    dasha.move.medical_insurance_abroad = 15000;
+
+    dasha.courses.isLearning = false;
+    dasha.courses.cost = 80000;
+    dasha.courses.duration_months = 6;
+    dasha.courses.months_done = 0;
+    dasha.courses.monthly_payment = 0;
+    dasha.courses.gotCertificate = false;
+
+    dasha.invest.crypto_invested = 50000;
+    dasha.invest.crypto_value = 50000;
+    dasha.invest.sold = false;
+    dasha.invest.profit = 0;
+    dasha.invest.stocks_invested = 0;
+    dasha.invest.stocks_value = 0;
+    dasha.invest.stocks_sold = false;
+    dasha.invest.bonds_invested = 0;
+    dasha.invest.bonds_value = 0;
+
+    dasha.freelance.isActive = false;
+    dasha.freelance.monthly_income = 25000;
+    dasha.freelance.months_active = 0;
+    dasha.freelance.total_earned = 0;
+
+    dasha.gamble.total_spent = 0;
+    dasha.gamble.total_won = 0;
+    dasha.gamble.net_result = 0;
+    dasha.gamble.casino_visits = 0;
+    dasha.gamble.last_bet = 0;
+    dasha.gamble.has_big_win = false;
+    dasha.gamble.big_win_amount = 0;
+    dasha.gamble.has_big_loss = false;
+    dasha.gamble.big_loss_amount = 0;
+
+    dasha.taxes.income_tax = 0;
+    dasha.taxes.property_tax = 0;
+    dasha.taxes.vehicle_tax = 0;
+    dasha.taxes.total_paid = 0;
+    dasha.taxes.tax_return = 0;
+
+    dasha.car.hasCar = false;
+    dasha.car.price = 800000;
+    dasha.car.monthly_gas = 0;
+    dasha.car.insurance = 0;
+    dasha.car.maintenance = 0;
+    dasha.car.isBought = false;
+    dasha.car.fine_gibdd = 0;
+    dasha.car.fines_count = 0;
+    dasha.car.hadAccident = false;
+    dasha.car.accident_cost = 0;
+
+    dasha.wedding.isMarried = false;
+    dasha.wedding.wedding_month = 0;
+    dasha.wedding.wedding_year = 0;
+    dasha.wedding.ring_cost = 80000;
+    dasha.wedding.dress_cost = 50000;
+    dasha.wedding.party_cost = 200000;
+    dasha.wedding.honeymoon_cost = 150000;
+    dasha.wedding.honeymoon_done = false;
+    dasha.wedding.gift_money_received = 0;
+
+    dasha.child.isPregnant = false;
+    dasha.child.hasChild = false;
+    dasha.child.pregnancy_month = 0;
+    dasha.child.pregnancy_year = 0;
+    dasha.child.medical_costs = 0;
+    dasha.child.monthly_expenses = 0;
+    dasha.child.total_spent = 0;
+    dasha.child.kindergarten_cost = 15000;
+    dasha.child.inKindergarten = false;
+
+    dasha.crime.hasRecord = false;
+    dasha.crime.incident_month = 0;
+    dasha.crime.incident_year = 0;
+    dasha.crime.fine = 0;
+    dasha.crime.isJailed = false;
+    dasha.crime.jail_months = 0;
+    dasha.crime.lawyer_cost = 0;
+
+    dasha.travel.hasTraveled = false;
+    dasha.travel.trip_cost = 0;
+    dasha.travel.isAbroad = false;
+    dasha.travel.visa_cost = 0;
+    dasha.travel.souvenirs = 0;
+
+    dasha.health.isSick = false;
+    dasha.health.sick_months = 0;
+    dasha.health.medical_expenses = 0;
+    dasha.health.hasInsurance = false;
+    dasha.health.insurance_cost = 5000;
+    dasha.health.hadOperation = false;
+    dasha.health.operation_cost = 0;
+
+    dasha.hobby.hasHobby = false;
+    dasha.hobby.monthly_cost = 8000;
+    dasha.hobby.equipment_cost = 30000;
+    dasha.hobby.months_active = 0;
+    dasha.hobby.soldEquipment = false;
+    dasha.hobby.equipment_sale = 0;
+
+    dasha.credit.hasCredit = false;
+    dasha.credit.amount = 0;
+    dasha.credit.monthly_payment = 0;
+    dasha.credit.months_left = 0;
+    dasha.credit.total_paid = 0;
+    dasha.credit.interest_rate = 0.0f;
+    dasha.credit.isOverdue = false;
+    dasha.credit.penalty = 0;
+
+    dasha.deposit.hasDeposit = false;
+    dasha.deposit.amount = 0;
+    dasha.deposit.interest_rate = 7.0f;
+    dasha.deposit.months_left = 0;
+    dasha.deposit.profit = 0;
+    dasha.deposit.early_withdrawal = false;
+    dasha.deposit.early_penalty = 0;
+
+    dasha.pet.hasPet = false;
+    dasha.pet.purchase_cost = 0;
+    dasha.pet.monthly_food = 0;
+    dasha.pet.vet_costs = 0;
+    dasha.pet.total_spent = 0;
+    dasha.pet.isAlive = false;
+
+    dasha.gifts.received_monthly = 0;
+    dasha.gifts.given_monthly = 0;
+    dasha.gifts.total_received = 0;
+    dasha.gifts.total_given = 0;
+
+    dasha.sidejob.isActive = false;
+    dasha.sidejob.monthly_income = 15000;
+    dasha.sidejob.months_active = 0;
+    dasha.sidejob.total_earned = 0;
+
+    dasha.tech.phone_repair = 0;
+    dasha.tech.laptop_repair = 0;
+    dasha.tech.total_spent = 0;
+    dasha.tech.repairs_count = 0;
+
+    dasha.lottery.plays = false;
+    dasha.lottery.ticket_cost = 200;
+    dasha.lottery.tickets_per_month = 10;
+    dasha.lottery.total_spent = 0;
+    dasha.lottery.total_won = 0;
+    dasha.lottery.had_jackpot = false;
+    dasha.lottery.jackpot_amount = 0;
+
+    dasha.cashback.total_received = 0;
+    dasha.cashback.cashback_percent = 1.5f;
+
+    dasha.inheritance.received = false;
+    dasha.inheritance.amount = 0;
+    dasha.inheritance.month = 0;
+    dasha.inheritance.year = 0;
+
+    dasha.debt.hasDebt = false;
+    dasha.debt.amount = 0;
+    dasha.debt.monthly_payment = 0;
+    dasha.debt.months_left = 0;
+    dasha.debt.total_paid = 0;
+    dasha.debt.toFriend = false;
+
+    for (int i = 0; i < 6; i++) {
+        dasha.stats[i].income = 0;
+        dasha.stats[i].expenses = 0;
+        dasha.stats[i].net = 0;
+    }
+
+    dasha.total_earned = 150000;
+    dasha.total_spent = 0;
+    dasha.current_year_index = 0;
+}
+
+// Данные Маши
+
+void masha_init()
+{
+    masha.bank.account_rub = 80000;
+    masha.bank.account_usd = 0;
+    masha.bank.rate_usd_rub = 92.0f;
+
+    masha.flat.isRented = false;
+    masha.flat.rent = 30000;
+    masha.flat.utilities = 4000;
+    masha.flat.isBought = false;
+    masha.flat.price = 8500000;
+    masha.flat.mortgage_monthly = 0;
+    masha.flat.mortgage_years = 0;
+    masha.flat.mortgage_paid = 0;
+    masha.flat.mortgage_left = 0;
+    masha.flat.hasMortgage = false;
+    masha.flat.renovation_cost = 500000;
+    masha.flat.renovated = false;
+
+    masha.job.hasJob = false;
+    masha.job.salary = 0;
+    masha.job.months_worked = 0;
+    masha.job.isFired = false;
+    masha.job.severance = 0;
+    masha.job.foundNewJob = false;
+    masha.job.new_salary = 0;
+    masha.job.gotPromotion = false;
+
+    masha.business.hasBusiness = false;
+    masha.business.investment = 500000;
+    masha.business.monthly_profit = 0;
+    masha.business.monthly_loss = 0;
+    masha.business.months_active = 0;
+    masha.business.isProfitable = false;
+    masha.business.total_profit = 0;
+    masha.business.total_loss = 0;
+    masha.business.bankrupt = false;
+
+    masha.gamble.betting_total = 0;
+    masha.gamble.betting_won = 0;
+    masha.gamble.betting_lost = 0;
+    masha.gamble.isAddicted = false;
+    masha.gamble.inDebt = false;
+    masha.gamble.debt_amount = 0;
+
+    masha.family.isMarried = false;
+    masha.family.husband_income = 0;
+    masha.family.hasParentsSupport = true;
+    masha.family.parents_support = 20000;
+    masha.family.hasChild = false;
+    masha.family.child_expenses = 0;
+    masha.family.divorced = false;
+    masha.family.alimony = 0;
+
+    masha.car.hasCar = false;
+    masha.car.price = 600000;
+    masha.car.credit_payment = 15000;
+    masha.car.credit_months_left = 0;
+    masha.car.boughtOnCredit = false;
+    masha.car.monthly_gas = 12000;
+    masha.car.insurance = 8000;
+    masha.car.maintenance = 15000;
+    masha.car.stolen = false;
+    masha.car.insurance_payout = 0;
+
+    masha.edu.isStudying = false;
+    masha.edu.cost = 0;
+    masha.edu.months_left = 0;
+    masha.edu.isMBA = false;
+
+    masha.health.hasChronicDisease = true;
+    masha.health.monthly_treatment = 8000;
+    masha.health.hadSurgery = false;
+    masha.health.surgery_cost = 250000;
+    masha.health.hadTherapy = false;
+    masha.health.therapy_cost = 50000;
+
+    masha.invest.forex_invested = 100000;
+    masha.invest.forex_profit = 0;
+    masha.invest.inForex = true;
+    masha.invest.gold_invested = 50000;
+    masha.invest.gold_value = 50000;
+    masha.invest.inGold = true;
+
+    masha.hobby.hasHobby = false;
+    masha.hobby.monthly_cost = 5000;
+    masha.hobby.equipment_cost = 20000;
+
+    masha.pet.hasPet = false;
+    masha.pet.purchase_cost = 15000;
+    masha.pet.monthly_cost = 3000;
+    masha.pet.ranAway = false;
+
+    masha.sidejob.tutoring = false;
+    masha.sidejob.tutoring_income = 20000;
+    masha.sidejob.handmade = false;
+    masha.sidejob.handmade_income = 15000;
+
+    masha.unexpected.wasRobbed = false;
+    masha.unexpected.stolen_amount = 0;
+    masha.unexpected.foundMoney = false;
+    masha.unexpected.found_amount = 0;
+    masha.unexpected.helpedFriend = false;
+    masha.unexpected.lent_to_friend = 0;
+    masha.unexpected.friendReturned = false;
+    masha.unexpected.returned_amount = 0;
+
+    for (int i = 0; i < 6; i++) {
+        masha.stats[i].income = 0;
+        masha.stats[i].expenses = 0;
+        masha.stats[i].net = 0;
+    }
+
+    masha.total_earned = 80000;
+    masha.total_spent = 0;
+    masha.current_year_index = 0;
+}
+
+// Вспомогательные функции
+
+void update_year_index(int year)
+{
+    dasha.current_year_index = year - 2026;
+    masha.current_year_index = year - 2026;
+}
+
+void add_income_dasha(RUB amount)
+{
+    dasha.bank.account_rub += amount;
+    dasha.total_earned += amount;
+    dasha.stats[dasha.current_year_index].income += amount;
+}
+
+void add_expense_dasha(RUB amount)
+{
+    dasha.bank.account_rub -= amount;
+    dasha.total_spent += amount;
+    dasha.stats[dasha.current_year_index].expenses += amount;
+}
+
+void add_income_masha(RUB amount)
+{
+    masha.bank.account_rub += amount;
+    masha.total_earned += amount;
+    masha.stats[masha.current_year_index].income += amount;
+}
+
+void add_expense_masha(RUB amount)
+{
+    masha.bank.account_rub -= amount;
+    masha.total_spent += amount;
+    masha.stats[masha.current_year_index].expenses += amount;
+}
+
+// Образование Даши
+
+void dasha_education(const int month, const int year)
+{
+    if (!dasha.edu.isStudying) return;
+
+    if (month != 7 && month != 8) {
+        add_income_dasha(dasha.edu.scholarship);
+    }
+
+    if (dasha.dorm.isLiving) {
+        add_expense_dasha(dasha.dorm.monthly_fee + dasha.dorm.internet);
+    }
+
+    if (month == 6 && year == 2026) {
+        add_expense_dasha(dasha.edu.diploma_cost);
+    }
+
+    if (month == 5 && year == 2026) {
+        add_expense_dasha(dasha.edu.re_exam_cost);
+    }
+
+    dasha.edu.months_left--;
+
+    if (month == 7 && year == 2026) {
+        dasha.edu.isStudying = false;
+        dasha.dorm.isLiving = false;
+        printf("Dasha graduated!\n");
+    }
+}
+
+// Работа Даши
+
+void dasha_job(const int month, const int year)
+{
+    if (dasha.job.isBurnedOut) {
+        if (month == dasha.job.burnout_month + 3) {
+            dasha.job.isBurnedOut = false;
+            printf("Dasha recovered from burnout\n");
+        }
+        return;
+    }
+
+    if (month == 8 && year == 2026 && !dasha.job.hasJob && !dasha.edu.isStudying) {
+        dasha.job.hasJob = true;
+        dasha.job.salary_rub = 65000;
+        printf("Dasha got first job\n");
+    }
+
+    if (dasha.job.hasJob && month == 12 && year == 2026 && !dasha.move.isInPoland) {
+        dasha.job.salary_rub = 85000;
+        dasha.job.bonus = 30000;
+        add_income_dasha(dasha.job.bonus);
+        printf("Dasha got promotion!\n");
+    }
+
+    if (dasha.move.isInPoland && dasha.job.hasJob && dasha.job.salary_rub > 0) {
+        dasha.job.hasJob = false;
+        dasha.job.salary_rub = 0;
+        printf("Dasha quit job for relocation\n");
+    }
+
+    if (dasha.move.isInPoland && month == 4 && year == 2027 && !dasha.job.hasJob) {
+        dasha.job.hasJob = true;
+        dasha.job.salary_pln = 12000;
+        printf("Dasha got job in Poland\n");
+    }
+
+    if (dasha.move.isInPoland && dasha.job.hasJob && month == 6 && year == 2028) {
+        dasha.job.salary_pln = 16000;
+        printf("Dasha got promotion in Poland!\n");
+    }
+
+    if (dasha.job.hasJob && month == 11 && year == 2029 && !dasha.job.isBurnedOut) {
+        dasha.job.isBurnedOut = true;
+        dasha.job.burnout_month = month;
+        dasha.job.burnout_year = year;
+        printf("Dasha burned out!\n");
+        return;
+    }
+
+    if (dasha.job.hasJob && !dasha.job.isBurnedOut) {
+        RUB gross_salary;
+        if (dasha.move.isInPoland) {
+            gross_salary = (RUB)(dasha.job.salary_pln * dasha.bank.rate_pln_rub);
+            dasha.bank.account_pln += dasha.job.salary_pln;
+        }
+        else {
+            gross_salary = dasha.job.salary_rub;
+        }
+
+        RUB tax = (RUB)(gross_salary * 0.13);
+        dasha.taxes.income_tax += tax;
+        dasha.taxes.total_paid += tax;
+
+        RUB net_salary = gross_salary - tax;
+        add_income_dasha(net_salary);
+
+        dasha.job.months_worked++;
+    }
+}
+
+// Переезд Даши
+
+void dasha_relocation(const int month, const int year)
+{
+    if (month == 9 && year == 2026 && !dasha.move.decidedToLeave) {
+        dasha.move.decidedToLeave = true;
+        printf("Dasha decided to move to Poland!\n");
+        add_expense_dasha(dasha.move.visa_cost);
+        add_expense_dasha(dasha.move.language_exam);
+        add_expense_dasha(dasha.move.document_translation);
+    }
+
+    if (month == 1 && year == 2027 && dasha.move.decidedToLeave && !dasha.move.isInPoland) {
+        dasha.move.isInPoland = true;
+        dasha.move.arrival_month = month;
+        dasha.move.arrival_year = year;
+
+        PLN converted = (PLN)(dasha.bank.account_rub / dasha.bank.rate_pln_rub);
+        dasha.bank.account_pln += converted;
+        dasha.bank.account_rub = 0;
+
+        add_expense_dasha(dasha.move.tickets);
+        dasha.bank.account_pln -= dasha.move.initial_expenses;
+        add_expense_dasha(dasha.move.medical_insurance_abroad);
+
+        printf("Dasha moved to Warsaw!\n");
+    }
+}
+
+// Курсы Даши
+
+void dasha_courses(const int month, const int year)
+{
+    if (month == 10 && year == 2026 && dasha.move.decidedToLeave && !dasha.courses.isLearning) {
+        dasha.courses.isLearning = true;
+        dasha.courses.monthly_payment = dasha.courses.cost / dasha.courses.duration_months;
+        printf("Dasha started Polish courses\n");
+    }
+
+    if (dasha.courses.isLearning) {
+        add_expense_dasha(dasha.courses.monthly_payment);
+        dasha.courses.months_done++;
+
+        if (dasha.courses.months_done >= dasha.courses.duration_months) {
+            dasha.courses.isLearning = false;
+            dasha.courses.gotCertificate = true;
+            printf("Dasha finished courses\n");
+        }
+    }
+}
+
+// Фриланс Даши
+
+void dasha_freelance(const int month, const int year)
+{
+    if ((dasha.edu.isStudying || dasha.courses.isLearning) && !dasha.freelance.isActive) {
+        if (month == 4 && year == 2026) {
+            dasha.freelance.isActive = true;
+            printf("Dasha started freelance\n");
+        }
+    }
+
+    if (dasha.freelance.isActive) {
+        add_income_dasha(dasha.freelance.monthly_income);
+        dasha.freelance.months_active++;
+        dasha.freelance.total_earned += dasha.freelance.monthly_income;
+
+        if (dasha.job.hasJob && dasha.job.salary_rub > 0 && !dasha.move.isInPoland) {
+            dasha.freelance.isActive = false;
+            printf("Dasha stopped freelance\n");
+        }
+    }
+}
+
+// Подработка Даши
+
+void dasha_sidejob(const int month, const int year)
+{
+    if (dasha.job.isBurnedOut && !dasha.sidejob.isActive) {
+        dasha.sidejob.isActive = true;
+        printf("Dasha started side job during recovery\n");
+    }
+
+    if (dasha.sidejob.isActive) {
+        add_income_dasha(dasha.sidejob.monthly_income);
+        dasha.sidejob.months_active++;
+        dasha.sidejob.total_earned += dasha.sidejob.monthly_income;
+
+        if (!dasha.job.isBurnedOut && dasha.job.hasJob) {
+            dasha.sidejob.isActive = false;
+            printf("Dasha stopped side job\n");
+        }
+    }
+}
+
+// Инвестиции Даши
+
+void dasha_investments(const int month, const int year)
+{
+    if (year == 2027 && !dasha.invest.sold) {
+        dasha.invest.crypto_value = (RUB)(dasha.invest.crypto_invested * 2.5);
+    }
+
+    if (year == 2028 && !dasha.invest.sold) {
+        dasha.invest.crypto_value = (RUB)(dasha.invest.crypto_invested * 1.8);
+    }
+
+    if (month == 9 && year == 2028 && !dasha.invest.sold) {
+        dasha.invest.sold = true;
+        dasha.invest.profit = dasha.invest.crypto_value - dasha.invest.crypto_invested;
+
+        if (dasha.move.isInPoland) {
+            dasha.bank.account_pln += (PLN)(dasha.invest.crypto_value / dasha.bank.rate_pln_rub);
+        }
+        else {
+            add_income_dasha(dasha.invest.crypto_value);
+        }
+        printf("Dasha sold crypto, profit: %lld\n", dasha.invest.profit);
+    }
+
+    if (year == 2029 && month == 3 && !dasha.invest.stocks_sold) {
+        dasha.invest.stocks_invested = (RUB)(100000 / dasha.bank.rate_pln_rub);
+        dasha.invest.stocks_value = dasha.invest.stocks_invested;
+    }
+
+    if (year == 2030 && dasha.invest.stocks_invested > 0 && !dasha.invest.stocks_sold) {
+        dasha.invest.stocks_value = (RUB)(dasha.invest.stocks_invested * 1.4);
+    }
+
+    if (year == 2029 && month == 6 && dasha.invest.bonds_invested == 0) {
+        dasha.invest.bonds_invested = 50000;
+        dasha.invest.bonds_value = 50000;
+        printf("Dasha bought bonds\n");
+    }
+
+    if (dasha.invest.bonds_invested > 0) {
+        dasha.invest.bonds_value += (RUB)(dasha.invest.bonds_invested * 0.007);
+    }
+}
+
+// Азартные игры Даши
+
+void dasha_gambling(const int month, const int year)
+{
+    if (!dasha.move.isInPoland) return;
+
+    if (month % 3 == 0) {
+        RUB bet = 5000;
+        dasha.gamble.total_spent += bet;
+        add_expense_dasha(bet);
+        dasha.gamble.casino_visits++;
+
+        if (month == 5 && year == 2028 && !dasha.gamble.has_big_win) {
+            dasha.gamble.has_big_win = true;
+            dasha.gamble.big_win_amount = 150000;
+            dasha.gamble.total_won += dasha.gamble.big_win_amount;
+            add_income_dasha(dasha.gamble.big_win_amount);
+            printf("Dasha won big in casino!\n");
+        }
+        else if (month == 8 && year == 2029 && !dasha.gamble.has_big_loss) {
+            dasha.gamble.has_big_loss = true;
+            dasha.gamble.big_loss_amount = 80000;
+            printf("Dasha lost big in casino\n");
+        }
+        else {
+            RUB small_win = (RUB)(bet * 0.3);
+            dasha.gamble.total_won += small_win;
+        }
+    }
+
+    dasha.gamble.net_result = dasha.gamble.total_won - dasha.gamble.total_spent;
+}
+
+// Лотерея Даши
+
+void dasha_lottery(const int month, const int year)
+{
+    if (year == 2028 && month == 2 && !dasha.lottery.plays) {
+        dasha.lottery.plays = true;
+        printf("Dasha started playing lottery\n");
+    }
+
+    if (dasha.lottery.plays) {
+        RUB monthly_cost = dasha.lottery.ticket_cost * dasha.lottery.tickets_per_month;
+        dasha.lottery.total_spent += monthly_cost;
+        add_expense_dasha(monthly_cost);
+
+        if (month == 12 && year == 2029 && !dasha.lottery.had_jackpot) {
+            dasha.lottery.had_jackpot = true;
+            dasha.lottery.jackpot_amount = 500000;
+            dasha.lottery.total_won += dasha.lottery.jackpot_amount;
+            add_income_dasha(dasha.lottery.jackpot_amount);
+            printf("Dasha won lottery jackpot!\n");
+        }
+        else if (rand() % 20 == 0) {
+            RUB small_win = 1000;
+            dasha.lottery.total_won += small_win;
+            add_income_dasha(small_win);
+        }
+
+        if (year == 2030 && month == 6) {
+            dasha.lottery.plays = false;
+            printf("Dasha stopped playing lottery\n");
+        }
+    }
+}
+
+// Машина Даши
+
+void dasha_car(const int month, const int year)
+{
+    if (month == 5 && year == 2027 && !dasha.car.isBought && dasha.move.isInPoland) {
+        dasha.car.isBought = true;
+        dasha.car.isBought = true;
+        dasha.car.buy_month = month;
+        dasha.car.buy_year = year;
+        dasha.car.monthly_gas = (RUB)(800 / dasha.bank.rate_pln_rub);
+        dasha.car.insurance = (RUB)(3000 / dasha.bank.rate_pln_rub);
+        dasha.car.maintenance = (RUB)(1500 / dasha.bank.rate_pln_rub);
+
+        dasha.bank.account_pln -= (PLN)(dasha.car.price / dasha.bank.rate_pln_rub);
+        printf("Dasha bought car\n");
+    }
+
+    if (dasha.car.isBought) {
+        dasha.bank.account_pln -= (PLN)dasha.car.monthly_gas;
+        dasha.bank.account_pln -= (PLN)(dasha.car.insurance / 12);
+        dasha.bank.account_pln -= (PLN)(dasha.car.maintenance / 12);
+
+        if (rand() % 12 == 0) {
+            RUB fine = 5000;
+            dasha.car.fine_gibdd += fine;
+            dasha.car.fines_count++;
+            add_expense_dasha(fine);
+            printf("Dasha got traffic fine\n");
+        }
+
+        if (month == 7 && year == 2029 && !dasha.car.hadAccident) {
+            dasha.car.hadAccident = true;
+            dasha.car.accident_cost = 50000;
+            add_expense_dasha(dasha.car.accident_cost);
+            printf("Dasha had car accident\n");
+        }
+    }
+}
+
+// Свадьба Даши
+
+void dasha_wedding(const int month, const int year)
+{
+    if (month == 8 && year == 2027 && !dasha.wedding.isMarried) {
+        dasha.wedding.isMarried = true;
+        dasha.wedding.wedding_month = month;
+        dasha.wedding.wedding_year = year;
+
+        RUB total_cost = dasha.wedding.ring_cost + dasha.wedding.dress_cost +
+            dasha.wedding.party_cost;
+
+        if (dasha.move.isInPoland) {
+            dasha.bank.account_pln -= (PLN)(total_cost / dasha.bank.rate_pln_rub);
+        }
+        else {
+            add_expense_dasha(total_cost);
+        }
+
+        dasha.wedding.gift_money_received = 100000;
+        add_income_dasha(dasha.wedding.gift_money_received);
+
+        printf("Dasha got married!\n");
+    }
+
+    if (dasha.wedding.isMarried && !dasha.wedding.honeymoon_done &&
+        month == 9 && year == 2027) {
+        dasha.wedding.honeymoon_done = true;
+        if (dasha.move.isInPoland) {
+            dasha.bank.account_pln -= (PLN)(dasha.wedding.honeymoon_cost / dasha.bank.rate_pln_rub);
+        }
+        else {
+            add_expense_dasha(dasha.wedding.honeymoon_cost);
+        }
+        printf("Dasha went to honeymoon\n");
+    }
+}
+
+// Дети Даши
+
+void dasha_child(const int month, const int year)
+{
+    if (dasha.wedding.isMarried && !dasha.child.isPregnant && !dasha.child.hasChild) {
+        if (month == 3 && year == 2029) {
+            dasha.child.isPregnant = true;
+            dasha.child.pregnancy_month = month;
+            dasha.child.pregnancy_year = year;
+            printf("Dasha is pregnant!\n");
+        }
+    }
+
+    if (dasha.child.isPregnant) {
+        if (month % 2 == 0) {
+            RUB medical = 15000;
+            if (dasha.move.isInPoland) {
+                dasha.bank.account_pln -= (PLN)(medical / dasha.bank.rate_pln_rub);
+            }
+            else {
+                add_expense_dasha(medical);
+            }
+            dasha.child.medical_costs += medical;
+        }
+    }
+
+    if (dasha.child.isPregnant && month == 12 && year == 2029) {
+        dasha.child.isPregnant = false;
+        dasha.child.hasChild = true;
+        dasha.child.birth_month = month;
+        dasha.child.birth_year = year;
+        dasha.child.monthly_expenses = 25000;
+        printf("Dasha gave birth!\n");
+    }
+
+    if (dasha.child.hasChild) {
+        if (dasha.move.isInPoland) {
+            dasha.bank.account_pln -= (PLN)(dasha.child.monthly_expenses / dasha.bank.rate_pln_rub);
+        }
+        else {
+            add_expense_dasha(dasha.child.monthly_expenses);
+        }
+        dasha.child.total_spent += dasha.child.monthly_expenses;
+
+        if (year == 2032 && !dasha.child.inKindergarten) {
+            dasha.child.inKindergarten = true;
+        }
+
+        if (dasha.child.inKindergarten) {
+            if (dasha.move.isInPoland) {
+                dasha.bank.account_pln -= (PLN)(dasha.child.kindergarten_cost / dasha.bank.rate_pln_rub);
+            }
+            else {
+                add_expense_dasha(dasha.child.kindergarten_cost);
+            }
+        }
+    }
+}
+
+// Преступление Даши
+
+void dasha_crime(const int month, const int year)
+{
+    if (month == 6 && year == 2028 && !dasha.crime.hasRecord && dasha.gamble.net_result < -50000) {
+        dasha.crime.hasRecord = true;
+        dasha.crime.incident_month = month;
+        dasha.crime.incident_year = year;
+        dasha.crime.fine = 30000;
+        dasha.crime.lawyer_cost = 50000;
+        dasha.crime.isJailed = false;
+
+        if (dasha.move.isInPoland) {
+            dasha.bank.account_pln -= (PLN)(dasha.crime.fine / dasha.bank.rate_pln_rub);
+            dasha.bank.account_pln -= (PLN)(dasha.crime.lawyer_cost / dasha.bank.rate_pln_rub);
+        }
+        else {
+            add_expense_dasha(dasha.crime.fine);
+            add_expense_dasha(dasha.crime.lawyer_cost);
+        }
+        printf("Dasha got fined for illegal gambling!\n");
+    }
+}
+
+// Здоровье Даши
+
+void dasha_health(const int month, const int year)
+{
+    if (month == 1 && year == 2028 && !dasha.health.hasInsurance) {
+        dasha.health.hasInsurance = true;
+        printf("Dasha bought health insurance\n");
+    }
+
+    if (dasha.health.hasInsurance) {
+        if (dasha.move.isInPoland) {
+            dasha.bank.account_pln -= (PLN)(dasha.health.insurance_cost / dasha.bank.rate_pln_rub);
+        }
+        else {
+            add_expense_dasha(dasha.health.insurance_cost);
+        }
+    }
+
+    if (dasha.job.isBurnedOut) {
+        dasha.health.isSick = true;
+        dasha.health.sick_months++;
+        RUB treatment = 20000;
+        if (dasha.move.isInPoland) {
+            dasha.bank.account_pln -= (PLN)(treatment / dasha.bank.rate_pln_rub);
+        }
+        else {
+            add_expense_dasha(treatment);
+        }
+        dasha.health.medical_expenses += treatment;
+    }
+
+    if (month == 4 && year == 2030 && !dasha.health.hadOperation) {
+        dasha.health.hadOperation = true;
+        dasha.health.operation_cost = 150000;
+        dasha.health.operation_month = month;
+        dasha.health.operation_year = year;
+        add_expense_dasha(dasha.health.operation_cost);
+        printf("Dasha had operation\n");
+    }
+}
+
+// Хобби Даши
+
+void dasha_hobby(const int month, const int year)
+{
+    if (month == 4 && year == 2027 && !dasha.hobby.hasHobby) {
+        dasha.hobby.hasHobby = true;
+        printf("Dasha started photography hobby\n");
+
+        if (dasha.move.isInPoland) {
+            dasha.bank.account_pln -= (PLN)(dasha.hobby.equipment_cost / dasha.bank.rate_pln_rub);
+        }
+        else {
+            add_expense_dasha(dasha.hobby.equipment_cost);
+        }
+    }
+
+    if (dasha.hobby.hasHobby) {
+        if (dasha.move.isInPoland) {
+            dasha.bank.account_pln -= (PLN)(dasha.hobby.monthly_cost / dasha.bank.rate_pln_rub);
+        }
+        else {
+            add_expense_dasha(dasha.hobby.monthly_cost);
+        }
+        dasha.hobby.months_active++;
+
+        if (year == 2030 && month == 8 && !dasha.hobby.soldEquipment) {
+            dasha.hobby.soldEquipment = true;
+            dasha.hobby.equipment_sale = 15000;
+            add_income_dasha(dasha.hobby.equipment_sale);
+            printf("Dasha sold hobby equipment\n");
+        }
+    }
+}
+
+// Кредит Даши
+
+void dasha_credit(const int month, const int year)
+{
+    if (month == 6 && year == 2027 && !dasha.credit.hasCredit && dasha.car.isBought) {
+        dasha.credit.hasCredit = true;
+        dasha.credit.amount = 300000;
+        dasha.credit.monthly_payment = 15000;
+        dasha.credit.months_left = 24;
+        dasha.credit.interest_rate = 12.0f;
+        printf("Dasha took credit for car\n");
+    }
+
+    if (dasha.credit.hasCredit && dasha.credit.months_left > 0) {
+        add_expense_dasha(dasha.credit.monthly_payment);
+        dasha.credit.total_paid += dasha.credit.monthly_payment;
+        dasha.credit.months_left--;
+
+        if (dasha.credit.months_left == 0) {
+            printf("Dasha paid off credit\n");
+        }
+    }
+}
+
+// Вклад Даши
+
+void dasha_deposit(const int month, const int year)
+{
+    if (month == 1 && year == 2029 && !dasha.deposit.hasDeposit && dasha.move.isInPoland) {
+        if (dasha.bank.account_pln > 20000) {
+            dasha.deposit.hasDeposit = true;
+            dasha.deposit.amount = (RUB)(15000 * dasha.bank.rate_pln_rub);
+            dasha.deposit.months_left = 12;
+            dasha.bank.account_pln -= 15000;
+            printf("Dasha opened deposit\n");
+        }
+    }
+
+    if (dasha.deposit.hasDeposit && month == 1 && year == 2030) {
+        RUB profit = (RUB)(dasha.deposit.amount * (dasha.deposit.interest_rate / 100.0f));
+        dasha.deposit.profit = profit;
+        add_income_dasha(dasha.deposit.amount + profit);
+        dasha.deposit.hasDeposit = false;
+        printf("Dasha closed deposit with profit: %lld\n", profit);
+    }
+}
+
+// Питомец Даши
+
+void dasha_pet(const int month, const int year)
+{
+    if (year == 2028 && month == 3 && !dasha.pet.hasPet) {
+        dasha.pet.hasPet = true;
+        dasha.pet.isAlive = true;
+        dasha.pet.purchase_cost = 20000;
+        dasha.pet.monthly_food = 4000;
+        dasha.pet.vet_costs = 0;
+
+        if (dasha.move.isInPoland) {
+            dasha.bank.account_pln -= (PLN)(dasha.pet.purchase_cost / dasha.bank.rate_pln_rub);
+        }
+        else {
+            add_expense_dasha(dasha.pet.purchase_cost);
+        }
+        printf("Dasha got a cat\n");
+    }
+
+    if (dasha.pet.hasPet && dasha.pet.isAlive) {
+        if (dasha.move.isInPoland) {
+            dasha.bank.account_pln -= (PLN)(dasha.pet.monthly_food / dasha.bank.rate_pln_rub);
+        }
+        else {
+            add_expense_dasha(dasha.pet.monthly_food);
+        }
+        dasha.pet.total_spent += dasha.pet.monthly_food;
+
+        if (month == 7 && year == 2029) {
+            RUB vet = 15000;
+            dasha.pet.vet_costs += vet;
+            dasha.pet.got_sick_month = month;
+            if (dasha.move.isInPoland) {
+                dasha.bank.account_pln -= (PLN)(vet / dasha.bank.rate_pln_rub);
+            }
+            else {
+                add_expense_dasha(vet);
+            }
+            printf("Dasha's pet got sick\n");
+        }
+    }
+}
+
+// Подарки Даши
+
+void dasha_gifts(const int month, const int year)
+{
+    if (month == 3 || month == 12) {
+        RUB received = 10000;
+        dasha.gifts.received_monthly += received;
+        dasha.gifts.total_received += received;
+        add_income_dasha(received);
+    }
+
+    RUB given = 5000;
+    dasha.gifts.given_monthly += given;
+    dasha.gifts.total_given += given;
+    add_expense_dasha(given);
+}
+
+// Ремонт техники Даши
+
+void dasha_tech_repair(const int month, const int year)
+{
+    if (month == 5 && year == 2028 && dasha.tech.phone_repair == 0) {
+        dasha.tech.phone_repair = 25000;
+        dasha.tech.total_spent += dasha.tech.phone_repair;
+        dasha.tech.repairs_count++;
+        add_expense_dasha(dasha.tech.phone_repair);
+        printf("Dasha repaired phone\n");
+    }
+
+    if (month == 9 && year == 2029 && dasha.tech.laptop_repair == 0) {
+        dasha.tech.laptop_repair = 40000;
+        dasha.tech.total_spent += dasha.tech.laptop_repair;
+        dasha.tech.repairs_count++;
+        add_expense_dasha(dasha.tech.laptop_repair);
+        printf("Dasha repaired laptop\n");
+    }
+}
+
+// Кэшбэк Даши
+
+void dasha_cashback(const int month, const int year)
+{
+    if (dasha.job.hasJob) {
+        RUB monthly_spent = 30000;
+        RUB cashback = (RUB)(monthly_spent * (dasha.cashback.cashback_percent / 100.0f));
+        dasha.cashback.total_received += cashback;
+        add_income_dasha(cashback);
+    }
+}
+
+// Наследство Даши
+
+void dasha_inheritance(const int month, const int year)
+{
+    if (month == 11 && year == 2029 && !dasha.inheritance.received) {
+        dasha.inheritance.received = true;
+        dasha.inheritance.amount = 300000;
+        dasha.inheritance.month = month;
+        dasha.inheritance.year = year;
+        add_income_dasha(dasha.inheritance.amount);
+        printf("Dasha received inheritance\n");
+    }
+}
+
+// Долг Даши
+
+void dasha_debt(const int month, const int year)
+{
+    if (month == 4 && year == 2028 && !dasha.debt.hasDebt) {
+        dasha.debt.hasDebt = true;
+        dasha.debt.amount = 50000;
+        dasha.debt.monthly_payment = 10000;
+        dasha.debt.months_left = 5;
+        dasha.debt.toFriend = true;
+        add_income_dasha(dasha.debt.amount);
+        printf("Dasha borrowed money from friend\n");
+    }
+
+    if (dasha.debt.hasDebt && dasha.debt.months_left > 0) {
+        add_expense_dasha(dasha.debt.monthly_payment);
+        dasha.debt.total_paid += dasha.debt.monthly_payment;
+        dasha.debt.months_left--;
+
+        if (dasha.debt.months_left == 0) {
+            printf("Dasha repaid debt to friend\n");
+        }
+    }
+}
+
+// Жилье Даши
+
+void dasha_housing(const int month, const int year)
+{
+    if (!dasha.dorm.isLiving && !dasha.flat.isLiving && !dasha.move.isInPoland) {
+        if (dasha.job.hasJob) {
+            RUB rent_share = 20000;
+            RUB food = 18000;
+            add_expense_dasha(rent_share + food);
+        }
+    }
+
+    if (dasha.move.isInPoland) {
+        PLN rent = 3500;
+        PLN food = 2000;
+        PLN utilities = 800;
+        dasha.bank.account_pln -= (rent + food + utilities);
+    }
+}
+
+// Путешествия Даши
+
+void dasha_travel(const int month, const int year)
+{
+    if (month == 7 && year == 2028 && !dasha.travel.hasTraveled) {
+        dasha.travel.hasTraveled = true;
+        dasha.travel.trip_cost = 80000;
+        dasha.travel.trip_month = month;
+        dasha.travel.trip_year = year;
+        dasha.travel.isAbroad = true;
+        dasha.travel.souvenirs = 15000;
+
+        if (dasha.move.isInPoland) {
+            dasha.bank.account_pln -= (PLN)(dasha.travel.trip_cost / dasha.bank.rate_pln_rub);
+            dasha.bank.account_pln -= (PLN)(dasha.travel.souvenirs / dasha.bank.rate_pln_rub);
+        }
+        else {
+            add_expense_dasha(dasha.travel.trip_cost);
+            add_expense_dasha(dasha.travel.souvenirs);
+        }
+        printf("Dasha traveled to Italy\n");
+    }
+
+    if (month == 1 && year == 2030) {
+        RUB trip_home = 60000;
+        add_expense_dasha(trip_home);
+        printf("Dasha visited home\n");
+    }
+}
+
+// МАША 
+
+// Работа Маши 
+
+void masha_job(const int month, const int year)
+{
+    if (masha.job.isFired && !masha.job.foundNewJob) {
+        if (month == masha.job.fire_month + 4) {
+            masha.job.foundNewJob = true;
+            masha.job.new_salary = 70000;
+            masha.job.hasJob = true;
+            printf("Masha found new job\n");
+        }
+        return;
+    }
+
+    if (month == 9 && year == 2026 && !masha.job.hasJob) {
+        masha.job.hasJob = true;
+        masha.job.salary = 45000;
+        printf("Masha got first job\n");
+    }
+
+    if (masha.job.hasJob && month == 3 && year == 2028 && !masha.job.isFired) {
+        masha.job.isFired = true;
+        masha.job.fire_month = month;
+        masha.job.fire_year = year;
+        masha.job.severance = masha.job.salary * 3;
+        masha.job.hasJob = false;
+        add_income_masha(masha.job.severance);
+        printf("Masha was fired!\n");
+        return;
+    }
+
+    if (masha.job.hasJob && !masha.job.isFired) {
+        RUB salary = masha.job.salary;
+        if (masha.job.foundNewJob) {
+            salary = masha.job.new_salary;
+        }
+
+        if (masha.job.months_worked == 18 && !masha.job.gotPromotion) {
+            masha.job.gotPromotion = true;
+            masha.job.promotion_month = month;
+            salary = (RUB)(salary * 1.3);
+            printf("Masha got promotion!\n");
+        }
+
+        RUB tax = (RUB)(salary * 0.13);
+        RUB net = salary - tax;
+        add_income_masha(net);
+        masha.job.months_worked++;
+    }
+
+    if (year == 2029 && month == 6 && !masha.business.hasBusiness) {
+        masha.business.hasBusiness = true;
+        add_expense_masha(masha.business.investment);
+        printf("Masha started business\n");
+    }
+
+    if (masha.business.hasBusiness && !masha.business.bankrupt) {
+        masha.business.months_active++;
+
+        if (masha.business.months_active <= 6) {
+            masha.business.monthly_loss = 15000;
+            add_expense_masha(masha.business.monthly_loss);
+            masha.business.total_loss += masha.business.monthly_loss;
+        }
+        else {
+            masha.business.isProfitable = true;
+            masha.business.monthly_profit = 40000;
+            add_income_masha(masha.business.monthly_profit);
+            masha.business.total_profit += masha.business.monthly_profit;
+        }
+
+        if (year == 2030 && month == 4 && masha.business.isProfitable) {
+            masha.business.bankrupt = true;
+            masha.business.bankrupt_month = month;
+            printf("Masha's business went bankrupt!\n");
+        }
+    }
+}
+
+// Жилье Маши
+
+void masha_housing(const int month, const int year)
+{
+    if (!masha.flat.isRented && !masha.flat.isBought && masha.job.hasJob) {
+        if (month == 10 && year == 2026) {
+            masha.flat.isRented = true;
+            printf("Masha rented flat\n");
+        }
+    }
+
+    if (masha.flat.isRented && !masha.flat.isBought) {
+        add_expense_masha(masha.flat.rent + masha.flat.utilities);
+    }
+
+    if (year == 2028 && month == 9 && !masha.flat.isBought && masha.job.foundNewJob) {
+        masha.flat.isBought = true;
+        masha.flat.hasMortgage = true;
+        masha.flat.isRented = false;
+        masha.flat.mortgage_monthly = 45000;
+        masha.flat.mortgage_years = 20;
+        masha.flat.mortgage_left = masha.flat.mortgage_monthly * 12 * 20;
+
+        RUB initial = 1500000;
+        add_expense_masha(initial);
+        printf("Masha bought flat with mortgage!\n");
+    }
+
+    if (masha.flat.hasMortgage) {
+        add_expense_masha(masha.flat.mortgage_monthly);
+        masha.flat.mortgage_paid += masha.flat.mortgage_monthly;
+        masha.flat.mortgage_left -= masha.flat.mortgage_monthly;
+    }
+
+    if (masha.flat.isBought && !masha.flat.renovated && year == 2029) {
+        masha.flat.renovated = true;
+        add_expense_masha(masha.flat.renovation_cost);
+        printf("Masha renovated flat\n");
+    }
+}
+
+// Машина Маши
+
+void masha_car(const int month, const int year)
+{
+    if (year == 2027 && month == 5 && !masha.car.hasCar) {
+        masha.car.hasCar = true;
+        masha.car.boughtOnCredit = true;
+        masha.car.credit_months_left = 36;
+        printf("Masha bought car on credit\n");
+    }
+
+    if (masha.car.hasCar && !masha.car.stolen) {
+        if (masha.car.boughtOnCredit && masha.car.credit_months_left > 0) {
+            add_expense_masha(masha.car.credit_payment);
+            masha.car.credit_months_left--;
+        }
+
+        RUB gas = 12000;
+        RUB insurance = masha.car.insurance / 12;
+        RUB service = masha.car.maintenance / 12;
+        add_expense_masha(gas + insurance + service);
+
+        if (month == 8 && year == 2029) {
+            masha.car.stolen = true;
+            masha.car.insurance_payout = 400000;
+            add_income_masha(masha.car.insurance_payout);
+            printf("Masha's car was stolen! Got insurance payout\n");
+        }
+    }
+}
+
+// Ставки Маши
+
+void masha_betting(const int month, const int year)
+{
+    if (year == 2027 && month == 4 && !masha.gamble.isAddicted) {
+        masha.gamble.isAddicted = true;
+        masha.gamble.addiction_start_month = month;
+        masha.gamble.addiction_start_year = year;
+        printf("Masha started betting...\n");
+    }
+
+    if (masha.gamble.isAddicted) {
+        RUB bet = 10000;
+        masha.gamble.betting_total += bet;
+        add_expense_masha(bet);
+
+        if (month % 4 == 0) {
+            RUB win = 25000;
+            masha.gamble.betting_won += win;
+            add_income_masha(win);
+        }
+        else {
+            masha.gamble.betting_lost += bet;
+        }
+
+        if (year == 2028 && masha.gamble.betting_lost > 200000 && !masha.gamble.inDebt) {
+            masha.gamble.inDebt = true;
+            masha.gamble.debt_amount = 100000;
+            printf("Masha in debt from betting!\n");
+        }
+
+        if (year == 2029 && month == 1) {
+            masha.gamble.isAddicted = false;
+            printf("Masha stopped betting\n");
+        }
+    }
+
+    if (masha.gamble.inDebt && masha.gamble.debt_amount > 0) {
+        RUB payment = 20000;
+        add_expense_masha(payment);
+        masha.gamble.debt_amount -= payment;
+        if (masha.gamble.debt_amount <= 0) {
+            printf("Masha repaid betting debts\n");
+        }
+    }
+}
+
+// Семья Маши
+
+void masha_family(const int month, const int year)
+{
+    if (year == 2027 && month == 6 && !masha.family.isMarried) {
+        masha.family.isMarried = true;
+        printf("Masha got married\n");
+    }
+
+    if (masha.family.isMarried && !masha.family.divorced) {
+        masha.family.husband_income = 80000;
+        add_income_masha((RUB)(masha.family.husband_income * 0.5));
+
+        if (year == 2028 && month == 5 && !masha.family.hasChild) {
+            masha.family.hasChild = true;
+            masha.family.child_expenses = 20000;
+            printf("Masha had a child\n");
+        }
+
+        if (masha.family.hasChild) {
+            add_expense_masha(masha.family.child_expenses);
+        }
+
+        if (year == 2030 && month == 3) {
+            masha.family.divorced = true;
+            masha.family.divorce_month = month;
+            masha.family.alimony = 15000;
+            printf("Masha divorced!\n");
+        }
+    }
+
+    if (masha.family.divorced) {
+        add_expense_masha(masha.family.alimony);
+    }
+
+    if (masha.family.hasParentsSupport && !masha.job.hasJob) {
+        add_income_masha(masha.family.parents_support);
+    }
+}
+
+// Здоровье Маши
+
+void masha_health(const int month, const int year)
+{
+    if (masha.health.hasChronicDisease) {
+        add_expense_masha(masha.health.monthly_treatment);
+    }
+
+    if (year == 2029 && month == 8 && !masha.health.hadSurgery) {
+        masha.health.hadSurgery = true;
+        add_expense_masha(masha.health.surgery_cost);
+        printf("Masha had surgery\n");
+    }
+
+    if (masha.family.divorced && !masha.health.hadTherapy) {
+        masha.health.hadTherapy = true;
+        add_expense_masha(masha.health.therapy_cost);
+        printf("Masha started therapy\n");
+    }
+}
+
+// Инвестиции Маши
+
+void masha_forex(const int month, const int year)
+{
+    if (masha.invest.inForex) {
+        float change = 0.95f + (rand() % 20) / 100.0f;
+        masha.invest.forex_invested = (RUB)(masha.invest.forex_invested * change);
+    }
+
+    if (year == 2030 && month == 12 && masha.invest.inForex) {
+        masha.invest.inForex = false;
+        masha.invest.forex_profit = masha.invest.forex_invested - 100000;
+        add_income_masha(masha.invest.forex_invested);
+        printf("Masha closed forex\n");
+    }
+
+    if (masha.invest.inGold) {
+        if (year == 2029) {
+            masha.invest.gold_value = (RUB)(masha.invest.gold_invested * 1.2);
+        }
+        if (year == 2030) {
+            masha.invest.gold_value = (RUB)(masha.invest.gold_invested * 1.35);
+            add_income_masha(masha.invest.gold_value);
+            masha.invest.inGold = false;
+            printf("Masha sold gold\n");
+        }
+    }
+}
+
+// Образование Маши
+
+void masha_education(const int month, const int year)
+{
+    if (year == 2028 && month == 9 && !masha.edu.isStudying) {
+        masha.edu.isStudying = true;
+        masha.edu.isMBA = true;
+        masha.edu.cost = 300000;
+        masha.edu.months_left = 24;
+        printf("Masha started MBA\n");
+    }
+
+    if (masha.edu.isStudying) {
+        RUB monthly = masha.edu.cost / masha.edu.months_left;
+        add_expense_masha(monthly);
+        masha.edu.months_left--;
+
+        if (masha.edu.months_left == 0) {
+            masha.edu.isStudying = false;
+            printf("Masha finished MBA\n");
+        }
+    }
+}
+
+// Хобби Маши
+
+void masha_hobby(const int month, const int year)
+{
+    if (year == 2027 && month == 2 && !masha.hobby.hasHobby) {
+        masha.hobby.hasHobby = true;
+        printf("Masha started painting\n");
+        add_expense_masha(masha.hobby.equipment_cost);
+    }
+
+    if (masha.hobby.hasHobby) {
+        add_expense_masha(masha.hobby.monthly_cost);
+    }
+}
+
+// Питомец Маши
+
+void masha_pet(const int month, const int year)
+{
+    if (year == 2026 && month == 11 && !masha.pet.hasPet) {
+        masha.pet.hasPet = true;
+        add_expense_masha(masha.pet.purchase_cost);
+        printf("Masha got a dog\n");
+    }
+
+    if (masha.pet.hasPet && !masha.pet.ranAway) {
+        add_expense_masha(masha.pet.monthly_cost);
+
+        if (month == 7 && year == 2028) {
+            masha.pet.ranAway = true;
+            masha.pet.ran_away_month = month;
+            printf("Masha's dog ran away!\n");
+        }
+    }
+}
+
+// Подработка Маши
+
+void masha_sidejob(const int month, const int year)
+{
+    if (masha.job.isFired && !masha.sidejob.tutoring) {
+        masha.sidejob.tutoring = true;
+        printf("Masha started tutoring\n");
+    }
+
+    if (masha.sidejob.tutoring) {
+        add_income_masha(masha.sidejob.tutoring_income);
+    }
+
+    if (masha.job.hasJob && masha.sidejob.tutoring) {
+        masha.sidejob.tutoring = false;
+        printf("Masha stopped tutoring\n");
+    }
+
+    if (year == 2029 && month == 4 && !masha.sidejob.handmade) {
+        masha.sidejob.handmade = true;
+        printf("Masha started handmade business\n");
+    }
+
+    if (masha.sidejob.handmade) {
+        add_income_masha(masha.sidejob.handmade_income);
+    }
+}
+
+// Неожиданности Маши
+
+void masha_unexpected(const int month, const int year)
+{
+    if (year == 2028 && month == 6 && !masha.unexpected.wasRobbed) {
+        masha.unexpected.wasRobbed = true;
+        masha.unexpected.stolen_amount = 50000;
+        add_expense_masha(masha.unexpected.stolen_amount);
+        printf("Masha was robbed!\n");
+    }
+
+    if (year == 2029 && month == 9 && !masha.unexpected.foundMoney) {
+        masha.unexpected.foundMoney = true;
+        masha.unexpected.found_amount = 5000;
+        add_income_masha(masha.unexpected.found_amount);
+        printf("Masha found money\n");
+    }
+
+    if (year == 2027 && month == 12 && !masha.unexpected.helpedFriend) {
+        masha.unexpected.helpedFriend = true;
+        masha.unexpected.lent_to_friend = 30000;
+        add_expense_masha(masha.unexpected.lent_to_friend);
+        printf("Masha lent money to friend\n");
+    }
+
+    if (year == 2029 && month == 3 && masha.unexpected.helpedFriend && !masha.unexpected.friendReturned) {
+        masha.unexpected.friendReturned = true;
+        masha.unexpected.returned_amount = 35000;
+        add_income_masha(masha.unexpected.returned_amount);
+        printf("Friend returned money with interest\n");
+    }
+}
+
+// Инфляция
+
+void apply_inflation(const int month, const int year)
+{
+    float inflation = 0.0f;
+
+    switch (year) {
+    case 2026: inflation = 0.5f; break;
+    case 2027: inflation = 0.7f; break;
+    case 2028: inflation = 0.9f; break;
+    case 2029: inflation = 0.6f; break;
+    case 2030: inflation = 0.5f; break;
+    case 2031: inflation = 0.4f; break;
+    }
+
+    if (dasha.move.isInPoland) {
+        inflation = 0.3f;
+    }
+
+    if (!masha.flat.hasMortgage) {
+        masha.flat.rent += (RUB)(masha.flat.rent * (inflation / 100.0f));
+    }
+    masha.flat.utilities += (RUB)(masha.flat.utilities * (inflation / 100.0f));
+
+    if (month == 6 || month == 12) {
+        float change = 0.95f + (rand() % 10) / 100.0f;
+        dasha.bank.rate_pln_rub *= change;
+        dasha.bank.rate_usd_rub *= change;
+        masha.bank.rate_usd_rub *= change;
+    }
+}
+
+// Вывод результатов
+
+void print_yearly_stats()
+{
+    printf("\nGODOVAYA STATISTICS\n");
+
+    const char* years[] = { "2026", "2027", "2028", "2029", "2030", "2031" };
+
+    printf("\nDASHA\n");
+    for (int i = 0; i < 6; i++) {
+        if (dasha.stats[i].income > 0 || dasha.stats[i].expenses > 0) {
+            printf("%s: Income: %lld, Expenses: %lld, Net: %lld\n",
+                years[i], dasha.stats[i].income,
+                dasha.stats[i].expenses,
+                dasha.stats[i].income - dasha.stats[i].expenses);
+        }
+    }
+
+    printf("\nMASHA\n");
+    for (int i = 0; i < 6; i++) {
+        if (masha.stats[i].income > 0 || masha.stats[i].expenses > 0) {
+            printf("%s: Income: %lld, Expenses: %lld, Net: %lld\n",
+                years[i], masha.stats[i].income,
+                masha.stats[i].expenses,
+                masha.stats[i].income - masha.stats[i].expenses);
+        }
+    }
+}
+
+void print_final_results()
+{
+    printf("\nFINAL RESULTS\n");
+
+    RUB dasha_pln_in_rub = (RUB)(dasha.bank.account_pln * dasha.bank.rate_pln_rub);
+    RUB dasha_usd_in_rub = (RUB)(dasha.bank.account_usd * dasha.bank.rate_usd_rub);
+    RUB dasha_eur_in_rub = (RUB)(dasha.bank.account_eur * dasha.bank.rate_eur_rub);
+    RUB dasha_total = dasha.bank.account_rub + dasha_pln_in_rub +
+        dasha_usd_in_rub + dasha_eur_in_rub;
+
+    RUB masha_flat_equity = 0;
+    if (masha.flat.isBought) {
+        masha_flat_equity = masha.flat.price - masha.flat.mortgage_left;
+    }
+
+    RUB masha_usd_in_rub = (RUB)(masha.bank.account_usd * masha.bank.rate_usd_rub);
+    RUB masha_total = masha.bank.account_rub + masha_usd_in_rub + masha_flat_equity;
+
+    printf("\nDASHA\n");
+    printf("Total Earned: %lld RUB\n", dasha.total_earned);
+    printf("Total Spent:  %lld RUB\n", dasha.total_spent);
+    printf("Net:          %lld RUB\n", dasha.total_earned - dasha.total_spent);
+    printf("\nCapital by currency:\n");
+    printf("  RUB: %lld\n", dasha.bank.account_rub);
+    printf("  PLN: %lld (%.0f RUB)\n", dasha.bank.account_pln, (float)dasha_pln_in_rub);
+    printf("  USD: %lld (%.0f RUB)\n", dasha.bank.account_usd, (float)dasha_usd_in_rub);
+    printf("  EUR: %lld (%.0f RUB)\n", dasha.bank.account_eur, (float)dasha_eur_in_rub);
+    printf("\nTOTAL CAPITAL: %lld RUB\n", dasha_total);
+
+    printf("\nDetails:\n");
+    printf("  Months worked: %d\n", dasha.job.months_worked);
+    printf("  In Poland: %s\n", dasha.move.isInPoland ? "Yes" : "No");
+    printf("  Married: %s\n", dasha.wedding.isMarried ? "Yes" : "No");
+    printf("  Has child: %s\n", dasha.child.hasChild ? "Yes" : "No");
+    printf("  Has pet: %s\n", dasha.pet.hasPet ? "Yes" : "No");
+    printf("  Crypto profit: %lld\n", dasha.invest.profit);
+    printf("  Gambling result: %lld\n", dasha.gamble.net_result);
+    printf("  Lottery result: %lld\n", dasha.lottery.total_won - dasha.lottery.total_spent);
+    printf("  Taxes paid: %lld\n", dasha.taxes.total_paid);
+    printf("  Inheritance: %lld\n", dasha.inheritance.amount);
+    printf("  Gifts received: %lld\n", dasha.gifts.total_received);
+    printf("  Tech repairs: %lld\n", dasha.tech.total_spent);
+    printf("  Side job earned: %lld\n", dasha.sidejob.total_earned);
+
+    printf("\nMASHA\n");
+    printf("Total Earned: %lld RUB\n", masha.total_earned);
+    printf("Total Spent:  %lld RUB\n", masha.total_spent);
+    printf("Net:          %lld RUB\n", masha.total_earned - masha.total_spent);
+    printf("\nCapital by currency:\n");
+    printf("  RUB: %lld\n", masha.bank.account_rub);
+    printf("  USD: %lld (%.0f RUB)\n", masha.bank.account_usd, (float)masha_usd_in_rub);
+    printf("  Flat equity: %lld\n", masha_flat_equity);
+    printf("\nTOTAL CAPITAL: %lld RUB\n", masha_total);
+
+    printf("\nDetails:\n");
+    printf("  Months worked: %d\n", masha.job.months_worked);
+    printf("  Has business: %s (%s)\n",
+        masha.business.hasBusiness ? "Yes" : "No",
+        masha.business.bankrupt ? "bankrupt" : "active");
+    printf("  Business result: %lld\n",
+        masha.business.total_profit - masha.business.total_loss);
+    printf("  Betting result: %lld\n",
+        masha.gamble.betting_won - masha.gamble.betting_lost);
+    printf("  Has flat: %s (%s)\n",
+        masha.flat.isBought ? "Yes" : "No",
+        masha.flat.hasMortgage ? "mortgage" : "owned");
+    printf("  Married: %s (%s)\n",
+        masha.family.isMarried ? "Yes" : "No",
+        masha.family.divorced ? "divorced" : "together");
+    printf("  Has child: %s\n", masha.family.hasChild ? "Yes" : "No");
+    printf("  Forex profit: %lld\n", masha.invest.forex_profit);
+    printf("  Gold profit: %lld\n", masha.invest.gold_value - masha.invest.gold_invested);
+    printf("  Car stolen: %s\n", masha.car.stolen ? "Yes" : "No");
+    printf("  Was robbed: %s\n", masha.unexpected.wasRobbed ? "Yes" : "No");
+
+    printf("\nSRAVNENIE\n");
+    long long diff = dasha_total - masha_total;
+    if (diff > 0) {
+        printf("Dasha is RICHER by %lld RUB (%.1f%%)\n", diff,
+            (float)diff / masha_total * 100);
+    }
+    else {
+        printf("Masha is RICHER by %lld RUB (%.1f%%)\n", -diff,
+            (float)(-diff) / dasha_total * 100);
+    }
+
+    printf("\nWinner: %s\n", dasha_total > masha_total ? "DASHA" : "MASHA");
+}
+
+// Симуляция
+
+void simulation()
+{
+    int year = 2026;
+    int month = 3;
+
+    while (!(year == 2031 && month == 3)) {
+        update_year_index(year);
+
+        // Даша
+        dasha_education(month, year);
+        dasha_freelance(month, year);
+        dasha_sidejob(month, year);
+        dasha_relocation(month, year);
+        dasha_courses(month, year);
+        dasha_job(month, year);
+        dasha_housing(month, year);
+        dasha_investments(month, year);
+        dasha_gambling(month, year);
+        dasha_lottery(month, year);
+        dasha_car(month, year);
+        dasha_wedding(month, year);
+        dasha_child(month, year);
+        dasha_crime(month, year);
+        dasha_health(month, year);
+        dasha_hobby(month, year);
+        dasha_credit(month, year);
+        dasha_deposit(month, year);
+        dasha_pet(month, year);
+        dasha_gifts(month, year);
+        dasha_tech_repair(month, year);
+        dasha_cashback(month, year);
+        dasha_inheritance(month, year);
+        dasha_debt(month, year);
+        dasha_travel(month, year);
+
+        // Маша
+        masha_job(month, year);
+        masha_housing(month, year);
+        masha_car(month, year);
+        masha_betting(month, year);
+        masha_family(month, year);
+        masha_health(month, year);
+        masha_forex(month, year);
+        masha_education(month, year);
+        masha_hobby(month, year);
+        masha_pet(month, year);
+        masha_sidejob(month, year);
+        masha_unexpected(month, year);
+
+        apply_inflation(month, year);
+
+        month++;
+        if (month == 13) {
+            month = 1;
+            year++;
+        }
+    }
+
+    print_yearly_stats();
+    print_final_results();
+}
+
+int main()
+{
+    srand((unsigned int)time(NULL));
+    dasha_init();
+    masha_init();
+    simulation();
+    return 0;
+}
