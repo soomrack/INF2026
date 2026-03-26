@@ -1,237 +1,527 @@
-
-
-#include <stdio.h>
+#include <stdio.h> // добавить уровни стресса, +1 чекловека и улучшить структуру, перерпроверить логику при продаже машины
 #include <math.h>
-#include <stdlib.h>
-#include <time.h>
+
 
 using Percent = float;
 
 using RUB = long long int;
 using USD = long long int;
 
+
+struct CyclicSequencer {
+    int predefined_values[16];
+    int sequence_length;
+    int current_position;
+};
+
+int next_cyclic_value(CyclicSequencer& sequencer)
+{
+    int value = sequencer.predefined_values[sequencer.current_position];
+    sequencer.current_position = (sequencer.current_position + 1) % sequencer.sequence_length;
+    return value;
+}
+
+
+CyclicSequencer freelance_order_arrival_cycler = {
+    {1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0},
+    12, 0
+};
+
+CyclicSequencer freelance_order_amount_cycler = {
+    {39000, 55000, 30000, 70000, 25000, 48000, 62000, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    7, 0
+};
+
+CyclicSequencer rental_tenants_move_out_cycler = {
+    {0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    8, 0
+};
+
+CyclicSequencer rental_new_tenants_found_cycler = {
+    {1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    4, 0
+};
+
+CyclicSequencer stress_event_is_positive_cycler = {
+    {1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0},
+    12, 0
+};
+
+CyclicSequencer stress_positive_event_index_cycler = {
+    {0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0},
+    5, 0
+};
+
+CyclicSequencer stress_negative_event_index_cycler = {
+    {0, 1, 2, 3, 0, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0},
+    4, 0
+};
+
+
 struct Car {
     RUB value;
-    RUB gas;
+    RUB monthly_fuel_cost;
+    bool is_owned;
 };
 
 struct Bank {
     RUB account_rub;
     USD account_usd;
-    float rate_usd_rub;
+    float exchange_rate_usd_to_rub;
 };
 
 struct Cat {
-    RUB food;
-    RUB veterinarian;
+    RUB monthly_food_and_filler_cost;
 };
 
-struct Credit {
-    RUB amount;
-    Percent rate;
-    int months_left;
-    RUB monthly_payment;
+struct Freelance {
+    RUB minimum_order_income;
+    RUB maximum_order_income;
 };
 
-struct Apartment {
-    RUB value;
-    RUB monthly_rent_income;
-    bool is_occupied;
-    int months_occupied;
-    int minimum_months_to_stay;
+struct Vacation {
+    int vacation_month;
+    RUB total_spent_on_vacations;
 };
+
+struct StressTracker {
+    int stress_points;
+    int stress_level;
+};
+
+const char* POSITIVE_STRESS_EVENTS[5] = {
+    "Неожиданный подарок от друга",
+    "Успешный фриланс-проект",
+    "Семейный ужин",
+    "Поход в театр",
+    "Получение премии на работе"
+};
+
+const char* NEGATIVE_STRESS_EVENTS[4] = {
+    "Соседи затеяли ремонт, шум мешает спать",
+    "Кот пропал на несколько часов",
+    "Неприятный разговор с начальником",
+    "Сломался ноутбук"
+};
+
+struct Mortgage {
+    RUB apartment_value;
+    RUB remaining_loan_balance;
+    RUB fixed_monthly_payment;
+    float annual_interest_rate;
+};
+
+struct RentalApartment {
+    RUB apartment_value;
+    RUB monthly_rent_price;
+    bool is_owned;
+    bool is_currently_occupied;
+    int months_current_tenants_have_lived;
+    int minimum_tenant_stay_months;
+};
+
 
 struct Person {
     Bank vtb;
-    RUB salary;
-    USD freelance_income;
-    RUB food;
+    RUB monthly_salary;
+    RUB monthly_food_expenses;
     Car car;
     Cat cat;
-    Credit credit;
-    Apartment apartment;
+    Freelance freelance;
+    Vacation vacation;
+    StressTracker stress;
+    Mortgage mortgage;
+    RentalApartment rental_apartment;
 };
 
 struct Person alice;
 
-RUB calculate_monthly_payment(RUB amount, Percent rate, int months)
+
+int calculate_stress_level(const int stress_points)
 {
-    double i = rate / 100.0 / 12.0;
-    double payment = amount * (i * pow(1 + i, months)) / (pow(1 + i, months) - 1);
-    return (RUB)payment;
+    if (stress_points >= 20) return 5;
+    if (stress_points >= 10) return 4;
+    if (stress_points >=  0) return 3;
+    if (stress_points >= -10) return 2;
+    return 1;
 }
+
+const char* stress_level_name(const int stress_level)
+{
+    switch (stress_level) {
+    case 5: return "Отличное";
+    case 4: return "Хорошее";
+    case 3: return "Нормальное";
+    case 2: return "Плохое";
+    default: return "Ужасное";
+    }
+}
+
+RUB calculate_total_capital()
+{
+    RUB bank_rub_value         = alice.vtb.account_rub;
+    RUB bank_usd_value_in_rub  = (RUB)(alice.vtb.account_usd * alice.vtb.exchange_rate_usd_to_rub);
+    RUB car_current_value      = alice.car.value;
+    RUB mortgage_net_equity    = alice.mortgage.apartment_value - alice.mortgage.remaining_loan_balance;
+    RUB rental_apartment_value = alice.rental_apartment.is_owned ? alice.rental_apartment.apartment_value : 0;
+
+    return bank_rub_value
+         + bank_usd_value_in_rub
+         + car_current_value
+         + mortgage_net_equity
+         + rental_apartment_value;
+}
+
 
 void alice_init()
 {
-    alice.vtb.rate_usd_rub = 78.76;
-    alice.vtb.account_rub = 0;
-    alice.vtb.account_usd = 1'000;
+    alice.vtb.exchange_rate_usd_to_rub = 78.76;
+    alice.vtb.account_rub              = 0;
+    alice.vtb.account_usd              = 1'000;
 
-    alice.salary = 180'000;
-    alice.freelance_income = 2'000;
-    alice.food = 3'000;
+    alice.monthly_salary        = 180'000;
+    alice.monthly_food_expenses = 3'000;
 
-    alice.car.value = 2'400'000;
-    alice.car.gas = 15'000;
+    alice.car.value             = 2'400'000;
+    alice.car.monthly_fuel_cost = 15'000;
+    alice.car.is_owned          = true;
 
-    alice.cat.food = 4'000;
-    alice.cat.veterinarian = 20'000;
+    alice.cat.monthly_food_and_filler_cost = 4'500;
 
-    alice.credit.amount = 1'000'000;
-    alice.credit.rate = 18.0;
-    alice.credit.months_left = 60;
-    alice.credit.monthly_payment = calculate_monthly_payment(alice.credit.amount, alice.credit.rate, alice.credit.months_left);
+    alice.freelance.minimum_order_income = 20'000;
+    alice.freelance.maximum_order_income = 80'000;
 
-    alice.apartment.value = 6'000'000;
-    alice.apartment.monthly_rent_income = 35'000;
-    alice.apartment.is_occupied = true;
-    alice.apartment.months_occupied = 0;
-    alice.apartment.minimum_months_to_stay = 4;
+    alice.vacation.vacation_month           = 8;
+    alice.vacation.total_spent_on_vacations = 0;
+
+    alice.stress.stress_points = 0;
+    alice.stress.stress_level  = 3;
+
+    alice.mortgage.apartment_value        = 8'000'000;
+    alice.mortgage.remaining_loan_balance = 6'400'000;
+    alice.mortgage.fixed_monthly_payment  = 89'000;
+    alice.mortgage.annual_interest_rate   = 16.0;
+
+    alice.rental_apartment.apartment_value                   = 6'000'000;
+    alice.rental_apartment.monthly_rent_price                = 50'000;
+    alice.rental_apartment.is_owned                          = true;
+    alice.rental_apartment.is_currently_occupied             = true;
+    alice.rental_apartment.months_current_tenants_have_lived = 0;
+    alice.rental_apartment.minimum_tenant_stay_months        = 4;
 }
+
 
 void alice_food(const int month, const int year)
 {
-    if (month == 12)
-        alice.vtb.account_rub -= 2000;
-
-    Percent inflation = 12.0;
-    switch (year) {
-        case 2026: inflation = 12.5; break;
-        case 2027: inflation = 14.0; break;
-        case 2028: inflation = 13.0; break;
-        case 2029: inflation = 11.5; break;
+    if (month == 12) {
+        alice.vtb.account_rub -= 2'000;
     }
 
-    alice.food += alice.food * (inflation / 100.0 / 12.0);
-    alice.vtb.account_rub -= alice.food;
+    Percent annual_inflation = 12.0;
+    switch (year) {
+    case 2026: annual_inflation = 12.5; break;
+    case 2027: annual_inflation = 14.0; break;
+    case 2028: annual_inflation = 13.0; break;
+    case 2029: annual_inflation = 11.5; break;
+    }
+
+    alice.monthly_food_expenses +=
+        (RUB)(alice.monthly_food_expenses * (annual_inflation / 100.0 / 12.0));
+    alice.vtb.account_rub -= alice.monthly_food_expenses;
 }
 
-void alice_cat(const int month, const int year)
+
+void alice_cat(const int year)
 {
-    if (month == 5)
-        alice.vtb.account_rub -= alice.cat.veterinarian;
+    Percent annual_inflation = 12.0;
+    switch (year) {
+    case 2026: annual_inflation = 12.5; break;
+    case 2027: annual_inflation = 14.0; break;
+    case 2028: annual_inflation = 13.0; break;
+    case 2029: annual_inflation = 11.5; break;
+    }
 
-    Percent inflation = 10.0;
-    if (year == 2027) inflation = 12.0;
-
-    alice.cat.food += alice.cat.food * (inflation / 100.0 / 12.0);
-    alice.vtb.account_rub -= alice.cat.food;
+    alice.cat.monthly_food_and_filler_cost +=
+        (RUB)(alice.cat.monthly_food_and_filler_cost * (annual_inflation / 100.0 / 12.0));
+    alice.vtb.account_rub -= alice.cat.monthly_food_and_filler_cost;
 }
+
 
 void alice_salary(const int month, const int year)
 {
-    if (month == 3)
-        alice.salary *= 1.5;
+    if (month == 1) {
+        Percent annual_inflation = 12.0;
+        switch (year) {
+        case 2026: annual_inflation = 12.5; break;
+        case 2027: annual_inflation = 14.0; break;
+        case 2028: annual_inflation = 13.0; break;
+        case 2029: annual_inflation = 11.5; break;
+        }
+        alice.monthly_salary = (RUB)(alice.monthly_salary * (1.0 + annual_inflation / 100.0));
+    }
 
-    if (month == 2 && year == 2026)
-        alice.vtb.account_rub += 5000;
+    if (month == 3) {
+        alice.monthly_salary = (RUB)(alice.monthly_salary * 1.5);
+    }
 
-    alice.vtb.account_rub += alice.salary;
+    if (month == 2 && year == 2026) {
+        alice.vtb.account_rub += 5'000;
+    }
+
+    alice.vtb.account_rub += alice.monthly_salary;
 }
 
-void alice_freelance_income()
-{
-    RUB converted_income = alice.freelance_income * alice.vtb.rate_usd_rub;
-    alice.vtb.account_rub += converted_income;
-}
 
-void alice_car()
+void alice_car_expenses()
 {
-    alice.vtb.account_rub -= alice.car.gas;
-}
-
-void alice_credit()
-{
-    if (alice.credit.months_left <= 0)
+    if (!alice.car.is_owned) {
         return;
-
-    double monthly_rate = alice.credit.rate / 100.0 / 12.0;
-    RUB interest_payment = alice.credit.amount * monthly_rate;
-    RUB principal_payment = alice.credit.monthly_payment - interest_payment;
-
-    alice.credit.amount -= principal_payment;
-    alice.vtb.account_rub -= alice.credit.monthly_payment;
-
-    alice.credit.months_left--;
+    }
+    alice.vtb.account_rub -= alice.car.monthly_fuel_cost;
 }
 
-void alice_apartment_income(const int month, const int year)
+
+void alice_mortgage()
 {
-    Percent rent_growth_percent = 8.0;
-    if (year == 2027)
-        rent_growth_percent = 10.0;
+    if (alice.mortgage.remaining_loan_balance == 0) {
+        return;
+    }
 
-    alice.apartment.monthly_rent_income += alice.apartment.monthly_rent_income * (rent_growth_percent / 100.0 / 12.0);
+    float monthly_interest_rate = alice.mortgage.annual_interest_rate / 100.0f / 12.0f;
 
-    if (alice.apartment.is_occupied) {
-        alice.apartment.months_occupied++;
-        alice.vtb.account_rub += alice.apartment.monthly_rent_income;if (alice.apartment.months_occupied >= alice.apartment.minimum_months_to_stay) {
-            int chance_to_leave_percent = 25;
-            if (rand() % 100 < chance_to_leave_percent) {
-                alice.apartment.is_occupied = false;
-                alice.apartment.months_occupied = 0;
+    RUB interest_portion  = (RUB)(alice.mortgage.remaining_loan_balance * monthly_interest_rate);
+    RUB principal_portion = alice.mortgage.fixed_monthly_payment - interest_portion;
+
+    bool final_payment = (alice.mortgage.remaining_loan_balance + interest_portion) < alice.mortgage.fixed_monthly_payment;
+
+    if (final_payment) {
+        RUB actual_payment = alice.mortgage.remaining_loan_balance + interest_portion;
+        alice.vtb.account_rub -= actual_payment;
+        alice.mortgage.remaining_loan_balance = 0;
+    } else {
+        alice.vtb.account_rub -= alice.mortgage.fixed_monthly_payment;
+        alice.mortgage.remaining_loan_balance -= principal_portion;
+    }
+}
+
+
+void alice_freelance(const int month, const int year)
+{
+    int order_arrived = next_cyclic_value(freelance_order_arrival_cycler);
+    if (!order_arrived) {
+        return;
+    }
+
+    RUB freelance_income = (RUB)next_cyclic_value(freelance_order_amount_cycler);
+
+    alice.vtb.account_rub += freelance_income;
+    printf("  [%02d/%d] Фриланс: заказ выполнен, доход = %lld руб.\n",
+        month, year, freelance_income);
+}
+
+
+void alice_sell_car(const int month, const int year)
+{
+    alice.vtb.account_rub += alice.car.value;
+    alice.car.value             = 0;
+    alice.car.monthly_fuel_cost = 0;
+    alice.car.is_owned          = false;
+    printf("  [%02d/%d] Машина продана.\n", month, year);
+}
+
+
+void alice_vacation(const int month, const int year)
+{
+    if (month != alice.vacation.vacation_month) {
+        return;
+    }
+
+    RUB total_capital_this_year = calculate_total_capital();
+    RUB vacation_cost           = total_capital_this_year / 10;
+
+    if (alice.vtb.account_rub < vacation_cost && alice.car.is_owned) {
+        printf("  [%02d/%d] Отпуск: рублей недостаточно (%lld руб.), продаёт машину за %lld руб.\n",
+            month, year, alice.vtb.account_rub, alice.car.value);
+        alice_sell_car(month, year);
+    }
+
+    if (vacation_cost > alice.vtb.account_rub) {
+        vacation_cost = alice.vtb.account_rub > 0 ? alice.vtb.account_rub : 0;
+    }
+
+    alice.vtb.account_rub                   -= vacation_cost;
+    alice.vacation.total_spent_on_vacations += vacation_cost;
+
+        month, year, total_capital_this_year, vacation_cost);
+}
+
+
+void alice_stress(const int month, const int year)
+{
+    int event_is_positive = next_cyclic_value(stress_event_is_positive_cycler);
+
+    const char* event_description = "";
+    int points_change = 0;
+
+    if (event_is_positive) {
+        int event_index   = next_cyclic_value(stress_positive_event_index_cycler);
+        event_description = POSITIVE_STRESS_EVENTS[event_index];
+        points_change     = +5;
+    } else {
+        int event_index   = next_cyclic_value(stress_negative_event_index_cycler);
+        event_description = NEGATIVE_STRESS_EVENTS[event_index];
+        points_change     = -5;
+    }
+
+    alice.stress.stress_points += points_change;
+    alice.stress.stress_level   = calculate_stress_level(alice.stress.stress_points);
+
+    printf("  [%02d/%d] Стресс (%+d): %s → очки: %d, уровень: %s\n",
+        month, year,
+        points_change,
+        event_description,
+        alice.stress.stress_points,
+        stress_level_name(alice.stress.stress_level));
+}
+
+
+void alice_rental_apartment(const int month, const int year)
+{
+    RentalApartment& apartment = alice.rental_apartment;
+
+    if (!apartment.is_owned) {
+        return;
+    }
+
+    Percent annual_inflation = 12.0;
+    switch (year) {
+    case 2026: annual_inflation = 12.5; break;
+    case 2027: annual_inflation = 14.0; break;
+    case 2028: annual_inflation = 13.0; break;
+    case 2029: annual_inflation = 11.5; break;
+    }
+    apartment.monthly_rent_price +=
+        (RUB)(apartment.monthly_rent_price * (annual_inflation / 100.0 / 12.0));
+
+    if (apartment.is_currently_occupied) {
+
+        alice.vtb.account_rub += apartment.monthly_rent_price;
+        apartment.months_current_tenants_have_lived += 1;
+
+        bool tenants_have_completed_minimum_stay =
+            apartment.months_current_tenants_have_lived >= apartment.minimum_tenant_stay_months;
+
+        if (tenants_have_completed_minimum_stay) {
+            int tenants_move_out = next_cyclic_value(rental_tenants_move_out_cycler);
+
+            if (tenants_move_out) {
+                printf("  [%02d/%d] Аренда: жильцы съехали после %d месяцев.\n",
+                    month, year,
+                    apartment.months_current_tenants_have_lived);
+
+                apartment.is_currently_occupied             = false;
+                apartment.months_current_tenants_have_lived = 0;
             }
         }
+
     } else {
-        int chance_to_rent_percent = 40;
-        if (rand() % 100 < chance_to_rent_percent) {
-            alice.apartment.is_occupied = true;
-            alice.apartment.months_occupied = 0;
+
+        int new_tenants_found = next_cyclic_value(rental_new_tenants_found_cycler);
+
+        if (new_tenants_found) {
+            apartment.is_currently_occupied             = true;
+            apartment.months_current_tenants_have_lived = 0;
+            printf("  [%02d/%d] Аренда: новые жильцы въехали.\n", month, year);
+        } else {
+            printf("  [%02d/%d] Аренда: квартира пустует — дохода нет.\n", month, year);
         }
     }
 }
 
-void alice_annual_trip(const int month, const int year)
+
+void alice_sell_car_if_balance_is_negative(const int month, const int year)
 {
-    if (month == 7) {
-        RUB base_trip_cost = 120'000;
-        Percent trip_inflation = 10.0;
-        switch (year) {
-            case 2026: trip_inflation = 10.0; break;
-            case 2027: trip_inflation = 12.0; break;
-            case 2028: trip_inflation = 11.0; break;
-        }
-        RUB trip_cost = base_trip_cost + (RUB)(base_trip_cost * trip_inflation / 100.0);
-        alice.vtb.account_rub -= trip_cost;
+    if (alice.vtb.account_rub < 0 && alice.car.is_owned) {
+        printf("  [%02d/%d] ЭКСТРЕННО: баланс = %lld руб. — продаёт машину за %lld руб.\n",
+            month, year,
+            alice.vtb.account_rub,
+            alice.car.value);
+        alice_sell_car(month, year);
+        printf("  [%02d/%d] Баланс после продажи = %lld руб.\n",
+            month, year,
+            alice.vtb.account_rub);
     }
 }
 
-void alice_handle_negative_balance()
+
+void print_results()
 {
-    if (alice.vtb.account_rub >= 0)
-        return;
+    printf("\nИтоги\n");
+    printf("Зарплата в месяц           = %lld руб.\n", alice.monthly_salary);
 
-    if (alice.car.value > 0) {
-        RUB sold_amount = alice.car.value;
-        alice.vtb.account_rub += sold_amount;
-        alice.car.value = 0;
-        printf("Alice продала машину на %lld руб, чтобы покрыть расходы.\n", sold_amount);
+    RUB bank_rub_value         = alice.vtb.account_rub;
+    RUB bank_usd_value_in_rub  = (RUB)(alice.vtb.account_usd * alice.vtb.exchange_rate_usd_to_rub);
+    RUB car_current_value      = alice.car.value;
+    RUB mortgage_net_equity    = alice.mortgage.apartment_value - alice.mortgage.remaining_loan_balance;
+    RUB rental_apartment_value = alice.rental_apartment.apartment_value;
+
+    RUB total_capital =
+        bank_rub_value         +
+        bank_usd_value_in_rub  +
+        car_current_value      +
+        mortgage_net_equity    +
+        rental_apartment_value;
+
+    printf("\nКапитал\n");
+    printf("Счёт (руб.)                = %lld руб.\n", bank_rub_value);
+    printf("Счёт (USD)                 = %lld USD  =  %lld руб.\n",
+        alice.vtb.account_usd, bank_usd_value_in_rub);
+
+    if (alice.car.is_owned) {
+        printf("Стоимость машины           = %lld руб.\n", car_current_value);
+    } else {
+        printf("Стоимость машины           = продана (0 руб.)\n");
     }
 
-    if (alice.vtb.account_rub < 0 && alice.apartment.value > 0) {
-        RUB sold_amount = alice.apartment.value;
-        alice.vtb.account_rub += sold_amount;
-        alice.apartment.value = 0;
-        alice.apartment.is_occupied = false;
-        printf("Alice продала квартиру на %lld руб, чтобы покрыть расходы.\n", sold_amount);
+    printf("Остаток долга по ипотеке   = %lld руб.\n", alice.mortgage.remaining_loan_balance);
+    if (alice.rental_apartment.is_owned) {
+        printf("Арендная квартира          = %lld руб.\n", rental_apartment_value);
+    } else {
+        printf("Арендная квартира          = продана (0 руб.)\n");
     }
+    printf("Потрачено на отпуск        = %lld руб.\n", alice.vacation.total_spent_on_vacations);
+    printf("\n");
+    printf("Итоговый капитал           = %lld руб.\n", total_capital);
+
+    printf("\nСтресс\n");
+    printf("Очки стресса               = %d\n", alice.stress.stress_points);
+    printf("Уровень стресса            = %d / 5 (%s)\n",
+        alice.stress.stress_level,
+        stress_level_name(alice.stress.stress_level));
+    printf("\n");
 }
+
 
 void simulation()
 {
-    int year = 2026;
+    int year  = 2026;
     int month = 2;
 
+    printf("Симуляция: февраль 2026 -> февраль 2027\n");
+
     while (!(year == 2027 && month == 2)) {
+
         alice_salary(month, year);
-        alice_freelance_income();
-        alice_apartment_income(month, year);
-        alice_car();
-        alice_credit();
-        alice_cat(month, year);
+        alice_freelance(month, year);
+        alice_car_expenses();
         alice_food(month, year);
-        alice_annual_trip(month, year);
-        alice_handle_negative_balance();
+        alice_cat(year);
+        alice_mortgage();
+        alice_rental_apartment(month, year);
+        alice_vacation(month, year);
+        alice_stress(month, year);
+
+        alice_sell_car_if_balance_is_negative(month, year);
 
         ++month;
         if (month == 13) {
@@ -241,24 +531,12 @@ void simulation()
     }
 }
 
-void print_results()
-{
-    printf("Salary = %lld\n", alice.salary);
-
-    RUB capital = 0;
-    capital += alice.vtb.account_rub;
-    capital += alice.vtb.account_usd * alice.vtb.rate_usd_rub;
-    capital += alice.car.value;
-    capital += alice.apartment.value;
-
-    printf("Capital = %lld\n", capital);
-}
 
 int main()
 {
-    srand(time(NULL));
     alice_init();
     simulation();
     print_results();
-}
 
+    return 0;
+}
