@@ -1,0 +1,2182 @@
+#include <iostream>
+#include <cmath>
+#include <iomanip>
+
+using RUB = long long int;
+using PERCENT = double;
+using INFLATION = double;
+
+INFLATION global_inflation = 8.5;
+
+struct Cat {
+    RUB eat;
+    RUB toilet;
+    RUB toys;
+    RUB vet;
+    bool exists;
+    int purchase_year;
+};
+
+struct Dog {
+    RUB eat;
+    RUB toilet;
+    RUB toys;
+    RUB vet;
+    bool exists;
+    int purchase_year;
+};
+
+struct Hamster {
+    RUB eat;
+    RUB toilet;
+    RUB toys;
+    RUB vet;
+    bool exists;
+    int purchase_year;
+};
+
+struct Popygay {
+    RUB eat;
+    RUB toilet;
+    RUB toys;
+    RUB vet;
+    bool exists;
+    int purchase_year;
+};
+
+struct Bank {
+    RUB account;
+    RUB deposite;
+    PERCENT interest;
+};
+
+struct Car {
+    RUB value;
+    RUB gas;
+    RUB wash;
+    RUB osago;
+    RUB kasko;
+    RUB washer_fluid;
+    RUB antifreez;
+    RUB tires;
+    RUB tax;
+    RUB repair;
+    RUB service;
+    INFLATION gas_inflation;
+    INFLATION service_inflation;
+    int purchase_year;
+};
+
+struct Flat {
+    RUB rent;
+    RUB hcs;
+    RUB electricity;
+    RUB water;
+    RUB gas_supply;
+    RUB internet;
+    INFLATION rent_inflation;
+    INFLATION utilities_inflation;
+};
+
+struct Credit {
+    RUB consumer_credit;
+    RUB mortgage;
+    RUB monthly_payment_consumer;
+    RUB monthly_payment_mortgage;
+    int consumer_start_year;
+    int mortgage_start_year;
+};
+
+struct Salary {
+    RUB base;
+    RUB bonus;
+    RUB parents_help;
+    INFLATION indexation;
+    int promotion_year;
+    RUB promotion_multiplier;
+};
+
+struct Taxes {
+    RUB income_tax_paid;
+    RUB property_tax;
+    RUB car_tax;
+    RUB total_taxes;
+    INFLATION inflation_rate;
+};
+
+struct YearlyStats {
+    int year;
+    RUB total_income;
+    RUB total_expenses;
+    RUB taxes_paid;
+    RUB savings;
+};
+
+struct Food {
+    RUB ovsyanka;
+    RUB eggs;
+    RUB apples;
+    RUB chicken;
+    RUB buckwheat;
+    RUB broccoli;
+    RUB fish;
+    RUB rice;
+    RUB tomatoes;
+    RUB cucumbers;
+    RUB nuts;
+    RUB tvorog;
+    RUB bananas;
+    RUB avocados;
+    RUB potato;
+    RUB spinach;
+    RUB orange;
+    RUB yogurt;
+    RUB olive_oil;
+    RUB bread;
+    RUB frozen_berries;
+    RUB oatmeal;
+    RUB tofu;
+    RUB quinoa;
+    RUB hummus;
+    RUB oat_milk;
+    RUB dark_chocolate;
+    RUB honey;
+    RUB peanut_butter;
+    RUB salmon;
+    RUB beef;
+    RUB coffee_beans;
+    RUB monthly_total;
+    INFLATION inflation_rate;
+};
+
+struct Clothes {
+    RUB shoes;
+    RUB pants;
+    RUB shirt;
+    RUB jacket;
+    RUB dress;
+    RUB t_shirt;
+    RUB sweatshirt;
+    RUB sportswear;
+    RUB skirts;
+    RUB blouses;
+    RUB jeans;
+    RUB hoodie;
+    RUB accessories;
+    RUB monthly_total;
+    INFLATION inflation_rate;
+};
+
+struct Entertainment {
+    RUB cinema;
+    RUB concerts;
+    RUB restaurants;
+    RUB bars;
+    RUB clubs;
+    RUB bowling;
+    RUB karaoke;
+    RUB monthly_total;
+    INFLATION inflation_rate;
+};
+
+struct Friends {
+    RUB beer;
+    RUB fast_food;
+    RUB cafe;
+    RUB brunch;
+    RUB shopping;
+    RUB spa;
+    RUB massage;
+    RUB monthly_total;
+    INFLATION inflation_rate;
+};
+
+struct Hobbies {
+    RUB guitar;
+    RUB tennis;
+    RUB hiking;
+    RUB books;
+    RUB video_games;
+    RUB dancing;
+    RUB painting;
+    RUB fashion;
+    RUB cooking;
+    RUB photography;
+    RUB music;
+    RUB monthly_total;
+    INFLATION inflation_rate;
+};
+
+struct Gym {
+    RUB subscription;
+    RUB protein;
+    RUB creatine;
+    RUB bcaa;
+    RUB monthly_total;
+    INFLATION inflation_rate;
+};
+
+struct Cosmetics {
+    RUB pomade;
+    RUB mascara;
+    RUB foundation;
+    RUB lipstick;
+    RUB eyeshadow;
+    RUB skincare;
+    RUB perfume;
+    RUB monthly_total;
+    INFLATION inflation_rate;
+};
+
+struct Health {
+    RUB doctor_visit;
+    RUB dentist;
+    RUB vitamin_c;
+    RUB multivitamin;
+    RUB magnesium;
+    RUB omega3;
+    RUB iron;
+    RUB monthly_total;
+    INFLATION inflation_rate;
+};
+
+struct Subscriptions {
+    RUB netflix;
+    RUB spotify;
+    RUB yandex_plus;
+    RUB ivi;
+    RUB disney_plus;
+    RUB monthly_total;
+    INFLATION inflation_rate;
+};
+
+struct Transport {
+    RUB taxi;
+    RUB card_monthly;
+    RUB monthly_total;
+    INFLATION inflation_rate;
+};
+
+struct Gifts {
+    RUB new_year;
+    RUB birthday_self;
+    RUB birthday_friends;
+    RUB anniversary;
+    RUB march_8;
+    RUB feb_23;
+    RUB valentine;
+    RUB monthly_total;
+    INFLATION inflation_rate;
+};
+
+struct Vacation {
+    RUB summer;
+    RUB winter;
+    RUB spring;
+    INFLATION inflation_rate;
+};
+
+struct Electronics {
+    RUB phone;
+    RUB computer;
+    RUB gaming_console;
+    RUB tv;
+    RUB monthly_total;
+    int phone_replace_year;
+    int computer_replace_year;
+    INFLATION inflation_rate;
+};
+
+struct Education {
+    RUB courses;
+    RUB books;
+    RUB monthly_total;
+    INFLATION inflation_rate;
+};
+
+struct Child {
+    bool exists;
+    RUB monthly_expenses;
+    RUB clothes;
+    RUB toys;
+    RUB pocket_money;
+    RUB school_supplies;
+    RUB excursions;
+    RUB summer_camp;
+    RUB music_school;
+    RUB sports_section;
+    RUB birthday_gifts;
+    RUB monthly_total;
+    int age;
+    int birth_year;
+    INFLATION inflation_rate;
+};
+
+struct Pets {
+    Cat cat;
+    Dog dog;
+    Hamster hamster;
+    Popygay popygay;
+    RUB buying_cat;
+    RUB buying_dog;
+    RUB buying_hamster;
+    RUB monthly_total;
+    INFLATION inflation_rate;
+};
+
+struct Person {
+    Bank bank;
+    Car car;
+    Flat flat;
+    Credit credit;
+    Salary salary;
+    Taxes taxes;
+    Food food;
+    Clothes clothes;
+    Entertainment entertainment;
+    Friends friends;
+    Hobbies hobbies;
+    Gym gym;
+    Cosmetics cosmetics;
+    Health health;
+    Subscriptions subs;
+    Transport transport;
+    Pets pets;
+    Gifts gifts;
+    Vacation vacation;
+    Electronics electronics;
+    Education education;
+    Child child;
+    
+    RUB emergency_fund;
+    RUB wedding_fund;
+    RUB investment_portfolio;
+    RUB total_capital;
+    RUB yearly_income;
+    RUB yearly_expenses;
+    
+    bool married;
+    int marriage_year;
+    int start_month;
+    int start_year;
+    int end_month;
+    int end_year;
+    
+    YearlyStats yearly_stats[15];
+    int stats_count;
+};
+
+Person pedroli;
+Person harchololi;
+
+void apply_inflation(int year, int month)
+{
+    if (month != 1) return;
+    
+    global_inflation = global_inflation + 0.3;
+    if (global_inflation > 12.0) global_inflation = 12.0;
+    
+    INFLATION factor = 1.0 + global_inflation / 100.0;
+    
+    pedroli.food.inflation_rate = factor;
+    pedroli.clothes.inflation_rate = factor;
+    pedroli.entertainment.inflation_rate = factor;
+    pedroli.friends.inflation_rate = factor;
+    pedroli.hobbies.inflation_rate = factor;
+    pedroli.gym.inflation_rate = factor;
+    pedroli.health.inflation_rate = factor;
+    pedroli.subs.inflation_rate = factor;
+    pedroli.transport.inflation_rate = factor;
+    pedroli.gifts.inflation_rate = factor;
+    pedroli.vacation.inflation_rate = factor;
+    pedroli.electronics.inflation_rate = factor;
+    pedroli.education.inflation_rate = factor;
+    pedroli.pets.inflation_rate = factor;
+    pedroli.taxes.inflation_rate = factor;
+    pedroli.flat.rent_inflation = factor;
+    pedroli.flat.utilities_inflation = factor;
+    pedroli.car.gas_inflation = factor;
+    pedroli.car.service_inflation = factor;
+    
+    harchololi.food.inflation_rate = factor;
+    harchololi.clothes.inflation_rate = factor;
+    harchololi.entertainment.inflation_rate = factor;
+    harchololi.friends.inflation_rate = factor;
+    harchololi.hobbies.inflation_rate = factor;
+    harchololi.gym.inflation_rate = factor;
+    harchololi.cosmetics.inflation_rate = factor;
+    harchololi.health.inflation_rate = factor;
+    harchololi.subs.inflation_rate = factor;
+    harchololi.transport.inflation_rate = factor;
+    harchololi.gifts.inflation_rate = factor;
+    harchololi.vacation.inflation_rate = factor;
+    harchololi.electronics.inflation_rate = factor;
+    harchololi.education.inflation_rate = factor;
+    harchololi.pets.inflation_rate = factor;
+    harchololi.child.inflation_rate = factor;
+    harchololi.taxes.inflation_rate = factor;
+    harchololi.flat.rent_inflation = factor;
+    harchololi.flat.utilities_inflation = factor;
+    harchololi.car.gas_inflation = factor;
+    harchololi.car.service_inflation = factor;
+}
+
+void init_pedroli()
+{
+    pedroli.bank.account = 100000;
+    pedroli.bank.deposite = 1000000;
+    pedroli.bank.interest = 14.5;
+    
+    pedroli.car.value = 2200000;
+    pedroli.car.gas = 15000;
+    pedroli.car.wash = 500;
+    pedroli.car.osago = 10000;
+    pedroli.car.kasko = 25000;
+    pedroli.car.washer_fluid = 300;
+    pedroli.car.antifreez = 500;
+    pedroli.car.tires = 20000;
+    pedroli.car.tax = 4500;
+    pedroli.car.repair = 8000;
+    pedroli.car.service = 10000;
+    pedroli.car.gas_inflation = 1.0;
+    pedroli.car.service_inflation = 1.0;
+    pedroli.car.purchase_year = 2026;
+    
+    pedroli.flat.rent = 35000;
+    pedroli.flat.hcs = 5000;
+    pedroli.flat.electricity = 2000;
+    pedroli.flat.water = 1000;
+    pedroli.flat.gas_supply = 800;
+    pedroli.flat.internet = 800;
+    pedroli.flat.rent_inflation = 1.0;
+    pedroli.flat.utilities_inflation = 1.0;
+    
+    pedroli.credit.consumer_credit = 0;
+    pedroli.credit.mortgage = 0;
+    pedroli.credit.monthly_payment_consumer = 0;
+    pedroli.credit.monthly_payment_mortgage = 0;
+    pedroli.credit.consumer_start_year = 0;
+    pedroli.credit.mortgage_start_year = 0;
+    
+    pedroli.salary.base = 280000;
+    pedroli.salary.bonus = 0;
+    pedroli.salary.parents_help = 0;
+    pedroli.salary.indexation = 2.5;
+    pedroli.salary.promotion_year = 2028;
+    pedroli.salary.promotion_multiplier = 1.3;
+    
+    pedroli.taxes.income_tax_paid = 0;
+    pedroli.taxes.property_tax = 3000;
+    pedroli.taxes.car_tax = 4000;
+    pedroli.taxes.total_taxes = 0;
+    pedroli.taxes.inflation_rate = 1.0;
+    
+    pedroli.food.ovsyanka = 20;
+    pedroli.food.eggs = 12;
+    pedroli.food.apples = 8;
+    pedroli.food.chicken = 25;
+    pedroli.food.buckwheat = 6;
+    pedroli.food.broccoli = 15;
+    pedroli.food.fish = 30;
+    pedroli.food.rice = 7;
+    pedroli.food.tomatoes = 12;
+    pedroli.food.cucumbers = 10;
+    pedroli.food.nuts = 80;
+    pedroli.food.tvorog = 25;
+    pedroli.food.bananas = 9;
+    pedroli.food.avocados = 75;
+    pedroli.food.potato = 3;
+    pedroli.food.spinach = 20;
+    pedroli.food.orange = 10;
+    pedroli.food.yogurt = 15;
+    pedroli.food.olive_oil = 66;
+    pedroli.food.bread = 20;
+    pedroli.food.frozen_berries = 30;
+    pedroli.food.dark_chocolate = 90;
+    pedroli.food.honey = 40;
+    pedroli.food.peanut_butter = 60;
+    pedroli.food.salmon = 80;
+    pedroli.food.beef = 70;
+    pedroli.food.coffee_beans = 150;
+    pedroli.food.monthly_total = 0;
+    pedroli.food.inflation_rate = 1.0;
+    
+    pedroli.clothes.shoes = 7000;
+    pedroli.clothes.pants = 5000;
+    pedroli.clothes.shirt = 3000;
+    pedroli.clothes.jacket = 10000;
+    pedroli.clothes.jeans = 6000;
+    pedroli.clothes.hoodie = 4000;
+    pedroli.clothes.t_shirt = 1500;
+    pedroli.clothes.sweatshirt = 3500;
+    pedroli.clothes.sportswear = 4000;
+    pedroli.clothes.monthly_total = 0;
+    pedroli.clothes.inflation_rate = 1.0;
+    
+    pedroli.entertainment.cinema = 1000;
+    pedroli.entertainment.concerts = 2000;
+    pedroli.entertainment.restaurants = 3000;
+    pedroli.entertainment.bowling = 1000;
+    pedroli.entertainment.monthly_total = 0;
+    pedroli.entertainment.inflation_rate = 1.0;
+    
+    pedroli.friends.beer = 1500;
+    pedroli.friends.cafe = 2000;
+    pedroli.friends.brunch = 1500;
+    pedroli.friends.monthly_total = 0;
+    pedroli.friends.inflation_rate = 1.0;
+    
+    pedroli.hobbies.guitar = 1000;
+    pedroli.hobbies.books = 1200;
+    pedroli.hobbies.video_games = 1500;
+    pedroli.hobbies.hiking = 800;
+    pedroli.hobbies.tennis = 2000;
+    pedroli.hobbies.monthly_total = 0;
+    pedroli.hobbies.inflation_rate = 1.0;
+    
+    pedroli.gym.subscription = 2500;
+    pedroli.gym.protein = 1200;
+    pedroli.gym.creatine = 800;
+    pedroli.gym.monthly_total = 0;
+    pedroli.gym.inflation_rate = 1.0;
+    
+    pedroli.health.multivitamin = 500;
+    pedroli.health.magnesium = 600;
+    pedroli.health.doctor_visit = 2000;
+    pedroli.health.monthly_total = 0;
+    pedroli.health.inflation_rate = 1.0;
+    
+    pedroli.subs.netflix = 1000;
+    pedroli.subs.spotify = 600;
+    pedroli.subs.yandex_plus = 500;
+    pedroli.subs.monthly_total = 0;
+    pedroli.subs.inflation_rate = 1.0;
+    
+    pedroli.transport.card_monthly = 1800;
+    pedroli.transport.taxi = 1000;
+    pedroli.transport.monthly_total = 0;
+    pedroli.transport.inflation_rate = 1.0;
+    
+    pedroli.pets.cat.eat = 0;
+    pedroli.pets.cat.toilet = 0;
+    pedroli.pets.cat.toys = 0;
+    pedroli.pets.cat.vet = 0;
+    pedroli.pets.cat.exists = false;
+    pedroli.pets.cat.purchase_year = 0;
+    pedroli.pets.dog.exists = false;
+    pedroli.pets.hamster.exists = false;
+    pedroli.pets.popygay.exists = false;
+    pedroli.pets.buying_cat = 10000;
+    pedroli.pets.buying_dog = 15000;
+    pedroli.pets.buying_hamster = 5000;
+    pedroli.pets.monthly_total = 0;
+    pedroli.pets.inflation_rate = 1.0;
+    
+    pedroli.gifts.new_year = 15000;
+    pedroli.gifts.birthday_friends = 8000;
+    pedroli.gifts.anniversary = 5000;
+    pedroli.gifts.monthly_total = 0;
+    pedroli.gifts.inflation_rate = 1.0;
+    
+    pedroli.vacation.summer = 60000;
+    pedroli.vacation.winter = 40000;
+    pedroli.vacation.inflation_rate = 1.0;
+    
+    pedroli.electronics.phone = 80000;
+    pedroli.electronics.computer = 120000;
+    pedroli.electronics.phone_replace_year = 2026;
+    pedroli.electronics.computer_replace_year = 2026;
+    pedroli.electronics.monthly_total = 0;
+    pedroli.electronics.inflation_rate = 1.0;
+    
+    pedroli.education.courses = 5000;
+    pedroli.education.books = 2000;
+    pedroli.education.monthly_total = 0;
+    pedroli.education.inflation_rate = 1.0;
+    
+    pedroli.child.exists = false;
+    
+    pedroli.emergency_fund = 150000;
+    pedroli.wedding_fund = 0;
+    pedroli.investment_portfolio = 0;
+    pedroli.total_capital = 0;
+    pedroli.yearly_income = 0;
+    pedroli.yearly_expenses = 0;
+    
+    pedroli.married = false;
+    pedroli.marriage_year = 0;
+    pedroli.start_month = 3;
+    pedroli.start_year = 2026;
+    pedroli.end_month = 3;
+    pedroli.end_year = 2040;
+    pedroli.stats_count = 0;
+    
+    for (int i = 0; i < 15; i++) {
+        pedroli.yearly_stats[i].year = 0;
+        pedroli.yearly_stats[i].total_income = 0;
+        pedroli.yearly_stats[i].total_expenses = 0;
+        pedroli.yearly_stats[i].taxes_paid = 0;
+        pedroli.yearly_stats[i].savings = 0;
+    }
+}
+
+void init_harchololi()
+{
+    harchololi.bank.account = 20000;
+    harchololi.bank.deposite = 100000;
+    harchololi.bank.interest = 14.5;
+    
+    harchololi.car.value = 3000000;
+    harchololi.car.gas = 25000;
+    harchololi.car.wash = 1000;
+    harchololi.car.osago = 15000;
+    harchololi.car.kasko = 40000;
+    harchololi.car.washer_fluid = 500;
+    harchololi.car.antifreez = 800;
+    harchololi.car.tires = 35000;
+    harchololi.car.tax = 7000;
+    harchololi.car.repair = 15000;
+    harchololi.car.service = 20000;
+    harchololi.car.gas_inflation = 1.0;
+    harchololi.car.service_inflation = 1.0;
+    harchololi.car.purchase_year = 2026;
+    
+    harchololi.flat.rent = 60000;
+    harchololi.flat.hcs = 7000;
+    harchololi.flat.electricity = 3000;
+    harchololi.flat.water = 1500;
+    harchololi.flat.gas_supply = 1000;
+    harchololi.flat.internet = 1200;
+    harchololi.flat.rent_inflation = 1.0;
+    harchololi.flat.utilities_inflation = 1.0;
+    
+    harchololi.credit.consumer_credit = 500000;
+    harchololi.credit.mortgage = 4000000;
+    harchololi.credit.monthly_payment_consumer = 22000;
+    harchololi.credit.monthly_payment_mortgage = 48000;
+    harchololi.credit.consumer_start_year = 2026;
+    harchololi.credit.mortgage_start_year = 2026;
+    
+    harchololi.salary.base = 220000;
+    harchololi.salary.bonus = 0;
+    harchololi.salary.parents_help = 0;
+    harchololi.salary.indexation = 2.0;
+    harchololi.salary.promotion_year = 2029;
+    harchololi.salary.promotion_multiplier = 1.2;
+    
+    harchololi.taxes.income_tax_paid = 0;
+    harchololi.taxes.property_tax = 0;
+    harchololi.taxes.car_tax = 6000;
+    harchololi.taxes.total_taxes = 0;
+    harchololi.taxes.inflation_rate = 1.0;
+    
+    harchololi.food.oatmeal = 25;
+    harchololi.food.eggs = 15;
+    harchololi.food.apples = 12;
+    harchololi.food.chicken = 35;
+    harchololi.food.rice = 9;
+    harchololi.food.broccoli = 22;
+    harchololi.food.fish = 45;
+    harchololi.food.nuts = 100;
+    harchololi.food.avocados = 90;
+    harchololi.food.bananas = 12;
+    harchololi.food.tofu = 40;
+    harchololi.food.quinoa = 70;
+    harchololi.food.hummus = 50;
+    harchololi.food.oat_milk = 18;
+    harchololi.food.dark_chocolate = 100;
+    harchololi.food.coffee_beans = 200;
+    harchololi.food.salmon = 90;
+    harchololi.food.monthly_total = 0;
+    harchololi.food.inflation_rate = 1.0;
+    
+    harchololi.clothes.shoes = 12000;
+    harchololi.clothes.jacket = 15000;
+    harchololi.clothes.dress = 10000;
+    harchololi.clothes.skirts = 6000;
+    harchololi.clothes.blouses = 5000;
+    harchololi.clothes.jeans = 8000;
+    harchololi.clothes.hoodie = 6000;
+    harchololi.clothes.accessories = 5000;
+    harchololi.clothes.monthly_total = 0;
+    harchololi.clothes.inflation_rate = 1.0;
+    
+    harchololi.entertainment.cinema = 2000;
+    harchololi.entertainment.concerts = 5000;
+    harchololi.entertainment.restaurants = 8000;
+    harchololi.entertainment.bars = 5000;
+    harchololi.entertainment.clubs = 6000;
+    harchololi.entertainment.karaoke = 3000;
+    harchololi.entertainment.monthly_total = 0;
+    harchololi.entertainment.inflation_rate = 1.0;
+    
+    harchololi.friends.beer = 3000;
+    harchololi.friends.fast_food = 2500;
+    harchololi.friends.cafe = 3000;
+    harchololi.friends.brunch = 2000;
+    harchololi.friends.shopping = 5000;
+    harchololi.friends.spa = 4000;
+    harchololi.friends.massage = 3000;
+    harchololi.friends.monthly_total = 0;
+    harchololi.friends.inflation_rate = 1.0;
+    
+    harchololi.hobbies.dancing = 2500;
+    harchololi.hobbies.painting = 3000;
+    harchololi.hobbies.fashion = 8000;
+    harchololi.hobbies.cooking = 2000;
+    harchololi.hobbies.photography = 4000;
+    harchololi.hobbies.music = 3000;
+    harchololi.hobbies.monthly_total = 0;
+    harchololi.hobbies.inflation_rate = 1.0;
+    
+    harchololi.gym.subscription = 4000;
+    harchololi.gym.protein = 2500;
+    harchololi.gym.bcaa = 1500;
+    harchololi.gym.monthly_total = 0;
+    harchololi.gym.inflation_rate = 1.0;
+    
+    harchololi.cosmetics.pomade = 3500;
+    harchololi.cosmetics.mascara = 3000;
+    harchololi.cosmetics.foundation = 5000;
+    harchololi.cosmetics.lipstick = 2500;
+    harchololi.cosmetics.eyeshadow = 2000;
+    harchololi.cosmetics.skincare = 6000;
+    harchololi.cosmetics.perfume = 8000;
+    harchololi.cosmetics.monthly_total = 0;
+    harchololi.cosmetics.inflation_rate = 1.0;
+    
+    harchololi.health.doctor_visit = 3000;
+    harchololi.health.dentist = 5000;
+    harchololi.health.vitamin_c = 400;
+    harchololi.health.omega3 = 1200;
+    harchololi.health.iron = 900;
+    harchololi.health.monthly_total = 0;
+    harchololi.health.inflation_rate = 1.0;
+    
+    harchololi.subs.netflix = 1000;
+    harchololi.subs.spotify = 600;
+    harchololi.subs.yandex_plus = 500;
+    harchololi.subs.ivi = 800;
+    harchololi.subs.disney_plus = 900;
+    harchololi.subs.monthly_total = 0;
+    harchololi.subs.inflation_rate = 1.0;
+    
+    harchololi.transport.taxi = 5000;
+    harchololi.transport.monthly_total = 0;
+    harchololi.transport.inflation_rate = 1.0;
+    
+    harchololi.pets.dog.eat = 0;
+    harchololi.pets.dog.toilet = 0;
+    harchololi.pets.dog.toys = 0;
+    harchololi.pets.dog.vet = 0;
+    harchololi.pets.dog.exists = false;
+    harchololi.pets.hamster.eat = 0;
+    harchololi.pets.hamster.toilet = 0;
+    harchololi.pets.hamster.toys = 0;
+    harchololi.pets.hamster.vet = 0;
+    harchololi.pets.hamster.exists = false;
+    harchololi.pets.buying_dog = 15000;
+    harchololi.pets.buying_hamster = 5000;
+    harchololi.pets.monthly_total = 0;
+    harchololi.pets.inflation_rate = 1.0;
+    
+    harchololi.gifts.new_year = 25000;
+    harchololi.gifts.birthday_self = 15000;
+    harchololi.gifts.birthday_friends = 15000;
+    harchololi.gifts.anniversary = 10000;
+    harchololi.gifts.march_8 = 8000;
+    harchololi.gifts.feb_23 = 5000;
+    harchololi.gifts.valentine = 5000;
+    harchololi.gifts.monthly_total = 0;
+    harchololi.gifts.inflation_rate = 1.0;
+    
+    harchololi.vacation.summer = 100000;
+    harchololi.vacation.winter = 70000;
+    harchololi.vacation.spring = 40000;
+    harchololi.vacation.inflation_rate = 1.0;
+    
+    harchololi.electronics.phone = 100000;
+    harchololi.electronics.computer = 150000;
+    harchololi.electronics.gaming_console = 50000;
+    harchololi.electronics.tv = 80000;
+    harchololi.electronics.phone_replace_year = 2026;
+    harchololi.electronics.computer_replace_year = 2026;
+    harchololi.electronics.monthly_total = 0;
+    harchololi.electronics.inflation_rate = 1.0;
+    
+    harchololi.education.courses = 10000;
+    harchololi.education.books = 3000;
+    harchololi.education.monthly_total = 0;
+    harchololi.education.inflation_rate = 1.0;
+    
+    harchololi.child.exists = false;
+    
+    harchololi.emergency_fund = 30000;
+    harchololi.wedding_fund = 0;
+    harchololi.investment_portfolio = 0;
+    harchololi.total_capital = 0;
+    harchololi.yearly_income = 0;
+    harchololi.yearly_expenses = 0;
+    
+    harchololi.married = false;
+    harchololi.marriage_year = 0;
+    harchololi.start_month = 3;
+    harchololi.start_year = 2026;
+    harchololi.end_month = 3;
+    harchololi.end_year = 2040;
+    harchololi.stats_count = 0;
+    
+    for (int i = 0; i < 15; i++) {
+        harchololi.yearly_stats[i].year = 0;
+        harchololi.yearly_stats[i].total_income = 0;
+        harchololi.yearly_stats[i].total_expenses = 0;
+        harchololi.yearly_stats[i].taxes_paid = 0;
+        harchololi.yearly_stats[i].savings = 0;
+    }
+}
+
+void pedroli_salary(int month, int year)
+{
+    if (month == 1 && year > pedroli.start_year) {
+        pedroli.salary.base = pedroli.salary.base * (100 + pedroli.salary.indexation) / 100;
+    }
+    
+    if (year == pedroli.salary.promotion_year && month == 1) {
+        pedroli.salary.base = pedroli.salary.base * pedroli.salary.promotion_multiplier;
+    }
+    
+    if (month == 12) {
+        pedroli.salary.bonus = pedroli.salary.base;
+        pedroli.bank.account += pedroli.salary.bonus;
+        pedroli.yearly_income += pedroli.salary.bonus;
+    }
+    
+    pedroli.bank.account += pedroli.salary.base;
+    pedroli.yearly_income += pedroli.salary.base;
+}
+
+void harchololi_salary(int month, int year)
+{
+    if (month == 1 && year > harchololi.start_year) {
+        harchololi.salary.base = harchololi.salary.base * (100 + harchololi.salary.indexation) / 100;
+    }
+    
+    if (year == harchololi.salary.promotion_year && month == 1) {
+        harchololi.salary.base = harchololi.salary.base * harchololi.salary.promotion_multiplier;
+    }
+    
+    if (month == 12) {
+        harchololi.salary.bonus = harchololi.salary.base * 0.8;
+        harchololi.bank.account += harchololi.salary.bonus;
+        harchololi.yearly_income += harchololi.salary.bonus;
+    }
+    
+    harchololi.bank.account += harchololi.salary.base;
+    harchololi.yearly_income += harchololi.salary.base;
+}
+
+void calculate_taxes(Person& p, int year, int month)
+{
+    if (month != 12) return;
+    
+    RUB income_tax = p.yearly_income * 13 / 100;
+    p.taxes.income_tax_paid = income_tax;
+    p.taxes.total_taxes = income_tax + p.taxes.property_tax + p.taxes.car_tax;
+    
+    p.bank.account -= p.taxes.total_taxes;
+    p.yearly_expenses += p.taxes.total_taxes;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        p.taxes.property_tax = p.taxes.property_tax * p.taxes.inflation_rate;
+        p.taxes.car_tax = p.taxes.car_tax * p.taxes.inflation_rate;
+        last_year = year;
+    }
+}
+
+void collect_yearly_stats(Person& p, int year)
+{
+    if (p.stats_count >= 15) return;
+    
+    p.yearly_stats[p.stats_count].year = year;
+    p.yearly_stats[p.stats_count].total_income = p.yearly_income;
+    p.yearly_stats[p.stats_count].total_expenses = p.yearly_expenses;
+    p.yearly_stats[p.stats_count].taxes_paid = p.taxes.total_taxes;
+    p.yearly_stats[p.stats_count].savings = p.yearly_income - p.yearly_expenses;
+    p.stats_count++;
+    
+    p.yearly_income = 0;
+    p.yearly_expenses = 0;
+    p.taxes.total_taxes = 0;
+    p.taxes.income_tax_paid = 0;
+}
+
+void pedroli_food_expenses(int month, int year)
+{
+    RUB total = 0;
+    
+    total += pedroli.food.ovsyanka * 4;
+    total += pedroli.food.eggs * 30;
+    total += pedroli.food.apples * 15;
+    total += pedroli.food.chicken * 8;
+    total += pedroli.food.buckwheat * 4;
+    total += pedroli.food.broccoli * 8;
+    total += pedroli.food.fish * 4;
+    total += pedroli.food.rice * 4;
+    total += pedroli.food.tomatoes * 10;
+    total += pedroli.food.cucumbers * 10;
+    total += pedroli.food.nuts * 2;
+    total += pedroli.food.tvorog * 8;
+    total += pedroli.food.bananas * 12;
+    total += pedroli.food.avocados * 6;
+    total += pedroli.food.potato * 10;
+    total += pedroli.food.spinach * 6;
+    total += pedroli.food.orange * 10;
+    total += pedroli.food.yogurt * 12;
+    total += pedroli.food.olive_oil * 1;
+    total += pedroli.food.bread * 6;
+    total += pedroli.food.frozen_berries * 6;
+    total += pedroli.food.dark_chocolate * 4;
+    total += pedroli.food.honey * 2;
+    total += pedroli.food.peanut_butter * 2;
+    total += pedroli.food.salmon * 2;
+    total += pedroli.food.beef * 3;
+    total += pedroli.food.coffee_beans * 1;
+    
+    pedroli.bank.account -= total;
+    pedroli.food.monthly_total = total;
+    pedroli.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        pedroli.food.ovsyanka = pedroli.food.ovsyanka * pedroli.food.inflation_rate;
+        pedroli.food.eggs = pedroli.food.eggs * pedroli.food.inflation_rate;
+        pedroli.food.apples = pedroli.food.apples * pedroli.food.inflation_rate;
+        pedroli.food.chicken = pedroli.food.chicken * pedroli.food.inflation_rate;
+        pedroli.food.buckwheat = pedroli.food.buckwheat * pedroli.food.inflation_rate;
+        pedroli.food.broccoli = pedroli.food.broccoli * pedroli.food.inflation_rate;
+        pedroli.food.fish = pedroli.food.fish * pedroli.food.inflation_rate;
+        pedroli.food.rice = pedroli.food.rice * pedroli.food.inflation_rate;
+        pedroli.food.tomatoes = pedroli.food.tomatoes * pedroli.food.inflation_rate;
+        pedroli.food.cucumbers = pedroli.food.cucumbers * pedroli.food.inflation_rate;
+        pedroli.food.nuts = pedroli.food.nuts * pedroli.food.inflation_rate;
+        pedroli.food.tvorog = pedroli.food.tvorog * pedroli.food.inflation_rate;
+        pedroli.food.bananas = pedroli.food.bananas * pedroli.food.inflation_rate;
+        pedroli.food.avocados = pedroli.food.avocados * pedroli.food.inflation_rate;
+        pedroli.food.potato = pedroli.food.potato * pedroli.food.inflation_rate;
+        pedroli.food.spinach = pedroli.food.spinach * pedroli.food.inflation_rate;
+        pedroli.food.orange = pedroli.food.orange * pedroli.food.inflation_rate;
+        pedroli.food.yogurt = pedroli.food.yogurt * pedroli.food.inflation_rate;
+        pedroli.food.olive_oil = pedroli.food.olive_oil * pedroli.food.inflation_rate;
+        pedroli.food.bread = pedroli.food.bread * pedroli.food.inflation_rate;
+        pedroli.food.frozen_berries = pedroli.food.frozen_berries * pedroli.food.inflation_rate;
+        pedroli.food.dark_chocolate = pedroli.food.dark_chocolate * pedroli.food.inflation_rate;
+        pedroli.food.honey = pedroli.food.honey * pedroli.food.inflation_rate;
+        pedroli.food.peanut_butter = pedroli.food.peanut_butter * pedroli.food.inflation_rate;
+        pedroli.food.salmon = pedroli.food.salmon * pedroli.food.inflation_rate;
+        pedroli.food.beef = pedroli.food.beef * pedroli.food.inflation_rate;
+        pedroli.food.coffee_beans = pedroli.food.coffee_beans * pedroli.food.inflation_rate;
+        last_year = year;
+    }
+}
+
+void harchololi_food_expenses(int month, int year)
+{
+    RUB total = 0;
+    
+    total += harchololi.food.oatmeal * 4;
+    total += harchololi.food.eggs * 30;
+    total += harchololi.food.apples * 15;
+    total += harchololi.food.chicken * 10;
+    total += harchololi.food.rice * 5;
+    total += harchololi.food.broccoli * 10;
+    total += harchololi.food.fish * 6;
+    total += harchololi.food.nuts * 3;
+    total += harchololi.food.avocados * 8;
+    total += harchololi.food.bananas * 15;
+    total += harchololi.food.tofu * 6;
+    total += harchololi.food.quinoa * 3;
+    total += harchololi.food.hummus * 3;
+    total += harchololi.food.oat_milk * 10;
+    total += harchololi.food.dark_chocolate * 5;
+    total += harchololi.food.coffee_beans * 2;
+    total += harchololi.food.salmon * 4;
+    
+    harchololi.bank.account -= total;
+    harchololi.food.monthly_total = total;
+    harchololi.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        harchololi.food.oatmeal = harchololi.food.oatmeal * harchololi.food.inflation_rate;
+        harchololi.food.eggs = harchololi.food.eggs * harchololi.food.inflation_rate;
+        harchololi.food.apples = harchololi.food.apples * harchololi.food.inflation_rate;
+        harchololi.food.chicken = harchololi.food.chicken * harchololi.food.inflation_rate;
+        harchololi.food.rice = harchololi.food.rice * harchololi.food.inflation_rate;
+        harchololi.food.broccoli = harchololi.food.broccoli * harchololi.food.inflation_rate;
+        harchololi.food.fish = harchololi.food.fish * harchololi.food.inflation_rate;
+        harchololi.food.nuts = harchololi.food.nuts * harchololi.food.inflation_rate;
+        harchololi.food.avocados = harchololi.food.avocados * harchololi.food.inflation_rate;
+        harchololi.food.bananas = harchololi.food.bananas * harchololi.food.inflation_rate;
+        harchololi.food.tofu = harchololi.food.tofu * harchololi.food.inflation_rate;
+        harchololi.food.quinoa = harchololi.food.quinoa * harchololi.food.inflation_rate;
+        harchololi.food.hummus = harchololi.food.hummus * harchololi.food.inflation_rate;
+        harchololi.food.oat_milk = harchololi.food.oat_milk * harchololi.food.inflation_rate;
+        harchololi.food.dark_chocolate = harchololi.food.dark_chocolate * harchololi.food.inflation_rate;
+        harchololi.food.coffee_beans = harchololi.food.coffee_beans * harchololi.food.inflation_rate;
+        harchololi.food.salmon = harchololi.food.salmon * harchololi.food.inflation_rate;
+        last_year = year;
+    }
+}
+
+void pedroli_car_expenses(int month, int year)
+{
+    RUB total = 0;
+    
+    total += pedroli.car.gas;
+    total += pedroli.car.wash;
+    total += pedroli.car.repair / 12;
+    total += pedroli.car.service / 12;
+    
+    if (month == 10) total += pedroli.car.tax;
+    if (month == 1) {
+        total += pedroli.car.osago;
+        total += pedroli.car.kasko;
+    }
+    if (month == 3 || month == 11) total += pedroli.car.tires / 2;
+    if (month == 2 || month == 10) total += pedroli.car.antifreez;
+    
+    pedroli.bank.account -= total;
+    pedroli.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        pedroli.car.gas = pedroli.car.gas * pedroli.car.gas_inflation;
+        pedroli.car.service = pedroli.car.service * pedroli.car.service_inflation;
+        pedroli.car.repair = pedroli.car.repair * pedroli.car.service_inflation;
+        pedroli.car.osago = pedroli.car.osago * pedroli.car.gas_inflation;
+        pedroli.car.kasko = pedroli.car.kasko * pedroli.car.gas_inflation;
+        pedroli.car.tax = pedroli.car.tax * pedroli.car.gas_inflation;
+        last_year = year;
+    }
+    
+    pedroli.car.value = pedroli.car.value * 0.99;
+}
+
+void harchololi_car_expenses(int month, int year)
+{
+    RUB total = 0;
+    
+    total += harchololi.car.gas;
+    total += harchololi.car.wash;
+    total += harchololi.car.repair / 8;
+    total += harchololi.car.service / 8;
+    
+    if (month == 10) total += harchololi.car.tax;
+    if (month == 1) {
+        total += harchololi.car.osago;
+        total += harchololi.car.kasko;
+    }
+    if (month == 3 || month == 11) total += harchololi.car.tires / 2;
+    if (month == 2 || month == 10) total += harchololi.car.antifreez;
+    
+    harchololi.bank.account -= total;
+    harchololi.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        harchololi.car.gas = harchololi.car.gas * harchololi.car.gas_inflation;
+        harchololi.car.service = harchololi.car.service * harchololi.car.service_inflation;
+        harchololi.car.repair = harchololi.car.repair * harchololi.car.service_inflation;
+        harchololi.car.osago = harchololi.car.osago * harchololi.car.gas_inflation;
+        harchololi.car.kasko = harchololi.car.kasko * harchololi.car.gas_inflation;
+        harchololi.car.tax = harchololi.car.tax * harchololi.car.gas_inflation;
+        last_year = year;
+    }
+    
+    harchololi.car.value = harchololi.car.value * 0.98;
+}
+
+void pedroli_flat_expenses(int month, int year)
+{
+    RUB total = pedroli.flat.rent + pedroli.flat.hcs + pedroli.flat.electricity + 
+                pedroli.flat.water + pedroli.flat.gas_supply + pedroli.flat.internet;
+    
+    pedroli.bank.account -= total;
+    pedroli.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        pedroli.flat.rent = pedroli.flat.rent * pedroli.flat.rent_inflation;
+        pedroli.flat.hcs = pedroli.flat.hcs * pedroli.flat.utilities_inflation;
+        pedroli.flat.electricity = pedroli.flat.electricity * pedroli.flat.utilities_inflation;
+        pedroli.flat.water = pedroli.flat.water * pedroli.flat.utilities_inflation;
+        pedroli.flat.gas_supply = pedroli.flat.gas_supply * pedroli.flat.utilities_inflation;
+        pedroli.flat.internet = pedroli.flat.internet * pedroli.flat.utilities_inflation;
+        last_year = year;
+    }
+}
+
+void harchololi_flat_expenses(int month, int year)
+{
+    RUB total = harchololi.flat.rent + harchololi.flat.hcs + harchololi.flat.electricity + 
+                harchololi.flat.water + harchololi.flat.gas_supply + harchololi.flat.internet;
+    
+    harchololi.bank.account -= total;
+    harchololi.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        harchololi.flat.rent = harchololi.flat.rent * harchololi.flat.rent_inflation;
+        harchololi.flat.hcs = harchololi.flat.hcs * harchololi.flat.utilities_inflation;
+        harchololi.flat.electricity = harchololi.flat.electricity * harchololi.flat.utilities_inflation;
+        harchololi.flat.water = harchololi.flat.water * harchololi.flat.utilities_inflation;
+        harchololi.flat.gas_supply = harchololi.flat.gas_supply * harchololi.flat.utilities_inflation;
+        harchololi.flat.internet = harchololi.flat.internet * harchololi.flat.utilities_inflation;
+        last_year = year;
+    }
+}
+
+void pedroli_credit_payment(int month, int year)
+{
+    if (pedroli.credit.consumer_credit > 0) {
+        pedroli.bank.account -= pedroli.credit.monthly_payment_consumer;
+        pedroli.yearly_expenses += pedroli.credit.monthly_payment_consumer;
+        pedroli.credit.consumer_credit -= pedroli.credit.monthly_payment_consumer;
+        if (pedroli.credit.consumer_credit < 0) pedroli.credit.consumer_credit = 0;
+    }
+    
+    if (pedroli.credit.mortgage > 0) {
+        pedroli.bank.account -= pedroli.credit.monthly_payment_mortgage;
+        pedroli.yearly_expenses += pedroli.credit.monthly_payment_mortgage;
+        pedroli.credit.mortgage -= pedroli.credit.monthly_payment_mortgage;
+        if (pedroli.credit.mortgage < 0) pedroli.credit.mortgage = 0;
+    }
+}
+
+void harchololi_credit_payment(int month, int year)
+{
+    if (harchololi.credit.consumer_credit > 0) {
+        harchololi.bank.account -= harchololi.credit.monthly_payment_consumer;
+        harchololi.yearly_expenses += harchololi.credit.monthly_payment_consumer;
+        harchololi.credit.consumer_credit -= harchololi.credit.monthly_payment_consumer;
+        if (harchololi.credit.consumer_credit < 0) harchololi.credit.consumer_credit = 0;
+    }
+    
+    if (harchololi.credit.mortgage > 0) {
+        harchololi.bank.account -= harchololi.credit.monthly_payment_mortgage;
+        harchololi.yearly_expenses += harchololi.credit.monthly_payment_mortgage;
+        harchololi.credit.mortgage -= harchololi.credit.monthly_payment_mortgage;
+        if (harchololi.credit.mortgage < 0) harchololi.credit.mortgage = 0;
+    }
+}
+
+void pedroli_clothes_expenses(int month, int year)
+{
+    RUB total = 0;
+    
+    if (month == 3 || month == 9) total += pedroli.clothes.shoes + pedroli.clothes.jeans;
+    if (month == 4 || month == 10) total += pedroli.clothes.jacket + pedroli.clothes.hoodie;
+    if (month == 5 || month == 11) total += pedroli.clothes.pants + pedroli.clothes.shirt;
+    if (month == 6 || month == 12) total += pedroli.clothes.t_shirt + pedroli.clothes.sportswear;
+    
+    pedroli.bank.account -= total;
+    pedroli.clothes.monthly_total = total;
+    pedroli.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        pedroli.clothes.shoes = pedroli.clothes.shoes * pedroli.clothes.inflation_rate;
+        pedroli.clothes.pants = pedroli.clothes.pants * pedroli.clothes.inflation_rate;
+        pedroli.clothes.jacket = pedroli.clothes.jacket * pedroli.clothes.inflation_rate;
+        pedroli.clothes.jeans = pedroli.clothes.jeans * pedroli.clothes.inflation_rate;
+        pedroli.clothes.hoodie = pedroli.clothes.hoodie * pedroli.clothes.inflation_rate;
+        pedroli.clothes.t_shirt = pedroli.clothes.t_shirt * pedroli.clothes.inflation_rate;
+        last_year = year;
+    }
+}
+
+void harchololi_clothes_expenses(int month, int year)
+{
+    RUB total = 0;
+    
+    if (month == 3 || month == 9) total += harchololi.clothes.dress + harchololi.clothes.shoes;
+    if (month == 4 || month == 10) total += harchololi.clothes.jacket + harchololi.clothes.skirts;
+    if (month == 5 || month == 11) total += harchololi.clothes.blouses + harchololi.clothes.jeans;
+    if (month == 6 || month == 12) total += harchololi.clothes.accessories + harchololi.clothes.hoodie;
+    
+    harchololi.bank.account -= total;
+    harchololi.clothes.monthly_total = total;
+    harchololi.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        harchololi.clothes.dress = harchololi.clothes.dress * harchololi.clothes.inflation_rate;
+        harchololi.clothes.shoes = harchololi.clothes.shoes * harchololi.clothes.inflation_rate;
+        harchololi.clothes.jacket = harchololi.clothes.jacket * harchololi.clothes.inflation_rate;
+        harchololi.clothes.skirts = harchololi.clothes.skirts * harchololi.clothes.inflation_rate;
+        harchololi.clothes.blouses = harchololi.clothes.blouses * harchololi.clothes.inflation_rate;
+        harchololi.clothes.jeans = harchololi.clothes.jeans * harchololi.clothes.inflation_rate;
+        harchololi.clothes.accessories = harchololi.clothes.accessories * harchololi.clothes.inflation_rate;
+        last_year = year;
+    }
+}
+
+void pedroli_entertainment_expenses(int month, int year)
+{
+    RUB total = 0;
+    
+    if (month % 2 == 0) total += pedroli.entertainment.cinema + pedroli.entertainment.bowling;
+    if (month % 3 == 0) total += pedroli.entertainment.restaurants;
+    if (month == 6 || month == 12) total += pedroli.entertainment.concerts;
+    
+    pedroli.bank.account -= total;
+    pedroli.entertainment.monthly_total = total;
+    pedroli.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        pedroli.entertainment.cinema = pedroli.entertainment.cinema * pedroli.entertainment.inflation_rate;
+        pedroli.entertainment.restaurants = pedroli.entertainment.restaurants * pedroli.entertainment.inflation_rate;
+        pedroli.entertainment.concerts = pedroli.entertainment.concerts * pedroli.entertainment.inflation_rate;
+        last_year = year;
+    }
+}
+
+void harchololi_entertainment_expenses(int month, int year)
+{
+    RUB total = harchololi.entertainment.cinema + harchololi.entertainment.bars + 
+                harchololi.entertainment.restaurants;
+    
+    if (month == 6 || month == 12) total += harchololi.entertainment.concerts + harchololi.entertainment.clubs;
+    if (month == 2 || month == 8) total += harchololi.entertainment.karaoke;
+    
+    harchololi.bank.account -= total;
+    harchololi.entertainment.monthly_total = total;
+    harchololi.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        harchololi.entertainment.cinema = harchololi.entertainment.cinema * harchololi.entertainment.inflation_rate;
+        harchololi.entertainment.restaurants = harchololi.entertainment.restaurants * harchololi.entertainment.inflation_rate;
+        harchololi.entertainment.bars = harchololi.entertainment.bars * harchololi.entertainment.inflation_rate;
+        harchololi.entertainment.clubs = harchololi.entertainment.clubs * harchololi.entertainment.inflation_rate;
+        last_year = year;
+    }
+}
+
+void pedroli_friends_expenses(int month, int year)
+{
+    RUB total = 0;
+    
+    if (month == 2 || month == 5 || month == 8 || month == 11) total += pedroli.friends.beer + pedroli.friends.cafe;
+    if (month == 3 || month == 9) total += pedroli.friends.brunch;
+    
+    pedroli.bank.account -= total;
+    pedroli.friends.monthly_total = total;
+    pedroli.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        pedroli.friends.beer = pedroli.friends.beer * pedroli.friends.inflation_rate;
+        pedroli.friends.cafe = pedroli.friends.cafe * pedroli.friends.inflation_rate;
+        pedroli.friends.brunch = pedroli.friends.brunch * pedroli.friends.inflation_rate;
+        last_year = year;
+    }
+}
+
+void harchololi_friends_expenses(int month, int year)
+{
+    RUB total = 0;
+    
+    if (month == 1 || month == 4 || month == 7 || month == 10) total += harchololi.friends.beer + harchololi.friends.fast_food;
+    if (month == 2 || month == 5 || month == 8 || month == 11) total += harchololi.friends.cafe + harchololi.friends.brunch;
+    if (month == 3 || month == 6 || month == 9 || month == 12) total += harchololi.friends.shopping + harchololi.friends.spa + harchololi.friends.massage;
+    
+    harchololi.bank.account -= total;
+    harchololi.friends.monthly_total = total;
+    harchololi.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        harchololi.friends.beer = harchololi.friends.beer * harchololi.friends.inflation_rate;
+        harchololi.friends.cafe = harchololi.friends.cafe * harchololi.friends.inflation_rate;
+        harchololi.friends.shopping = harchololi.friends.shopping * harchololi.friends.inflation_rate;
+        harchololi.friends.spa = harchololi.friends.spa * harchololi.friends.inflation_rate;
+        last_year = year;
+    }
+}
+
+void pedroli_hobbies_expenses(int month, int year)
+{
+    RUB total = 0;
+    
+    if (month % 2 == 0) total += pedroli.hobbies.books + pedroli.hobbies.video_games;
+    if (month == 5 || month == 10) total += pedroli.hobbies.guitar;
+    if (month == 7 || month == 8) total += pedroli.hobbies.hiking;
+    if (month == 6 || month == 12) total += pedroli.hobbies.tennis;
+    
+    pedroli.bank.account -= total;
+    pedroli.hobbies.monthly_total = total;
+    pedroli.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        pedroli.hobbies.books = pedroli.hobbies.books * pedroli.hobbies.inflation_rate;
+        pedroli.hobbies.video_games = pedroli.hobbies.video_games * pedroli.hobbies.inflation_rate;
+        pedroli.hobbies.guitar = pedroli.hobbies.guitar * pedroli.hobbies.inflation_rate;
+        pedroli.hobbies.hiking = pedroli.hobbies.hiking * pedroli.hobbies.inflation_rate;
+        pedroli.hobbies.tennis = pedroli.hobbies.tennis * pedroli.hobbies.inflation_rate;
+        last_year = year;
+    }
+}
+
+void harchololi_hobbies_expenses(int month, int year)
+{
+    RUB total = 0;
+    
+    if (month == 1 || month == 4 || month == 7 || month == 10) total += harchololi.hobbies.dancing + harchololi.hobbies.music;
+    if (month == 2 || month == 5 || month == 8 || month == 11) total += harchololi.hobbies.painting + harchololi.hobbies.photography;
+    if (month == 3 || month == 6 || month == 9 || month == 12) total += harchololi.hobbies.fashion + harchololi.hobbies.cooking;
+    
+    harchololi.bank.account -= total;
+    harchololi.hobbies.monthly_total = total;
+    harchololi.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        harchololi.hobbies.dancing = harchololi.hobbies.dancing * harchololi.hobbies.inflation_rate;
+        harchololi.hobbies.painting = harchololi.hobbies.painting * harchololi.hobbies.inflation_rate;
+        harchololi.hobbies.fashion = harchololi.hobbies.fashion * harchololi.hobbies.inflation_rate;
+        harchololi.hobbies.photography = harchololi.hobbies.photography * harchololi.hobbies.inflation_rate;
+        harchololi.hobbies.cooking = harchololi.hobbies.cooking * harchololi.hobbies.inflation_rate;
+        harchololi.hobbies.music = harchololi.hobbies.music * harchololi.hobbies.inflation_rate;
+        last_year = year;
+    }
+}
+
+void pedroli_gym_expenses(int month, int year)
+{
+    RUB total = pedroli.gym.subscription + pedroli.gym.protein + pedroli.gym.creatine;
+    
+    pedroli.bank.account -= total;
+    pedroli.gym.monthly_total = total;
+    pedroli.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        pedroli.gym.subscription = pedroli.gym.subscription * pedroli.gym.inflation_rate;
+        pedroli.gym.protein = pedroli.gym.protein * pedroli.gym.inflation_rate;
+        pedroli.gym.creatine = pedroli.gym.creatine * pedroli.gym.inflation_rate;
+        last_year = year;
+    }
+}
+
+void harchololi_gym_expenses(int month, int year)
+{
+    RUB total = harchololi.gym.subscription + harchololi.gym.protein + harchololi.gym.bcaa;
+    
+    harchololi.bank.account -= total;
+    harchololi.gym.monthly_total = total;
+    harchololi.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        harchololi.gym.subscription = harchololi.gym.subscription * harchololi.gym.inflation_rate;
+        harchololi.gym.protein = harchololi.gym.protein * harchololi.gym.inflation_rate;
+        harchololi.gym.bcaa = harchololi.gym.bcaa * harchololi.gym.inflation_rate;
+        last_year = year;
+    }
+}
+
+void harchololi_cosmetics_expenses(int month, int year)
+{
+    RUB total = 0;
+    
+    if (month == 2 || month == 8) total += harchololi.cosmetics.pomade + harchololi.cosmetics.mascara + harchololi.cosmetics.lipstick;
+    if (month == 4 || month == 10) total += harchololi.cosmetics.foundation + harchololi.cosmetics.eyeshadow;
+    if (month == 6 || month == 12) total += harchololi.cosmetics.skincare + harchololi.cosmetics.perfume;
+    
+    harchololi.bank.account -= total;
+    harchololi.cosmetics.monthly_total = total;
+    harchololi.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        harchololi.cosmetics.pomade = harchololi.cosmetics.pomade * harchololi.cosmetics.inflation_rate;
+        harchololi.cosmetics.mascara = harchololi.cosmetics.mascara * harchololi.cosmetics.inflation_rate;
+        harchololi.cosmetics.foundation = harchololi.cosmetics.foundation * harchololi.cosmetics.inflation_rate;
+        harchololi.cosmetics.skincare = harchololi.cosmetics.skincare * harchololi.cosmetics.inflation_rate;
+        harchololi.cosmetics.perfume = harchololi.cosmetics.perfume * harchololi.cosmetics.inflation_rate;
+        last_year = year;
+    }
+}
+
+void pedroli_health_expenses(int month, int year)
+{
+    RUB total = pedroli.health.multivitamin + pedroli.health.magnesium;
+    if (month == 3 || month == 9) total += pedroli.health.doctor_visit;
+    
+    pedroli.bank.account -= total;
+    pedroli.health.monthly_total = total;
+    pedroli.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        pedroli.health.multivitamin = pedroli.health.multivitamin * pedroli.health.inflation_rate;
+        pedroli.health.magnesium = pedroli.health.magnesium * pedroli.health.inflation_rate;
+        pedroli.health.doctor_visit = pedroli.health.doctor_visit * pedroli.health.inflation_rate;
+        last_year = year;
+    }
+}
+
+void harchololi_health_expenses(int month, int year)
+{
+    RUB total = harchololi.health.omega3 + harchololi.health.iron + harchololi.health.vitamin_c;
+    if (month == 2 || month == 8) total += harchololi.health.doctor_visit;
+    if (month == 5 || month == 11) total += harchololi.health.dentist;
+    
+    harchololi.bank.account -= total;
+    harchololi.health.monthly_total = total;
+    harchololi.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        harchololi.health.omega3 = harchololi.health.omega3 * harchololi.health.inflation_rate;
+        harchololi.health.iron = harchololi.health.iron * harchololi.health.inflation_rate;
+        harchololi.health.doctor_visit = harchololi.health.doctor_visit * harchololi.health.inflation_rate;
+        harchololi.health.dentist = harchololi.health.dentist * harchololi.health.inflation_rate;
+        last_year = year;
+    }
+}
+
+void pedroli_subscriptions_expenses(int month, int year)
+{
+    RUB total = pedroli.subs.netflix + pedroli.subs.yandex_plus + pedroli.subs.spotify;
+    
+    pedroli.bank.account -= total;
+    pedroli.subs.monthly_total = total;
+    pedroli.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        pedroli.subs.netflix = pedroli.subs.netflix * pedroli.subs.inflation_rate;
+        pedroli.subs.yandex_plus = pedroli.subs.yandex_plus * pedroli.subs.inflation_rate;
+        pedroli.subs.spotify = pedroli.subs.spotify * pedroli.subs.inflation_rate;
+        last_year = year;
+    }
+}
+
+void harchololi_subscriptions_expenses(int month, int year)
+{
+    RUB total = harchololi.subs.netflix + harchololi.subs.spotify + harchololi.subs.yandex_plus + 
+                harchololi.subs.ivi + harchololi.subs.disney_plus;
+    
+    harchololi.bank.account -= total;
+    harchololi.subs.monthly_total = total;
+    harchololi.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        harchololi.subs.netflix = harchololi.subs.netflix * harchololi.subs.inflation_rate;
+        harchololi.subs.spotify = harchololi.subs.spotify * harchololi.subs.inflation_rate;
+        harchololi.subs.ivi = harchololi.subs.ivi * harchololi.subs.inflation_rate;
+        harchololi.subs.disney_plus = harchololi.subs.disney_plus * harchololi.subs.inflation_rate;
+        last_year = year;
+    }
+}
+
+void pedroli_transport_expenses(int month, int year)
+{
+    RUB total = pedroli.transport.card_monthly + pedroli.transport.taxi;
+    
+    pedroli.bank.account -= total;
+    pedroli.transport.monthly_total = total;
+    pedroli.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        pedroli.transport.card_monthly = pedroli.transport.card_monthly * pedroli.transport.inflation_rate;
+        pedroli.transport.taxi = pedroli.transport.taxi * pedroli.transport.inflation_rate;
+        last_year = year;
+    }
+}
+
+void harchololi_transport_expenses(int month, int year)
+{
+    RUB total = harchololi.transport.taxi;
+    if (month == 6 || month == 12) total += 10000;
+    
+    harchololi.bank.account -= total;
+    harchololi.transport.monthly_total = total;
+    harchololi.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        harchololi.transport.taxi = harchololi.transport.taxi * harchololi.transport.inflation_rate;
+        last_year = year;
+    }
+}
+
+void pedroli_pets_expenses(int month, int year)
+{
+    RUB total = 0;
+    
+    if (pedroli.pets.cat.exists) {
+        total += pedroli.pets.cat.eat + pedroli.pets.cat.toilet;
+        if (month % 3 == 0) total += pedroli.pets.cat.toys;
+        if (month == 3 || month == 9) total += pedroli.pets.cat.vet;
+    }
+    
+    pedroli.bank.account -= total;
+    pedroli.pets.monthly_total = total;
+    pedroli.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year && pedroli.pets.cat.exists) {
+        pedroli.pets.cat.eat = pedroli.pets.cat.eat * pedroli.pets.inflation_rate;
+        pedroli.pets.cat.toilet = pedroli.pets.cat.toilet * pedroli.pets.inflation_rate;
+        pedroli.pets.cat.toys = pedroli.pets.cat.toys * pedroli.pets.inflation_rate;
+        pedroli.pets.cat.vet = pedroli.pets.cat.vet * pedroli.pets.inflation_rate;
+        last_year = year;
+    }
+}
+
+void harchololi_pets_expenses(int month, int year)
+{
+    RUB total = 0;
+    
+    if (harchololi.pets.dog.exists) {
+        total += harchololi.pets.dog.eat + harchololi.pets.dog.toilet;
+        if (month % 2 == 0) total += harchololi.pets.dog.toys;
+        if (month == 4 || month == 10) total += harchololi.pets.dog.vet;
+    }
+    
+    if (harchololi.pets.hamster.exists) {
+        total += harchololi.pets.hamster.eat + harchololi.pets.hamster.toilet;
+        if (month == 6 || month == 12) total += harchololi.pets.hamster.toys;
+        if (month == 5 || month == 11) total += harchololi.pets.hamster.vet;
+    }
+    
+    harchololi.bank.account -= total;
+    harchololi.pets.monthly_total = total;
+    harchololi.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        if (harchololi.pets.dog.exists) {
+            harchololi.pets.dog.eat = harchololi.pets.dog.eat * harchololi.pets.inflation_rate;
+            harchololi.pets.dog.toilet = harchololi.pets.dog.toilet * harchololi.pets.inflation_rate;
+            harchololi.pets.dog.toys = harchololi.pets.dog.toys * harchololi.pets.inflation_rate;
+            harchololi.pets.dog.vet = harchololi.pets.dog.vet * harchololi.pets.inflation_rate;
+        }
+        if (harchololi.pets.hamster.exists) {
+            harchololi.pets.hamster.eat = harchololi.pets.hamster.eat * harchololi.pets.inflation_rate;
+            harchololi.pets.hamster.toilet = harchololi.pets.hamster.toilet * harchololi.pets.inflation_rate;
+            harchololi.pets.hamster.toys = harchololi.pets.hamster.toys * harchololi.pets.inflation_rate;
+            harchololi.pets.hamster.vet = harchololi.pets.hamster.vet * harchololi.pets.inflation_rate;
+        }
+        last_year = year;
+    }
+}
+
+void pedroli_gifts_expenses(int month, int year)
+{
+    RUB total = 0;
+    
+    if (month == 1) total += pedroli.gifts.new_year;
+    if (month == 11) total += pedroli.gifts.birthday_friends;
+    if (month == 6 && year % 2 == 0) total += pedroli.gifts.anniversary;
+    
+    pedroli.bank.account -= total;
+    pedroli.gifts.monthly_total = total;
+    pedroli.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        pedroli.gifts.new_year = pedroli.gifts.new_year * pedroli.gifts.inflation_rate;
+        pedroli.gifts.birthday_friends = pedroli.gifts.birthday_friends * pedroli.gifts.inflation_rate;
+        pedroli.gifts.anniversary = pedroli.gifts.anniversary * pedroli.gifts.inflation_rate;
+        last_year = year;
+    }
+}
+
+void harchololi_gifts_expenses(int month, int year)
+{
+    RUB total = 0;
+    
+    if (month == 1) total += harchololi.gifts.new_year;
+    if (month == 2) total += harchololi.gifts.valentine + harchololi.gifts.feb_23;
+    if (month == 3) total += harchololi.gifts.march_8;
+    if (month == 5 && harchololi.child.exists) total += harchololi.child.birthday_gifts;
+    if (month == 11) total += harchololi.gifts.birthday_friends;
+    if (month == 12) total += harchololi.gifts.birthday_self;
+    
+    harchololi.bank.account -= total;
+    harchololi.gifts.monthly_total = total;
+    harchololi.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        harchololi.gifts.new_year = harchololi.gifts.new_year * harchololi.gifts.inflation_rate;
+        harchololi.gifts.birthday_friends = harchololi.gifts.birthday_friends * harchololi.gifts.inflation_rate;
+        harchololi.gifts.march_8 = harchololi.gifts.march_8 * harchololi.gifts.inflation_rate;
+        last_year = year;
+    }
+}
+
+void pedroli_vacation_expenses(int month, int year)
+{
+    RUB total = 0;
+    if (month == 7) total += pedroli.vacation.summer;
+    if (month == 1) total += pedroli.vacation.winter;
+    
+    pedroli.bank.account -= total;
+    pedroli.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        pedroli.vacation.summer = pedroli.vacation.summer * pedroli.vacation.inflation_rate;
+        pedroli.vacation.winter = pedroli.vacation.winter * pedroli.vacation.inflation_rate;
+        last_year = year;
+    }
+}
+
+void harchololi_vacation_expenses(int month, int year)
+{
+    RUB total = 0;
+    if (month == 6) total += harchololi.vacation.summer;
+    if (month == 1) total += harchololi.vacation.winter;
+    if (month == 4) total += harchololi.vacation.spring;
+    
+    harchololi.bank.account -= total;
+    harchololi.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        harchololi.vacation.summer = harchololi.vacation.summer * harchololi.vacation.inflation_rate;
+        harchololi.vacation.winter = harchololi.vacation.winter * harchololi.vacation.inflation_rate;
+        harchololi.vacation.spring = harchololi.vacation.spring * harchololi.vacation.inflation_rate;
+        last_year = year;
+    }
+}
+
+void pedroli_electronics_expenses(int month, int year)
+{
+    RUB total = 0;
+    
+    if (year - pedroli.electronics.phone_replace_year >= 3) {
+        total += pedroli.electronics.phone;
+        pedroli.electronics.phone_replace_year = year;
+    }
+    
+    if (year - pedroli.electronics.computer_replace_year >= 4) {
+        total += pedroli.electronics.computer;
+        pedroli.electronics.computer_replace_year = year;
+    }
+    
+    pedroli.bank.account -= total;
+    pedroli.electronics.monthly_total = total;
+    pedroli.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        pedroli.electronics.phone = pedroli.electronics.phone * pedroli.electronics.inflation_rate;
+        pedroli.electronics.computer = pedroli.electronics.computer * pedroli.electronics.inflation_rate;
+        last_year = year;
+    }
+}
+
+void harchololi_electronics_expenses(int month, int year)
+{
+    RUB total = 0;
+    
+    if (year - harchololi.electronics.phone_replace_year >= 2) {
+        total += harchololi.electronics.phone;
+        harchololi.electronics.phone_replace_year = year;
+    }
+    
+    if (year - harchololi.electronics.computer_replace_year >= 3) {
+        total += harchololi.electronics.computer;
+        harchololi.electronics.computer_replace_year = year;
+    }
+    
+    if (year == 2028 && month == 11) total += harchololi.electronics.gaming_console;
+    if (year == 2032 && month == 11) total += harchololi.electronics.tv;
+    
+    harchololi.bank.account -= total;
+    harchololi.electronics.monthly_total = total;
+    harchololi.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        harchololi.electronics.phone = harchololi.electronics.phone * harchololi.electronics.inflation_rate;
+        harchololi.electronics.computer = harchololi.electronics.computer * harchololi.electronics.inflation_rate;
+        harchololi.electronics.gaming_console = harchololi.electronics.gaming_console * harchololi.electronics.inflation_rate;
+        last_year = year;
+    }
+}
+
+void pedroli_education_expenses(int month, int year)
+{
+    RUB total = 0;
+    if (month == 1 || month == 9) total += pedroli.education.courses + pedroli.education.books;
+    
+    pedroli.bank.account -= total;
+    pedroli.education.monthly_total = total;
+    pedroli.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        pedroli.education.courses = pedroli.education.courses * pedroli.education.inflation_rate;
+        pedroli.education.books = pedroli.education.books * pedroli.education.inflation_rate;
+        last_year = year;
+    }
+}
+
+void harchololi_education_expenses(int month, int year)
+{
+    RUB total = 0;
+    if (month == 9) total += harchololi.education.courses + harchololi.education.books;
+    
+    harchololi.bank.account -= total;
+    harchololi.education.monthly_total = total;
+    harchololi.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        harchololi.education.courses = harchololi.education.courses * harchololi.education.inflation_rate;
+        harchololi.education.books = harchololi.education.books * harchololi.education.inflation_rate;
+        last_year = year;
+    }
+}
+
+void harchololi_child_expenses(int month, int year)
+{
+    if (!harchololi.child.exists) return;
+    
+    RUB total = harchololi.child.monthly_expenses + harchololi.child.clothes / 3 + 
+                harchololi.child.toys / 4 + harchololi.child.pocket_money + 
+                harchololi.child.music_school + harchololi.child.sports_section;
+    
+    if (month == 8) total += harchololi.child.school_supplies;
+    if (month == 5) total += harchololi.child.excursions;
+    if (month == 6) total += harchololi.child.summer_camp;
+    
+    harchololi.bank.account -= total;
+    harchololi.child.monthly_total = total;
+    harchololi.yearly_expenses += total;
+    
+    static int last_year = 0;
+    if (last_year != year) {
+        harchololi.child.monthly_expenses = harchololi.child.monthly_expenses * harchololi.child.inflation_rate;
+        harchololi.child.clothes = harchololi.child.clothes * harchololi.child.inflation_rate;
+        harchololi.child.toys = harchololi.child.toys * harchololi.child.inflation_rate;
+        harchololi.child.music_school = harchololi.child.music_school * harchololi.child.inflation_rate;
+        harchololi.child.sports_section = harchololi.child.sports_section * harchololi.child.inflation_rate;
+        harchololi.child.age++;
+        last_year = year;
+    }
+}
+
+void pedroli_invest_and_save(int month, int year)
+{
+    if (pedroli.bank.account > 200000) {
+        RUB to_deposit = pedroli.bank.account * 0.6;
+        pedroli.bank.deposite += to_deposit;
+        pedroli.bank.account -= to_deposit;
+    }
+    
+    if (year == 2026) pedroli.bank.interest = 14.5;
+    else if (year == 2027) pedroli.bank.interest = 13.5;
+    else if (year == 2028) pedroli.bank.interest = 12.5;
+    else if (year == 2029) pedroli.bank.interest = 11.5;
+    else if (year >= 2030) pedroli.bank.interest = 10.5;
+    
+    pedroli.bank.deposite += pedroli.bank.deposite * (pedroli.bank.interest / 12.0 / 100.0);
+}
+
+void harchololi_credit_management(int month, int year)
+{
+    if (harchololi.bank.account > 100000 && harchololi.credit.consumer_credit > 0) {
+        RUB extra = harchololi.bank.account - 50000;
+        if (extra > 0) {
+            harchololi.bank.account -= extra;
+            harchololi.credit.consumer_credit -= extra;
+            if (harchololi.credit.consumer_credit < 0) harchololi.credit.consumer_credit = 0;
+        }
+    }
+    
+    if (harchololi.bank.account > 50000) {
+        RUB to_save = harchololi.bank.account * 0.15;
+        harchololi.bank.deposite += to_save;
+        harchololi.bank.account -= to_save;
+    }
+    
+    if (year == 2026) harchololi.bank.interest = 14.5;
+    else if (year == 2027) harchololi.bank.interest = 13.5;
+    else if (year >= 2028) harchololi.bank.interest = 12.5;
+    
+    harchololi.bank.deposite += harchololi.bank.deposite * (harchololi.bank.interest / 12.0 / 100.0);
+}
+
+void pedroli_buy_pets(int month, int year)
+{
+    if (year == 2027 && month == 1 && !pedroli.pets.cat.exists) {
+        pedroli.bank.account -= pedroli.pets.buying_cat;
+        pedroli.yearly_expenses += pedroli.pets.buying_cat;
+        pedroli.pets.cat.exists = true;
+        pedroli.pets.cat.eat = 1000;
+        pedroli.pets.cat.toilet = 500;
+        pedroli.pets.cat.toys = 500;
+        pedroli.pets.cat.vet = 3000;
+        pedroli.pets.cat.purchase_year = year;
+    }
+}
+
+void harchololi_buy_pets(int month, int year)
+{
+    if (year == 2027 && month == 1 && !harchololi.pets.dog.exists) {
+        harchololi.bank.account -= harchololi.pets.buying_dog;
+        harchololi.yearly_expenses += harchololi.pets.buying_dog;
+        harchololi.pets.dog.exists = true;
+        harchololi.pets.dog.eat = 1500;
+        harchololi.pets.dog.toilet = 500;
+        harchololi.pets.dog.toys = 1000;
+        harchololi.pets.dog.vet = 5000;
+        harchololi.pets.dog.purchase_year = year;
+    }
+    
+    if (year == 2028 && month == 1 && !harchololi.pets.hamster.exists) {
+        harchololi.bank.account -= harchololi.pets.buying_hamster;
+        harchololi.yearly_expenses += harchololi.pets.buying_hamster;
+        harchololi.pets.hamster.exists = true;
+        harchololi.pets.hamster.eat = 500;
+        harchololi.pets.hamster.toilet = 200;
+        harchololi.pets.hamster.toys = 300;
+        harchololi.pets.hamster.vet = 1000;
+        harchololi.pets.hamster.purchase_year = year;
+    }
+}
+
+void pedroli_big_life_events(int month, int year)
+{
+    if (year == 2028 && month == 6 && pedroli.bank.deposite > 1000000) {
+        pedroli.bank.deposite -= 1000000;
+        pedroli.car.value += 800000;
+        pedroli.emergency_fund += 200000;
+        pedroli.yearly_expenses += 1000000;
+    }
+    
+    if (year == 2031 && month == 12 && pedroli.bank.deposite > 2000000) {
+        pedroli.bank.deposite -= 2000000;
+        pedroli.credit.mortgage = 0;
+        pedroli.yearly_expenses += 2000000;
+    }
+    
+    if (year == 2034 && month == 3 && pedroli.bank.deposite > 800000) {
+        pedroli.bank.deposite -= 800000;
+        pedroli.investment_portfolio += 800000;
+        pedroli.yearly_expenses += 800000;
+    }
+    
+    if (year == 2037 && month == 1 && pedroli.bank.deposite > 1500000) {
+        pedroli.bank.deposite -= 1500000;
+        pedroli.investment_portfolio += 1500000;
+        pedroli.yearly_expenses += 1500000;
+    }
+}
+
+void harchololi_big_life_events(int month, int year)
+{
+    if (year == 2027 && month == 12) {
+        harchololi.credit.consumer_credit += 300000;
+        harchololi.credit.monthly_payment_consumer = 18000;
+        harchololi.electronics.gaming_console = 60000;
+        harchololi.vacation.summer += 100000;
+        harchololi.yearly_expenses += 300000;
+    }
+    
+    if (year == 2029 && month == 8) {
+        harchololi.credit.consumer_credit += 400000;
+        harchololi.car.value += 600000;
+        harchololi.credit.monthly_payment_consumer = 22000;
+        harchololi.yearly_expenses += 400000;
+    }
+    
+    if (year == 2032 && month == 5) {
+        harchololi.credit.consumer_credit += 350000;
+        harchololi.vacation.summer += 150000;
+        harchololi.vacation.winter += 80000;
+        harchololi.yearly_expenses += 350000;
+    }
+    
+    if (year == 2035 && month == 11) {
+        harchololi.credit.consumer_credit += 500000;
+        harchololi.car.value += 800000;
+        harchololi.car.kasko += 20000;
+        harchololi.yearly_expenses += 500000;
+    }
+    
+    if (year == 2038 && month == 7 && !harchololi.married) {
+        harchololi.credit.consumer_credit += 1000000;
+        harchololi.wedding_fund = 800000;
+        harchololi.married = true;
+        harchololi.marriage_year = year;
+        harchololi.yearly_expenses += 1000000;
+    }
+    
+    if (year == 2039 && month == 6 && harchololi.married && !harchololi.child.exists) {
+        harchololi.child.exists = true;
+        harchololi.child.age = 0;
+        harchololi.child.birth_year = year;
+        harchololi.child.monthly_expenses = 15000;
+        harchololi.child.clothes = 6000;
+        harchololi.child.toys = 4000;
+        harchololi.child.pocket_money = 500;
+        harchololi.child.school_supplies = 3000;
+        harchololi.child.excursions = 2000;
+        harchololi.child.summer_camp = 25000;
+        harchololi.child.music_school = 3000;
+        harchololi.child.sports_section = 2000;
+        harchololi.child.birthday_gifts = 5000;
+    }
+}
+
+void pedroli_extra_income(int month, int year)
+{
+    if (month == 3 && year == 2027) {
+        pedroli.bank.account += 200000;
+        pedroli.yearly_income += 200000;
+    }
+    if (month == 7 && year == 2029) {
+        pedroli.bank.account += 200000;
+        pedroli.yearly_income += 200000;
+    }
+    if (month == 11 && year == 2031) {
+        pedroli.bank.account += 300000;
+        pedroli.yearly_income += 300000;
+    }
+    if (month == 5 && year == 2034) {
+        pedroli.bank.account += 300000;
+        pedroli.yearly_income += 300000;
+    }
+    if (month == 9 && year == 2037) {
+        pedroli.bank.account += 400000;
+        pedroli.yearly_income += 400000;
+    }
+}
+
+void harchololi_extra_income(int month, int year)
+{
+    if (month == 12 && year == 2028) {
+        harchololi.bank.account += 100000;
+        harchololi.yearly_income += 100000;
+    }
+    if (month == 4 && year == 2030) {
+        harchololi.bank.account += 80000;
+        harchololi.yearly_income += 80000;
+    }
+    if (month == 8 && year == 2033) {
+        harchololi.bank.account += 50000;
+        harchololi.yearly_income += 50000;
+    }
+    if (month == 10 && year == 2036) {
+        harchololi.salary.parents_help = 150000;
+        harchololi.bank.account += harchololi.salary.parents_help;
+        harchololi.yearly_income += harchololi.salary.parents_help;
+    }
+}
+
+void calculate_total_capital(Person& p)
+{
+    RUB capital = p.bank.account + p.bank.deposite + p.car.value + p.emergency_fund +
+                  p.wedding_fund + p.investment_portfolio - p.credit.consumer_credit - p.credit.mortgage;
+    
+    p.total_capital = capital;
+}
+
+void print_yearly_stats(Person& p, const char* name)
+{
+    std::cout << "\n--- " << name << " - СТАТИСТИКА ПО ГОДАМ ---\n";
+    for (int i = 0; i < p.stats_count; i++) {
+        std::cout << "Год " << p.yearly_stats[i].year << ": ";
+        std::cout << "Доходы " << p.yearly_stats[i].total_income << " RUB, ";
+        std::cout << "Расходы " << p.yearly_stats[i].total_expenses << " RUB, ";
+        std::cout << "Налоги " << p.yearly_stats[i].taxes_paid << " RUB, ";
+        std::cout << "Сбережения " << p.yearly_stats[i].savings << " RUB\n";
+    }
+}
+
+void print_results(int year, int month)
+{
+    calculate_total_capital(pedroli);
+    calculate_total_capital(harchololi);
+    
+    std::cout << "\n==========================================================\n";
+    std::cout << "            СИМУЛЯЦИЯ ЖИЗНИ ДВУХ ДРУЗЕЙ\n";
+    std::cout << "                  Март " << year << " год\n";
+    std::cout << "==========================================================\n\n";
+    
+    std::cout << "ПЕДРОЛИ (НАКОПИТЕЛЬ)\n";
+    std::cout << "----------------------------------------------------------\n";
+    std::cout << "Зарплата: " << pedroli.salary.base << " RUB\n";
+    std::cout << "Накопления на счете: " << pedroli.bank.account << " RUB\n";
+    std::cout << "Депозит: " << pedroli.bank.deposite << " RUB (ставка " << pedroli.bank.interest << "%)\n";
+    std::cout << "Автомобиль: " << pedroli.car.value << " RUB\n";
+    std::cout << "Инвестиционный портфель: " << pedroli.investment_portfolio << " RUB\n";
+    std::cout << "Резервный фонд: " << pedroli.emergency_fund << " RUB\n";
+    if (pedroli.pets.cat.exists) std::cout << "Кот: есть\n";
+    std::cout << "Потребительский кредит: " << pedroli.credit.consumer_credit << " RUB\n";
+    std::cout << "Ипотека: " << pedroli.credit.mortgage << " RUB\n";
+    std::cout << "ИТОГО КАПИТАЛ: " << pedroli.total_capital << " RUB\n\n";
+    
+    std::cout << "ХАРЧОЛОЛИ (ТРАНЖИРА)\n";
+    std::cout << "----------------------------------------------------------\n";
+    std::cout << "Зарплата: " << harchololi.salary.base << " RUB\n";
+    std::cout << "Накопления на счете: " << harchololi.bank.account << " RUB\n";
+    std::cout << "Депозит: " << harchololi.bank.deposite << " RUB (ставка " << harchololi.bank.interest << "%)\n";
+    std::cout << "Автомобиль: " << harchololi.car.value << " RUB\n";
+    std::cout << "Потребительский кредит: " << harchololi.credit.consumer_credit << " RUB\n";
+    std::cout << "Ипотека: " << harchololi.credit.mortgage << " RUB\n";
+    std::cout << "Ежемесячный платеж по кредитам: " << harchololi.credit.monthly_payment_consumer + harchololi.credit.monthly_payment_mortgage << " RUB\n";
+    if (harchololi.pets.dog.exists) std::cout << "Собака: есть\n";
+    if (harchololi.pets.hamster.exists) std::cout << "Хомяк: есть\n";
+    if (harchololi.child.exists) {
+        std::cout << "Ребенок: возраст " << harchololi.child.age << " лет\n";
+        std::cout << "Расходы на ребенка: ~" << harchololi.child.monthly_total << " RUB/мес\n";
+    }
+    std::cout << "ИТОГО КАПИТАЛ: " << harchololi.total_capital << " RUB\n\n";
+    
+    std::cout << "СРАВНЕНИЕ\n";
+    std::cout << "----------------------------------------------------------\n";
+    std::cout << "Педроли накопил: " << pedroli.total_capital << " RUB\n";
+    std::cout << "Харчололи накопил: " << harchololi.total_capital << " RUB\n";
+    std::cout << "Разница: " << pedroli.total_capital - harchololi.total_capital << " RUB\n";
+    
+    if (pedroli.total_capital > harchololi.total_capital) {
+        std::cout << "\nВЫВОД: Педроли умнее распоряжался деньгами!\n";
+        std::cout << "Накопление и инвестирование привели к большему капиталу.\n";
+    } else {
+        std::cout << "\nВЫВОД: Харчололи жил в свое удовольствие, но капитал меньше!\n";
+        std::cout << "Кредиты и траты сильно ударили по бюджету.\n";
+    }
+    
+    print_yearly_stats(pedroli, "Педроли");
+    print_yearly_stats(harchololi, "Харчололи");
+    
+    std::cout << "\n==========================================================\n";
+}
+
+void simulation()
+{
+    int month = 3, year = 2026;
+    int end_month = 3, end_year = 2040;
+    
+    while (!(month == end_month && year == end_year)) {
+        
+        apply_inflation(year, month);
+        
+        pedroli_salary(month, year);
+        harchololi_salary(month, year);
+        
+        pedroli_extra_income(month, year);
+        harchololi_extra_income(month, year);
+        
+        pedroli_food_expenses(month, year);
+        harchololi_food_expenses(month, year);
+        
+        pedroli_car_expenses(month, year);
+        harchololi_car_expenses(month, year);
+        
+        pedroli_flat_expenses(month, year);
+        harchololi_flat_expenses(month, year);
+        
+        pedroli_credit_payment(month, year);
+        harchololi_credit_payment(month, year);
+        
+        pedroli_clothes_expenses(month, year);
+        harchololi_clothes_expenses(month, year);
+        
+        pedroli_entertainment_expenses(month, year);
+        harchololi_entertainment_expenses(month, year);
+        
+        pedroli_friends_expenses(month, year);
+        harchololi_friends_expenses(month, year);
+        
+        pedroli_hobbies_expenses(month, year);
+        harchololi_hobbies_expenses(month, year);
+        
+        pedroli_gym_expenses(month, year);
+        harchololi_gym_expenses(month, year);
+        
+        harchololi_cosmetics_expenses(month, year);
+        
+        pedroli_health_expenses(month, year);
+        harchololi_health_expenses(month, year);
+        
+        pedroli_subscriptions_expenses(month, year);
+        harchololi_subscriptions_expenses(month, year);
+        
+        pedroli_transport_expenses(month, year);
+        harchololi_transport_expenses(month, year);
+        
+        pedroli_pets_expenses(month, year);
+        harchololi_pets_expenses(month, year);
+        
+        pedroli_gifts_expenses(month, year);
+        harchololi_gifts_expenses(month, year);
+        
+        pedroli_vacation_expenses(month, year);
+        harchololi_vacation_expenses(month, year);
+        
+        pedroli_electronics_expenses(month, year);
+        harchololi_electronics_expenses(month, year);
+        
+        pedroli_education_expenses(month, year);
+        harchololi_education_expenses(month, year);
+        
+        harchololi_child_expenses(month, year);
+        
+        pedroli_buy_pets(month, year);
+        harchololi_buy_pets(month, year);
+        
+        pedroli_big_life_events(month, year);
+        harchololi_big_life_events(month, year);
+        
+        pedroli_invest_and_save(month, year);
+        harchololi_credit_management(month, year);
+        
+        calculate_taxes(pedroli, year, month);
+        calculate_taxes(harchololi, year, month);
+        
+        if (month == 12) {
+            collect_yearly_stats(pedroli, year);
+            collect_yearly_stats(harchololi, year);
+        }
+        
+        month++;
+        if (month == 13) {
+            month = 1;
+            year++;
+        }
+    }
+}
+
+int main()
+{
+    std::cout << "==========================================================\n";
+    std::cout << "СИМУЛЯЦИЯ ЖИЗНИ\n";
+    std::cout << "Педроли (накопитель) vs Харчололи (транжира)\n";
+    std::cout << "Период: Март 2026 - Март 2040\n";
+    std::cout << "==========================================================\n\n";
+    
+    init_pedroli();
+    init_harchololi();
+    
+    simulation();
+    
+    print_results(2040, 3);
+    
+    return 0;
+}
