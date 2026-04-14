@@ -1788,7 +1788,7 @@ void simulation()
         elprimo_car(month, year);
         elprimo_gym();
         elprimo_girlfriend(month, year);
-        elprimo_home;
+        elprimo_home();
         elprimo_inflation(month, year);
         elprimo_dog(month, year);
         elprimo_crocodile(month, year);
