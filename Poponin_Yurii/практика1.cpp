@@ -31,6 +31,12 @@ struct Car {
     RUB TOcost;
 };
 
+struct Army
+{
+    bool is_in_army;
+    int month_left;
+};
+
 struct Bank
 {
     RUB bankcard;
@@ -52,6 +58,7 @@ struct Mortgage
 };
 
 struct Person {
+    int age;
     RUB flat;
     RUB food;
     RUB trip;
@@ -59,6 +66,7 @@ struct Person {
     struct Car car;
     struct Pet pet;
     struct Mortgage house_loan;
+    struct Army army;
     bool is_bankrupt;
 };
 
@@ -96,6 +104,8 @@ void alice_extrawork(const int month, const int year);
 void alice_check_bankruptcy(const int month, const int year);
 
 // Bob
+void bob_stats(const int month, const int year);
+void bob_check_military(const int month, const int year);
 void bob_salary(const int month, const int year);
 void bob_deposit();
 void bob_inflation(const int month, const int year);
@@ -110,6 +120,7 @@ void bob_extrawork(const int month, const int year);
 void bob_init_mortgage();
 void bob_pay_mortgage(const int month, const int year);
 void bob_check_bankruptcy(const int month, const int year);
+void bob_military(const int month, const int year);
 
 // other
 void simulation();
@@ -255,8 +266,6 @@ void alice_init()
     Alice.vtb.total_luck_money = 0;
 
     Alice.trip = 0;
-
-    alice_init_mortgage();
 }
 
 void alice_housing_expenses(const int month, const int year) {
@@ -712,6 +721,70 @@ void bob_init_mortgage() {
     printf("Сумма: %lld руб. Платеж: %lld руб./мес.\n\n", Bob.house_loan.total_loan, Bob.house_loan.monthly_pay);
 }
 
+void bob_stats(const int month, const int year){
+    if (month == 3)
+    {
+        Bob.age++;
+        printf("[%02d.%d]У Боба День рождения в этом месяце! Ему исполнилось: %d. Поздравляем\n", month, year, Bob.age);
+    }
+}
+
+void bob_check_military(const int month, const int year) {
+    if (Bob.age == 22 && month == 3) {
+        printf("!!! БОБ УЕХАЛ НА СРОЧНУЮ СЛУЖБУ. УВИДИМСЯ ЧЕРЕЗ ГОД, БОБ !!!\n");
+        Bob.army.is_in_army = true;
+    }
+}
+
+void bob_military(const int month, const int year) {
+    if (Bob.army.is_in_army == true) {
+        Bob.army.month_left--;
+        switch (Bob.army.month_left) {
+        case 0:
+            Bob.army.is_in_army = false;
+            printf("[%02d.%d]БОБ ДЕМБЕЛЬНУЛСЯ\n", month, year);
+            break;
+        case 1:
+            printf("[%02d.%d] Бобу остался последний месяц до дембеля!!!\n", month, year);
+            break;
+        case 2:
+            printf("[%02d.%d] Бобу осталось %d месяца до дембеля\n", month, year, Bob.army.month_left);
+            break;
+        case 3:
+            printf("[%02d.%d] Бобу осталось %d месяца до дембеля\n", month, year, Bob.army.month_left);
+            break;
+        case 4:
+            printf("[%02d.%d] Бобу осталось %d месяца до дембеля\n", month, year, Bob.army.month_left);
+            break;
+        case 5:
+            printf("[%02d.%d] Бобу осталось %d месяцев до дембеля\n", month, year, Bob.army.month_left);
+            break;
+        case 6:
+            printf("[%02d.%d] Бобу осталось %d месяцев до дембеля\n", month, year, Bob.army.month_left);
+            break;
+        case 7:
+            printf("[%02d.%d] Бобу осталось %d месяцев до дембеля\n", month, year, Bob.army.month_left);
+            break;
+        case 8:
+            printf("[%02d.%d] Бобу осталось %d месяцев до дембеля\n", month, year, Bob.army.month_left);
+            break;
+        case 9:
+            printf("[%02d.%d] Бобу осталось %d месяцев до дембеля\n", month, year, Bob.army.month_left);
+            break;
+        case 10:
+            printf("[%02d.%d] Бобу осталось %d месяцев до дембеля\n", month, year, Bob.army.month_left);
+            break;
+        case 11:
+            printf("[%02d.%d] Бобу осталось %d месяцев до дембеля\n", month, year, Bob.army.month_left);
+            break;
+        case 12:
+            printf("[%02d.%d] Бобу осталось %d месяцев до дембеля\n", month, year, Bob.army.month_left);
+            break;
+        }
+
+    }
+}
+
 void bob_pay_mortgage(const int month, const int year) {
     if (Bob.house_loan.months_left > 0) {
         Bob.vtb.bankcard -= Bob.house_loan.monthly_pay;
@@ -745,6 +818,7 @@ void bob_check_bankruptcy(const int month, const int year) {
 
 void bob_init()
 {
+    Bob.age = 20;
     Bob.flat = 5'000'000;
     Bob.vtb.bankcard = 0;
     Bob.vtb.deposit = 0;
@@ -752,7 +826,7 @@ void bob_init()
     Bob.food = 20'000;
     Bob.vtb.capital = 0;
 
-    Bob.car.value = 2'400'000;
+    Bob.car.value = 1'400'000;
     Bob.car.gas = 15'000;
     Bob.car.frostfree = 2000;
     Bob.car.oil = 2000;
@@ -765,9 +839,10 @@ void bob_init()
     Bob.vtb.total_waste_money = 0;
     Bob.vtb.total_luck_money = 0;
 
-    Bob.is_bankrupt = 0;
+    Bob.is_bankrupt = 0; 
 
-    bob_init_mortgage(); 
+    Bob.army.month_left = 12;
+    Bob.army.is_in_army = false;
 }
 
 void bob_good_events(const int month, const int year) {
@@ -1143,6 +1218,8 @@ void simulation()
 
         update_bank_rate(month, year);
 
+        bob_military(month, year);
+
         if (not Alice.is_bankrupt) {
             alice_good_events(month, year);
             alice_bad_events(month, year);
@@ -1158,7 +1235,8 @@ void simulation()
             alice_check_bankruptcy(month, year);
         }
 
-        if (not Bob.is_bankrupt) {
+        if (not Bob.is_bankrupt && not Bob.army.is_in_army) {
+            bob_stats(month, year);
             bob_bad_events(month, year);
             bob_good_events(month, year);
             bob_inflation(month, year);
@@ -1171,6 +1249,7 @@ void simulation()
             bob_salary(month, year);
             bob_pay_mortgage(month, year);
             bob_check_bankruptcy(month, year);
+            bob_check_military(month, year);
         }
 
         ++month;
@@ -1203,9 +1282,13 @@ int main()
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251); //для русского
 
-    economy_init();
     bob_init();
     alice_init();
+
+    economy_init();
+    bob_init_mortgage();
+    alice_init_mortgage();
+
 
     simulation();
 
