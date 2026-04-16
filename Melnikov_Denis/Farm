@@ -1,0 +1,179 @@
+//=============================
+//    Термометр
+//=============================
+class Thermometer {
+private:
+    int pin;
+public:
+    float temperature;  // Celcius
+public:
+    Thermometer(int pin) : pin(pin) // TODO: arduino code
+    { 
+        pinMode(pin, INPUT);
+    }  
+public:
+    void get_temperature();
+};
+
+void Thermometer::get_temperature()  // TODO: arduino code
+{
+    int raw = analogRead(pin);
+    temperature = (raw / 1023.0) * 100.0 - 50;  // переводим в -50 - 50°C
+}
+
+//=============================
+//    Гигрометр
+//=============================
+class Gigrometer {
+private:
+    const int pin;
+public:
+    int RH;
+public:
+    Gigrometer(int pin) : pin(pin)
+    {
+        pinMode(pin, INPUT);
+    }
+public:
+    void get_RH();
+};
+
+void Gigrometer::get_RH()
+{
+    int d = analogRead(pin);
+    RH = (d / 1023.0) * 100; //%
+}
+
+//=============================
+//	  Свет
+//=============================
+class Light {
+private:
+	const int pin;
+public:
+    float light;
+public:
+    Light(int pin) : pin(pin) // TODO: arduino code
+    {
+        pinMode(pin, INPUT);
+	}
+public:
+	void get_light();
+};
+
+void Light::get_light()  // TODO: arduino code
+{
+    light = analogRead(pin);
+}
+
+//=============================
+//    Лампа
+//=============================
+class Lamp {
+private:
+	int pin;
+public:
+	bool on_light;
+public:
+	Lamp(int pin) : pin(pin) { pinMode(pin, OUTPUT); }
+public:
+    void power();
+};
+
+void Lamp::power()  // TODO: arduino
+{
+    if (on_light) { digitalWrite(pin, HIGH); }
+    else { digitalWrite(pin, LOW); }
+}
+
+//=============================
+//    Нагреватель
+//=============================
+class Heater {
+private:
+    int pin;
+public:
+    bool on_temperature;
+public:
+    Heater(int pin) : pin(pin) { pinMode(pin, OUTPUT); }
+public:
+    void power();
+};
+
+void Heater::power()  // TODO: arduino
+{
+    if (on_temperature) { digitalWrite(pin, HIGH); }
+    else { digitalWrite(pin, LOW); }
+}
+
+//=============================
+//    Вентилятор
+//=============================
+class Fan {
+private:
+    int pin;
+public:
+    bool on_temperature;
+public:
+    Fan(int pin) : pin(pin) { pinMode(pin, OUTPUT); }
+public:
+    void power();
+};
+
+
+void Fan::power()  // TODO: arduino
+{
+    if (on_temperature) { digitalWrite(pin, HIGH); }
+    else { digitalWrite(pin, LOW); }  
+}
+
+//=============================
+//    Контроль микроклимата
+//=============================
+void control_temperature(const Thermometer& thermometer, Heater& heater, Fan& fan)
+{
+    if (thermometer.temperature > 40) {
+        heater.on_temperature = false;
+        fan.on_temperature = true;
+    }
+    else if (thermometer.temperature < 20) {
+        heater.on_temperature = true;
+        fan.on_temperature = false;
+    }
+    else {
+        heater.on_temperature = false;
+		fan.on_temperature = false;
+    }
+}
+
+//=============================
+//   Главная программа
+//=============================
+
+Thermometer thermometer(10);
+Gigrometer gigrometer(7);
+Light light(5);
+Lamp lamp(6);
+Heater heater(4);
+Fan fan(3);
+
+void loop()
+{
+    thermometer.get_temperature();
+	gigrometer.get_RH();
+	light.get_light();
+
+	control_temperature(thermometer, heater, fan);
+	//control_humidity(gigrometer, pump, heater, fan);
+	//control_light(light, lamp);
+    
+	lamp.power();
+	heater.power();
+	//pump.power();
+    fan.power();
+
+    print_data(thermometer.temperature);  // выводим на месте
+    print_data(gigrometer.RH);
+
+    delay(700);
+}
