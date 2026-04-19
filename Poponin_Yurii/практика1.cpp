@@ -20,6 +20,7 @@ struct Pet{
     RUB value;
     RUB food;
     RUB filler;
+    RUB vet_clinica;
 };
 
 struct Car {
@@ -29,6 +30,8 @@ struct Car {
     RUB frostfree;
     RUB washingliquid;
     RUB TOcost;
+    RUB toner;
+    RUB penalty;
 };
 
 struct Army
@@ -107,7 +110,7 @@ void alice_check_bankruptcy(const int month, const int year);
 void bob_stats(const int month, const int year);
 void bob_check_military(const int month, const int year);
 void bob_salary(const int month, const int year);
-void bob_deposit();
+void bob_deposit(const int month, const int year);
 void bob_inflation(const int month, const int year);
 void bob_init();
 void bob_good_events(const int month, const int year);
@@ -603,7 +606,7 @@ void bob_inflation(const int month, const int year) {
 }
 
 
-void bob_deposit()
+void bob_deposit(const int month, const int year)
 {
     if (Bob.vtb.bankcard > 0 && rand() % 10 > 5)
     {
@@ -612,10 +615,19 @@ void bob_deposit()
          Bob.vtb.deposit += money;
          Bob.vtb.bankcard -= money;
     }
+
+    if (rand() % 100 < 8) {
+        RUB waste = Bob.vtb.deposit / 2;
+
+        Bob.vtb.deposit -= waste;
+        Bob.vtb.total_waste_money += waste;
+
+        printf("[%02d.%d] Боб не сдержался и всрал половину вклада, потеряно: %lld руб\n", month, year, waste);
+    }
 }
 
 
-void bob_food_expenses(const int month, const int year) { // если будет совсем много, то сделать отдельные функции
+void bob_food_expenses(const int month, const int year) {
     RUB fastfood = 25000; 
     RUB energy_drinks = 5000; 
 
@@ -646,6 +658,7 @@ void bob_car_expenses(const int month, const int year) {
 
     if (month >= 11 && month <= 3) {
         Bob.vtb.bankcard -= Bob.car.frostfree;
+        
     }
 
     if (rand() % 100 < 5) {
@@ -658,6 +671,11 @@ void bob_car_expenses(const int month, const int year) {
     if (rand() % 100 < 20) {
         printf("[%02d.%d] Боб прошел ТО. -%lld руб.\n", month, year, Bob.car.TOcost);
         Bob.vtb.bankcard -= Bob.car.TOcost;
+    }
+
+    if (rand() % 100 < 80) {
+        printf("[%02d.%d] Бобу сняли тонировку: -%lld руб. Наклеил новую: -%lld руб\n", month, year, Bob.car.penalty, Bob.car.toner);
+        Bob.vtb.bankcard -= Bob.car.penalty + Bob.car.toner;
     }
 }
 
@@ -677,8 +695,6 @@ void bob_fun_expenses(const int month, const int year) {
 }
 
 void bob_pet_expenses(const int month, const int year) {
-    RUB pet_rent = 7000;
-
 
     if (rand() % 100 < 15) {
         RUB damage = 12000;
@@ -687,7 +703,12 @@ void bob_pet_expenses(const int month, const int year) {
         Bob.vtb.total_waste_money += damage;
     }
 
-    Bob.vtb.bankcard -= pet_rent;
+    if (rand() % 100 < 10) {
+        printf("[%02d.%d] Пес боба приболел, затраты на лечение обошлись в %lld руб\n", month, year, Bob.pet.vet_clinica);
+        Bob.vtb.bankcard -= Bob.pet.vet_clinica;
+    }
+
+    Bob.vtb.bankcard -= Bob.pet.filler + Bob.pet.food;
 }
 
 void bob_extrawork(const int month, const int year) {
@@ -703,6 +724,20 @@ void bob_extrawork(const int month, const int year) {
         else {
             int profit = 10000;
             printf("[%02d.%d] Боб подработал сдавая сабы на пляже, погода была плохая и он заработал: %d руб\n", month, year, profit);
+        }
+    }
+    if (month >= 11 && month <= 2) {
+        int bublik_rent = 10000;
+        Bob.vtb.bankcard -= bublik_rent;
+        int weather_is_good = rand() % 10;
+        if (weather_is_good >= 4) {
+            int profit = 40000;
+            printf("[%02d.%d] Боб подработал, сдавая бублики на горке, погода была хорошая и он заработал: %d руб\n", month, year, profit);
+
+        }
+        else {
+            int profit = 10000;
+            printf("[%02d.%d] Боб подработал сдавая бублики на горке, погода была плохая и он заработал: %d руб\n", month, year, profit);
         }
     }
 }
@@ -725,13 +760,13 @@ void bob_stats(const int month, const int year){
     if (month == 3)
     {
         Bob.age++;
-        printf("[%02d.%d]У Боба День рождения в этом месяце! Ему исполнилось: %d. Поздравляем\n", month, year, Bob.age);
+        printf("[%02d.%d] У Боба День рождения в этом месяце! Ему исполнилось: %d. Поздравляем\n", month, year, Bob.age);
     }
 }
 
 void bob_check_military(const int month, const int year) {
     if (Bob.age == 22 && month == 3) {
-        printf("!!! БОБ УЕХАЛ НА СРОЧНУЮ СЛУЖБУ. УВИДИМСЯ ЧЕРЕЗ ГОД, БОБ !!!\n");
+        printf("[%02d.%d]!!! БОБ УЕХАЛ НА СРОЧНУЮ СЛУЖБУ. УВИДИМСЯ ЧЕРЕЗ ГОД, БОБ !!!\n");
         Bob.army.is_in_army = true;
     }
 }
@@ -828,13 +863,17 @@ void bob_init()
 
     Bob.car.value = 1'400'000;
     Bob.car.gas = 15'000;
-    Bob.car.frostfree = 2000;
-    Bob.car.oil = 2000;
-    Bob.car.washingliquid = 3000;
+    Bob.car.frostfree = 1000;
+    Bob.car.oil = 1000;
+    Bob.car.washingliquid = 1000;
     Bob.car.TOcost = 20000;
+    Bob.car.penalty = 3000;
+    Bob.car.toner = 4000;
 
     Bob.pet.filler = 1000;
     Bob.pet.food = 3000;
+    Bob.pet.value = 15000;
+    Bob.pet.vet_clinica = 3000;
 
     Bob.vtb.total_waste_money = 0;
     Bob.vtb.total_luck_money = 0;
@@ -956,7 +995,7 @@ void bob_good_events(const int month, const int year) {
         }
 
         case 16: {
-            printf(CYAN"[%02d.%d] Боб сдал пустые бутылки из-под элитного газировки (шутка). Кешбэк от магазина: +1 500 руб." RESET "\n", month, year);
+            printf(CYAN"[%02d.%d] Боб сдал пустые бутылки из-под элитного алкоголя. Кешбэк от магазина: +1 500 руб." RESET "\n", month, year);
             Bob.vtb.bankcard += 1500;
             Bob.vtb.total_luck_money += 1500;
             break;
@@ -978,7 +1017,7 @@ void bob_good_events(const int month, const int year) {
         }
 
         case 19: {
-            printf(CYAN"[%02d.%d] Боб нашел редкую монету в сдачи. Продал нумизмату: +15 000 руб." RESET "\n", month, year);
+            printf(CYAN"[%02d.%d] Боб нашел редкую монету в сдаче. Продал нумизмату: +15 000 руб." RESET "\n", month, year);
             Bob.vtb.bankcard += 15000;
             Bob.vtb.total_luck_money += 15000;
             break;
@@ -1245,7 +1284,7 @@ void simulation()
             bob_fun_expenses(month, year);
             bob_pet_expenses(month, year);
             bob_extrawork(month, year);
-            bob_deposit();
+            bob_deposit(month,year);
             bob_salary(month, year);
             bob_pay_mortgage(month, year);
             bob_check_bankruptcy(month, year);
