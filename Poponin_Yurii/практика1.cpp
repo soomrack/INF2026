@@ -13,17 +13,45 @@
 #define CYAN    "\033[36m"      
 
 using RUB = long long int;
+float USD_RUB_Rate = 95.5f;
 
 // Структуры
 
-struct Pet{
+// ==================== СИСТЕМА СРАВНЕНИЯ НАЧАЛЬНЫХ И КОНЕЧНЫХ ДАННЫХ ====================
+struct Snapshot {
+    // Alice
+    RUB alice_start_salary;
+    RUB alice_start_flat_value;
+    RUB alice_start_bankcard;
+    RUB alice_start_deposit;
+    int alice_start_age;
+
+    // Bob
+    RUB bob_start_salary;
+    RUB bob_start_flat_value;
+    RUB bob_start_bankcard;
+    RUB bob_start_deposit;
+    int bob_start_age;
+
+    // Economy
+    float start_inflation;
+    float start_stavka;
+    float start_usd;
+};
+
+// Глобальная переменная для хранения снимка
+struct Snapshot GameSnapshot;
+
+
+struct Pet
+{
     RUB value;
     RUB food;
     RUB filler;
     RUB vet_clinica;
 };
-
-struct Car {
+struct Car 
+{
     RUB value;
     RUB gas;
     RUB oil;
@@ -32,6 +60,9 @@ struct Car {
     RUB TOcost;
     RUB toner;
     RUB penalty;
+    RUB tires;
+    RUB smena_rezini;
+    RUB polirovka;
 };
 
 struct Army
@@ -50,6 +81,14 @@ struct Bank
     RUB total_luck_money;
 };
 
+struct Flat
+{
+	RUB value;
+    RUB electricity;
+    RUB water;
+    RUB heating;
+    RUB internet;
+};
 
 struct Mortgage 
 {
@@ -59,16 +98,49 @@ struct Mortgage
     int duration;
     int months_left;
 };
+ 
+struct Business {
+    char name[50];
+    RUB monthly_profit;
+    RUB initial_investment;
+    int risk_level;
+    bool is_active;
+    int months_active;
+};
+
+struct Stock {
+    std::string ticker;
+    RUB price;
+    int quantity;
+    float volatility;
+    RUB dividend_yield;
+};
+
+struct StockMarket {
+    struct Stock sber;
+    struct Stock gazprom;
+    struct Stock yandex;
+    float market_sentiment;
+};
+
+
+struct RealEstateMarket {
+    float price_growth_rate;
+    float rental_yield;
+    int bubble_risk;
+};
 
 struct Person {
     int age;
-    RUB flat;
     RUB food;
     RUB trip;
     struct Bank vtb;
+	struct Flat flat;
+    struct Business side_business;
     struct Car car;
     struct Pet pet;
     struct Mortgage house_loan;
+    struct StockMarket portfolio;
     struct Army army;
     bool is_bankrupt;
 };
@@ -82,6 +154,7 @@ struct WorldEconomy {
     float monthly_base;
 };
 
+struct RealEstateMarket MoscowRealEstate;
 struct WorldEconomy Russia2026;
 
 struct Person Alice;
@@ -100,6 +173,7 @@ void alice_bad_events(const int month, const int year);
 void alice_food_expenses(const int month, const int year);
 void alice_car_expenses(const int month, const int year);
 void alice_pet_expenses(const int month, const int year);
+void alice_start_business(const int month, const int year);
 void alice_pay_mortgage(const int month, const int year);
 void alice_init_mortgage();
 void alice_housing_expenses(const int month, const int year);
@@ -121,6 +195,7 @@ void bob_fun_expenses(const int month, const int year);
 void bob_pet_expenses(const int month, const int year);
 void bob_extrawork(const int month, const int year);
 void bob_init_mortgage();
+void bob_start_business(const int month, const int year);
 void bob_pay_mortgage(const int month, const int year);
 void bob_check_bankruptcy(const int month, const int year);
 void bob_military(const int month, const int year);
@@ -128,9 +203,21 @@ void bob_military(const int month, const int year);
 // other
 void simulation();
 void apply_global_inflation(const int month, const int year);
+void update_business(const int month, const int year, struct Person& p);
+void init_stock_market();
+void update_stock_prices(const int month, const int year);
+void alice_investment_strategy(const int month, const int year);
+void bob_trading_strategy(const int month, const int year);
 void apply_salary_indexation(const int month, const int year);
+void take_initial_snapshot();
+void print_final_comparison();
+void print_personal_growth_report(const char* name, RUB start_capital, RUB end_capital, RUB start_salary, RUB end_salary, int age_passed);
 void economy_init();
+void global_economic_events(const int month, const int year);
+void init_real_estate_market();
+void update_real_estate_market(const int month, const int year);
 void update_bank_rate(const int month, const int year);
+void update_currency_rates(const int month, const int year);
 
 
 // Определение функций
@@ -158,7 +245,7 @@ void alice_deposit()
 }
 
 void alice_inflation(const int month, const int year) {
-    Alice.flat += Alice.flat * (Russia2026.monthly_base * Russia2026.estate_modifier);
+    Alice.flat.value += Alice.flat.value * (Russia2026.monthly_base * Russia2026.estate_modifier);
     Alice.food += Alice.food * (Russia2026.monthly_base * Russia2026.food_modifier);
     Alice.car.gas += Alice.car.gas * (Russia2026.monthly_base * Russia2026.car_modifier);
     Alice.pet.food += Alice.pet.food * (Russia2026.monthly_base * Russia2026.food_modifier);
@@ -178,7 +265,7 @@ void alice_food_expenses(const int month, const int year) { // vitamins
     Alice.vtb.bankcard -= (grocery_bill + cafe_bill);
 }
 
-void alice_car_expenses(const int month, const int year) {  // tires
+void alice_car_expenses(const int month, const int year) {
 
     Alice.vtb.bankcard -= Alice.car.gas;
     Alice.vtb.bankcard -= Alice.car.oil;
@@ -191,12 +278,30 @@ void alice_car_expenses(const int month, const int year) {  // tires
 
     if (month >= 11 && month <= 3) {
         Alice.vtb.bankcard -= Alice.car.frostfree;
+		printf("[%02d.%d] Алиса залила антифриз в машину. -%lld руб.\n", month, year, Alice.car.frostfree);
     }
 
-    if (month == 1) {
-        RUB insurance = 6000;
-        printf("[%02d.%d] Полировка фар. -%lld руб.\n", month, year, insurance);
-        Alice.vtb.bankcard -= insurance;
+	if (month == 7 && year % 3 == 0) {
+        printf("[%02d.%d] Алиса купила зимнюю и летнюю резину. -%lld руб.\n", month, year, Alice.car.tires);
+        Alice.vtb.bankcard -= Alice.car.tires;
+    }
+
+	if (month == 10 || month == 4) {
+        printf("[%02d.%d] Алиса сменила резину в шиномонтажке. -%lld руб.\n", month, year, Alice.car.smena_rezini);
+        Alice.vtb.bankcard -= Alice.car.smena_rezini;
+    }
+
+    if (year % 4 == 0) {
+        printf("[%02d.%d] Полировка фар. -%lld руб.\n", month, year, Alice.car.polirovka);
+        Alice.vtb.bankcard -= Alice.car.polirovka;
+    }
+}
+
+void alice_stats(const int month, const int year) {
+    if (month == 10)
+    {
+        Alice.age++;
+        printf("[%02d.%d] У Алисы День рождения в этом месяце! Ей исполнилось: %d. Поздравляем\n", month, year, Alice.age);
     }
 }
 
@@ -208,6 +313,13 @@ void alice_pet_expenses(const int month, const int year) {
         printf("[%02d.%d] Кот Алисы получил ежегодные прививки. -%lld руб.\n", month, year, vet_visit);
         total_pet += vet_visit;
     }
+
+    if (rand() % 100 < 10) {
+        RUB damage = 10000;
+        printf("[%02d.%d] Кот Алисы перевернул редкое и дорогое растение. Ущерб: -%lld руб.\n", month, year, damage);
+        total_pet += damage;
+        Alice.vtb.total_waste_money += damage;
+	}
 
     Alice.vtb.bankcard -= total_pet;
 }
@@ -231,7 +343,7 @@ void alice_pay_mortgage(const int month, const int year) {
 
 
 void alice_init_mortgage() {
-    Alice.house_loan.total_loan = 5000000;
+    Alice.house_loan.total_loan = 4000000;
     Alice.house_loan.rate = 0.12;
     Alice.house_loan.duration = 160;
     Alice.house_loan.months_left = 160;
@@ -246,24 +358,33 @@ void alice_init_mortgage() {
 
 void alice_init()
 {
-    Alice.flat = 8'000'000;
+    Alice.age = 20;
+
     Alice.vtb.bankcard = 0;
     Alice.vtb.deposit = 0;
-    Alice.vtb.salary = 130'000;
+    Alice.vtb.salary = 150'000;
     Alice.food = 20'000;
     Alice.vtb.capital = 0;
-    Alice.is_bankrupt = 0;
+    Alice.is_bankrupt = false;
+    Alice.side_business.is_active = false;
 
+    Alice.flat.value = 8'000'000;
+	Alice.flat.electricity = 3500;
+	Alice.flat.water = 1200;
+    Alice.flat.heating = 3500;
+    Alice.flat.internet = 1800;
 
     Alice.car.value = 2'400'000;
-    Alice.car.gas = 15'000;
+    Alice.car.gas = 12'000;
     Alice.car.oil = 2000;
-    Alice.car.frostfree = 2000;
-    Alice.car.washingliquid = 3000;
+    Alice.car.frostfree = 1000;
+    Alice.car.washingliquid = 1000;
     Alice.car.TOcost = 30000;
+    Alice.car.tires = 60000;
+	Alice.car.smena_rezini = 5000;
 
-    Alice.pet.filler = 3000;
-    Alice.pet.food = 5000;
+    Alice.pet.filler = 1000;
+    Alice.pet.food = 4000;
 
     Alice.vtb.total_waste_money = 0;
     Alice.vtb.total_luck_money = 0;
@@ -272,22 +393,18 @@ void alice_init()
 }
 
 void alice_housing_expenses(const int month, const int year) {
-    RUB electricity = 3500;
-    RUB water = 1200;
-    RUB heating = 4500;
-    RUB internet = 1800;
 
     if (month >= 11 || month <= 3) {
-        heating *= 1.5;
+        Alice.flat.heating *= 1.5;
     }
 
-    RUB total_utility = electricity + water + heating + internet;
+    RUB total_utility = Alice.flat.electricity + Alice.flat.water + Alice.flat.heating + Alice.flat.internet;
 
     printf("[%02d.%d] Алиса оплатила ЖКХ: %lld руб.\n", month, year, total_utility);
     Alice.vtb.bankcard -= total_utility;
 
     if (month == 12) {
-        RUB property_tax = Alice.flat * 0.001;
+        RUB property_tax = Alice.flat.value * 0.001;
         printf("[%02d.%d] !!! Алиса оплатила годовой налог на имущество: %lld руб.\n", month, year, property_tax);
         Alice.vtb.bankcard -= property_tax;
     }
@@ -296,16 +413,34 @@ void alice_housing_expenses(const int month, const int year) {
 void alice_extrawork(const int month, const int year) {
     if (month >= 5 && month <= 9) {
         int flowers_seeds = 10000;
-        Bob.vtb.bankcard -= flowers_seeds;
+        Alice.vtb.bankcard -= flowers_seeds;
         int weather_is_good = rand() % 10;
         if (weather_is_good >= 4) {
             int profit = 30000;
             printf("[%02d.%d] Алиса вырастила и продала тюльпаны, погода была хорошая и она заработала: %d руб\n", month, year, profit);
+			Alice.vtb.bankcard += profit;
         }
         else {
             int profit = 10000;
             printf("[%02d.%d] Алиса вырастила и продала тюльпаны, погода была плохая и она заработала: %d руб\n", month, year, profit);
+            Alice.vtb.bankcard += profit;
         }
+    }
+
+    if (month >= 10 || month <= 3) {
+        int testo_cost = 10000;
+        Alice.vtb.bankcard -= testo_cost;
+        int weather_is_good = rand() % 10;
+        if (weather_is_good >= 4) {
+            int profit = 30000;
+            printf("[%02d.%d] Алиса продавала пряники, погода была хорошая и она заработала: %d руб\n", month, year, profit);
+            Alice.vtb.bankcard += profit;
+        }
+        else {
+            int profit = 10000;
+            printf("[%02d.%d] Алиса продавала пряники, погода была плохая и она заработала: %d руб\n", month, year, profit);
+            Alice.vtb.bankcard += profit;
+		}
     }
 }
 
@@ -319,6 +454,24 @@ void alice_check_bankruptcy(const int month, const int year) {
         printf("!!! Ее долги превысили 500 000 рублей.                 !!!\n");
         printf("!!! Симуляция жизни Алисы остановлена. GAME OVER       !!!\n");
         printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+    }
+}
+
+void alice_start_business(const int month, const int year) {
+    if (Alice.side_business.is_active) return;
+    if (Alice.is_bankrupt) return;
+    if (Alice.vtb.bankcard < 200000) return;
+
+    if (year >= 2028 && rand() % 100 < 5) {
+        Alice.side_business.is_active = true;
+        Alice.side_business.initial_investment = 150000;
+        Alice.side_business.risk_level = 4;
+        Alice.side_business.monthly_profit = 25000;
+        Alice.side_business.months_active = 0;
+        sprintf_s(Alice.side_business.name, "Кофейня Алисы");
+
+        Alice.vtb.bankcard -= Alice.side_business.initial_investment;
+        printf(GREEN "\n[%02d.%d] БИЗНЕС: Алиса открыла кофейню! Инвестировано %lld руб.\n" RESET, month, year, Alice.side_business.initial_investment);
     }
 }
 
@@ -599,7 +752,7 @@ void bob_salary(const int month, const int year)
 
 
 void bob_inflation(const int month, const int year) {
-    Bob.flat += Bob.flat * (Russia2026.monthly_base * Russia2026.estate_modifier);
+    Bob.flat.value += Bob.flat.value * (Russia2026.monthly_base * Russia2026.estate_modifier);
     Bob.food += Bob.food * (Russia2026.monthly_base * Russia2026.food_modifier);
     Bob.car.gas += Bob.car.gas * (Russia2026.monthly_base * Russia2026.car_modifier);
     Bob.pet.food += Bob.pet.food * (Russia2026.monthly_base * Russia2026.food_modifier);
@@ -719,25 +872,29 @@ void bob_extrawork(const int month, const int year) {
         if (weather_is_good >= 4) {
             int profit = 40000;
             printf("[%02d.%d] Боб подработал, сдавая сабы на пляже, погода была хорошая и он заработал: %d руб\n", month, year, profit);
+            Bob.vtb.bankcard += profit;
 
         }
         else {
             int profit = 10000;
             printf("[%02d.%d] Боб подработал сдавая сабы на пляже, погода была плохая и он заработал: %d руб\n", month, year, profit);
+            Bob.vtb.bankcard += profit;
         }
     }
-    if (month >= 11 && month <= 2) {
+    if (month >= 11 || month <= 2) {
         int bublik_rent = 10000;
         Bob.vtb.bankcard -= bublik_rent;
         int weather_is_good = rand() % 10;
         if (weather_is_good >= 4) {
             int profit = 40000;
             printf("[%02d.%d] Боб подработал, сдавая бублики на горке, погода была хорошая и он заработал: %d руб\n", month, year, profit);
+			Bob.vtb.bankcard += profit;
 
         }
         else {
             int profit = 10000;
             printf("[%02d.%d] Боб подработал сдавая бублики на горке, погода была плохая и он заработал: %d руб\n", month, year, profit);
+            Bob.vtb.bankcard += profit;
         }
     }
 }
@@ -854,7 +1011,7 @@ void bob_check_bankruptcy(const int month, const int year) {
 void bob_init()
 {
     Bob.age = 20;
-    Bob.flat = 5'000'000;
+    Bob.flat.value = 5'000'000;
     Bob.vtb.bankcard = 0;
     Bob.vtb.deposit = 0;
     Bob.vtb.salary = 120'000;
@@ -878,10 +1035,29 @@ void bob_init()
     Bob.vtb.total_waste_money = 0;
     Bob.vtb.total_luck_money = 0;
 
-    Bob.is_bankrupt = 0; 
+    Bob.is_bankrupt = false; 
+    Bob.side_business.is_active = false;
 
     Bob.army.month_left = 12;
     Bob.army.is_in_army = false;
+}
+
+void bob_start_business(const int month, const int year) {
+    if (Bob.side_business.is_active) return;
+    if (Bob.is_bankrupt || Bob.army.is_in_army) return;
+
+    if (rand() % 100 < 8) {
+        Bob.side_business.is_active = true;
+        Bob.side_business.initial_investment = 50000 + (rand() % 100000);
+        Bob.side_business.risk_level = 8;
+        Bob.side_business.monthly_profit = 10000;
+        Bob.side_business.months_active = 0;
+        sprintf_s(Bob.side_business.name, "Стартап Боба v.%d", rand() % 10);
+
+        Bob.vtb.bankcard -= Bob.side_business.initial_investment;
+        printf(CYAN "\n[%02d.%d] БИЗНЕС: Боб вложился в '%s'! Инвестировано %lld руб.\n" RESET,
+            month, year, Bob.side_business.name, Bob.side_business.initial_investment);
+    }
 }
 
 void bob_good_events(const int month, const int year) {
@@ -1227,6 +1403,33 @@ void apply_salary_indexation(const int month, const int year) {
     printf("--------------------------------------------\n\n");
 }
 
+void update_business(const int month, const int year, struct Person& p) {
+    if (!p.side_business.is_active) return;
+
+    p.side_business.months_active++;
+
+    int success_chance = 60 - (p.side_business.risk_level * 5);
+    if (rand() % 100 < success_chance) {
+        RUB profit = p.side_business.monthly_profit;
+        p.vtb.bankcard += profit;
+        if (p.side_business.months_active % 6 == 0) {
+            p.side_business.monthly_profit = (RUB)(p.side_business.monthly_profit * 1.2);
+            printf("[%02d.%d] Бизнес '%s' растёт! Прибыль: %lld руб.\n",
+                month, year, p.side_business.name, p.side_business.monthly_profit);
+        }
+    }
+    else {
+        RUB loss = p.side_business.monthly_profit / 2;
+        p.vtb.bankcard -= loss;
+        printf(MAGENTA "[%02d.%d] Бизнес '%s' принёс убыток: %lld руб.\n" RESET,
+            month, year, p.side_business.name, loss);
+    }
+
+    if (rand() % 100 < 5 || p.side_business.months_active > 36) {
+        printf("[%02d.%d] Бизнес '%s' закрыт.\n", month, year, p.side_business.name);
+        p.side_business.is_active = false;
+    }
+}
 
 void apply_global_inflation(const int month, const int year) {
     Russia2026.monthly_base = Russia2026.inflation_rate / 12.0;
@@ -1244,11 +1447,273 @@ void apply_global_inflation(const int month, const int year) {
     }
 }
 
+void init_real_estate_market() {
+    MoscowRealEstate.price_growth_rate = 0.06f;
+    MoscowRealEstate.rental_yield = 0.05f;
+    MoscowRealEstate.bubble_risk = 15;
+}
+
+void update_real_estate_market(const int month, const int year) {
+    // Ежегодное обновление трендов
+    if (month == 1) {
+        MoscowRealEstate.price_growth_rate = 0.05f + ((rand() % 100) - 30) / 100.0f;
+        MoscowRealEstate.bubble_risk += (rand() % 20) - 10;
+        if (MoscowRealEstate.bubble_risk < 0) MoscowRealEstate.bubble_risk = 0;
+        if (MoscowRealEstate.bubble_risk > 100) MoscowRealEstate.bubble_risk = 100;
+
+        printf("\n--- НОВОСТИ НЕДВИЖИМОСТИ %d ---\n", year);
+        printf("Рост цен: %.2f%% | Риск пузыря: %d%%\n",
+            MoscowRealEstate.price_growth_rate * 100, MoscowRealEstate.bubble_risk);
+
+        // Применение роста цен
+        if (!Alice.is_bankrupt) {
+            Alice.flat.value = (RUB)(Alice.flat.value * (1.0f + MoscowRealEstate.price_growth_rate));
+        }
+        if (!Bob.is_bankrupt) {
+            Bob.flat.value = (RUB)(Bob.flat.value * (1.0f + MoscowRealEstate.price_growth_rate));
+        }
+    }
+
+    // Схлопывание пузыря
+    if (MoscowRealEstate.bubble_risk > 90 && rand() % 100 < 10) {
+        float crash = 0.15f + (rand() % 20) / 100.0f;
+        if (!Alice.is_bankrupt) Alice.flat.value = (RUB)(Alice.flat.value * (1.0f - crash));
+        if (!Bob.is_bankrupt) Bob.flat.value = (RUB)(Bob.flat.value * (1.0f - crash));
+        printf(RED "\n!!! КРИЗИС НА РЫНКЕ НЕДВИЖИМОСТИ !!! Цены упали на %.1f%%\n\n" RESET, crash * 100);
+        MoscowRealEstate.bubble_risk = 20;
+    }
+}
+
+
+void init_stock_market() {
+    // Инициализация акций Сбера
+    Alice.portfolio.sber.ticker = "SBER";
+    Alice.portfolio.sber.price = 280;
+    Alice.portfolio.sber.quantity = 0;
+    Alice.portfolio.sber.volatility = 0.15f;
+    Alice.portfolio.sber.dividend_yield = 15;
+
+    // Газпром
+    Alice.portfolio.gazprom.ticker = "GAZP";
+    Alice.portfolio.gazprom.price = 170;
+    Alice.portfolio.gazprom.quantity = 0;
+    Alice.portfolio.gazprom.volatility = 0.20f;
+    Alice.portfolio.gazprom.dividend_yield = 8;
+
+    // Яндекс
+    Alice.portfolio.yandex.ticker = "YNDX";
+    Alice.portfolio.yandex.price = 2500;
+    Alice.portfolio.yandex.quantity = 0;
+    Alice.portfolio.yandex.volatility = 0.35f;
+    Alice.portfolio.yandex.dividend_yield = 0;
+
+    Alice.portfolio.market_sentiment = 0.1f;
+
+    Bob.portfolio = Alice.portfolio;
+}
+
+void update_stock_prices(const int month, const int year) {
+
+    float sentiment_change = ((rand() % 100) - 50) / 1000.0f;
+    Alice.portfolio.market_sentiment += sentiment_change;
+    if (Alice.portfolio.market_sentiment > 1.0f) Alice.portfolio.market_sentiment = 1.0f;
+    if (Alice.portfolio.market_sentiment < -1.0f) Alice.portfolio.market_sentiment = -1.0f;
+    Bob.portfolio.market_sentiment = Alice.portfolio.market_sentiment;
+
+
+    auto updateStock = [&](Stock& s_alice, Stock& s_bob) {
+        float random_factor = ((rand() % 100) - 50) / 100.0f;
+        float change_percent = (random_factor * s_alice.volatility) + (Alice.portfolio.market_sentiment * 0.05f);
+
+        if (rand() % 1000 < 5) {
+            change_percent += (rand() % 2 == 0) ? 0.20f : -0.20f;
+            printf(RED "[%02d.%d] ВНИМАНИЕ! Резкое движение по акциям %s!\n" RESET,
+                month, year, s_alice.ticker.c_str());
+        }
+
+        s_alice.price = (RUB)(s_alice.price * (1.0f + change_percent));
+        if (s_alice.price < 1) s_alice.price = 1;
+        s_bob.price = s_alice.price;
+
+        if (month % 3 == 0) {
+            if (s_alice.quantity > 0) {
+                RUB div_payment = s_alice.dividend_yield * s_alice.quantity;
+                Alice.vtb.bankcard += div_payment;
+                printf(GREEN "[%02d.%d] Дивиденды %s: +%lld руб.\n" RESET,
+                    month, year, s_alice.ticker.c_str(), div_payment);
+            }
+            if (s_bob.quantity > 0) {
+                RUB div_payment = s_bob.dividend_yield * s_bob.quantity;
+                Bob.vtb.bankcard += div_payment;
+                printf(CYAN "[%02d.%d] Дивиденды %s: +%lld руб.\n" RESET,
+                    month, year, s_bob.ticker.c_str(), div_payment);
+            }
+        }
+        };
+
+    updateStock(Alice.portfolio.sber, Bob.portfolio.sber);
+    updateStock(Alice.portfolio.gazprom, Bob.portfolio.gazprom);
+    updateStock(Alice.portfolio.yandex, Bob.portfolio.yandex);
+}
+
+void alice_investment_strategy(const int month, const int year) {
+    if (Alice.is_bankrupt) return;
+
+    if ((month == 6 || month == 12) && Alice.vtb.bankcard > 50000) {
+        int qty = 100;
+        RUB cost = qty * Alice.portfolio.sber.price;
+        if (cost <= Alice.vtb.bankcard) {
+            Alice.portfolio.sber.quantity += qty;
+            Alice.vtb.bankcard -= cost;
+            printf("[%02d.%d] Алиса купила %d акций Сбера за %lld руб.\n",
+                month, year, qty, cost);
+        }
+    }
+}
+
+void bob_trading_strategy(const int month, const int year) {
+    if (Bob.is_bankrupt || Bob.army.is_in_army) return;
+
+    if (rand() % 100 < 25 && Bob.vtb.bankcard > 10000) {
+        int qty = 10;
+        RUB cost = qty * Bob.portfolio.yandex.price;
+        if (cost <= Bob.vtb.bankcard) {
+            Bob.portfolio.yandex.quantity += qty;
+            Bob.vtb.bankcard -= cost;
+            printf("[%02d.%d] Боб купил %d акций Яндекса за %lld руб.\n",
+                month, year, qty, cost);
+        }
+    }
+
+    if (rand() % 100 < 15 && Bob.portfolio.yandex.quantity > 0) {
+        RUB revenue = Bob.portfolio.yandex.quantity * Bob.portfolio.yandex.price;
+        Bob.vtb.bankcard += revenue;
+        printf("[%02d.%d] Боб продал акции Яндекса за %lld руб.\n", month, year, revenue);
+        Bob.portfolio.yandex.quantity = 0;
+    }
+}
+ 
+void global_economic_events(const int month, const int year) {
+    int event_roll = rand() % 1000;
+
+    // Санкции
+    if (event_roll < 3) {
+        printf(RED "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+        printf("!!! ГЛОБАЛЬНОЕ СОБЫТИЕ: ВВЕДЕНЫ НОВЫЕ САНКЦИИ !!!\n");
+        printf("!!! Курс рубля резко упал, инфляция ускоряется. !!!\n");
+        printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n" RESET);
+        USD_RUB_Rate *= 1.25f;
+        Russia2026.inflation_rate += 0.02f;
+        Russia2026.stavka += 5.0f;
+        printf("Новый курс USD/RUB: %.2f | Инфляция: %.1f%% | Ставка ЦБ: %.1f%%\n",
+            USD_RUB_Rate, Russia2026.inflation_rate * 100, Russia2026.stavka);
+    }
+
+    // Неурожай
+    if (event_roll > 900 && event_roll < 920) {
+        printf(YELLOW "\n[%02d.%d] НОВОСТИ: Неурожай. Цены на продукты выросли!\n" RESET, month, year);
+        Russia2026.food_modifier += 0.3f;
+    }
+
+    // Обвал нефти
+    if (event_roll > 950) {
+        printf(MAGENTA "\n[%02d.%d] НОВОСТИ: Обвал цен на нефть.\n" RESET, month, year);
+        USD_RUB_Rate *= 1.15f;
+        Russia2026.inflation_rate += 0.01f;
+    }
+}
+
+void take_initial_snapshot() {
+    // Alice
+    GameSnapshot.alice_start_salary = Alice.vtb.salary;
+    GameSnapshot.alice_start_flat_value = Alice.flat.value;
+    GameSnapshot.alice_start_bankcard = Alice.vtb.bankcard;
+    GameSnapshot.alice_start_deposit = Alice.vtb.deposit;
+    GameSnapshot.alice_start_age = Alice.age;
+
+    // Bob
+    GameSnapshot.bob_start_salary = Bob.vtb.salary;
+    GameSnapshot.bob_start_flat_value = Bob.flat.value;
+    GameSnapshot.bob_start_bankcard = Bob.vtb.bankcard;
+    GameSnapshot.bob_start_deposit = Bob.vtb.deposit;
+    GameSnapshot.bob_start_age = Bob.age;
+
+    // Economy
+    GameSnapshot.start_inflation = Russia2026.inflation_rate;
+    GameSnapshot.start_stavka = Russia2026.stavka;
+    GameSnapshot.start_usd = USD_RUB_Rate;
+
+    printf("\n=== НАЧАЛЬНЫЙ СНИМОК СОСТОЯНИЯ СДЕЛАН ===\n");
+}
+
+void update_currency_rates(const int month, const int year) {
+    float usd_change = ((rand() % 200) - 50) / 100.0f;
+    USD_RUB_Rate += usd_change;
+    if (USD_RUB_Rate < 60.0f) USD_RUB_Rate = 60.0f;
+    if (USD_RUB_Rate > 150.0f) USD_RUB_Rate = 150.0f;
+
+    if (month == 12) {
+        printf("\n=== КУРС USD/RUB НА КОНЕЦ %d ГОДА: %.2f ===\n", year, USD_RUB_Rate);
+    }
+}
+
+void print_personal_growth_report(const char* name, RUB start_capital, RUB end_capital, RUB start_salary, RUB end_salary, int age_passed) {
+    printf("\n--- АНАЛИЗ ИЗМЕНЕНИЙ ДЛЯ %s ---\n", name);
+    printf("Возраст: +%d лет\n", age_passed);
+
+    RUB capital_diff = end_capital - start_capital;
+    float capital_growth_percent = (start_capital > 0) ? (float)capital_diff / start_capital * 100.0f : 0.0f;
+
+    printf("Капитал: %lld руб. -> %lld руб. (Изменение: %+lld руб., %.2f%%)\n", start_capital, end_capital, capital_diff, capital_growth_percent);
+
+    RUB salary_diff = end_salary - start_salary;
+    float salary_growth_percent = (start_salary > 0) ? (float)salary_diff / start_salary * 100.0f : 0.0f;
+    printf("Зарплата: %lld руб. -> %lld руб. (Изменение: %+lld руб., %.2f%%)\n",
+        start_salary, end_salary, salary_diff, salary_growth_percent);
+}
+
+void print_final_comparison() {
+    printf("\n\n");
+    printf("============================================================\n");
+    printf("               ИТОГОВЫЙ СРАВНИТЕЛЬНЫЙ АНАЛИЗ                 \n");
+    printf("============================================================\n");
+
+    RUB alice_end_capital = Alice.vtb.capital;
+    RUB bob_end_capital = Bob.vtb.capital;
+    RUB alice_start_capital_total = GameSnapshot.alice_start_flat_value + GameSnapshot.alice_start_bankcard + GameSnapshot.alice_start_deposit;
+    RUB bob_start_capital_total = GameSnapshot.bob_start_flat_value + GameSnapshot.bob_start_bankcard + GameSnapshot.bob_start_deposit;
+
+    print_personal_growth_report("АЛИСА", alice_start_capital_total, alice_end_capital,
+        GameSnapshot.alice_start_salary, Alice.vtb.salary,
+        Alice.age - GameSnapshot.alice_start_age);
+
+    print_personal_growth_report("БОБ", bob_start_capital_total, bob_end_capital,
+        GameSnapshot.bob_start_salary, Bob.vtb.salary,
+        Bob.age - GameSnapshot.bob_start_age);
+
+    printf("\n--- МАКРОЭКОНОМИЧЕСКИЕ ИЗМЕНЕНИЯ ---\n");
+    printf("Инфляция: %.2f%% -> %.2f%%\n", GameSnapshot.start_inflation * 100, Russia2026.inflation_rate * 100);
+    printf("Ключевая ставка ЦБ: %.2f%% -> %.2f%%\n", GameSnapshot.start_stavka, Russia2026.stavka);
+    printf("Курс USD/RUB: %.2f -> %.2f (Рубль %s)\n", GameSnapshot.start_usd, USD_RUB_Rate,
+        (USD_RUB_Rate > GameSnapshot.start_usd) ? "ослаб" : "укрепился");
+
+    printf("\n--- СТАТИСТИКА УДАЧИ ---\n");
+    printf("Алиса: Повезло на %lld руб. | Не повезло на %lld руб. (Баланс удачи: %+lld)\n",
+        Alice.vtb.total_luck_money, Alice.vtb.total_waste_money,
+        Alice.vtb.total_luck_money - Alice.vtb.total_waste_money);
+    printf("Боб:   Повезло на %lld руб. | Не повезло на %lld руб. (Баланс удачи: %+lld)\n",
+        Bob.vtb.total_luck_money, Bob.vtb.total_waste_money,
+        Bob.vtb.total_luck_money - Bob.vtb.total_waste_money);
+
+    printf("============================================================\n");
+}
+
 
 void simulation()
 {
     int month = 2;
     int year = 2026;
+
     while (!((month == 3) && (year == 2030))) {
         
         apply_salary_indexation(month, year);
@@ -1259,17 +1724,29 @@ void simulation()
 
         bob_military(month, year);
 
+        global_economic_events(month, year);
+
+        update_stock_prices(month, year);
+
+        update_real_estate_market(month, year);
+
+        update_currency_rates(month, year);
+
         if (not Alice.is_bankrupt) {
+			alice_stats(month, year);
             alice_good_events(month, year);
             alice_bad_events(month, year);
             alice_inflation(month, year);
             alice_salary(month, year);
+            alice_investment_strategy(month, year);
             alice_pay_mortgage(month, year);
             alice_housing_expenses(month, year);
             alice_food_expenses(month, year);
             alice_car_expenses(month, year);
             alice_pet_expenses(month, year);
             alice_extrawork(month, year);
+            alice_start_business(month, year);
+            update_business(month, year, Alice);
             alice_deposit();
             alice_check_bankruptcy(month, year);
         }
@@ -1287,6 +1764,9 @@ void simulation()
             bob_deposit(month,year);
             bob_salary(month, year);
             bob_pay_mortgage(month, year);
+            bob_trading_strategy(month, year);
+            bob_start_business(month, year);
+            update_business(month, year, Bob);
             bob_check_bankruptcy(month, year);
             bob_check_military(month, year);
         }
@@ -1305,13 +1785,13 @@ void print_results()
 {
     printf("\nБанковский счет Алисы = %lld\n", Alice.vtb.bankcard);
     printf("Вклад Алисы = %lld\n", Alice.vtb.deposit);
-    printf("Имущество Алисы = %lld\n", Alice.vtb.capital = Alice.car.value + Alice.flat + Alice.pet.value + Alice.vtb.bankcard + Alice.vtb.deposit);
+    printf("Имущество Алисы = %lld\n", Alice.vtb.capital = Alice.car.value + Alice.flat.value + Alice.pet.value + Alice.vtb.bankcard + Alice.vtb.deposit);
     printf("Алисе повезло = %lld\n", Alice.vtb.total_luck_money);
     printf("Алисе не повезло = %lld\n\n", Alice.vtb.total_waste_money);
 
     printf("Банковский счет Боба = %lld\n", Bob.vtb.bankcard);
     printf("Вклад Боба = %lld\n", Bob.vtb.deposit);
-    printf("Имущество Боба = %lld\n", Bob.vtb.capital = Bob.car.value + Bob.flat + Bob.pet.value + Bob.vtb.bankcard + Bob.vtb.deposit);
+    printf("Имущество Боба = %lld\n", Bob.vtb.capital = Bob.car.value + Bob.flat.value + Bob.pet.value + Bob.vtb.bankcard + Bob.vtb.deposit);
     printf("Бобу фартануло = %lld\n", Bob.vtb.total_luck_money);
     printf("Бобу не фартануло = %lld\n\n", Bob.vtb.total_waste_money);
 }
@@ -1321,17 +1801,24 @@ int main()
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251); //для русского
 
+
+
     bob_init();
     alice_init();
 
     economy_init();
     bob_init_mortgage();
     alice_init_mortgage();
+    init_stock_market();
+    init_real_estate_market();
 
+    // Снятие начальных данных до начала симуляции
+    take_initial_snapshot();
 
     simulation();
 
     print_results();
+    print_final_comparison();
 }
 
 // pensia
