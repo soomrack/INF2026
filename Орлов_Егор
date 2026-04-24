@@ -1,1 +1,1503 @@
+#include <iostream>
+#include <clocale>
+#include <cstdlib>
+#include <ctime>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <cmath>
+
+
+using RUB = long long int;
+
+
+//                                   КОНСТАНТЫ
+
+
+const int SIMULATION_START_YEAR = 2025;
+const int SIMULATION_START_MONTH = 1;
+const int SIMULATION_END_YEAR = 2035;
+const int SIMULATION_END_MONTH = 12;
+
+const double INFLATION_RATE_YEARLY = 0.05;     // 5% инфляция в год
+const double TAX_RATE = 0.13;                  // налог на доходы 13%
+
+
+//                          СТРУКТУРА КВАРТИРЫ (с выбором)
+
+
+struct Apartment 
+{
+    std::string type;          // "студия", "однушка", "двушка", "трешка"
+    std::string district;      // "центр", "спальный", "пригород"
+    RUB price;
+    RUB monthly_rent;          // если сдавать
+    RUB monthly_utilities;     // коммуналка
+    double comfort_level;      // 1..10
+    bool owned;
+    bool rented_out;
+    // Дополнительные характеристики для выбора
+    int floor;
+    int rooms;
+    double area;
+    bool has_balcony;
+    bool has_parking;
+};
+
+
+//                         МЕЧТЫ АЛИСЫ
+
+
+struct AliceDreams 
+{
+    RUB laptop;
+    RUB car;
+    RUB trip_to_italy;
+    RUB fur_coat;
+    RUB kitchen_renovation;
+    RUB spa_weekend;
+    RUB designer_bag;
+    RUB education_courses;
+};
+
+
+//                         МЕЧТЫ МАКСА
+
+
+struct MaxDreams
+{
+    RUB motorbike;
+    RUB boat;
+    RUB workshop_equipment;
+    RUB fishing_gear;
+    RUB travel_japan;
+    RUB home_cinema;
+    RUB guitar;
+    RUB gym_membership;
+};
+
+
+//                         ИНВЕСТИЦИОННЫЙ ПОРТФЕЛЬ (упрощённый)
+
+
+struct Investment 
+{
+    RUB cash;
+    RUB stocks;      // упрощённо – сумма в акциях
+    RUB bonds;       // сумма в облигациях
+    double stock_growth;    // ежемесячный рост в %
+    double bond_coupon;     // ежемесячный купон в %
+};
+
+
+//                         КРЕДИТ
+
+
+struct Loan 
+{
+    RUB amount_owed;
+    RUB monthly_payment;
+    int months_left;
+    double annual_rate;
+    bool active;
+};
+
+
+//                         СТРУКТУРА АЛИСЫ
+
+
+struct Alice 
+{
+
+    // Финансы
+    RUB salary;
+    RUB capital;
+    RUB savings_for_apartment;   // отдельно копит на квартиру
+    RUB taxes_paid;
+
+    // Расходы (ежемесячные)
+    RUB food;
+    RUB transport;
+    RUB beauty;
+    RUB health;
+    RUB clothes;
+    RUB entertainment;
+
+    // Мечты и флаги
+    AliceDreams dreams;
+    bool dreamLaptop;
+    bool dreamCar;
+    bool dreamTripItaly;
+    bool dreamFurCoat;
+    bool dreamKitchenRenov;
+    bool dreamSpa;
+    bool dreamDesignerBag;
+    bool dreamCourses;
+
+    // Инвестиции и кредиты
+    Investment invest;
+    Loan loan;
+
+    // Недвижимость
+    Apartment apartment;
+
+    // Личные данные
+    int age;
+    std::string career;
+    double happiness;    // 0..100
+
+    // Статистика
+    RUB total_income;
+    RUB total_expenses;
+    int years_worked;
+
+};
+
+
+//                         СТРУКТУРА МАКСА
+
+
+struct Max 
+{
+     
+    // Финансы
+    RUB salary;
+    RUB capital;
+    RUB savings_for_apartment;
+    RUB taxes_paid;
+
+    // Расходы (ежемесячные)
+    RUB food;
+    RUB transport;
+    RUB sports;
+    RUB tools;
+    RUB gadgets;
+    RUB hobbies;
+
+    // Мечты и флаги
+    MaxDreams dreams;
+    bool dreamMotorbike;
+    bool dreamBoat;
+    bool dreamWorkshop;
+    bool dreamFishing;
+    bool dreamTravelJapan;
+    bool dreamHomeCinema;
+    bool dreamGuitar;
+    bool dreamGym;
+
+    // Инвестиции и кредиты
+    Investment invest;
+    Loan loan;
+
+    // Недвижимость
+    Apartment apartment;
+
+    // Личные данные
+    int age;
+    std::string career;
+    double happiness;
+
+    // Статистика
+    RUB total_income;
+    RUB total_expenses;
+    int years_worked;
+
+};
+
+
+//                             ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
+
+
+Alice alice;
+Max max;
+
+
+//                      ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ КВАРТИРЫ (выбор)
+
+
+// Функция генерации случайного варианта квартиры с вероятностями
+Apartment generate_apartment_choice(const std::string& person_name) 
+{
+
+    Apartment apt;
+    // случайный район: центр 20%, спальный 60%, пригород 20%
+    int r = rand() % 100;
+
+    if (r < 20)
+    {
+        apt.district = "центр";
+        apt.price = 12'000'000 + (rand() % 5'000'000);
+        apt.monthly_utilities = 8'000;
+        apt.comfort_level = 8.0 + (rand() % 30) / 10.0;
+    }
+
+    else if (r < 80) 
+    {
+        apt.district = "спальный район";
+        apt.price = 7'000'000 + (rand() % 3'000'000);
+        apt.monthly_utilities = 5'000;
+        apt.comfort_level = 5.0 + (rand() % 40) / 10.0;
+    }
+
+    else
+    {
+        apt.district = "пригород";
+        apt.price = 5'000'000 + (rand() % 2'000'000);
+        apt.monthly_utilities = 7'000;
+        apt.comfort_level = 6.0 + (rand() % 30) / 10.0;
+    }
+
+    // тип квартиры: студия 20%, однушка 40%, двушка 30%, трешка 10%
+    r = rand() % 100;
+
+    if (r < 20) 
+    {
+        apt.type = "студия";
+        apt.rooms = 1;
+        apt.area = 28 + (rand() % 7);
+        apt.has_balcony = (rand() % 2 == 0);
+        apt.has_parking = false;
+    }
+
+    else if (r < 60) 
+    {
+        apt.type = "однушка";
+        apt.rooms = 1;
+        apt.area = 35 + (rand() % 10);
+        apt.has_balcony = (rand() % 2 == 0);
+        apt.has_parking = (rand() % 3 == 0);
+    }
+
+    else if (r < 90) 
+    {
+        apt.type = "двушка";
+        apt.rooms = 2;
+        apt.area = 50 + (rand() % 15);
+        apt.has_balcony = true;
+        apt.has_parking = (rand() % 2 == 0);
+    }
+
+    else
+    {
+        apt.type = "трешка";
+        apt.rooms = 3;
+        apt.area = 70 + (rand() % 20);
+        apt.has_balcony = true;
+        apt.has_parking = (rand() % 2 == 0);
+    }
+
+
+    apt.floor = 1 + (rand() % 20);
+    apt.owned = false;
+    apt.rented_out = false;
+    apt.monthly_rent = apt.price * 0.005; // 0.5% от цены в месяц
+
+
+    // Немного модификации цены в зависимости от района и типа
+    if (apt.district == "центр") 
+    {
+        apt.price *= 1.3;
+    }
+
+    if (apt.type == "студия") 
+    {
+        apt.price *= 0.9;
+    }
+
+    if (apt.type == "трешка") 
+    {
+        apt.price *= 1.2;
+    }
+
+    return apt;
+
+}
+
+
+// Функция выбора квартиры персонажем: рассматривает несколько вариантов и выбирает один на основе предпочтений (случайно)
+void choose_apartment_alice(Alice& p)
+{
+    std::cout << "\nВЫБОР КВАРТИРЫ\n";
+    std::cout << "Алиса решила подобрать квартиру.\n";
+    std::cout << "Доступные варианты:\n";
+
+    const int NUM_OPTIONS = 3;
+    Apartment options[NUM_OPTIONS];
+    for (int i = 0; i < NUM_OPTIONS; ++i) 
+    {
+        options[i] = generate_apartment_choice("Alice");
+        std::cout << "\n--- Вариант " << i + 1 << " ---\n";
+        std::cout << "Тип: " << options[i].type << "\n";
+        std::cout << "Район: " << options[i].district << "\n";
+        std::cout << "Цена: " << options[i].price << " руб.\n";
+        std::cout << "Коммуналка: " << options[i].monthly_utilities << " руб.\n";
+        std::cout << "Площадь: " << options[i].area << " кв.м\n";
+        std::cout << "Этаж: " << options[i].floor << "\n";
+        std::cout << "Балкон: " << (options[i].has_balcony ? "да" : "нет") << "\n";
+        std::cout << "Паркинг: " << (options[i].has_parking ? "да" : "нет") << "\n";
+        std::cout << "Уровень комфорта: " << options[i].comfort_level << "/10\n";
+    }
+
+    int chosen = -1;
+    for (int i = 0; i < NUM_OPTIONS; ++i) {
+        if (p.capital + p.savings_for_apartment >= options[i].price) {
+            chosen = i;
+            break;
+        }
+    }
+
+    if (chosen != -1)
+    {
+        std::cout << "\nАлиса выбрала вариант " << chosen + 1 << "!\n";
+        p.apartment = options[chosen];
+        p.apartment.owned = true;
+        p.capital -= p.apartment.price;
+        std::cout << "Квартира куплена за " << p.apartment.price << " руб.\n";
+        std::cout << "Теперь у Алисы есть своё жильё!\n";
+    }
+
+    else 
+    {
+        std::cout << "\nК сожалению, ни один вариант не по карману. Будем копить дальше.\n";
+        p.savings_for_apartment += 5000;
+    }
+
+}
+
+
+void choose_apartment_max(Max& p)
+{
+    std::cout << "\nВЫБОР КВАРТИРЫ\n";
+    std::cout << "Макс решил подобрать квартиру.\n";
+    std::cout << "Доступные варианты (случайно сгенерированы):\n";
+
+    const int NUM_OPTIONS = 3;
+    Apartment options[NUM_OPTIONS];
+    for (int i = 0; i < NUM_OPTIONS; ++i) 
+    {
+        options[i] = generate_apartment_choice("Max");
+        std::cout << "\n--- Вариант " << i + 1 << " ---\n";
+        std::cout << "Тип: " << options[i].type << "\n";
+        std::cout << "Район: " << options[i].district << "\n";
+        std::cout << "Цена: " << options[i].price << " руб.\n";
+        std::cout << "Коммуналка: " << options[i].monthly_utilities << " руб.\n";
+        std::cout << "Площадь: " << options[i].area << " кв.м\n";
+        std::cout << "Этаж: " << options[i].floor << "\n";
+        std::cout << "Балкон: " << (options[i].has_balcony ? "да" : "нет") << "\n";
+        std::cout << "Паркинг: " << (options[i].has_parking ? "да" : "нет") << "\n";
+        std::cout << "Уровень комфорта: " << options[i].comfort_level << "/10\n";
+    }
+
+    int chosen = -1;
+    for (int i = 0; i < NUM_OPTIONS; ++i) {
+        if (p.capital + p.savings_for_apartment >= options[i].price) {
+            chosen = i;
+            break;
+        }
+
+    }
+
+    if (chosen != -1) 
+    {
+        std::cout << "\nМакс выбрал вариант " << chosen + 1 << "!\n";
+        p.apartment = options[chosen];
+        p.apartment.owned = true;
+        p.capital -= p.apartment.price;
+        std::cout << "Квартира куплена за " << p.apartment.price << " руб.\n";
+        std::cout << "Теперь у Макса есть своё жильё!\n";
+    }
+
+    else 
+    {
+        std::cout << "\nК сожалению, ни один вариант не по карману. Будем копить дальше.\n";
+        p.savings_for_apartment += 5000;
+    }
+
+}
+
+
+
+//                         ФУНКЦИИ ИНИЦИАЛИЗАЦИИ
+
+
+void alice_init() 
+{
+
+    alice.salary = 120'000;
+    alice.capital = 80'000;
+    alice.savings_for_apartment = 200'000;
+    alice.taxes_paid = 0;
+
+    alice.food = 12'000;
+    alice.transport = 6'000;
+    alice.beauty = 5'000;
+    alice.health = 3'000;
+    alice.clothes = 7'000;
+    alice.entertainment = 4'000;
+
+    alice.dreams.laptop = 120'000;
+    alice.dreams.car = 2'200'000;
+    alice.dreams.trip_to_italy = 900'000;
+    alice.dreams.fur_coat = 180'000;
+    alice.dreams.kitchen_renovation = 450'000;
+    alice.dreams.spa_weekend = 70'000;
+    alice.dreams.designer_bag = 50'000;
+    alice.dreams.education_courses = 80'000;
+
+    alice.dreamLaptop = false;
+    alice.dreamCar = false;
+    alice.dreamTripItaly = false;
+    alice.dreamFurCoat = false;
+    alice.dreamKitchenRenov = false;
+    alice.dreamSpa = false;
+    alice.dreamDesignerBag = false;
+    alice.dreamCourses = false;
+
+    alice.invest.cash = 0;
+    alice.invest.stocks = 0;
+    alice.invest.bonds = 0;
+    alice.invest.stock_growth = 1.02;  // 2% в месяц
+    alice.invest.bond_coupon = 0.8;    // 0.8% в месяц
+
+    alice.loan.active = false;
+    alice.loan.amount_owed = 0;
+    alice.loan.monthly_payment = 0;
+    alice.loan.months_left = 0;
+    alice.loan.annual_rate = 0.0;
+
+    alice.age = 25;
+    alice.career = "маркетолог";
+    alice.happiness = 70.0;
+    alice.total_income = 0;
+    alice.total_expenses = 0;
+    alice.years_worked = 0;
+
+    // Квартира изначально не своя
+    alice.apartment.owned = false;
+
+}
+
+
+void max_init() 
+{
+
+    max.salary = 140'000;
+    max.capital = 50'000;
+    max.savings_for_apartment = 150'000;
+    max.taxes_paid = 0;
+
+    max.food = 15'000;
+    max.transport = 8'000;
+    max.sports = 5'000;
+    max.tools = 3'000;
+    max.gadgets = 6'000;
+    max.hobbies = 4'000;
+
+    max.dreams.motorbike = 350'000;
+    max.dreams.boat = 1'100'000;
+    max.dreams.workshop_equipment = 280'000;
+    max.dreams.fishing_gear = 45'000;
+    max.dreams.travel_japan = 950'000;
+    max.dreams.home_cinema = 150'000;
+    max.dreams.guitar = 40'000;
+    max.dreams.gym_membership = 30'000;
+
+    max.dreamMotorbike = false;
+    max.dreamBoat = false;
+    max.dreamWorkshop = false;
+    max.dreamFishing = false;
+    max.dreamTravelJapan = false;
+    max.dreamHomeCinema = false;
+    max.dreamGuitar = false;
+    max.dreamGym = false;
+
+    max.invest.cash = 0;
+    max.invest.stocks = 0;
+    max.invest.bonds = 0;
+    max.invest.stock_growth = 1.02;
+    max.invest.bond_coupon = 0.8;
+
+    max.loan.active = false;
+    max.loan.amount_owed = 0;
+    max.loan.monthly_payment = 0;
+    max.loan.months_left = 0;
+    max.loan.annual_rate = 0.0;
+
+    max.age = 27;
+    max.career = "инженер-программист";
+    max.happiness = 65.0;
+    max.total_income = 0;
+    max.total_expenses = 0;
+    max.years_worked = 0;
+
+    max.apartment.owned = false;
+
+}
+
+
+
+//                     ФУНКЦИИ КАРЬЕРНОГО РОСТА
+
+
+void alice_career(int year, int month) 
+{
+
+    if (year == 2027 && month == 1)
+    {
+        alice.salary += 15'000;
+        alice.career = "ведущий маркетолог";
+        std::cout << "📈 Алиса получила повышение до ведущего маркетолога! Зарплата +15 000 руб.\n";
+    }
+
+    if (year == 2030 && month == 3) 
+    {
+        alice.salary += 25'000;
+        alice.career = "руководитель отдела";
+        std::cout << "📈 Алиса стала руководителем отдела маркетинга! Зарплата +25 000 руб.\n";
+    }
+
+    if (year == 2033 && month == 9) 
+    {
+        alice.salary += 30'000;
+        alice.career = "директор по маркетингу";
+        std::cout << "📈 Алиса – директор по маркетингу! Зарплата +30 000 руб.\n";
+    }
+
+}
+
+
+void max_career(int year, int month)
+{
+
+    if (year == 2026 && month == 6) 
+    {
+        max.salary += 20'000;
+        max.career = "middle разработчик";
+        std::cout << "📈 Макс повышен до middle-разработчика! Зарплата +20 000 руб.\n";
+    }
+
+    if (year == 2029 && month == 2)
+    {
+        max.salary += 35'000;
+        max.career = "senior разработчик";
+        std::cout << "📈 Макс стал senior-разработчиком! Зарплата +35 000 руб.\n";
+    }
+
+    if (year == 2032 && month == 8) 
+    {
+        max.salary += 50'000;
+        max.career = "tech lead";
+        std::cout << "📈 Макс теперь tech lead! Зарплата +50 000 руб.\n";
+    }
+
+    if (year == 2034 && month == 5) 
+    {
+        max.salary += 40'000;
+        max.career = "архитектор ПО";
+        std::cout << "📈 Макс – архитектор программного обеспечения! Зарплата +40 000 руб.\n";
+    }
+
+}
+
+
+
+//                     НАЛОГИ И ИНФЛЯЦИЯ
+
+
+void pay_taxes(RUB income, RUB& taxes_paid, RUB& capital) 
+{
+
+    RUB tax = static_cast<RUB>(income * TAX_RATE);
+
+    if (capital >= tax) 
+    {
+        capital -= tax;
+        taxes_paid += tax;
+    }
+
+    else
+    {
+        // Если не хватает, берём из следующего дохода (упрощенно)
+        capital = 0;
+    }
+
+}
+
+
+void apply_inflation(int year) 
+{
+
+    if (year == SIMULATION_START_YEAR) 
+    {
+        return;
+    }
+
+    double factor = 1.0 + INFLATION_RATE_YEARLY;
+
+
+    // Алиса
+    alice.food = static_cast<RUB>(alice.food * factor);
+    alice.transport = static_cast<RUB>(alice.transport * factor);
+    alice.beauty = static_cast<RUB>(alice.beauty * factor);
+    alice.health = static_cast<RUB>(alice.health * factor);
+    alice.clothes = static_cast<RUB>(alice.clothes * factor);
+    alice.entertainment = static_cast<RUB>(alice.entertainment * factor);
+
+
+    // Макс
+    max.food = static_cast<RUB>(max.food * factor);
+    max.transport = static_cast<RUB>(max.transport * factor);
+    max.sports = static_cast<RUB>(max.sports * factor);
+    max.tools = static_cast<RUB>(max.tools * factor);
+    max.gadgets = static_cast<RUB>(max.gadgets * factor);
+    max.hobbies = static_cast<RUB>(max.hobbies * factor);
+
+}
+
+
+
+//                     ПОЛУЧЕНИЕ ДОХОДА
+
+
+void alice_income()
+{
+
+    RUB gross = alice.salary;
+    alice.capital += gross;
+    alice.total_income += gross;
+    pay_taxes(gross, alice.taxes_paid, alice.capital);
+
+}
+
+
+void max_income()
+{
+
+    RUB gross = max.salary;
+    max.capital += gross;
+    max.total_income += gross;
+    pay_taxes(gross, max.taxes_paid, max.capital);
+
+}
+
+
+
+//                     ОБЯЗАТЕЛЬНЫЕ РАСХОДЫ
+
+
+void alice_expenses() 
+{
+
+    RUB expenses = alice.food + alice.transport + alice.beauty + alice.health + alice.clothes + alice.entertainment;
+
+    if (alice.apartment.owned && !alice.apartment.rented_out)
+    {
+        expenses += alice.apartment.monthly_utilities;
+    }
+
+    alice.capital -= expenses;
+    alice.total_expenses += expenses;
+
+}
+
+
+void max_expenses() 
+{
+
+    RUB expenses = max.food + max.transport + max.sports + max.tools + max.gadgets + max.hobbies;
+
+    if (max.apartment.owned && !max.apartment.rented_out) 
+    {
+        expenses += max.apartment.monthly_utilities;
+    }
+
+    max.capital -= expenses;
+    max.total_expenses += expenses;
+
+}
+
+
+
+//                     НАКОПЛЕНИЯ/ИНВЕСТИЦИИ
+
+
+void alice_investments() 
+{
+
+    // Переводим часть свободных средств в инвестиции
+    if (alice.capital > 50'000) 
+    {
+        RUB to_invest = alice.capital * 0.2;
+        if (to_invest > 100'000) to_invest = 100'000;
+        alice.capital -= to_invest;
+        alice.invest.cash += to_invest;
+
+        // Распределяем между акциями и облигациями
+        alice.invest.stocks += to_invest * 0.6;
+        alice.invest.bonds += to_invest * 0.4;
+    }
+
+    // Рост инвестиций
+    alice.invest.stocks = static_cast<RUB>(alice.invest.stocks * alice.invest.stock_growth);
+    alice.invest.bonds = static_cast<RUB>(alice.invest.bonds * (1 + alice.invest.bond_coupon / 100));
+    alice.invest.cash = alice.invest.cash * 1.003; // 0.3% по депозиту
+    // Обналичивать не будем, просто капитал считаем отдельно
+
+}
+
+
+void max_investments() 
+{
+
+    if (max.capital > 50'000) 
+    {
+        RUB to_invest = max.capital * 0.25;
+
+        if (to_invest > 150'000)
+        {
+            to_invest = 150'000;
+        }
+
+        max.capital -= to_invest;
+        max.invest.cash += to_invest;
+        max.invest.stocks += to_invest * 0.7;
+        max.invest.bonds += to_invest * 0.3;
+
+    }
+
+    max.invest.stocks = static_cast<RUB>(max.invest.stocks * max.invest.stock_growth);
+    max.invest.bonds = static_cast<RUB>(max.invest.bonds * (1 + max.invest.bond_coupon / 100));
+    max.invest.cash = max.invest.cash * 1.003;
+
+}
+
+
+//                     ИСПОЛНЕНИЕ МЕЧТ
+
+
+void alice_dreams_fulfill() 
+{
+
+    if (!alice.dreamLaptop && alice.capital >= alice.dreams.laptop) 
+    {
+        alice.capital -= alice.dreams.laptop;
+        alice.dreamLaptop = true;
+        alice.happiness += 10;
+        std::cout << "Алиса купила ноутбук мечты!\n";
+    }
+
+    if (!alice.dreamCar && alice.capital >= alice.dreams.car) 
+    {
+        alice.capital -= alice.dreams.car;
+        alice.dreamCar = true;
+        alice.happiness += 15;
+        std::cout << "Алиса купила новую машину!\n";
+    }
+
+    if (!alice.dreamTripItaly && alice.capital >= alice.dreams.trip_to_italy)
+    {
+        alice.capital -= alice.dreams.trip_to_italy;
+        alice.dreamTripItaly = true;
+        alice.happiness += 12;
+        std::cout << "Алиса съездила в Италию!\n";
+    }
+
+    if (!alice.dreamFurCoat && alice.capital >= alice.dreams.fur_coat) 
+    {
+        alice.capital -= alice.dreams.fur_coat;
+        alice.dreamFurCoat = true;
+        alice.happiness += 5;
+        std::cout << "Алиса купила шубу!\n";
+    }
+
+    if (!alice.dreamKitchenRenov && alice.capital >= alice.dreams.kitchen_renovation) 
+    {
+        alice.capital -= alice.dreams.kitchen_renovation;
+        alice.dreamKitchenRenov = true;
+        alice.happiness += 8;
+        std::cout << "Алиса сделала ремонт на кухне!\n";
+    }
+
+    if (!alice.dreamSpa && alice.capital >= alice.dreams.spa_weekend) 
+    {
+        alice.capital -= alice.dreams.spa_weekend;
+        alice.dreamSpa = true;
+        alice.happiness += 4;
+        std::cout << "Алиса отдохнула в SPA-отеле!\n";
+    }
+
+    if (!alice.dreamDesignerBag && alice.capital >= alice.dreams.designer_bag)
+    {
+        alice.capital -= alice.dreams.designer_bag;
+        alice.dreamDesignerBag = true;
+        alice.happiness += 3;
+        std::cout << "Алиса купила дизайнерскую сумку!\n";
+    }
+
+    if (!alice.dreamCourses && alice.capital >= alice.dreams.education_courses) 
+    {
+        alice.capital -= alice.dreams.education_courses;
+        alice.dreamCourses = true;
+        alice.happiness += 7;
+        std::cout << "Алиса прошла курсы повышения квалификации!\n";
+    }
+
+}
+
+
+void max_dreams_fulfill() 
+{
+
+    if (!max.dreamMotorbike && max.capital >= max.dreams.motorbike)
+    {
+        max.capital -= max.dreams.motorbike;
+        max.dreamMotorbike = true;
+        max.happiness += 8;
+        std::cout << "Макс купил мотоцикл!\n";
+    }
+
+    if (!max.dreamBoat && max.capital >= max.dreams.boat) 
+    {
+        max.capital -= max.dreams.boat;
+        max.dreamBoat = true;
+        max.happiness += 12;
+        std::cout << "Макс приобрёл лодку!\n";
+    }
+
+    if (!max.dreamWorkshop && max.capital >= max.dreams.workshop_equipment) 
+    {
+        max.capital -= max.dreams.workshop_equipment;
+        max.dreamWorkshop = true;
+        max.happiness += 6;
+        std::cout << "Макс оборудовал мастерскую!\n";
+    }
+
+    if (!max.dreamFishing && max.capital >= max.dreams.fishing_gear) 
+    {
+        max.capital -= max.dreams.fishing_gear;
+        max.dreamFishing = true;
+        max.happiness += 4;
+        std::cout << "Макс купил рыболовное снаряжение!\n";
+    }
+
+    if (!max.dreamTravelJapan && max.capital >= max.dreams.travel_japan) 
+    {
+        max.capital -= max.dreams.travel_japan;
+        max.dreamTravelJapan = true;
+        max.happiness += 14;
+        std::cout << "Макс съездил в Японию!\n";
+    }
+
+    if (!max.dreamHomeCinema && max.capital >= max.dreams.home_cinema) 
+    {
+        max.capital -= max.dreams.home_cinema;
+        max.dreamHomeCinema = true;
+        max.happiness += 5;
+        std::cout << "Макс установил домашний кинотеатр!\n";
+    }
+
+    if (!max.dreamGuitar && max.capital >= max.dreams.guitar)
+    {
+        max.capital -= max.dreams.guitar;
+        max.dreamGuitar = true;
+        max.happiness += 3;
+        std::cout << "Макс купил новую гитару!\n";
+    }
+
+    if (!max.dreamGym && max.capital >= max.dreams.gym_membership) 
+    {
+        max.capital -= max.dreams.gym_membership;
+        max.dreamGym = true;
+        max.happiness += 6;
+        std::cout << "Макс купил абонемент в спортзал!\n";
+    }
+
+}
+
+
+
+//                     СЛУЧАЙНЫЕ СОБЫТИЯ
+
+
+void random_event_alice(int year, int month) 
+{
+
+    int r = rand() % 100;
+    if (r < 3)
+    { 
+        // 3% - премия
+        RUB bonus = alice.salary * 0.4;
+        alice.capital += bonus;
+        std::cout << "Алиса получила премию: " << bonus << " руб.\n";
+    }
+
+    else if (r < 6) 
+    { 
+        // 3% - болезнь
+        RUB cost = 15'000 + rand() % 40000;
+        if (alice.capital >= cost) 
+        {
+            alice.capital -= cost;
+            std::cout << "Алиса заболела, лечение: " << cost << " руб.\n";
+        }
+
+    }
+
+    else if (r < 8) 
+    { 
+        // 2% - выигрыш
+        RUB win = 5'000 + rand() % 50000;
+        alice.capital += win;
+        std::cout << "Алиса выиграла в лотерею: " << win << " руб.\n";
+    }
+
+    else if (r < 10 && !alice.apartment.owned && alice.capital > 500'000) 
+    {
+        // Появляется возможность купить квартиру
+        std::cout << "Алиса задумалась о покупке квартиры!\n";
+        choose_apartment_alice(alice);
+    }
+
+}
+
+void random_event_max(int year, int month)
+{
+
+    int r = rand() % 100;
+    if (r < 4)
+    {
+        RUB bonus = max.salary * 0.5;
+        max.capital += bonus;
+        std::cout << "Макс получил премию: " << bonus << " руб.\n";
+    }
+
+    else if (r < 7) 
+    {
+        RUB cost = 20'000 + rand() % 50000;
+        if (max.capital >= cost) 
+        {
+            max.capital -= cost;
+            std::cout << "Макс сломал руку, лечение: " << cost << " руб.\n";
+        }
+
+    }
+
+    else if (r < 9) 
+    {
+        RUB win = 10'000 + rand() % 80000;
+        max.capital += win;
+        std::cout << "Макс выиграл в конкурсе: " << win << " руб.\n";
+    }
+
+    else if (r < 11 && !max.apartment.owned && max.capital > 600'000) 
+    {
+        std::cout << "Макс рассматривает варианты жилья!\n";
+        choose_apartment_max(max);
+    }
+
+}
+
+
+
+//                     ПОМОЩЬ ОТ РОДИТЕЛЕЙ (необязательно)
+
+
+void alice_parents_help(int year, int month)
+{
+
+    if (year == 2025 && month == 12) 
+    {
+        RUB gift = 100'000;
+        alice.capital += gift;
+        std::cout << "Родители Алисы подарили 100 000 руб. на Новый год!\n";
+    }
+
+    if (year == 2028 && month == 9 && !alice.apartment.owned) 
+    {
+        RUB help = 250'000;
+        alice.capital += help;
+        std::cout << "Родители Алисы помогли с первоначальным взносом за квартиру: +250 000 руб.\n";
+    }
+
+}
+
+void max_parents_help(int year, int month) 
+{
+
+    if (year == 2026 && month == 6) 
+    {
+        RUB gift = 80'000;
+        max.capital += gift;
+        std::cout << "Родители Макса подарили 80 000 руб. на день рождения!\n";
+    }
+
+    if (year == 2030 && month == 1 && !max.apartment.owned) 
+    {
+        RUB help = 300'000;
+        max.capital += help;
+        std::cout << "Родители Макса помогли с покупкой жилья: +300 000 руб.\n";
+    }
+
+}
+
+
+
+//                     ОБНОВЛЕНИЕ СЧАСТЬЯ И ВОЗРАСТА
+
+
+void update_happiness_alice() 
+{
+
+    // Базовая динамика: если есть мечты, счастье снижается, если реализованы - растёт.
+    int dreams_total = 0;
+    int dreams_done = 0;
+    if (alice.dreamLaptop) dreams_done++;
+    if (alice.dreamCar) dreams_done++;
+    if (alice.dreamTripItaly) dreams_done++;
+    if (alice.dreamFurCoat) dreams_done++;
+    if (alice.dreamKitchenRenov) dreams_done++;
+    if (alice.dreamSpa) dreams_done++;
+    if (alice.dreamDesignerBag) dreams_done++;
+    if (alice.dreamCourses) dreams_done++;
+    dreams_total = 8;
+
+    if (dreams_total > 0) 
+    {
+        double progress = (double)dreams_done / dreams_total;
+        alice.happiness = 50 + progress * 50;
+    }
+
+    else 
+    {
+        alice.happiness = 70;
+    }
+
+    // Корректировка от дохода
+    if (alice.salary > 200'000)
+    {
+        alice.happiness += 5;
+    }
+
+    if (alice.apartment.owned) 
+    {
+        alice.happiness += 10;
+    }
+
+    if (alice.happiness > 100)
+    {
+        alice.happiness = 100;
+    }
+
+    if (alice.happiness < 0)
+    {
+        alice.happiness = 0;
+    }
+
+}
+
+
+void update_happiness_max() 
+{
+
+    int dreams_total = 0, dreams_done = 0;
+    if (max.dreamMotorbike) dreams_done++;
+    if (max.dreamBoat) dreams_done++;
+    if (max.dreamWorkshop) dreams_done++;
+    if (max.dreamFishing) dreams_done++;
+    if (max.dreamTravelJapan) dreams_done++;
+    if (max.dreamHomeCinema) dreams_done++;
+    if (max.dreamGuitar) dreams_done++;
+    if (max.dreamGym) dreams_done++;
+    dreams_total = 8;
+
+    if (dreams_total > 0)
+    {
+        double progress = (double)dreams_done / dreams_total;
+        max.happiness = 50 + progress * 50;
+    }
+
+    else 
+    {
+        max.happiness = 65;
+    }
+
+    if (max.salary > 250'000) max.happiness += 5;
+    if (max.apartment.owned) max.happiness += 12;
+    if (max.happiness > 100) max.happiness = 100;
+    if (max.happiness < 0) max.happiness = 0;
+
+}
+
+
+
+//                         КРЕДИТНЫЕ ФУНКЦИИ
+
+
+void take_loan(Loan& loan, RUB amount, int months, double rate, RUB& capital)
+{
+
+    loan.amount_owed = amount;
+    loan.months_left = months;
+    loan.annual_rate = rate;
+    loan.active = true;
+    double monthly_rate = rate / 12 / 100;
+    loan.monthly_payment = static_cast<RUB>(amount * monthly_rate / (1 - pow(1 + monthly_rate, -months)));
+    capital += amount; // получаем сумму кредита
+    std::cout << "Взят кредит на " << amount << " руб. на " << months << " мес. под " << rate << "% годовых. Ежемесячный платёж: " << loan.monthly_payment << " руб.\n";
+
+}
+
+
+void pay_loan(Loan& loan, RUB& capital)
+{
+
+    if (!loan.active) 
+    {
+        return;
+    }
+
+    if (capital >= loan.monthly_payment) 
+    {
+        capital -= loan.monthly_payment;
+        loan.amount_owed -= loan.monthly_payment;
+        loan.months_left--;
+
+        if (loan.amount_owed <= 0 || loan.months_left <= 0) 
+        {
+            loan.active = false;
+            std::cout << "✅ Кредит полностью погашен!\n";
+        }
+
+    }
+
+    else 
+    {
+        // Просрочка
+        loan.amount_owed += loan.amount_owed * 0.02;
+        std::cout << "⚠️ Не хватает средств на оплату кредита! Долг увеличен.\n";
+    }
+
+}
+
+
+
+//                     ВЫВОД СТАТУСА (ежемесячно)
+
+
+void print_status(int year, int month) 
+{
+
+    std::cout <<  month << "/" << year << "\n";
+    std::cout << "АЛИСА: капитал " << alice.capital << " руб., зарплата " << alice.salary
+        << " руб., счастье " << alice.happiness << "/100\n";
+    std::cout << "МАКС: капитал " << max.capital << " руб., зарплата " << max.salary
+        << " руб., счастье " << max.happiness << "/100\n";
+
+    if (alice.apartment.owned) 
+    {
+        std::cout << "У Алисы своя квартира (" << alice.apartment.type << ", " << alice.apartment.district << ")\n";
+    }
+       
+    if (max.apartment.owned) 
+    {
+        std::cout << "У Макса своя квартира (" << max.apartment.type << ", " << max.apartment.district << ")\n";
+    }
+        
+}
+
+
+
+//                     ФИНАЛЬНЫЙ СРАВНИТЕЛЬНЫЙ АНАЛИЗ (строчный вывод)
+
+
+void comparative_analysis() 
+{
+
+    std::cout << "\n\n********************* СРАВНИТЕЛЬНЫЙ АНАЛИЗ АЛИСЫ И МАКСА *********************\n";
+
+    RUB alice_total_capital = alice.capital + alice.invest.cash + alice.invest.stocks + alice.invest.bonds;
+    RUB max_total_capital = max.capital + max.invest.cash + max.invest.stocks + max.invest.bonds;
+
+
+    int alice_dreams_count = (alice.dreamLaptop ? 1 : 0) + (alice.dreamCar ? 1 : 0) + (alice.dreamTripItaly ? 1 : 0) +
+        (alice.dreamFurCoat ? 1 : 0) + (alice.dreamKitchenRenov ? 1 : 0) + (alice.dreamSpa ? 1 : 0) +
+        (alice.dreamDesignerBag ? 1 : 0) + (alice.dreamCourses ? 1 : 0);
+
+    int max_dreams_count = (max.dreamMotorbike ? 1 : 0) + (max.dreamBoat ? 1 : 0) + (max.dreamWorkshop ? 1 : 0) +
+        (max.dreamFishing ? 1 : 0) + (max.dreamTravelJapan ? 1 : 0) + (max.dreamHomeCinema ? 1 : 0) +
+        (max.dreamGuitar ? 1 : 0) + (max.dreamGym ? 1 : 0);
+
+
+    std::cout << "\"Итоговый капитал (руб)\":\n Алиса: " << alice_total_capital << ", Макс: " << max_total_capital << "\n";
+    std::cout << "\"Общий доход за период (руб)\":\n Алиса: " << alice.total_income << ", \nМакс: " << max.total_income << "\n";
+    std::cout << "\"Общие расходы (руб)\":\n Алиса: " << alice.total_expenses << ", \nМакс: " << max.total_expenses << "\n";
+    std::cout << "\"Зарплата в конце (руб)\":\n Алиса: " << alice.salary << ", \nМакс: " << max.salary << "\n";
+    std::cout << "\"Уровень счастья (/100)\":\n Алиса: " << alice.happiness << ", \nМакс: " << max.happiness << "\n";
+    std::cout << "\"Своя квартира\":\n Алиса: " << (alice.apartment.owned ? "да" : "нет") << ", \nМакс: " << (max.apartment.owned ? "да" : "нет") << "\n";
+    std::cout << "\"Количество реализованных мечт (из 8)\":\n Алиса: " << alice_dreams_count << ", \nМакс: " << max_dreams_count << "\n";
+
+
+    // Вывод комментария
+    if (alice_total_capital > max_total_capital)
+    {
+        std::cout << "\nВывод: Алиса накопила больше капитала, чем Макс.\n";
+    }
+
+    else if (max_total_capital > alice_total_capital)
+    {
+        std::cout << "\nВывод: Макс накопил больше, несмотря на меньшую начальную сумму.\n";
+    }
+
+    else
+    {
+        std::cout << "\nВывод: Капиталы почти равны.\n";
+    }
+
+    if (alice.happiness > max.happiness)
+    {
+        std::cout << "Алиса счастливее, вероятно, из-за более успешной карьеры или реализованных мечт.\n";
+    }
+
+    else if (max.happiness > alice.happiness)
+    {
+        std::cout << "Макс счастливее, возможно, благодаря более высокому доходу или наличию квартиры.\n";
+    }
+
+    else
+    {
+        std::cout << "Уровень счастья одинаков.\n";
+    }
+
+}
+
+
+
+//                     ЗНАКОМСТВО И ВЕРОЯТНОСТЬ БЛИЗКОГО ОБЩЕНИЯ
+
+
+// Функция моделирования знакомства Алисы и Макса
+void acquaintance() 
+{
+    std::cout << "\nЗНАКОМСТВО АЛИСЫ И МАКСА\n";
+    // Место знакомства 
+    int r = rand() % 100;
+    std::string place;
+
+    if (r < 30) 
+    {
+        place = "работа (совместный проект)";
+    }
+
+    else if (r < 55) 
+    {
+        place = "кафе";
+    }
+
+    else if (r < 75) 
+    {
+        place = "спортзал";
+    }
+
+    else if (r < 90)
+    {
+        place = "конференция/митап";
+    }
+
+    else 
+    {
+        place = "случайная встреча в парке";
+    }
+
+
+    // Время (год) знакомства – в пределах симуляции, допустим год от 2026 до 2034
+    int meet_year = 2026 + rand() % 9;
+    int meet_month = 1 + rand() % 12;
+
+
+    std::cout << "Знакомство произошло в " << meet_month << "/" << meet_year << " в месте: " << place << ".\n";
+
+
+    // Вероятность близкого общения зависит от места и времени
+    double probability = 0.0;
+
+
+    if (place == "работа (совместный проект)") 
+    {
+        probability = 0.8;
+    }
+
+    else if (place == "кафе") 
+    {
+        probability = 0.4;
+    }
+
+    else if (place == "спортзал") 
+    {
+        probability = 0.5;
+    }
+
+    else if (place == "конференция/митап") 
+    {
+        probability = 0.6;
+    }
+
+    else 
+    {
+        probability = 0.2;
+    }
+
+
+    // Чем позже знакомство, тем выше шанс (больше общих интересов)
+    if (meet_year >= 2030) 
+    {
+        probability += 0.1;
+    }
+
+    if (meet_year >= 2033) 
+    {
+        probability += 0.1;
+    }
+
+    if (probability > 1.0) 
+    {
+        probability = 1.0;
+    }
+    
+
+    int r2 = rand() % 100;
+    bool close_communication = (r2 < probability * 100);
+
+    if (close_communication)
+    {
+        std::cout << "Они начали близко общаться, стали хорошими друзьями (а возможно, и больше)!\n";
+
+        // Близкое общение может повлиять на счастье
+        alice.happiness += 5;
+        max.happiness += 5;
+        std::cout << "Счастье обоих увеличилось на 5 единиц.\n";
+    }
+
+    else 
+    {
+        std::cout << "Знакомство не переросло в близкое общение, остались просто знакомыми.\n";
+    }
+
+}
+
+
+
+//                                 MAIN
+
+
+int main()
+{
+    setlocale(LC_ALL, "RU");
+    srand(static_cast<unsigned>(time(nullptr)));
+
+
+    // Инициализация
+    alice_init();
+    max_init();
+
+
+    int year = SIMULATION_START_YEAR;
+    int month = SIMULATION_START_MONTH;
+
+
+    std::ofstream log("alice_max_sim.log", std::ios::trunc);
+    log.close();
+
+
+    // Цикл симуляции
+    while (!(year == SIMULATION_END_YEAR && month == SIMULATION_END_MONTH)) 
+    {
+        if (month == 1) 
+        {
+            apply_inflation(year);
+        }
+
+        // Карьерный рост
+        alice_career(year, month);
+        max_career(year, month);
+
+
+        // Доходы
+        alice_income();
+        max_income();
+
+
+        // Расходы
+        alice_expenses();
+        max_expenses();
+
+
+        // Инвестиции
+        alice_investments();
+        max_investments();
+
+
+        // Случайные события
+        random_event_alice(year, month);
+        random_event_max(year, month);
+
+
+        // Помощь родителей
+        alice_parents_help(year, month);
+        max_parents_help(year, month);
+
+
+        // Исполнение мечт
+        alice_dreams_fulfill();
+        max_dreams_fulfill();
+
+
+        // Кредиты (если есть)
+        pay_loan(alice.loan, alice.capital);
+        pay_loan(max.loan, max.capital);
+
+
+        // Обновление счастья
+        update_happiness_alice();
+        update_happiness_max();
+
+
+        // Вывод статуса раз в полгода (для сокращения вывода)
+        if (month == 1 || month == 7)
+        {
+            print_status(year, month);
+        }
+
+
+        // Запись в лог (ежемесячно)
+        std::ofstream log("alice_max_sim.log", std::ios::app);
+        if (log.is_open())
+        {
+            log << year << "-" << month << ";" << alice.capital << ";" << max.capital << ";" << alice.happiness << ";" << max.happiness << "\n";
+            log.close();
+        }
+
+
+        // Переход к следующему месяцу
+        ++month;
+        if (month == 13) 
+        {
+            ++year;
+            month = 1;
+        }
+
+    }
+
+
+    // После окончания симуляции – сравнительный анализ и знакомство
+    comparative_analysis();
+
+    // Моделируем знакомство
+    acquaintance();
+
+    std::cout << "\nСимуляция завершена. Результаты записаны в alice_max_sim.log\n";
+    return 0;
+
+
+}
 
