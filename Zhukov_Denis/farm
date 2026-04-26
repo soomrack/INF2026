@@ -1,0 +1,208 @@
+#include <DHT.h>
+
+#define DHTPIN 12
+#define DHTTYPE DHT11
+
+#define LIGHT_SENSOR_PIN A0
+#define SOIL_SENSOR_PIN A1
+
+#define HEATER_PIN 4
+#define PUMP_PIN 5
+#define LAMP_PIN 6
+#define FAN_PIN 7
+
+DHT dht(DHTPIN, DHTTYPE);
+
+class Thermometer {
+public:
+  int temperature;
+  
+  void get_temperature() {
+    temperature = dht.readTemperature();
+    if (isnan(temperature)) temperature = 20;
+    }
+};
+
+
+class Hygrometer {
+public:
+  int humidity;
+
+  void get_humidity() {
+    humidity = dht.readHumidity();
+    if (isnan(humidity)) humidity = 50;
+  }
+};
+
+
+class LightSensor {
+public:
+  int light;
+
+  void get_light() {
+    light = analogRead(LIGHT_SENSOR_PIN);
+  }
+};
+
+
+class SoilSensor {
+public:
+    int moisture;
+    
+    void get_moisture() {
+        moisture = analogRead(SOIL_SENSOR_PIN);
+    }
+};
+
+
+class Heater {
+private:
+  int pin;
+public:
+   bool on_temperature;
+
+   Heater(int pin) : pin(pin) {
+    on_temperature = false;
+    pinMode(pin, OUTPUT);
+    digitalWrite(pin, LOW);
+   }
+
+   void power() {
+    digitalWrite(pin, on_temperature ? HIGH : LOW);
+   }
+};
+
+
+class Fan {
+private:
+  int pin;
+public:
+  bool on_temperature;
+
+  Fan(int pin) : pin(pin) {
+    on_temperature = false;
+    pinMode(pin, OUTPUT);
+    digitalWrite(pin, LOW);
+  }
+
+  void power() {
+    digitalWrite(pin, on_temperature ? HIGH : LOW);
+  }
+};
+
+
+class Pump {
+  private:
+  int pin;
+  public:
+  bool on_humidity;
+
+  Pump(int pin) : pin(pin) {
+    on_humidity = false;
+    pinMode(pin, OUTPUT);
+    digitalWrite(pin, LOW);
+  }
+
+  void power() {
+    digitalWrite(pin, on_humidity ? HIGH : LOW);
+  }
+};
+
+
+class Lamp {
+private:
+    int pin;
+public:
+    bool on_light;
+    
+    Lamp(int pin) : pin(pin) {
+        on_light = false;
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin, LOW);
+    }
+    
+    void power() {
+        digitalWrite(pin, on_light ? HIGH : LOW);
+    }
+};
+
+
+void control_temperature(Thermometer& t, Heater& h, Fan& f)
+{
+  if (t.temperature > 30){
+    h.on_temperature = false;
+    f.on_temperature = true;
+  }
+
+  else if (t.temperature < 20){
+    h.on_temperature = true;
+    f.on_temperature = false;
+  }
+
+  else {
+    h.on_temperature = false;
+    f.on_temperature = false;
+  }
+}
+
+
+void control_humidity(Hygrometer& h, Pump& p, SoilSensor& s) 
+{
+  if (s.moisture < 300) {
+    p.on_humidity = true;
+  }
+  else if (h.humidity < 40 && s.moisture < 600) {
+    p.on_humidity = true;
+  }
+  else if (s.moisture > 600 && h.humidity > 60) {
+    p.on_humidity = false;
+  }
+  else p.on_humidity = false;
+}
+
+
+void control_light(LightSensor& ls, Lamp& l) {
+    if (ls.light < 200) {
+        l.on_light = true;
+    }
+    else if (ls.light > 500) {
+        l.on_light = false;
+    }
+}
+
+
+int main()
+{
+  init();
+  dht.begin();
+  
+  Thermometer thermometer;
+  Hygrometer hygrometer;
+  LightSensor lightsensor;
+  SoilSensor soilsensor;
+
+  Heater heater(HEATER_PIN);
+  Fan fan(FAN_PIN);
+  Pump pump(PUMP_PIN);
+  Lamp lamp(LAMP_PIN);
+
+  for (int count = 10; count != 0; --count) {
+    thermometer.get_temperature();
+    hygrometer.get_humidity();
+    lightsensor.get_light();
+    soilsensor.get_moisture();
+
+    control_temperature(thermometer, heater, fan);
+    control_humidity(hygrometer, pump, soilsensor);
+    control_light(lightsensor, lamp);
+
+    heater.power();
+    fan.power();
+    pump.power();
+    lamp.power();
+
+    delay(2000);
+  }
+
+  return 0;
+}
