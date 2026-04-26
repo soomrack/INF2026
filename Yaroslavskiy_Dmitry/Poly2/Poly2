@@ -1,81 +1,160 @@
-#include <stdio.h>
+//ver 1.1
+#include <DHT.h>
 
+#define DHTPIN 12
+#define DHTTYPE DHT11
+#define PIN_HEATER 4
+#define PIN_PUMP 5
+#define PIN_LAMP 6
+#define PIN_VENT 7
+#define PIN_LIGHT A0
+#define PIN_SOIL A1
 
-class Thermometer {
-private:
-    int pin;
-public:    
-    float temperature;  // Celcius
+DHT dht(DHTPIN, DHTTYPE);
+
+class AirSensor {
 public:
-    Thermometer(int pin) : pin(pin) { temperature = 20; }  // TODO: arduino code
-public:
-    void get_temperature() { temperature = 20; }  // TODO: arduino code
-};
-
-
-class Heater {
-public:
-    bool on_temperature;
-public:
-    void power();
-};
-
-void Heater::power()  // TODO: arduino
-{
-    if (on_temperature) {}
-    else {}
-}
-
-
-class Fan {
-public:
-    bool on_temperature;
-public:
-    void power();
-};
-
-
-void Fan::power()  // TODO: arduino
-{
-    if (on_temperature) {}  // arduino fan on
-    else {}  // arduino fan off
-}
-
-
-void control_temperature(const Thermometer& thermometer, Heater& heater, Fan& fan)
-{
-    if (thermometer.temperature > 40) {
-        heater.on_temperature = false;
-        fan.on_temperature = true;
-    }
-
-    if (thermometer.temperature < 20) {
-        heater.on_temperature = true;
-        fan.on_temperature = true;
-    }
-}
-
-
-int main()
-{    
-    Thermometer thermometer(10);
-    Heater heater;
-    Fan fan;
-
-    for (int count = 10; count > 0; --count) {
-
-        thermometer.get_temperature();
-        // gigrometer.get_humidity();
-        // light.get_light();
-
-        control_temperature(thermometer, heater, fan);
-        // control_humidity(gigrometer, pump, heater, fan);
-        // control_light(light, lamp);
-
-        // lamp.power();
-        heater.power();
-        // pump.power();
-        fan.power();
-    }
+    float temperature;
+    float humidity;
     
+    void read() {
+        temperature = dht.readTemperature();
+        humidity = dht.readHumidity();
+    }
+};
+
+class LightSensor {
+public:
+    int lightLevel;
+    void read() {
+        lightLevel = analogRead(PIN_LIGHT);
+    }
+};
+
+class SoilSensor {
+public:
+    int moistureLevel;
+    void read() {
+        moistureLevel = analogRead(PIN_SOIL);
+    }
+};
+
+class Relay {
+protected:
+    int pin;
+public:
+    bool isActive;
+
+    Relay(int p) {
+        pin = p;
+        isActive = false;
+    }
+
+    void begin() {
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin, LOW);
+    }
+
+    void applyState() {
+        if (isActive) {
+            digitalWrite(pin, HIGH);
+        } else {
+            digitalWrite(pin, LOW);
+        }
+    }
+};
+
+class Heater : public Relay {
+public:
+    Heater(int p) : Relay(p) {}
+};
+
+class Fan : public Relay {
+public:
+    Fan(int p) : Relay(p) {}
+};
+
+class Pump : public Relay {
+public:
+    Pump(int p) : Relay(p) {}
+};
+
+class Lamp : public Relay {
+public:
+    Lamp(int p) : Relay(p) {}
+};
+
+void control_temperature_and_air(const AirSensor& air, Heater& heater, Fan& fan) {
+    if (isnan(air.temperature)) return;
+
+    if (air.temperature > 28.0) {
+        heater.isActive = false;
+        fan.isActive = true;
+    }
+    else if (air.temperature < 22.0) {
+        heater.isActive = true;
+        fan.isActive = false;
+    }
+    else {
+        heater.isActive = false;
+        fan.isActive = false;
+    }
+
+    if (air.humidity > 70.0) {
+        fan.isActive = true;
+    }
+}
+
+void control_soil_humidity(const SoilSensor& soil, Pump& pump) {
+    if (soil.moistureLevel > 700) {
+        pump.isActive = true;
+    } else if (soil.moistureLevel < 400) {
+        pump.isActive = false;
+    }
+}
+
+void control_light(const LightSensor& lightSensor, Lamp& lamp) {
+    if (lightSensor.lightLevel < 300) {
+        lamp.isActive = true;
+    } else {
+        lamp.isActive = false;
+    }
+}
+
+AirSensor airSensor;
+LightSensor lightSensor;
+SoilSensor soilSensor;
+
+Heater heater(PIN_HEATER);
+Fan fan(PIN_VENT);
+Pump pump(PIN_PUMP);
+Lamp lamp(PIN_LAMP);
+
+void setup() {
+    Serial.begin(9600);
+    dht.begin();
+    heater.begin();
+    fan.begin();
+    pump.begin();
+    lamp.begin();
+}
+
+void loop() {
+    airSensor.read();
+    lightSensor.read();
+    soilSensor.read();
+
+    control_temperature_and_air(airSensor, heater, fan);
+    control_soil_humidity(soilSensor, pump);
+    control_light(lightSensor, lamp);
+
+    heater.applyState();
+    fan.applyState();
+    pump.applyState();
+    lamp.applyState();
+
+    Serial.print("T: "); Serial.print(airSensor.temperature);
+    Serial.print(" H: "); Serial.println(airSensor.humidity);
+
+    delay(2000);
 }
