@@ -1,0 +1,2949 @@
+#include<iostream>
+#include<cstdlib>
+#include<ctime>
+#include<algorithm>
+#include<locale.h>
+#include<vector>
+#include<string>
+#include<cmath>
+
+using Percent = float;
+using RUB = long long;
+using USD = long long;
+
+
+
+// ---------- ECONOMY ----------
+
+struct World_Economy
+{
+    Percent inflation;
+    Percent inflation_table[30];
+
+    Percent income_tax;
+
+    float rate_usd_rub;
+};
+World_Economy economy;
+
+
+
+void economy_init()
+{
+    economy.income_tax = 13;
+    economy.rate_usd_rub = 78.0;
+
+    economy.inflation_table[0] = 11.36;
+    economy.inflation_table[1] = 12.91;
+    economy.inflation_table[2] = 5.39;
+    economy.inflation_table[3] = 2.52;
+    economy.inflation_table[4] = 4.27;
+    economy.inflation_table[5] = 4.91;
+    economy.inflation_table[6] = 8.39;
+    economy.inflation_table[7] = 11.94;
+    economy.inflation_table[8] = 5.52;
+    economy.inflation_table[9] = 4.31;
+
+    for (int i = 5; i < 30; ++i)
+        economy.inflation_table[i] = rand() % 10;
+}
+
+
+
+void switch_inflation(int year)
+{
+    int idx = year - 2026;
+    if (idx < 30) economy.inflation = economy.inflation_table[idx];
+}
+
+
+
+void update_usd_rate()
+{
+    int roll = rand() % 100;
+
+    if (roll < 40)
+        economy.rate_usd_rub *= 1.01;
+    else if (roll < 80)
+        economy.rate_usd_rub *= 0.99;
+    else
+        economy.rate_usd_rub *= 1.03;
+}
+
+
+
+// ---------- FREELANCE ----------
+
+struct Freelance
+{
+    Percent chance_of_work;
+
+    USD min_income;
+    USD max_income;
+};
+Freelance freelance;
+
+
+void freelance_init()
+{
+    freelance.chance_of_work = 30;
+
+    freelance.min_income = 100;
+    freelance.max_income = 500;
+}
+
+
+
+// ---------- FINANCE ----------
+
+struct Deposit
+{
+    RUB capital;
+    Percent rate;
+};
+
+struct Investments
+{
+    RUB capital;
+};
+
+struct Credit
+{
+    RUB debt;
+    RUB monthly_payment;
+    Percent rate;
+    int missed_payments;
+    bool active;
+};
+
+struct Bank
+{
+    RUB account_rub;
+    USD account_usd;
+
+    Deposit deposit;
+    Investments stocks;
+
+    Credit credit;
+};
+
+
+
+// ---------- CAR ----------
+
+struct Car
+{
+    RUB value;
+    RUB gas;
+
+    int category;
+
+    int repairs;
+    int replaced;
+    int last_replace_year;
+};
+
+
+
+// ---------- REAL ESTATE ----------
+
+struct Mortgage
+{
+    RUB debt;
+    RUB payment;
+    Percent rate;
+    bool active;
+};
+
+struct RealEstate
+{
+    int flats;
+
+    int flats_alice;
+    int flats_together;
+    int flats_mortgage;
+    int flats_partner;  
+
+    RUB flat_price;
+    RUB initial_flat_price;
+
+    RUB rent_income;
+
+    Mortgage mortgage;
+
+    RUB total_spent_on_flats;
+};
+
+
+
+// ---------- OTHER ----------
+
+struct Electronics
+{
+    RUB phone_price;
+    RUB laptop_price;
+
+    RUB phone_value;
+    RUB laptop_value;
+
+    int next_phone_year;
+    int next_laptop_year;
+
+    int phone_count;
+    int laptop_count;
+
+    int last_phone_replace_year;
+    int last_laptop_replace_year;
+};
+
+struct Housing
+{
+    RUB rent;
+};
+
+
+
+// ---------- HEALTH ----------
+
+struct Health
+{
+    bool sick;
+    int sick_months_left;
+    int immunity_months;
+    int severity;
+};
+Health health;
+
+
+
+// ---------- ROMANCE & RELATIONSHIPS ----------
+
+enum RelationshipStatus
+{
+    SINGLE,
+    ACQUAINTANCE,
+    DATING,
+    LIVING_TOGETHER,
+    MARRIED
+};
+
+struct Partner
+{
+    std::string name;
+
+    RUB money;
+    RUB deposit;
+    RUB stocks;
+
+    bool owns_housing;
+    bool housing_counted;
+
+    int lives;
+    int max_lives;
+
+    int cooldown_months;
+
+    int relationship_months;
+    int living_together_months;
+    int last_life_loss_month;
+    int marriage_months;
+
+    RUB total_spent_on_partner;
+
+    Credit credit;
+};
+
+struct Child
+{
+    std::string name;
+    std::string gender;
+    int age_months;
+    int birth_year;
+    int birth_month;
+    int birth_day;
+};
+
+struct Pregnancy
+{
+    bool is_pregnant;
+    int months_pregnant;
+    int pregnancy_start_month;
+    int pregnancy_start_year;
+};
+
+struct Statistics
+{
+    RUB spent_on_clothing;
+    RUB spent_on_entertainment;
+    RUB spent_on_hobbies;
+    RUB spent_on_food; 
+
+    RUB spent_on_flats;
+    RUB spent_on_car;           
+    
+    RUB spent_on_pets;
+
+    RUB spent_on_partner;
+    RUB spent_on_pregnancy;
+    RUB spent_on_children;
+
+    int acquaintances_count;      
+    int relationships_count;      
+    int failed_relationships_count = 0; 
+    int marriages_count;
+    int children_count;
+    RUB total_assets_at_divorce;
+};
+
+struct Romance
+{
+    RelationshipStatus status;
+
+    Partner partner;
+
+    Pregnancy pregnancy;
+
+    std::vector<Child> children;
+
+    int months_until_next_attempt;
+
+    bool has_acquaintance_cooldown;
+    int acquaintance_cooldown_months;
+
+    int months_since_meeting;
+
+    Statistics romance_stats;
+
+    RUB last_month_income;
+    RUB last_month_expenses;
+};
+Romance romance;
+
+
+
+// ---------- HOBBIES ----------
+
+struct Hobbies
+{
+    bool drawing_active;
+    bool music_active;
+
+    int music_months_left;
+
+    RUB drawing_monthly_cost;
+    RUB music_monthly_cost;
+};
+Hobbies hobbies;
+
+
+
+// ---------- PERSON ----------
+
+struct Person
+{
+    RUB salary;
+    RUB food;
+
+    Bank vtb;
+
+    Car car;
+
+    Electronics tech;
+
+    Housing home;
+    RealEstate estate;
+
+    RUB total_income;
+    RUB total_expenses;
+
+    RUB income_salary;
+    RUB income_rent;
+    RUB income_freelance;
+
+    int flats_bought;
+    int flats_bought_together;
+
+    RUB total_capital;
+    RUB cash_capital;
+    RUB real_estate_capital;
+    RUB car_capital;
+
+    RUB clothing_expenses;
+    RUB entertainment_expenses;
+    RUB hobbies_expenses;
+
+    int last_clothing_update_year;
+    int next_clothing_update_year;
+};
+Person alice;
+
+
+
+// ---------- HELPER FUNCTIONS DECLARATION ----------
+
+void sell_assets(RUB needed);
+void use_usd_if_needed(RUB needed);
+RUB car_price_by_category(int c);
+void update_total_capital();
+std::string get_partner_name();
+void check_pregnancy(int year, int month);
+void handle_pregnancy_decision(int year, int month);
+void update_pregnancy(int year, int month);
+void give_birth();
+void update_children_expenses();
+void add_child(std::string name, std::string gender, int year, int month);
+void handle_divorce();
+void partner_take_credit(RUB amount);
+void partner_pay_credit();
+Percent get_credit_rate();
+bool is_on_maternity_leave();
+void print_results();
+void buy_flat_together();
+void update_flat_price(int year);
+void rent_growth(int month, int year);
+void partner_invest();
+void partner_deposit();
+void partner_liquidate_for_flat();
+void update_car();
+void update_phone(int year);
+void update_laptop(int year);
+void check_and_take_credit();
+void remove_partner_housing();
+
+
+
+// ---------- CREDIT SYSTEM ----------
+
+Percent get_credit_rate()
+{
+    return 10 + economy.inflation * 0.5;
+}
+
+
+
+void take_credit(RUB amount)
+{
+    if (alice.vtb.credit.active) return;
+
+    alice.vtb.credit.active = true;
+    alice.vtb.credit.debt = amount;
+    alice.vtb.credit.rate = get_credit_rate();
+    alice.vtb.credit.monthly_payment = amount * (1 + alice.vtb.credit.rate / 100) / 24;
+
+    alice.vtb.account_rub += amount;
+}
+
+
+
+void pay_credit()
+{
+    if (!alice.vtb.credit.active) return;
+
+    RUB pay = alice.vtb.credit.monthly_payment;
+    sell_assets(pay);
+
+    alice.vtb.credit.rate = get_credit_rate();
+    alice.vtb.credit.monthly_payment = alice.vtb.credit.debt * (1 + alice.vtb.credit.rate / 100) / 24;
+    
+    if (alice.vtb.account_rub >= pay)
+    {
+        alice.vtb.account_rub -= pay;
+        alice.vtb.credit.debt -= pay;
+        alice.vtb.credit.missed_payments = 0;
+    }
+    else
+    {
+        alice.vtb.credit.missed_payments++;
+    }
+
+    if (alice.vtb.credit.missed_payments >= 3)
+    {
+        alice.vtb.credit.active = false;
+        alice.vtb.credit.debt = 0;
+
+        if (alice.estate.flats > 0)
+        {
+            alice.estate.flats = 0;
+            alice.home.rent = 30000;
+        }
+
+        alice.car.value = 0;
+        alice.car.category = 0;
+    }
+
+    if (alice.vtb.credit.debt <= 0)
+    {
+        alice.vtb.credit.active = false;
+        alice.vtb.credit.debt = 0;
+    }
+}
+
+
+
+void partner_take_credit(RUB amount)
+{
+    if (romance.status != MARRIED) return;
+    if (romance.partner.credit.active) return;
+
+    romance.partner.credit.active = true;
+    romance.partner.credit.debt = amount;
+    romance.partner.credit.rate = get_credit_rate();
+    romance.partner.credit.monthly_payment = amount * (1 + romance.partner.credit.rate / 100) / 24;
+
+    romance.partner.money += amount;
+}
+
+
+
+void partner_pay_credit()
+{
+    if (romance.status != MARRIED) return;
+    if (!romance.partner.credit.active) return;
+
+    RUB pay = romance.partner.credit.monthly_payment;
+    
+    romance.partner.credit.rate = get_credit_rate();
+    romance.partner.credit.monthly_payment = romance.partner.credit.debt * (1 + romance.partner.credit.rate / 100) / 24;
+    
+    if (romance.partner.money >= pay)
+    {
+        romance.partner.money -= pay;
+        romance.partner.credit.debt -= pay;
+        romance.partner.credit.missed_payments = 0;
+    }
+    else
+    {
+        romance.partner.credit.missed_payments++;
+    }
+
+    if (romance.partner.credit.missed_payments >= 3)
+    {
+        RUB remaining_debt = romance.partner.credit.debt;
+        romance.partner.credit.active = false;
+        romance.partner.credit.debt = 0;
+        
+        RUB alice_share = remaining_debt / 2;
+        sell_assets(alice_share);
+        alice.vtb.account_rub -= alice_share;
+        alice.total_expenses += alice_share;
+    }
+
+    if (romance.partner.credit.debt <= 0)
+    {
+        romance.partner.credit.active = false;
+        romance.partner.credit.debt = 0;
+    }
+}
+
+
+
+// ---------- PARTNER INVESTMENT FUNCTIONS ----------
+
+void partner_deposit()
+{
+    if (romance.status != MARRIED) return;
+    
+    RUB reserve = 50000;
+    RUB free = romance.partner.money - reserve;
+    
+    if (free > 50000)
+    {
+        RUB to_deposit = free * 0.3;
+        romance.partner.money -= to_deposit;
+        romance.partner.deposit += to_deposit;
+    }
+    
+    if (romance.partner.deposit > 0)
+    {
+        float rate = 0.005 + (rand() % 10) / 1000.0;
+        romance.partner.deposit = romance.partner.deposit * (1 + rate);
+    }
+}
+
+
+
+void partner_invest()
+{
+    if (romance.status != MARRIED) return;
+    
+    RUB free = romance.partner.money;
+    
+    if (free > 100000)
+    {
+        RUB to_invest = free * 0.2;
+        romance.partner.money -= to_invest;
+        romance.partner.stocks += to_invest;
+    }
+    
+    if (romance.partner.stocks > 0)
+    {
+        int roll = rand() % 100;
+        
+        if (roll < 40)
+            romance.partner.stocks *= 1.01;
+        else if (roll < 80)
+            romance.partner.stocks *= 0.99;
+        else
+            romance.partner.stocks *= 1.03;
+    }
+}
+
+
+
+void partner_liquidate_for_flat()
+{
+    if (romance.status != MARRIED) return;
+    
+    RUB price = alice.estate.flat_price;
+    RUB total_liquid = romance.partner.money + romance.partner.deposit + romance.partner.stocks;
+    
+    if (total_liquid >= price && !romance.partner.owns_housing)
+    {
+        romance.partner.money = total_liquid - price;
+        romance.partner.deposit = 0;
+        romance.partner.stocks = 0;
+        romance.partner.owns_housing = true;
+        
+        if (romance.status == DATING)
+        {
+            romance.status = LIVING_TOGETHER;
+            romance.partner.living_together_months = 0;
+            alice.home.rent = 0;
+        }
+    }
+}
+
+
+
+// ---------- CAR ----------
+
+RUB car_price_by_category(int c)
+{
+    if (c == 1) return 1200000;
+    if (c == 2) return 2500000;
+    return 5000000;
+}
+
+
+
+void alice_buy_car_credit()
+{
+    if (alice.car.value > 0) return;
+
+    RUB price = car_price_by_category(1);
+
+    if (!alice.vtb.credit.active)
+    {
+        take_credit(price);
+
+        if (alice.vtb.account_rub >= price)
+        {
+            alice.vtb.account_rub -= price;
+            alice.car.value = price;
+            alice.car.category = 1;
+            alice.car.last_replace_year = 2026 + (romance.partner.relationship_months / 12);
+        }
+    }
+}
+
+
+
+void update_car()
+{
+    int current_year = 2026 + (romance.partner.relationship_months / 12);
+    
+    if (alice.car.category == 0)
+    {
+        RUB price = car_price_by_category(1);
+        if (alice.cash_capital >= price)
+        {
+            sell_assets(price);
+            if (alice.vtb.account_rub >= price)
+            {
+                alice.vtb.account_rub -= price;
+                alice.total_expenses += price;
+                romance.romance_stats.spent_on_car += price;
+                alice.car.category = 1;
+                alice.car.value = price;
+                alice.car.last_replace_year = current_year;
+            }
+        }
+        return;
+    }
+    
+    if (current_year - alice.car.last_replace_year >= 10)
+    {
+        int desired = alice.car.category + 1;
+        if (desired > 3) desired = 3;
+        
+        RUB price = car_price_by_category(desired);
+        
+        if (alice.cash_capital >= price)
+        {
+            sell_assets(price);
+            
+            if (alice.vtb.account_rub >= price)
+            {
+                RUB old_car_value = alice.car.value * 0.5;
+                alice.vtb.account_rub += old_car_value;
+                alice.vtb.account_rub -= price;
+                RUB net_expense = price - old_car_value;
+                alice.total_expenses += net_expense;
+                romance.romance_stats.spent_on_car += net_expense;
+                alice.car.category = desired;
+                alice.car.value = price;
+                alice.car.replaced++;
+                alice.car.last_replace_year = current_year;
+            }
+        }
+    }
+}
+
+
+// ---------- TECH ----------
+
+void update_phone(int year)
+{
+    if (alice.tech.last_phone_replace_year == 0)
+        alice.tech.last_phone_replace_year = 2026;
+    
+    if (year - alice.tech.last_phone_replace_year >= 5)
+    {
+        RUB price = alice.tech.phone_price;
+        
+        if (romance.status == MARRIED && rand() % 100 < 30)
+        {
+            RUB alice_share = price / 2;
+            RUB partner_share = price / 2;
+            
+            sell_assets(alice_share);
+            
+            if (alice.vtb.account_rub > alice_share + 50000)
+            {
+                alice.vtb.account_rub += alice.tech.phone_value * 0.5;
+                alice.vtb.account_rub -= alice_share;
+                alice.total_expenses += alice_share;
+                
+                if (romance.partner.money >= partner_share)
+                    romance.partner.money -= partner_share;
+                else
+                {
+                    RUB remaining = partner_share - romance.partner.money;
+                    romance.partner.money = 0;
+                    if (romance.partner.deposit >= remaining)
+                        romance.partner.deposit -= remaining;
+                    else
+                    {
+                        remaining -= romance.partner.deposit;
+                        romance.partner.deposit = 0;
+                        romance.partner.stocks -= remaining;
+                        if (romance.partner.stocks < 0)
+                            romance.partner.stocks = 0;
+                    }
+                }
+                
+                alice.tech.phone_value = price;
+                alice.tech.phone_count++;
+                alice.tech.last_phone_replace_year = year;
+            }
+        }
+        else
+        {
+            sell_assets(price);
+            
+            if (alice.vtb.account_rub > price + 50000)
+            {
+                alice.vtb.account_rub += alice.tech.phone_value * 0.5;
+                alice.vtb.account_rub -= price;
+                alice.total_expenses += price;
+                alice.tech.phone_value = price;
+                alice.tech.phone_count++;
+                alice.tech.last_phone_replace_year = year;
+            }
+        }
+    }
+}
+
+
+
+void update_laptop(int year)
+{
+    if (alice.tech.last_laptop_replace_year == 0)
+        alice.tech.last_laptop_replace_year = 2026;
+    
+    if (year - alice.tech.last_laptop_replace_year >= 5)
+    {
+        RUB price = alice.tech.laptop_price;
+        
+        if (romance.status == MARRIED && rand() % 100 < 30)
+        {
+            RUB alice_share = price / 2;
+            RUB partner_share = price / 2;
+            
+            sell_assets(alice_share);
+            
+            if (alice.vtb.account_rub > alice_share + 50000)
+            {
+                alice.vtb.account_rub += alice.tech.laptop_value * 0.5;
+                alice.vtb.account_rub -= alice_share;
+                alice.total_expenses += alice_share;
+                
+                if (romance.partner.money >= partner_share)
+                    romance.partner.money -= partner_share;
+                else
+                {
+                    RUB remaining = partner_share - romance.partner.money;
+                    romance.partner.money = 0;
+                    if (romance.partner.deposit >= remaining)
+                        romance.partner.deposit -= remaining;
+                    else
+                    {
+                        remaining -= romance.partner.deposit;
+                        romance.partner.deposit = 0;
+                        romance.partner.stocks -= remaining;
+                        if (romance.partner.stocks < 0)
+                            romance.partner.stocks = 0;
+                    }
+                }
+                
+                alice.tech.laptop_value = price;
+                alice.tech.laptop_count++;
+                alice.tech.last_laptop_replace_year = year;
+            }
+        }
+        else
+        {
+            sell_assets(price);
+            
+            if (alice.vtb.account_rub > price + 50000)
+            {
+                alice.vtb.account_rub += alice.tech.laptop_value * 0.5;
+                alice.vtb.account_rub -= price;
+                alice.total_expenses += price;
+                alice.tech.laptop_value = price;
+                alice.tech.laptop_count++;
+                alice.tech.last_laptop_replace_year = year;
+            }
+        }
+    }
+}
+
+
+
+// ---------- INIT ----------
+
+bool is_on_maternity_leave()
+{
+    if (romance.children.empty()) return false;
+    if (romance.pregnancy.is_pregnant) return false;
+    
+    int last_birth_age = romance.children.back().age_months;
+    return last_birth_age < 36;
+}
+
+
+
+void romance_init()
+{
+    romance.status = SINGLE;
+
+    romance.pregnancy.is_pregnant = false;
+    romance.pregnancy.months_pregnant = 0;
+
+    romance.months_until_next_attempt = 0;
+
+    romance.has_acquaintance_cooldown = false;
+    romance.acquaintance_cooldown_months = 0;
+
+    romance.months_since_meeting = 0;
+
+    romance.partner.money = 0;
+    romance.partner.deposit = 0;
+    romance.partner.stocks = 0;
+    romance.partner.credit = {0,0,0,0,false};
+    romance.partner.housing_counted = false;
+
+    romance.last_month_income = 0;
+    romance.last_month_expenses = 0;
+
+    romance.romance_stats = {0};  
+}
+
+
+void hobbies_init()
+{
+    hobbies.drawing_active = true;
+    hobbies.music_active = false;
+    hobbies.music_months_left = 0;
+    hobbies.drawing_monthly_cost = 1500 + rand() % 2000;
+    
+    if (rand() % 100 < 40)
+    {
+        hobbies.music_active = true;
+        hobbies.music_months_left = 36 + rand() % 25;
+        hobbies.music_monthly_cost = 2000 + rand() % 3000;
+    }
+}
+
+
+
+void alice_init()
+{
+    alice.salary = 50000;
+
+    alice.food = 8000;
+
+    alice.vtb.account_rub = 15000;
+    alice.vtb.account_usd = 100;
+
+    alice.vtb.deposit = {0, 6};
+    alice.vtb.stocks = {0};
+
+    alice.vtb.credit = {0,0,0,0,false};
+
+    alice.car = {1200000, 12000, 1, 0, 0, 2026};
+
+    alice.tech.phone_price = 50000;
+    alice.tech.laptop_price = 80000;
+    alice.tech.phone_value = 30000;
+    alice.tech.laptop_value = 50000;
+    alice.tech.next_phone_year = 2028;
+    alice.tech.next_laptop_year = 2031;
+    alice.tech.phone_count = 0;
+    alice.tech.laptop_count = 0;
+    alice.tech.last_phone_replace_year = 2026;
+    alice.tech.last_laptop_replace_year = 2026;
+
+    alice.home.rent = 30000;
+
+    alice.estate = {0, 0, 0, 0, 0, 5600000, 5600000, 30000, {0,0,10,false}, 0};
+
+    alice.total_income = 0;
+    alice.total_expenses = 0;
+
+    alice.income_salary = 0;
+    alice.income_rent = 0;
+    alice.income_freelance = 0;
+
+    alice.flats_bought = 0;
+    alice.flats_bought_together = 0;
+
+    alice.total_capital = 0;
+    alice.cash_capital = 0;
+    alice.real_estate_capital = 0;
+    alice.car_capital = 0;
+
+    alice.clothing_expenses = 0;
+    alice.entertainment_expenses = 0;
+    alice.hobbies_expenses = 0;
+
+    alice.last_clothing_update_year = 2026;
+    alice.next_clothing_update_year = 2026 + (1 + rand() % 3);
+
+    health = {false, 0, 0, 0};
+    
+    romance_init();
+    hobbies_init();
+}
+
+
+
+// ---------- CAPITAL ----------
+
+void update_total_capital()
+{
+    RUB rub_cash = alice.vtb.account_rub;
+    RUB usd_cash = alice.vtb.account_usd * economy.rate_usd_rub;
+    RUB deposit_cash = alice.vtb.deposit.capital;
+    RUB stocks_cash = alice.vtb.stocks.capital;
+    
+    alice.cash_capital = rub_cash + usd_cash + deposit_cash + stocks_cash;
+    if (alice.cash_capital < 0) alice.cash_capital = 0;
+    
+    alice.real_estate_capital = alice.estate.flats * alice.estate.flat_price;
+    alice.car_capital = alice.car.value;
+    
+    alice.total_capital = alice.cash_capital + alice.real_estate_capital + alice.car_capital;
+}
+
+
+
+// ---------- HELPERS ----------
+
+void use_usd_if_needed(RUB needed)
+{
+    RUB rub = alice.vtb.account_usd * economy.rate_usd_rub;
+    RUB take = std::min(rub, needed);
+    USD usd = take / economy.rate_usd_rub;
+
+    alice.vtb.account_usd -= usd;
+    alice.vtb.account_rub += take;
+}
+
+
+
+void sell_assets(RUB needed)
+{
+    if (needed <= 0) return;
+    
+    if (alice.vtb.account_rub >= needed) return;
+
+    use_usd_if_needed(needed - alice.vtb.account_rub);
+    if (alice.vtb.account_rub >= needed) return;
+
+    RUB from_dep = std::min(alice.vtb.deposit.capital, needed);
+    alice.vtb.deposit.capital -= from_dep;
+    alice.vtb.account_rub += from_dep;
+    if (alice.vtb.account_rub >= needed) return;
+
+    RUB from_stocks = std::min(alice.vtb.stocks.capital, needed);
+    alice.vtb.stocks.capital -= from_stocks;
+    alice.vtb.account_rub += from_stocks;
+    if (alice.vtb.account_rub >= needed) return;
+    
+    if (alice.car.value > 0)
+    {
+        RUB car_value = alice.car.value * 0.7;
+        alice.vtb.account_rub += car_value;
+        alice.car.value = 0;
+        alice.car.category = 0;
+        alice.car_capital = 0;
+        if (alice.vtb.account_rub >= needed) return;
+    }
+    
+    if (alice.estate.flats > 0)
+    {
+        RUB flat_value = alice.estate.flat_price * 0.9;
+        
+        if (alice.estate.flats_alice > 0)
+        {
+            alice.estate.flats_alice--;
+        }
+        else if (alice.estate.flats_together > 0)
+        {
+            alice.estate.flats_together--;
+        }
+        else if (alice.estate.flats_mortgage > 0)
+        {
+            alice.estate.flats_mortgage--;
+        }
+        else
+        {
+            return; 
+        }
+
+        alice.vtb.account_rub += flat_value;
+        alice.estate.flats--;
+    }
+}
+
+
+
+void check_and_take_credit()
+{
+    if (alice.vtb.account_rub < -50000)
+    {
+        RUB credit_needed = -alice.vtb.account_rub + 100000;
+        credit_needed = (credit_needed / 100000) * 100000;
+        if (credit_needed > 500000) credit_needed = 500000;
+        
+        take_credit(credit_needed);
+    }
+}
+
+
+
+void remove_partner_housing()
+{
+    if (romance.partner.housing_counted)
+    {
+        alice.estate.flats--;
+        alice.estate.flats_partner--;
+        romance.partner.housing_counted = false;
+    }
+}
+
+
+// ---------- REAL ESTATE PRICE UPDATE ----------
+
+void update_flat_price(int year)
+{
+    if (year >= 2027)
+    {
+        float inflation_multiplier = 1.0f + economy.inflation / 100.0f;
+        float real_growth = 1.04f;
+        
+        alice.estate.flat_price = alice.estate.flat_price * inflation_multiplier * real_growth;
+        
+        alice.estate.flat_price = (alice.estate.flat_price / 1000) * 1000;
+        
+        if (alice.estate.flat_price < 1000)
+            alice.estate.flat_price = 1000;
+    }
+}
+
+
+
+// ---------- ROMANCE HELPER FUNCTIONS ----------
+
+std::string get_partner_name()
+{
+    std::string male_names[] = {"Александр", "Дмитрий", "Максим", "Иван", "Артем", "Михаил", "Даниил", "Егор", "Никита", "Андрей"};
+    return male_names[rand() % 10];
+}
+
+
+void clear_relationship()
+{
+    if (romance.partner.housing_counted)
+    {
+        remove_partner_housing();
+    }
+    
+    romance.status = SINGLE;
+    romance.has_acquaintance_cooldown = true;
+    romance.acquaintance_cooldown_months = 3;
+    romance.months_since_meeting = 0;
+    romance.partner.relationship_months = 0;
+    romance.partner.living_together_months = 0;
+    romance.partner.marriage_months = 0;
+    romance.partner.lives = 0;
+    romance.partner.cooldown_months = 0;
+    romance.partner.credit.active = false;
+    romance.partner.housing_counted = false;
+}
+
+
+void start_acquaintance(int year, int month)
+{
+    if (romance.status != SINGLE) return;
+    if (romance.has_acquaintance_cooldown) return;
+
+    romance.partner = {};
+    
+    int chance = 5;
+    if (alice.entertainment_expenses > 0) chance = 15;
+    
+    if (rand() % 100 < chance)
+    {
+        romance.status = ACQUAINTANCE;
+        romance.romance_stats.acquaintances_count++;  
+
+        romance.partner.name = get_partner_name();
+
+        romance.partner.lives = 1;
+
+        romance.partner.cooldown_months = 0;
+        romance.partner.relationship_months = 0;
+        romance.partner.living_together_months = 0;
+        romance.partner.marriage_months = 0;
+
+        romance.partner.last_life_loss_month = 0;
+
+        romance.partner.total_spent_on_partner = 0;
+        
+        romance.partner.money = 20000 + rand() % 30000;
+        romance.partner.deposit = 0;
+        romance.partner.stocks = 0;
+
+        romance.partner.housing_counted = false;
+        
+        int year_offset = year - 2026;
+        int own_chance = 10 + year_offset * 2;
+        if (own_chance > 70) own_chance = 70;
+        romance.partner.owns_housing = (rand() % 100 < own_chance);
+        
+        if (romance.partner.owns_housing)
+        {
+            romance.partner.max_lives = 2;
+            romance.partner.lives = 2;
+            alice.estate.flats++;
+            alice.estate.flats_partner++;
+            romance.partner.housing_counted = true;
+        }
+        else
+        {
+            romance.partner.max_lives = 1;
+        }
+        
+        romance.months_since_meeting = 0;
+        romance.has_acquaintance_cooldown = true;
+        romance.acquaintance_cooldown_months = 2 + rand() % 2;
+    }
+}
+
+
+
+void update_acquaintance()
+{
+    if (romance.status != ACQUAINTANCE) return;
+    
+    romance.months_since_meeting++;
+    
+    if (romance.months_since_meeting >= 2 + rand() % 2)
+    {
+        romance.status = DATING;
+        romance.romance_stats.relationships_count++;  
+    }
+    
+    if (romance.partner.cooldown_months <= 0 && romance.partner.last_life_loss_month != romance.months_since_meeting)
+    {
+        if (rand() % 100 < 50)
+        {
+            romance.partner.lives--;
+            romance.partner.cooldown_months = 2;
+            romance.partner.last_life_loss_month = romance.months_since_meeting;
+            
+            if (romance.partner.lives <= 0)
+            {
+                remove_partner_housing();
+                clear_relationship();  
+                return;
+            }
+        }
+    }
+    
+    if (romance.partner.cooldown_months > 0)
+        romance.partner.cooldown_months--;
+    
+    if (romance.months_since_meeting % 6 == 0 && romance.partner.lives < romance.partner.max_lives)
+        romance.partner.lives++;
+}
+
+
+
+void update_partner_money()
+{
+    if (romance.status != DATING && romance.status != LIVING_TOGETHER && romance.status != MARRIED)
+        return;
+    
+    RUB change = 0;
+    RUB income_diff = romance.last_month_income - romance.last_month_expenses;
+    
+    if (is_on_maternity_leave())
+    {
+        change = (alice.salary * 0.8) - (romance.last_month_expenses * 1.2);
+    }
+    else
+    {
+        change = income_diff * 0.5 + 2000;
+    }
+    
+    romance.partner.money += change;
+    
+    if (romance.partner.money < 0)
+        romance.partner.money = 0;
+    
+    if (romance.status == DATING || romance.status == LIVING_TOGETHER || romance.status == MARRIED)
+    {
+        int month_num = romance.partner.relationship_months % 12;
+        
+        RUB micro_gift = 500 + rand() % 1000;
+        if (romance.partner.money >= micro_gift)
+        {
+            romance.partner.money -= micro_gift;
+            romance.partner.total_spent_on_partner += micro_gift;
+        }
+        
+        if (month_num == 11 || month_num == 1 || month_num == 4)
+        {
+            int relationship_years = romance.partner.relationship_months / 12;
+            RUB gift = 1000 + (rand() % 9000) + relationship_years * 500;
+            if (romance.partner.money >= gift)
+            {
+                romance.partner.money -= gift;
+                romance.partner.total_spent_on_partner += gift;
+            }
+        }
+    }
+    
+    romance.partner.money += 1000;
+    
+    if (romance.status == MARRIED)
+    {
+        partner_deposit();
+        partner_invest();
+        partner_liquidate_for_flat();
+    }
+    
+    if (romance.status == MARRIED && !romance.partner.credit.active && romance.partner.money < 50000)
+    {
+        if (rand() % 100 < 10)
+        {
+            RUB credit_amount = 100000 + rand() % 400000;
+            partner_take_credit(credit_amount);
+        }
+    }
+}
+
+
+
+void update_dating_relationship(int year, int month)
+{
+    if (romance.status != DATING) return;
+    
+    romance.partner.relationship_months++;
+    
+    int month_num = romance.partner.relationship_months % 12;
+    
+    RUB micro_gift = 200 + rand() % 800;
+    sell_assets(micro_gift);
+    alice.vtb.account_rub -= micro_gift;
+    alice.total_expenses += micro_gift;
+    romance.romance_stats.spent_on_partner += micro_gift;
+    romance.partner.total_spent_on_partner += micro_gift;
+    
+    if (month_num == 11 || month_num == 1 || month_num == 4)
+    {
+        int relationship_years = romance.partner.relationship_months / 12;
+        RUB gift = 1000 + (rand() % 9000) + relationship_years * 500;
+        sell_assets(gift);
+        alice.vtb.account_rub -= gift;
+        alice.total_expenses += gift;
+        romance.romance_stats.spent_on_partner += gift;
+        romance.partner.total_spent_on_partner += gift;
+    }
+    
+    if (romance.partner.cooldown_months <= 0)
+    {
+        int loss_chance = 8;
+        if (rand() % 100 < loss_chance)
+        {
+            romance.partner.lives--;
+            romance.partner.cooldown_months = 2;
+            
+            if (romance.partner.lives <= 0)
+            {
+                remove_partner_housing();
+                romance.romance_stats.failed_relationships_count++;
+                clear_relationship();  
+                return;
+            }
+        }
+    }
+    
+    if (romance.partner.cooldown_months > 0)
+        romance.partner.cooldown_months--;
+    
+    if (romance.partner.relationship_months % 6 == 0 && romance.partner.lives < romance.partner.max_lives)
+        romance.partner.lives++;
+    
+    if (romance.partner.relationship_months >= 12 && romance.status == DATING)
+    {
+        RUB total_wealth = romance.partner.money + romance.partner.deposit + romance.partner.stocks;
+        RUB target_wealth = 2000000;
+        float k = std::min((float)total_wealth / target_wealth, 0.95f);
+        float probability = (romance.partner.lives / (float)romance.partner.max_lives) / 2.0 + k;
+        if (probability > 0.95) probability = 0.95;
+        
+        if ((rand() % 10000) / 10000.0 < probability)
+        {
+            romance.status = LIVING_TOGETHER;
+            romance.partner.living_together_months = 0;
+            
+            if (romance.partner.owns_housing)
+            {
+                alice.home.rent = 0;
+                if (alice.estate.flats > 0)
+                {
+                    alice.estate.rent_income = 30000;
+                }
+            }
+            else
+            {
+                alice.home.rent *= 0.5;
+            }
+            
+            romance.partner.max_lives = 5;
+            romance.partner.lives = 5;
+        }
+        else
+        {
+            romance.months_until_next_attempt = 6;
+        }
+    }
+}
+
+
+
+void update_living_together(int year, int month)
+{
+    if (romance.status != LIVING_TOGETHER) return;
+    
+    romance.partner.living_together_months++;
+    romance.partner.relationship_months++;
+    
+    int month_num = romance.partner.relationship_months % 12;
+    
+    RUB micro_gift = 200 + rand() % 800;
+    sell_assets(micro_gift);
+    alice.vtb.account_rub -= micro_gift;
+    alice.total_expenses += micro_gift;
+    romance.romance_stats.spent_on_partner += micro_gift;
+    romance.partner.total_spent_on_partner += micro_gift;
+    
+    if (month_num == 11 || month_num == 1 || month_num == 4)
+    {
+        int relationship_years = romance.partner.relationship_months / 12;
+        RUB gift = 1000 + (rand() % 9000) + relationship_years * 500;
+        sell_assets(gift);
+        alice.vtb.account_rub -= gift;
+        alice.total_expenses += gift;
+        romance.romance_stats.spent_on_partner += gift;
+        romance.partner.total_spent_on_partner += gift;
+    }
+    
+    if (romance.partner.cooldown_months <= 0)
+    {
+        int loss_chance = 20;
+        if (rand() % 100 < loss_chance)
+        {
+            romance.partner.lives--;
+            romance.partner.cooldown_months = 2;
+            
+            if (romance.partner.lives <= 0)
+            {
+                romance.romance_stats.failed_relationships_count++;
+                remove_partner_housing();
+                clear_relationship();  
+                return;
+            }
+        }
+    }
+    
+    if (romance.partner.cooldown_months > 0)
+        romance.partner.cooldown_months--;
+    
+    if (romance.partner.living_together_months % 3 == 0 && romance.partner.lives < romance.partner.max_lives)
+        romance.partner.lives++;
+    
+    if (romance.partner.living_together_months >= 36)
+    {
+        int years_together = romance.partner.living_together_months / 12;
+        int proposal_chance = 5 + (years_together - 3) * 5;
+        if (proposal_chance > 50) proposal_chance = 50;
+        
+        if (rand() % 100 < proposal_chance)
+        {
+            RUB total_wealth = romance.partner.money + romance.partner.deposit + romance.partner.stocks;
+            bool lives_condition = (romance.partner.lives > romance.partner.max_lives / 2);
+            bool housing_condition = romance.partner.owns_housing;
+            bool money_condition = (total_wealth > 500000);
+            
+            bool will_accept = false;
+            
+            if (lives_condition && housing_condition && money_condition)
+            {
+                will_accept = true;
+            }
+            else
+            {
+                will_accept = (rand() % 100 < 80);
+            }
+            
+            if (will_accept)
+            {
+                romance.status = MARRIED;
+                romance.partner.max_lives = 10;
+                romance.partner.marriage_months = 0;
+                romance.romance_stats.marriages_count++;
+            }
+            else
+            {
+                remove_partner_housing();
+                romance.romance_stats.failed_relationships_count++; 
+                romance.status = SINGLE;
+                romance.has_acquaintance_cooldown = true;
+                romance.acquaintance_cooldown_months = 6;
+                romance.months_since_meeting = 0;
+                romance.partner.relationship_months = 0;
+                romance.partner.living_together_months = 0;
+                romance.partner.lives = 0;
+            }
+        }
+    }
+}
+
+
+
+
+void update_married_life(int year, int month)
+{
+    if (romance.status != MARRIED) return;
+    
+    romance.partner.relationship_months++;
+    romance.partner.marriage_months++;
+    
+    partner_pay_credit();
+    
+    int month_num = romance.partner.relationship_months % 12;
+    
+    RUB micro_gift = 300 + rand() % 1200;
+    sell_assets(micro_gift);
+    alice.vtb.account_rub -= micro_gift;
+    alice.total_expenses += micro_gift;
+    romance.romance_stats.spent_on_partner += micro_gift;
+    romance.partner.total_spent_on_partner += micro_gift;
+    
+    if (month_num == 11 || month_num == 1 || month_num == 4)
+    {
+        int relationship_years = romance.partner.relationship_months / 12;
+        RUB gift = 2000 + (rand() % 15000) + relationship_years * 1000;
+        sell_assets(gift);
+        alice.vtb.account_rub -= gift;
+        alice.total_expenses += gift;
+        romance.romance_stats.spent_on_partner += gift;
+        romance.partner.total_spent_on_partner += gift;
+    }
+    
+    if (romance.partner.cooldown_months <= 0)
+    {
+        int loss_chance = 40;
+        if (rand() % 100 < loss_chance)
+        {
+            romance.partner.lives--;
+            romance.partner.cooldown_months = 1;
+            
+            if (romance.partner.lives <= 0)
+            {
+                romance.romance_stats.failed_relationships_count++;  
+                remove_partner_housing();
+                clear_relationship(); 
+                handle_divorce();
+                return;
+            }
+        }
+    }
+    
+    if (romance.partner.cooldown_months > 0)
+        romance.partner.cooldown_months--;
+    
+    if (romance.partner.marriage_months % 3 == 0 && romance.partner.lives < romance.partner.max_lives)
+        romance.partner.lives++;
+}
+
+
+
+void handle_divorce()
+{
+    if (romance.status != MARRIED) return;
+
+    bool partner_had_housing_before = romance.partner.housing_counted;
+    
+    if (partner_had_housing_before)
+    {
+        remove_partner_housing();
+    }
+    
+    RUB partner_housing_value = 0;
+    if (partner_had_housing_before)
+    {
+        partner_housing_value = alice.estate.flat_price;
+    }
+    
+    RUB alice_assets = alice.total_capital;
+    RUB partner_common = romance.partner.money + romance.partner.deposit + romance.partner.stocks;
+    
+    if (partner_had_housing_before)
+    {
+        alice_assets -= partner_housing_value;
+    }
+    
+    RUB total_common = alice_assets + partner_common;
+    RUB half = total_common / 2;
+    
+    if (alice_assets > half)
+    {
+        RUB excess = alice_assets - half;
+        if (alice.vtb.account_rub >= excess)
+        {
+            alice.vtb.account_rub -= excess;
+        }
+        else
+        {
+            RUB remaining = excess - alice.vtb.account_rub;
+            alice.vtb.account_rub = 0;
+            alice.vtb.deposit.capital -= remaining;
+            if (alice.vtb.deposit.capital < 0)
+            {
+                alice.vtb.stocks.capital += alice.vtb.deposit.capital;
+                alice.vtb.deposit.capital = 0;
+                if (alice.vtb.stocks.capital < 0)
+                    alice.vtb.stocks.capital = 0;
+            }
+        }
+    }
+    else if (alice_assets < half)
+    {
+        RUB deficit = half - alice_assets;
+        alice.vtb.account_rub += deficit;
+        romance.partner.money -= deficit;
+    }
+    
+    romance.status = SINGLE;
+    romance.has_acquaintance_cooldown = true;
+    romance.acquaintance_cooldown_months = 6;
+    romance.months_since_meeting = 0;
+    romance.partner.credit.active = false;
+}
+
+
+// ---------- PREGNANCY AND CHILDREN ----------
+
+std::string get_child_name(std::string gender)
+{
+    std::string boy_names[] = {"Александр", "Дмитрий", "Максим", "Иван", "Артем", "Михаил", "Даниил", "Егор", "Никита", "Андрей"};
+    std::string girl_names[] = {"Анна", "Мария", "Екатерина", "Ольга", "Татьяна", "Наталья", "Ирина", "Светлана", "Юлия", "Елена"};
+    
+    if (gender == "male")
+        return boy_names[rand() % 10];
+    else
+        return girl_names[rand() % 10];
+}
+
+
+
+void add_child(std::string name, std::string gender, int year, int month)
+{
+    Child child;
+    child.name = name;
+    child.gender = gender;
+    child.age_months = 0;
+    child.birth_year = year;
+    child.birth_month = month;
+    child.birth_day = 1 + rand() % 28;
+    romance.children.push_back(child);
+    romance.romance_stats.children_count++;
+}
+
+
+
+void check_pregnancy(int year, int month)
+{
+    if (romance.pregnancy.is_pregnant) return;
+    if (romance.status == SINGLE) return;
+    
+    float chance = 0.0001;
+    
+    if (romance.status == MARRIED)
+    {
+        int child_count = romance.children.size();
+        
+        if (child_count < 2)
+            chance = 0.1;
+        else
+            chance = 0.0001;
+    }
+    
+    static int months_since_last_birth = 1000;
+    if (months_since_last_birth < 24)
+        chance = 0.0001;
+    
+    if ((rand() % 10000) / 10000.0 < chance)
+    {
+        romance.pregnancy.is_pregnant = true;
+        romance.pregnancy.months_pregnant = 0;
+        romance.pregnancy.pregnancy_start_month = month;
+        romance.pregnancy.pregnancy_start_year = year;
+        
+        alice.food *= 1.2;
+    }
+}
+
+
+
+void handle_pregnancy_decision(int year, int month)
+{
+    if (!romance.pregnancy.is_pregnant) return;
+    if (romance.pregnancy.months_pregnant != 3) return;
+    
+    bool keep_baby = false;
+    
+    if (romance.status == MARRIED)
+    {
+        keep_baby = true;
+    }
+    else if (romance.status == DATING)
+    {
+        int relationship_years = romance.partner.relationship_months / 12;
+        if (relationship_years >= 3 && relationship_years <= 5)
+        {
+            RUB total_wealth = romance.partner.money + romance.partner.deposit + romance.partner.stocks;
+            if (romance.partner.owns_housing || total_wealth >= alice.estate.flat_price)
+            {
+                keep_baby = true;
+                romance.status = MARRIED;
+                romance.partner.marriage_months = 0;
+                romance.romance_stats.marriages_count++;
+            }
+        }
+    }
+    
+    if (!keep_baby)
+    {
+        RUB cost = 20000;
+        RUB alice_share = cost / 2;
+        RUB partner_share = cost / 2;
+        
+        sell_assets(alice_share);
+        alice.vtb.account_rub -= alice_share;
+        alice.total_expenses += alice_share;
+        romance.romance_stats.spent_on_pregnancy += alice_share;
+        
+        if (romance.status == DATING || romance.status == MARRIED)
+            romance.partner.money -= partner_share;
+        
+        romance.pregnancy.is_pregnant = false;
+        romance.pregnancy.months_pregnant = 0;
+        
+        alice.food /= 1.2;
+    }
+}
+
+
+
+void update_pregnancy(int year, int month)
+{
+    if (!romance.pregnancy.is_pregnant) return;
+    
+    romance.pregnancy.months_pregnant++;
+    
+    if (rand() % 10000 < 1)
+    {
+        romance.pregnancy.is_pregnant = false;
+        romance.pregnancy.months_pregnant = 0;
+        
+        romance.partner.lives--;
+        romance.has_acquaintance_cooldown = true;
+        romance.acquaintance_cooldown_months = 6;
+        
+        alice.food /= 1.2;
+        return;
+    }
+    
+    if (romance.pregnancy.months_pregnant >= 3)
+    {
+        RUB baby_cost = 10000;
+        RUB alice_share = baby_cost / 2;
+        RUB partner_share = baby_cost / 2;
+        
+        sell_assets(alice_share);
+        alice.vtb.account_rub -= alice_share;
+        alice.total_expenses += alice_share;
+        romance.romance_stats.spent_on_pregnancy += alice_share;
+        
+        if (romance.status == DATING || romance.status == MARRIED)
+            romance.partner.money -= partner_share;
+        
+        if (romance.partner.money < 0)
+            romance.partner.money = 0;
+    }
+    
+    if (romance.pregnancy.months_pregnant >= 9)
+    {
+        give_birth();
+    }
+}
+
+
+
+void give_birth()
+{
+    std::string gender = (rand() % 2 == 0) ? "male" : "female";
+    std::string name = get_child_name(gender);
+    
+    int birth_year = romance.pregnancy.pregnancy_start_year;
+    int birth_month = romance.pregnancy.pregnancy_start_month + 9;
+    if (birth_month > 12)
+    {
+        birth_month -= 12;
+        birth_year++;
+    }
+    
+    add_child(name, gender, birth_year, birth_month);
+    
+    if (romance.romance_stats.children_count == 1)
+        romance.partner.money += 750000;
+    else if (romance.romance_stats.children_count == 2)
+        romance.partner.money += 250000;
+    
+    romance.partner.max_lives += 5;
+    romance.partner.lives += 5;
+    
+    romance.pregnancy.is_pregnant = false;
+    romance.pregnancy.months_pregnant = 0;
+    
+    alice.food /= 1.2;
+}
+
+
+
+void update_children_expenses()
+{
+    RUB total_child_expense = 0;
+    
+    for (auto& child : romance.children)
+    {
+        int age_years = child.age_months / 12;
+        RUB expense = 0;
+        
+        if (age_years < 1)
+            expense = 15000 + rand() % 15000;
+        else if (age_years < 3)
+            expense = 12000 + rand() % 13000;
+        else if (age_years < 7)
+            expense = 10000 + rand() % 12000;
+        else if (age_years < 10)
+            expense = 15000 + rand() % 15000;
+        else if (age_years < 16)
+            expense = 20000 + rand() % 20000;
+        else if (age_years < 20)
+            expense = 15000;
+        else
+            expense = 0;
+        
+        if (age_years < 3 && (romance.status == DATING || romance.status == MARRIED || romance.status == LIVING_TOGETHER))
+        {
+            RUB total_partner = romance.partner.money + romance.partner.deposit + romance.partner.stocks;
+            if (total_partner >= expense)
+            {
+                if (romance.partner.money >= expense)
+                    romance.partner.money -= expense;
+                else
+                {
+                    RUB remaining = expense - romance.partner.money;
+                    romance.partner.money = 0;
+                    if (romance.partner.deposit >= remaining)
+                        romance.partner.deposit -= remaining;
+                    else
+                    {
+                        remaining -= romance.partner.deposit;
+                        romance.partner.deposit = 0;
+                        romance.partner.stocks -= remaining;
+                        if (romance.partner.stocks < 0)
+                            romance.partner.stocks = 0;
+                    }
+                }
+            }
+            else
+                total_child_expense += expense - total_partner;
+        }
+        else
+        {
+            total_child_expense += expense;
+        }
+        
+        child.age_months++;
+    }
+    
+    if (romance.status == SINGLE && romance.romance_stats.marriages_count > 0)
+    {
+        total_child_expense /= 2;
+    }
+    
+    if (total_child_expense > 0)
+    {
+        sell_assets(total_child_expense);
+        alice.vtb.account_rub -= total_child_expense;
+        alice.total_expenses += total_child_expense;
+        romance.romance_stats.spent_on_children += total_child_expense;
+    }
+}
+
+
+
+// ---------- CLOTHING, ENTERTAINMENT, HOBBIES ----------
+
+void update_clothing(int year, int month)
+{
+    if (year >= alice.next_clothing_update_year && month == 1)
+    {
+        RUB clothing_cost = 5000 + rand() % 15000;
+        sell_assets(clothing_cost);
+        alice.vtb.account_rub -= clothing_cost;
+        alice.total_expenses += clothing_cost;
+        alice.clothing_expenses += clothing_cost;
+        romance.romance_stats.spent_on_clothing += clothing_cost;
+        
+        alice.next_clothing_update_year = year + (1 + rand() % 3);
+    }
+}
+
+
+
+void update_entertainment()
+{
+    if (rand() % 100 < 50)
+    {
+        RUB entertainment_cost = 500 + (rand() % 10) * 500;
+        sell_assets(entertainment_cost);
+        alice.vtb.account_rub -= entertainment_cost;
+        alice.total_expenses += entertainment_cost;
+        alice.entertainment_expenses += entertainment_cost;
+        romance.romance_stats.spent_on_entertainment += entertainment_cost;
+    }
+}
+
+
+
+void update_hobbies()
+{
+    RUB total_hobby_cost = 0;
+    
+    if (hobbies.drawing_active)
+    {
+        total_hobby_cost += hobbies.drawing_monthly_cost;
+    }
+    
+    if (hobbies.music_active)
+    {
+        total_hobby_cost += hobbies.music_monthly_cost;
+        hobbies.music_months_left--;
+        
+        if (hobbies.music_months_left <= 0)
+            hobbies.music_active = false;
+    }
+    
+    if (total_hobby_cost > 0)
+    {
+        sell_assets(total_hobby_cost);
+        alice.vtb.account_rub -= total_hobby_cost;
+        alice.total_expenses += total_hobby_cost;
+        alice.hobbies_expenses += total_hobby_cost;
+        romance.romance_stats.spent_on_hobbies += total_hobby_cost;
+    }
+}
+
+
+
+// ---------- PETS ----------
+
+enum PetType
+{
+    CAT,
+    DOG,
+    HAMSTER,
+    PARROT,
+    RABBIT,
+    TURTLE
+};
+
+struct Pet
+{
+    PetType type;
+    std::string name;
+    int age_months;
+    int max_lives;
+    int lives;
+    bool alive;
+    int grief_weight;
+    Percent death_chance;
+};
+
+struct PetsSystem
+{
+    std::vector<Pet> pets;
+    int adopted;
+    int died;
+    RUB total_spent;
+    int grief_months_total;
+    bool grieving;
+    int grief_left;
+    Percent adopt_chance;
+    int adopt_cooldown;
+};
+PetsSystem pets;
+
+
+
+std::string cat_names[10] = { "Мурка","Барсик","Снежок","Том","Луна","Симба","Васька","Рыжик","Нюша","Пушок" };
+std::string dog_names[10] = { "Бобик","Шарик","Рекс","Джек","Макс","Лаки","Тузик","Гром","Барон","Чарли" };
+std::string hamster_names[10] = { "Пончик","Крош","Пиксель","Немо","Фунтик","Чип","Плюш","Твикс","Зефир","Бублик" };
+std::string parrot_names[10] = { "Кеша","Рио","Чика","Гоша","Коко","Тико","Жако","Лора","Заза","Пепе" };
+std::string rabbit_names[10] = { "Бакс","Снежок","Пушистик","Лаки","Топа","Милка","Флаффи","Кекс","Бонни","Лапка" };
+std::string turtle_names[10] = { "Шелли","Торти","Лео","Рафа","Донни","Микки","Спайк","Танк","Грин","Олив" };
+
+
+
+std::string get_pet_name(PetType t)
+{
+    if (t == CAT) return cat_names[rand() % 10];
+    if (t == DOG) return dog_names[rand() % 10];
+    if (t == HAMSTER) return hamster_names[rand() % 10];
+    if (t == PARROT) return parrot_names[rand() % 10];
+    if (t == RABBIT) return rabbit_names[rand() % 10];
+    return turtle_names[rand() % 10];
+}
+
+
+
+Pet create_pet(PetType t)
+{
+    Pet p;
+    p.type = t;
+    p.name = get_pet_name(t);
+    p.age_months = 0;
+    p.alive = true;
+    p.death_chance = 1;
+
+    if (t == CAT) { p.max_lives = 8; p.grief_weight = 6; }
+    else if (t == DOG) { p.max_lives = 10; p.grief_weight = 8; }
+    else if (t == HAMSTER) { p.max_lives = 3; p.grief_weight = 3; }
+    else if (t == PARROT) { p.max_lives = 6; p.grief_weight = 7; }
+    else if (t == RABBIT) { p.max_lives = 5; p.grief_weight = 5; }
+    else { p.max_lives = 12; p.grief_weight = 9; }
+
+    p.lives = p.max_lives;
+    return p;
+}
+
+
+
+void pets_init()
+{
+    pets.adopted = 0;
+    pets.died = 0;
+    pets.total_spent = 0;
+    pets.grief_months_total = 0;
+    pets.grieving = false;
+    pets.grief_left = 0;
+    pets.adopt_chance = 8;
+    pets.adopt_cooldown = 0;
+
+    int initial_pets = rand() % 3;
+    for (int i = 0; i < initial_pets; i++)
+    {
+        PetType start = (PetType)(rand() % 6);
+        pets.pets.push_back(create_pet(start));
+        pets.adopted++;
+    }
+    
+    if (pets.pets.empty())
+    {
+        PetType start = (PetType)(rand() % 6);
+        pets.pets.push_back(create_pet(start));
+        pets.adopted = 1;
+    }
+}
+
+
+
+void pet_expenses()
+{
+    for (auto& p : pets.pets)
+    {
+        if (!p.alive) continue;
+
+        RUB cost = 1000;
+        if (p.type == DOG) cost = 3000;
+        if (p.type == HAMSTER) cost = 500;
+        if (p.type == PARROT) cost = 1500;
+        if (p.type == RABBIT) cost = 1200;
+        if (p.type == TURTLE) cost = 800;
+
+        if (rand() % 100 < 10)
+            cost += 2000 + rand() % 5000;
+
+        sell_assets(cost);
+        alice.vtb.account_rub -= cost;
+        alice.total_expenses += cost;
+        pets.total_spent += cost;
+        romance.romance_stats.spent_on_pets += cost;
+    }
+}
+
+
+
+void pet_health(Pet& p)
+{
+    if (!p.alive) return;
+
+    int age_years = p.age_months / 12;
+    int chance = age_years * 2;
+
+    if (rand() % 100 < chance)
+    {
+        RUB cost = 3000 + rand() % 7000;
+        sell_assets(cost);
+        alice.vtb.account_rub -= cost;
+        alice.total_expenses += cost;
+        pets.total_spent += cost;
+        romance.romance_stats.spent_on_pets += cost;
+    }
+}
+
+
+
+void pet_death_logic(Pet& p)
+{
+    if (!p.alive) return;
+
+    int avg = 60;
+    if (p.type == DOG) avg = 120;
+    if (p.type == HAMSTER) avg = 36;
+    if (p.type == PARROT) avg = 180;
+    if (p.type == RABBIT) avg = 72;
+    if (p.type == TURTLE) avg = 300;
+
+    if (p.age_months < avg) return;
+
+    if (rand() % 100 < p.death_chance)
+    {
+        p.lives--;
+        p.death_chance = 1;
+
+        if (p.lives <= 0)
+        {
+            p.alive = false;
+            pets.died++;
+            pets.grieving = true;
+            pets.grief_left = p.grief_weight / 2;
+            pets.grief_months_total += p.grief_weight / 2;
+        }
+    }
+    else
+        p.death_chance += 2;
+}
+
+
+
+void pets_update()
+{
+    for (auto& p : pets.pets)
+    {
+        if (!p.alive) continue;
+        p.age_months++;
+        pet_health(p);
+        pet_death_logic(p);
+    }
+    pet_expenses();
+}
+
+
+
+bool pets_block_freelance()
+{
+    return pets.grieving;
+}
+
+
+
+Percent pets_food_multiplier()
+{
+    return pets.grieving ? 1.2 : 1.0;
+}
+
+
+
+void grief_update()
+{
+    if (!pets.grieving) return;
+
+    pets.grief_left--;
+    if (pets.grief_left <= 0)
+    {
+        pets.grieving = false;
+        pets.adopt_chance = 8;
+    }
+}
+
+
+
+bool can_afford_pet(RUB cost)
+{
+    RUB current_cash = alice.vtb.account_rub + alice.vtb.account_usd * economy.rate_usd_rub +
+                        alice.vtb.deposit.capital + alice.vtb.stocks.capital;
+    return current_cash >= cost + 50000;
+}
+
+
+
+void pets_try_adopt()
+{
+    if (pets.grieving) return;
+    
+    int alive_count = 0;
+    for (auto& p : pets.pets)
+        if (p.alive) alive_count++;
+    
+    if (alive_count >= 3) return;
+
+    if (pets.adopt_cooldown > 0)
+    {
+        pets.adopt_cooldown--;
+        return;
+    }
+
+    Percent chance = pets.adopt_chance;
+    if (alive_count == 0)
+        chance *= 2;
+    else if (alive_count == 1)
+        chance *= 1.5;
+
+    if (rand() % 100 < chance)
+    {
+        RUB cost = 2000;
+        if (!can_afford_pet(cost)) return;
+
+        PetType t = (PetType)(rand() % 6);
+        pets.pets.push_back(create_pet(t));
+        pets.adopted++;
+        pets.adopt_chance = 8;
+        pets.adopt_cooldown = 6 + rand() % 12;
+    }
+    else
+    {
+        if (rand() % 8 == 0)
+            pets.adopt_chance += 2;
+    }
+}
+
+
+
+// ---------- HEALTH ----------
+
+void alice_health_update(int year)
+{
+    if (health.sick)
+    {
+        health.sick_months_left--;
+        if (health.sick_months_left <= 0)
+        {
+            health.sick = false;
+            health.immunity_months = 3 + health.severity * 2;
+        }
+        return;
+    }
+
+    if (health.immunity_months > 0)
+    {
+        health.immunity_months--;
+        return;
+    }
+
+    int years_passed = year - 2026;
+    int chance = 5 + years_passed / 2;
+    int roll = rand() % 100;
+
+    if (roll < chance)
+    {
+        health.sick = true;
+        health.severity = 1 + rand() % 3;
+        health.sick_months_left = 1;
+
+        RUB cost = 5000 * health.severity;
+        sell_assets(cost);
+        alice.vtb.account_rub -= cost;
+        alice.total_expenses += cost;
+    }
+}
+
+
+
+// ---------- INCOME ----------
+
+void switch_tax(int year)
+{
+    if (year >= 2028) economy.income_tax = 14;
+}
+
+
+
+void salary_growth(int year)
+{
+    int stage = (year - 2026) / 5;
+
+    if ((year - 2026) % 5 == 0 && year != 2026)
+    {
+        if (stage % 2 == 1)
+            alice.salary += 30000;
+        else
+            alice.salary += 20000;
+    }
+}
+
+
+
+void alice_salary(int month, int year)
+{
+    if (month == 1)
+        salary_growth(year);
+
+    switch_tax(year);
+
+    RUB base = alice.salary;
+    if (health.sick)
+        base *= 0.8;
+    
+    if (is_on_maternity_leave())
+    {
+        base = 0;
+    }
+
+    RUB income = base * ((100 - economy.income_tax) / 100);
+    alice.vtb.account_rub += income;
+    alice.total_income += income;
+    alice.income_salary += income;
+    romance.last_month_income = income;
+}
+
+
+
+void alice_freelance()
+{
+    if (health.sick) return;
+    if (pets_block_freelance()) return;
+    
+    if (is_on_maternity_leave())
+    {
+        if (rand() % 100 < 50) return;
+    }
+
+    int roll = rand() % 100;
+    if (roll < freelance.chance_of_work)
+    {
+        USD inc = freelance.min_income + rand() % (freelance.max_income - freelance.min_income + 1);
+        alice.vtb.account_usd += inc;
+        RUB inc_rub = inc * economy.rate_usd_rub;
+        alice.income_freelance += inc_rub;
+        alice.total_income += inc_rub;
+        romance.last_month_income += inc_rub;
+    }
+}
+
+
+
+void alice_rent_income()
+{
+    RUB income = alice.estate.flats * alice.estate.rent_income;
+    alice.vtb.account_rub += income;
+    alice.total_income += income;
+    alice.income_rent += income;
+    romance.last_month_income += income;
+}
+
+
+
+// ---------- EXPENSES ----------
+
+void rent_growth(int month, int year)
+{
+    if (month == 1)
+    {
+        alice.home.rent *= 1.02;
+        alice.estate.rent_income *= 1.03;
+        
+        update_flat_price(year);
+    }
+}
+
+
+
+void alice_expenses(int month, int year)
+{
+    switch_inflation(year);
+    alice.food += alice.food * economy.inflation / 100 / 12;
+    rent_growth(month, year);
+
+    RUB utilities = 5000;
+    if (month >= 10 || month <= 3)
+        utilities *= 3;
+
+    RUB food_expense = alice.food * pets_food_multiplier();
+    romance.romance_stats.spent_on_food += food_expense;
+    
+    RUB total = food_expense + alice.home.rent + alice.car.gas + utilities;
+    sell_assets(total);
+    alice.vtb.account_rub -= total;
+    alice.total_expenses += total;
+    romance.last_month_expenses = total;
+    
+    check_and_take_credit();
+}
+
+
+// ---------- TAXES ----------
+
+void alice_taxes()
+{
+    RUB tax = 0;
+    tax += alice.estate.flats * 5000;
+    tax += alice.car.value * 0.01;
+
+    sell_assets(tax);
+    alice.vtb.account_rub -= tax;
+    alice.total_expenses += tax;
+    romance.last_month_expenses += tax;
+}
+
+
+
+// ---------- CAR ----------
+
+void alice_car_update()
+{
+    update_car();
+}
+
+
+
+void alice_car_break()
+{
+    if (alice.car.category == 0) return;
+    
+    int roll = rand() % 100;
+    float multiplier = 1.0;
+    if (romance.status == MARRIED)
+        multiplier = 1.3;
+
+    if (roll < 6 * multiplier)
+    {
+        RUB cost = 10000 + rand() % 100000;
+        
+        if (romance.status == MARRIED)
+        {
+            RUB alice_share = cost / 2;
+            RUB partner_share = cost / 2;
+            
+            sell_assets(alice_share);
+            alice.vtb.account_rub -= alice_share;
+            alice.total_expenses += alice_share;
+            romance.romance_stats.spent_on_car += alice_share;
+            
+            if (romance.partner.money >= partner_share)
+                romance.partner.money -= partner_share;
+            else
+            {
+                RUB remaining = partner_share - romance.partner.money;
+                romance.partner.money = 0;
+                if (romance.partner.deposit >= remaining)
+                    romance.partner.deposit -= remaining;
+                else
+                {
+                    remaining -= romance.partner.deposit;
+                    romance.partner.deposit = 0;
+                    romance.partner.stocks -= remaining;
+                    if (romance.partner.stocks < 0)
+                        romance.partner.stocks = 0;
+                }
+            }
+        }
+        else
+        {
+            sell_assets(cost);
+            alice.vtb.account_rub -= cost;
+            alice.total_expenses += cost;
+            romance.romance_stats.spent_on_car += cost;
+        }
+        
+        alice.car.repairs++;
+    }
+}
+
+
+
+// ---------- TECH ----------
+
+void alice_phone(int year)
+{
+    update_phone(year);
+}
+
+
+
+void alice_laptop(int year)
+{
+    update_laptop(year);
+}
+
+
+
+// ---------- INVEST ----------
+
+void alice_deposit()
+{
+    RUB reserve = 150000;
+    RUB free = alice.vtb.account_rub - reserve;
+
+    if (free > 0)
+    {
+        alice.vtb.account_rub -= free;
+        alice.vtb.deposit.capital += free;
+    }
+
+    if (alice.vtb.deposit.capital > 0)
+        alice.vtb.deposit.capital *= 1.005;
+}
+
+
+
+void alice_investments()
+{
+    if (alice.vtb.account_rub < 50000) return;
+
+    RUB invest = alice.vtb.account_rub * 0.1;
+    alice.vtb.account_rub -= invest;
+    alice.vtb.stocks.capital += invest;
+
+    int roll = rand() % 100;
+
+    if (alice.vtb.stocks.capital > 0)
+    {
+        if (roll < 40)
+            alice.vtb.stocks.capital *= 1.01;
+        else if (roll < 80)
+            alice.vtb.stocks.capital *= 0.99;
+        else
+            alice.vtb.stocks.capital *= 1.03;
+    }
+}
+
+
+
+// ---------- REAL ESTATE ----------
+
+void buy_flat_together()
+{
+    if (romance.status != MARRIED) return;
+    
+    RUB price = alice.estate.flat_price;
+    RUB total_money = alice.cash_capital + romance.partner.money + romance.partner.deposit + romance.partner.stocks;
+    
+    if (total_money >= price)
+    {
+        RUB alice_share = std::min<long long>(alice.cash_capital, price);
+        RUB remaining = price - alice_share;
+        
+        if (alice_share > 0)
+        {
+            sell_assets(alice_share);
+        }
+        
+        if (remaining > 0)
+        {
+            if (romance.partner.money >= remaining)
+            {
+                romance.partner.money -= remaining;
+            }
+            else
+            {
+                remaining -= romance.partner.money;
+                romance.partner.money = 0;
+                
+                if (romance.partner.deposit >= remaining)
+                {
+                    romance.partner.deposit -= remaining;
+                }
+                else
+                {
+                    remaining -= romance.partner.deposit;
+                    romance.partner.deposit = 0;
+                    romance.partner.stocks -= remaining;
+                    if (romance.partner.stocks < 0)
+                        romance.partner.stocks = 0;
+                }
+            }
+        }
+        
+        alice.estate.flats++;
+        alice.estate.flats_together++;
+        alice.flats_bought_together++;
+        alice.estate.total_spent_on_flats += price;
+        romance.romance_stats.spent_on_flats += price;
+        
+        if (romance.partner.owns_housing)
+        {
+            romance.partner.owns_housing = false;
+            alice.estate.rent_income += 25000;
+        }
+        
+        alice.home.rent = 0;
+    }
+}
+
+
+
+void alice_take_mortgage()
+{
+    update_total_capital();
+    RUB price = alice.estate.flat_price;
+    
+    RUB total_capital_for_mortgage = alice.cash_capital;
+    
+    if (romance.status == MARRIED)
+    {
+        total_capital_for_mortgage += romance.partner.money + romance.partner.deposit + romance.partner.stocks;
+    }
+    
+    RUB down_payment = price * 0.2;
+    
+    if (total_capital_for_mortgage < down_payment) return;
+    if (alice.estate.mortgage.active) return;
+    
+    RUB alice_available = alice.cash_capital;
+    
+    if (alice_available < down_payment && romance.status != MARRIED) return;
+    
+    RUB alice_share = std::min<long long>(alice_available, down_payment);
+    
+    if (alice_share > 0)
+    {
+        sell_assets(alice_share);
+    }
+    
+    RUB remaining = down_payment - alice_share;
+    
+    if (remaining > 0 && romance.status == MARRIED)
+    {
+        if (romance.partner.money >= remaining)
+        {
+            romance.partner.money -= remaining;
+        }
+        else
+        {
+            remaining -= romance.partner.money;
+            romance.partner.money = 0;
+            
+            if (romance.partner.deposit >= remaining)
+            {
+                romance.partner.deposit -= remaining;
+            }
+            else
+            {
+                remaining -= romance.partner.deposit;
+                romance.partner.deposit = 0;
+                romance.partner.stocks -= remaining;
+                if (romance.partner.stocks < 0)
+                    romance.partner.stocks = 0;
+            }
+        }
+    }
+    
+    alice.estate.mortgage.debt = price - down_payment;
+    alice.estate.mortgage.payment = alice.estate.mortgage.debt * 0.01;
+    alice.estate.mortgage.active = true;
+    alice.estate.flats++;
+    alice.estate.flats_mortgage++;
+    alice.flats_bought++;
+    alice.estate.total_spent_on_flats += down_payment;
+    romance.romance_stats.spent_on_flats += down_payment;
+    
+    if (romance.status == MARRIED && romance.partner.owns_housing)
+    {
+        romance.partner.owns_housing = false;
+    }
+    
+    alice.home.rent = 0;
+}
+
+
+
+void alice_pay_mortgage()
+{
+    if (!alice.estate.mortgage.active) return;
+
+    RUB pay = alice.estate.mortgage.payment;
+    sell_assets(pay);
+
+    if (alice.vtb.account_rub < pay) return;
+
+    alice.vtb.account_rub -= pay;
+    alice.total_expenses += pay;
+    alice.estate.mortgage.debt -= pay;
+
+    if (alice.estate.mortgage.debt <= 0)
+    {
+        alice.estate.mortgage.active = false;
+        alice.estate.mortgage.debt = 0;
+    }
+}
+
+
+
+void alice_buy_flat()
+{
+    update_total_capital();
+    
+    RUB price = alice.estate.flat_price;
+    
+    if (romance.status == MARRIED)
+    {
+        RUB total_money = alice.cash_capital + romance.partner.money + romance.partner.deposit + romance.partner.stocks;
+        if (total_money >= price)
+        {
+            buy_flat_together();
+            return;
+        }
+    }
+    
+    if (alice.cash_capital < price) return;
+    
+    sell_assets(price);
+    
+    if (alice.vtb.account_rub >= price)
+    {
+        alice.vtb.account_rub -= price;
+        alice.total_expenses += price;
+        alice.estate.flats++;
+        alice.estate.flats_alice++;
+        alice.flats_bought++;
+        alice.estate.total_spent_on_flats += price;
+        romance.romance_stats.spent_on_flats += price;
+    }
+}
+
+
+
+// ---------- SIMULATION ----------
+
+void simulation()
+{
+    int year = 2026;
+    int month = 1;
+
+    while (!(year == 2056 && month == 1))
+    {
+        romance.last_month_income = 0;
+        romance.last_month_expenses = 0;
+        
+        update_usd_rate();
+        alice_health_update(year);
+        
+        if (romance.acquaintance_cooldown_months > 0)
+        {
+            romance.acquaintance_cooldown_months--;
+            if (romance.acquaintance_cooldown_months <= 0)
+                romance.has_acquaintance_cooldown = false;
+        }
+        
+        start_acquaintance(year, month);
+        update_acquaintance();
+        
+        alice_salary(month, year);
+        alice_freelance();
+        alice_rent_income();
+        alice_expenses(month, year);
+        if (month == 12) alice_taxes();
+        
+        update_partner_money();
+        update_dating_relationship(year, month);
+        update_living_together(year, month);
+        update_married_life(year, month);
+        
+        check_pregnancy(year, month);
+        handle_pregnancy_decision(year, month);
+        update_pregnancy(year, month);
+        update_children_expenses();
+
+        alice_take_mortgage();
+        alice_pay_mortgage();
+        alice_buy_flat();
+        pay_credit();
+        
+        update_clothing(year, month);
+        update_entertainment();
+        update_hobbies();
+
+        alice_car_update();
+        alice_car_break();
+        alice_buy_car_credit();
+        alice_phone(year);
+        alice_laptop(year);
+        alice_deposit();
+        alice_investments();
+
+        pets_update();
+        grief_update();
+        pets_try_adopt();
+
+        month++;
+        if (month == 13)
+        {
+            month = 1;
+            year++;
+        }
+    }
+}
+
+
+// ---------- PREPARE RESULTS ----------
+
+void print_pets()
+{
+    int alive_count = 0;
+    for (auto& p : pets.pets)
+        if (p.alive) alive_count++;
+    
+    if (alive_count == 0)
+    {
+        printf("\nТекущие животные: нет\n");
+    }
+    else
+    {
+        printf("\nТекущие животные:\n");
+        for (auto& p : pets.pets)
+        {
+            if (!p.alive) continue;
+            const char* type = p.type == CAT ? "Кошка" : p.type == DOG ? "Собака" : p.type == HAMSTER ? "Хомяк" : p.type == PARROT ? "Попугай" : p.type == RABBIT ? "Кролик" : "Черепаха";
+            printf("%s: %s, %d лет\n", type, p.name.c_str(), p.age_months / 12);
+        }
+    }
+}
+
+
+void print_current_partner()
+{
+    if (romance.status != SINGLE)
+    {
+        printf("\nТекущий партнер: %s\n", romance.partner.name.c_str());
+        const char* status_text = romance.status == ACQUAINTANCE ? "Знакомый" : romance.status == DATING ? "Встречается" : romance.status == LIVING_TOGETHER ? "Не в браке, но живут вместе" : "Замужем";
+        printf("Статус: %s\n", status_text);
+        
+        int total_months = 0;
+        if (romance.status == ACQUAINTANCE) total_months = romance.months_since_meeting;
+        else total_months = romance.partner.relationship_months;
+        
+        int years = total_months / 12;
+        int months = total_months % 12;
+        if (years > 0) printf("Длительность: %d год(а/лет) %d месяц(ев/ца)\n", years, months);
+        else printf("Длительность: %d месяц(ев/ца)\n", months);
+
+        printf("Жилье до отношений с Alice: %s\n", romance.partner.owns_housing ? "есть" : "нет");
+    }
+}
+
+
+void print_children()
+{
+    if (!romance.children.empty())
+    {
+        printf("\nДети:\n");
+        for (auto& child : romance.children)
+        {
+            printf("  %s (%s), %d лет, родился %d.%d.%d\n", 
+                child.name.c_str(), 
+                child.gender == "male" ? "мальчик" : "девочка",
+                child.age_months / 12,
+                child.birth_day, child.birth_month, child.birth_year);
+        }
+    }
+}
+
+
+// ---------- RESULTS ----------
+
+void print_results()
+{
+    update_total_capital();
+    
+    printf("\n=========== РЕЗУЛЬТАТ ЗА 30 ЛЕТ ===========\n\n");
+    
+    printf("--- ДЕНЬГИ ---\n");
+    printf("Заработано всего: %lld\n", alice.total_income);
+    printf("     Получено денег зарплатой: %lld\n", alice.income_salary);
+    printf("     Получено денег за аренду: %lld\n", alice.income_rent);
+    printf("     Получено денег за фриланс: %lld\n", alice.income_freelance);
+    printf("Итоговая зарплата: %lld\n", alice.salary);
+    
+
+    printf("\n--- КАПИТАЛ ---\n");
+    printf("Капитал: %lld\n", alice.total_capital);
+    printf("    Деньги на счетах: %lld\n", alice.cash_capital);
+    printf("    Недвижимость: %lld\n", alice.real_estate_capital);
+    printf("    Автомобиль: %lld\n", alice.car_capital);
+    
+
+    printf("\n--- РАСХОДЫ ---\n");
+    printf("Потрачено всего: %lld\n", alice.total_expenses);
+    printf("    На еду: %lld\n", romance.romance_stats.spent_on_food);
+    printf("    На одежду: %lld\n", romance.romance_stats.spent_on_clothing);
+    printf("    На развлечения: %lld\n", romance.romance_stats.spent_on_entertainment);
+    printf("    На хобби: %lld\n", romance.romance_stats.spent_on_hobbies);
+
+    printf("\n    На квартиры: %lld\n", romance.romance_stats.spent_on_flats);
+    printf("    На машины: %lld\n", romance.romance_stats.spent_on_car);
+    
+    printf("\n    На животных: %lld\n", romance.romance_stats.spent_on_pets);
+
+    printf("\n    На партнера: %lld\n", romance.romance_stats.spent_on_partner);
+    printf("    На беременность: %lld\n", romance.romance_stats.spent_on_pregnancy);
+    printf("    На детей: %lld\n", romance.romance_stats.spent_on_children);
+    
+    
+
+    printf("\n--- НЕДВИЖИМОСТЬ ---\n");
+    printf("Всего квартир: %d\n", alice.estate.flats_alice + alice.estate.flats_together + alice.estate.flats_mortgage + alice.estate.flats_partner);
+    printf("Потрачено на квартиры: %lld\n", alice.estate.total_spent_on_flats);
+    printf("Текущая цена квартиры: %lld\n", alice.estate.flat_price);
+    printf("Начальная цена квартиры: %lld\n", alice.estate.initial_flat_price);
+    printf("Рост цены: %.1f%%\n", ((float)alice.estate.flat_price / alice.estate.initial_flat_price - 1) * 100);
+    
+
+    printf("\n--- ИНВЕСТИЦИИ ---\n");
+    printf("Вклад Alice: %lld\n", alice.vtb.deposit.capital);
+    printf("Акции Alice: %lld\n", alice.vtb.stocks.capital);
+    
+
+    printf("\n--- АВТОМОБИЛЬ ---\n");
+    printf("Ремонтов: %d\n", alice.car.repairs);
+    printf("Замен авто: %d\n", alice.car.replaced);
+    
+
+    printf("\n--- ТЕХНИКА ---\n");
+    printf("Куплено телефонов: %d\n", alice.tech.phone_count);
+    printf("Куплено ноутбуков: %d\n", alice.tech.laptop_count);
+    
+
+    printf("\n--- ЖИВОТНЫЕ ---\n");
+    printf("Заведено: %d\n", pets.adopted);
+    printf("Умерло: %d\n", pets.died);
+    printf("Месяцев скорби: %d\n", pets.grief_months_total);
+    print_pets();
+    
+
+    printf("\n--- ЛИЧНАЯ ЖИЗНЬ ---\n");
+    printf("Было знакомств: %d\n", romance.romance_stats.acquaintances_count);
+
+    if(romance.status != SINGLE)
+    {
+        printf("Было отношений: %d\n", romance.romance_stats.failed_relationships_count + 1);
+    }
+    else
+    {
+        printf("Было отношений: %d\n", romance.romance_stats.failed_relationships_count);
+    }
+
+    printf("Было браков: %d\n", romance.romance_stats.marriages_count);
+    printf("Неудачно закончилось: %d\n", romance.romance_stats.failed_relationships_count);
+
+    printf("\nДетей: %d\n", romance.romance_stats.children_count);
+
+
+    print_current_partner();
+    
+
+    print_children();
+    
+
+    if (romance.romance_stats.total_assets_at_divorce > 0)
+        printf("\nАктивы при разводе: %lld\n", romance.romance_stats.total_assets_at_divorce);
+    
+    printf("\n========================================\n");
+}
+
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+    srand(time(0));
+    
+    economy_init();
+    freelance_init();
+    pets_init();
+    alice_init();
+    
+    simulation();
+    print_results();
+    
+    return 0;
+}
