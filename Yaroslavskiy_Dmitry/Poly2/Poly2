@@ -1,4 +1,3 @@
-//ver 1.1
 #include <DHT.h>
 
 #define DHTPIN 12
@@ -12,11 +11,16 @@
 
 DHT dht(DHTPIN, DHTTYPE);
 
+unsigned long pumpStartTime = 0;
+bool isPumpRunning = false;
+unsigned long lastWateringTime = 0;
+const unsigned long MAX_PUMP_TIME = 10000;
+const unsigned long REST_TIME = 60000;
+
 class AirSensor {
 public:
     float temperature;
     float humidity;
-    
     void read() {
         temperature = dht.readTemperature();
         humidity = dht.readHumidity();
@@ -44,17 +48,14 @@ protected:
     int pin;
 public:
     bool isActive;
-
     Relay(int p) {
         pin = p;
         isActive = false;
     }
-
     void begin() {
         pinMode(pin, OUTPUT);
         digitalWrite(pin, LOW);
     }
-
     void applyState() {
         if (isActive) {
             digitalWrite(pin, HIGH);
@@ -90,12 +91,10 @@ void control_temperature_and_air(const AirSensor& air, Heater& heater, Fan& fan)
     if (air.temperature > 28.0) {
         heater.isActive = false;
         fan.isActive = true;
-    }
-    else if (air.temperature < 22.0) {
+    } else if (air.temperature < 22.0) {
         heater.isActive = true;
         fan.isActive = false;
-    }
-    else {
+    } else {
         heater.isActive = false;
         fan.isActive = false;
     }
@@ -106,10 +105,26 @@ void control_temperature_and_air(const AirSensor& air, Heater& heater, Fan& fan)
 }
 
 void control_soil_humidity(const SoilSensor& soil, Pump& pump) {
-    if (soil.moistureLevel > 700) {
-        pump.isActive = true;
-    } else if (soil.moistureLevel < 400) {
+    unsigned long currentTime = millis();
+
+    if (soil.moistureLevel > 700 && !isPumpRunning) {
+        if (currentTime - lastWateringTime > REST_TIME) {
+            pump.isActive = true;
+            isPumpRunning = true;
+            pumpStartTime = currentTime;
+        }
+    } 
+    
+    if (isPumpRunning && soil.moistureLevel < 400) {
         pump.isActive = false;
+        isPumpRunning = false;
+        lastWateringTime = currentTime;
+    }
+    
+    if (isPumpRunning && (currentTime - pumpStartTime > MAX_PUMP_TIME)) {
+        pump.isActive = false;
+        isPumpRunning = false;
+        lastWateringTime = currentTime;
     }
 }
 
@@ -153,8 +168,11 @@ void loop() {
     pump.applyState();
     lamp.applyState();
 
-    Serial.print("T: "); Serial.print(airSensor.temperature);
-    Serial.print(" H: "); Serial.println(airSensor.humidity);
+    Serial.print(airSensor.temperature);
+    Serial.print(" ");
+    Serial.print(airSensor.humidity);
+    Serial.print(" ");
+    Serial.println(soilSensor.moistureLevel);
 
     delay(2000);
 }
