@@ -3,7 +3,6 @@
 #include <time.h>
 #include <locale.h>
 
-
 using RUB = long long int;
 using USD = long long int;
 
@@ -27,11 +26,11 @@ struct RealEstate {
 	RUB utilities;
 	RUB property_tax;
 	RUB repair_fund;
-	RUB inherited_apartment_value; // Унаследованная квартира
-	RUB rental_income; // Доход от аренды
-	RUB rental_tax; // Налог на доход от аренды
-	RUB inherited_apartment_utilities; // Коммуналка наследуемой квартиры
-	int is_rented; //Сдается ли квартира
+	RUB inherited_apartment_value;
+	RUB rental_income;
+	RUB rental_tax;
+	RUB inherited_apartment_utilities;
+	int is_rented;
 };
 
 
@@ -91,6 +90,8 @@ struct Health {
 	RUB psychologist;
 	RUB gym_membership;
 	RUB sports_equipment;
+	int alcohol_addiction_level;
+	int is_addicted;
 };
 
 
@@ -144,6 +145,14 @@ struct Family {
 };
 
 
+struct Profession {
+	int current_profession_id;
+	RUB base_salaries[7];
+	int career_change_year;
+	int career_change_month;
+};
+
+
 struct Person {
 	RUB pets_expenses;
 	RUB lottery_tickets;
@@ -165,6 +174,7 @@ struct Person {
 	Charity charity;
 	Vacation vacation;
 	Family family;
+	Profession career;
 	RUB transportation;
 	RUB gifts;
 	RUB emergency_fund;
@@ -247,7 +257,7 @@ void alice_init()
 	alice.portfolio.bonds = 100'000;
 	alice.portfolio.gold = 75'000;
 	alice.portfolio.etf = 150'000;
-	alice.portfolio.startup = 0;
+	alice.portfolio.startup = 0; // Потенциальная инвестиция в стартап
 
 	
 	alice.education.courses = 15'000;
@@ -265,6 +275,8 @@ void alice_init()
 	alice.health.psychologist = 0;
 	alice.health.gym_membership = 4'000;
 	alice.health.sports_equipment = 0;
+	alice.health.alcohol_addiction_level = 0;
+	alice.health.is_addicted = 0;
 
 	
 	alice.entertainment_detail.cinema = 2'000;
@@ -309,6 +321,88 @@ void alice_init()
 	alice.family.heritage_tax = 210'000;
 
 	alice.lottery_tickets = 20'000;
+	
+	
+	alice.career.base_salaries[0] = 30'000;
+	alice.career.base_salaries[1] = 45'000;
+	alice.career.base_salaries[2] = 55'000;
+	alice.career.base_salaries[3] = 85'000;
+	alice.career.base_salaries[4] = 95'000;
+	alice.career.base_salaries[5] = 110'000;
+	alice.career.base_salaries[6] = 130'000; 
+	alice.career.current_profession_id = 0;
+	alice.career.career_change_year = 2027;
+	alice.career.career_change_month = 8;
+}
+
+
+void alice_alcohol_addiction()
+{
+	if (alice.alcohol > 1000) {
+		alice.health.alcohol_addiction_level += 2;
+	}
+	
+	if (alice.alcohol > 3000) {
+		alice.health.alcohol_addiction_level += 3;
+	}
+	
+	if (alice.alcohol > 5000) {
+		alice.health.alcohol_addiction_level += 5;
+	}
+	
+	if (alice.health.alcohol_addiction_level >= 70 and !alice.health.is_addicted) {
+		alice.health.is_addicted = 1;
+		printf("\nУ Алисы развилась алкогольная зависимость\n");
+	}
+	
+
+	if (alice.health.is_addicted) {
+		if (alice.alcohol < 15'000) {
+			alice.alcohol = 15'000;
+		}
+		
+		alice.alcohol += alice.alcohol * 0.05;
+		alice.health.medications += 2'000;
+		
+		if (rand() % 100 < 20) {
+			RUB productivity_penalty = alice.salary * 0.1;
+			alice.vtb.account_rub -= productivity_penalty;
+		}
+	}
+}
+
+
+void alice_career_change(const int month, const int year)
+{
+	if (year == alice.career.career_change_year and month == alice.career.career_change_month) {
+		
+		
+		int best_profession = alice.career.current_profession_id;
+		RUB best_salary = alice.salary;
+		
+		for (int i = 1; i <= 6; i++) {
+			RUB potential_salary = alice.career.base_salaries[i];
+			
+			
+			if (potential_salary > best_salary) {
+				best_salary = potential_salary;
+				best_profession = i;
+			}
+		}
+		
+		
+		if (best_profession != alice.career.current_profession_id) {
+			alice.salary = best_salary;
+			alice.career.current_profession_id = best_profession;
+		}
+		
+		
+		alice.career.career_change_month += 18;
+		if (alice.career.career_change_month > 12) {
+			alice.career.career_change_year += 1;
+			alice.career.career_change_month -= 12;
+		}
+	}
 }
 
 
@@ -324,7 +418,7 @@ void alice_rental_income()
 		alice.vtb.account_rub -= alice.home.inherited_apartment_utilities;
 
 		
-		if (rand() % 100 < 5) { 
+		if (rand() % 100 < 5) {
 			RUB repair_cost = (rand() % 20 + 5) * 1000;
 			alice.vtb.account_rub -= repair_cost;
 		}
@@ -391,6 +485,23 @@ void alice_freelance(const int month, const int year)
 		alice.freelance.project_duration = 2;
 		alice.freelance.project_income = 50'000;
 	}
+	
+	
+	if (!alice.freelance.has_project and year > 2026 and month == 3) {
+		alice.freelance.has_project = 1;
+		alice.freelance.project_month = month;
+		alice.freelance.project_duration = 4;
+		alice.freelance.project_income = 120'000;
+	}
+	
+
+	if (!alice.freelance.has_project and year > 2026 and month == 9) {
+		alice.freelance.has_project = 1;
+		alice.freelance.project_month = month;
+		alice.freelance.project_duration = 3;
+		alice.freelance.project_income = 90'000;
+	}
+
 
 	if (alice.freelance.has_project) {
 		int months_active = month - alice.freelance.project_month;
@@ -418,6 +529,7 @@ void alice_food(const int month, const int year)
 	case 2027: inflation = 0.14; break;
 	case 2028: inflation = 0.13; break;
 	case 2029: inflation = 0.115; break;
+	default: inflation = 0.10; break;
 	}
 
 	alice.food += alice.food * (inflation / 12);
@@ -462,7 +574,7 @@ void alice_car(const int month)
 	}
 
 	
-	if (month == 11) { // Транспортный налог
+	if (month == 11) {
 		alice.vtb.account_rub -= alice.car.tax;
 	}
 }
@@ -476,14 +588,14 @@ void alice_real_estate(const int month, const int year)
 	alice.vtb.account_rub -= alice.home.repair_fund;
 
 	
-	if (month == 10) { // Налог на имущество
+	if (month == 10) {
 		RUB property_tax = alice.home.apartment_value * 0.001;
 		alice.vtb.account_rub -= property_tax;
 	}
 
 	
-	if (month == 1 and year > 2026) { // Индексация стоимости квартиры
-		alice.home.apartment_value *= 1.15; // Рост 15% в год
+	if (month == 1 and year > 2026) {
+		alice.home.apartment_value *= 1.15;
 		alice.home.inherited_apartment_value *= 1.15;
 	}
 }
@@ -518,19 +630,19 @@ void alice_investments(const int month, const int year)
 	alice.portfolio.stocks = alice.portfolio.stocks * stocks_return;
 
 	
-	float crypto_change = 1.0 + ((rand() % 200 - 100) / 100.0 * alice.portfolio.crypto_volatility / 12); // Волатильность крипты
+	float crypto_change = 1.0 + ((rand() % 200 - 100) / 100.0 * alice.portfolio.crypto_volatility / 12);
 	alice.portfolio.crypto = alice.portfolio.crypto * crypto_change;
 
 	
-	float bonds_return = 1.0 + (0.06 / 12); // Облигации (6% годовых)
+	float bonds_return = 1.0 + (0.06 / 12);
 	alice.portfolio.bonds = alice.portfolio.bonds * bonds_return;
 
 	
-	float gold_return = 1.0 + (alice.portfolio.gold_growth_rate / 12); // Золото (8% годовых)
+	float gold_return = 1.0 + (alice.portfolio.gold_growth_rate / 12);
 	alice.portfolio.gold = alice.portfolio.gold * gold_return;
 
 	
-	float etf_return = 1.0 + (alice.portfolio.etf_growth_rate / 12); // ETF (10% годовых)
+	float etf_return = 1.0 + (alice.portfolio.etf_growth_rate / 12);
 	alice.portfolio.etf = alice.portfolio.etf * etf_return;
 
 	
@@ -541,7 +653,7 @@ void alice_investments(const int month, const int year)
 	}
 
 	
-	if (alice.vtb.account_rub > 100'000) { // Автоматические инвестиции
+	if (alice.vtb.account_rub > 100'000) {
 		RUB investment_amount = alice.vtb.account_rub * 0.1;
 		if (investment_amount > 50'000) investment_amount = 50'000;
 
@@ -550,7 +662,7 @@ void alice_investments(const int month, const int year)
 		
 		alice.portfolio.stocks += investment_amount * 0.4;
 		alice.portfolio.bonds += investment_amount * 0.2;
-		alice.portfolio.etf += investment_amount * 0.2; // Диверсифицированный портфель
+		alice.portfolio.etf += investment_amount * 0.2;
 		alice.portfolio.gold += investment_amount * 0.15;
 		alice.portfolio.crypto += investment_amount * 0.05;
 	}
@@ -568,12 +680,12 @@ void alice_education_expenses(const int month, const int year)
 	}
 
 	if (month == 9 and year == 2026) {
-		alice.education.certifications = 25'000; // Сертификация
+		alice.education.certifications = 25'000;
 		alice.vtb.account_rub -= alice.education.certifications;
 	}
 
 	if (month == 5 and year == 2027) {
-		alice.education.conference = 40'000; // Профессиональная конференция
+		alice.education.conference = 40'000;
 		alice.vtb.account_rub -= alice.education.conference;
 	}
 }
@@ -664,6 +776,45 @@ void alice_vacation_expenses(const int month, const int year)
 		alice.vtb.account_rub -= alice.vacation.visa_fees;
 		alice.vtb.account_rub -= alice.vacation.souvenirs;
 	}
+	
+	
+	if (month == 7 and year == 2028 and !alice.vacation.is_traveling) {
+		alice.vacation.is_traveling = 1;
+		alice.vacation.travel_month = 7;
+		alice.vacation.current_trip_cost = 120'000;
+		alice.vacation.visa_fees = 8'000;
+		alice.vacation.souvenirs = 15'000;
+
+		alice.vtb.account_rub -= alice.vacation.current_trip_cost;
+		alice.vtb.account_rub -= alice.vacation.visa_fees;
+		alice.vtb.account_rub -= alice.vacation.souvenirs;
+	}
+	
+
+	if (month == 8 and year == 2031 and !alice.vacation.is_traveling) {
+		alice.vacation.is_traveling = 1;
+		alice.vacation.travel_month = 8;
+		alice.vacation.current_trip_cost = 150'000;
+		alice.vacation.visa_fees = 10'000;
+		alice.vacation.souvenirs = 20'000;
+
+		alice.vtb.account_rub -= alice.vacation.current_trip_cost;
+		alice.vtb.account_rub -= alice.vacation.visa_fees;
+		alice.vtb.account_rub -= alice.vacation.souvenirs;
+	}
+	
+
+	if (month == 7 and year == 2034 and !alice.vacation.is_traveling) {
+		alice.vacation.is_traveling = 1;
+		alice.vacation.travel_month = 7;
+		alice.vacation.current_trip_cost = 180'000;
+		alice.vacation.visa_fees = 12'000;
+		alice.vacation.souvenirs = 25'000;
+
+		alice.vtb.account_rub -= alice.vacation.current_trip_cost;
+		alice.vtb.account_rub -= alice.vacation.visa_fees;
+		alice.vtb.account_rub -= alice.vacation.souvenirs;
+	}
 
 
 	if (alice.vacation.is_traveling and month == alice.vacation.travel_month) {
@@ -744,7 +895,7 @@ void alice_bank_operations(const int month, const int year)
 	}
 
 	
-	if (month == 4) { // Возврат налогов (раз в год)
+	if (month == 4) {
 		alice.vtb.tax_refund = (rand() % 10 + 5) * 1000;
 		alice.vtb.account_rub += alice.vtb.tax_refund;
 	}
@@ -753,7 +904,7 @@ void alice_bank_operations(const int month, const int year)
 
 void alice_tax_optimization(const int month, const int year)
 {
-		if (year == 2026 and month == 12) { // ИИС
+		if (year == 2026 and month == 12) {
 		RUB iis_investment = 200'000;
 
 
@@ -762,7 +913,7 @@ void alice_tax_optimization(const int month, const int year)
 			alice.portfolio.stocks += iis_investment;
 			
 
-			RUB tax_deduction = iis_investment * 0.13; // Налоговый вычет 13%
+			RUB tax_deduction = iis_investment * 0.13;
 			alice.vtb.account_rub += tax_deduction;
 		}
 	}
@@ -774,12 +925,13 @@ void simulation()
 	int year = 2026;
 	int month = 2;
 
-	while (!(year == 2027 and month == 2)) {
+	while (!(year == 2036 and month == 2)) {
 
 		alice_salary(month, year);
-		alice_rental_income(); // Доход от аренды унаследованной квартиры
+		alice_rental_income();
 		alice_freelance(month, year);
 		alice_investments(month, year);
+		alice_career_change(month, year);
 
 		alice_real_estate(month, year);
 		alice_food(month, year);
@@ -792,6 +944,9 @@ void simulation()
 		alice_vacation_expenses(month, year);
 		alice_family_expenses(month);
 		alice_monthly_others(month);
+		
+		
+		alice_alcohol_addiction();
 
 		alice_bank_operations(month, year);
 		alice_tax_optimization(month, year);
@@ -824,14 +979,15 @@ void print_results()
 
 
 	printf("Суммарный капитал: %lld руб\n", capital - alice.vtb.credit_card_debt);
-
 	printf("Собственная квартира: %lld руб\n", alice.home.apartment_value);
 	printf("Унаследованная квартира: %lld руб\n", alice.home.inherited_apartment_value);
 	printf("Автомобиль: %lld руб\n", alice.car.value);
 	printf("Инвестиционный портфель: %lld руб\n", alice.portfolio.stocks + alice.portfolio.crypto + alice.portfolio.bonds + alice.portfolio.gold +
 		alice.portfolio.etf);
-	printf("Средства: %lld руб\n",
-		alice.vtb.account_rub + alice.vtb.savings_account);
+	printf("Средства: %lld руб\n", alice.vtb.account_rub + alice.vtb.savings_account);
+	if (alice.health.is_addicted) {
+		printf("Текущие расходы на алкоголь: %lld руб/мес\n", alice.alcohol);
+	}
 }
 
 
