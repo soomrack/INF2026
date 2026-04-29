@@ -17,7 +17,6 @@ float USD_RUB_Rate = 95.5f;
 
 // Структуры
 
-// ==================== СИСТЕМА СРАВНЕНИЯ НАЧАЛЬНЫХ И КОНЕЧНЫХ ДАННЫХ ====================
 struct Snapshot {
     // Alice
     RUB alice_start_salary;
@@ -38,10 +37,6 @@ struct Snapshot {
     float start_stavka;
     float start_usd;
 };
-
-// Глобальная переменная для хранения снимка
-struct Snapshot GameSnapshot;
-
 
 struct Pet
 {
@@ -81,6 +76,16 @@ struct Bank
     RUB total_luck_money;
 };
 
+struct Microcredit {
+    RUB amount;
+    RUB remaining;
+    RUB monthly_payment;
+    float interest_rate;
+    int months_left;
+    bool is_active;
+    int overdue_months;
+};
+
 struct Flat
 {
 	RUB value;
@@ -97,6 +102,13 @@ struct Mortgage
     float rate;
     int duration;
     int months_left;
+};
+
+struct PensionFund {
+    RUB accumulated;
+    RUB monthly_contribution;
+    int experience_months;
+    float indexation_rate;
 };
  
 struct Business {
@@ -141,6 +153,8 @@ struct Person {
     struct Pet pet;
     struct Mortgage house_loan;
     struct StockMarket portfolio;
+    struct PensionFund pension;
+    struct Microcredit microcredit;
     struct Army army;
     bool is_bankrupt;
 };
@@ -156,6 +170,7 @@ struct WorldEconomy {
 
 struct RealEstateMarket MoscowRealEstate;
 struct WorldEconomy Russia2026;
+struct Snapshot GameSnapshot;
 
 struct Person Alice;
 struct Person Bob;
@@ -211,7 +226,8 @@ void bob_trading_strategy(const int month, const int year);
 void apply_salary_indexation(const int month, const int year);
 void take_initial_snapshot();
 void print_final_comparison();
-void print_personal_growth_report(const char* name, RUB start_capital, RUB end_capital, RUB start_salary, RUB end_salary, int age_passed);
+void print_personal_growth_report(const char* name, RUB start_capital,
+    RUB end_capital, RUB start_salary, RUB end_salary, int age_passed);
 void economy_init();
 void global_economic_events(const int month, const int year);
 void init_real_estate_market();
@@ -251,9 +267,9 @@ void alice_inflation(const int month, const int year) {
     Alice.pet.food += Alice.pet.food * (Russia2026.monthly_base * Russia2026.food_modifier);
 }
 
-void alice_food_expenses(const int month, const int year) { // vitamins 
-    RUB grocery_bill = 25000;
+void alice_food_expenses(const int month, const int year) {
     RUB cafe_bill = 8000;
+	RUB vitamins = 1000;
 
 
     if (rand() % 100 < 20) {
@@ -262,7 +278,7 @@ void alice_food_expenses(const int month, const int year) { // vitamins
         Alice.vtb.total_waste_money += 10000;
     }
 
-    Alice.vtb.bankcard -= (grocery_bill + cafe_bill);
+    Alice.vtb.bankcard -= (Alice.food + cafe_bill + vitamins);
 }
 
 void alice_car_expenses(const int month, const int year) {
@@ -352,7 +368,8 @@ void alice_init_mortgage() {
     Alice.house_loan.monthly_pay = (Alice.house_loan.total_loan / Alice.house_loan.duration) + (Alice.house_loan.total_loan * monthly_rate);
 
     printf("--- ОФОРМЛЕНА ИПОТЕКА ДЛЯ АЛИСЫ ---\n");
-    printf("Сумма: %lld руб. Платеж: %lld руб./мес.\n\n", Alice.house_loan.total_loan, Alice.house_loan.monthly_pay);
+    printf("Сумма: %lld руб. Платеж: %lld руб./мес.\n\n",
+        Alice.house_loan.total_loan, Alice.house_loan.monthly_pay);
 }
 
 
@@ -367,6 +384,15 @@ void alice_init()
     Alice.vtb.capital = 0;
     Alice.is_bankrupt = false;
     Alice.side_business.is_active = false;
+
+    Alice.pension.accumulated = 0;
+    Alice.pension.monthly_contribution = 0;
+    Alice.pension.experience_months = 0;
+    Alice.pension.indexation_rate = 1.0f;
+
+    Alice.microcredit.is_active = false;
+    Alice.microcredit.amount = 0;
+    Alice.microcredit.remaining = 0;
 
     Alice.flat.value = 8'000'000;
 	Alice.flat.electricity = 3500;
@@ -394,18 +420,21 @@ void alice_init()
 
 void alice_housing_expenses(const int month, const int year) {
 
+    RUB current_heating = Alice.flat.heating;
+
     if (month >= 11 || month <= 3) {
-        Alice.flat.heating *= 1.5;
+        current_heating = (RUB)(current_heating * 1.5);
     }
 
-    RUB total_utility = Alice.flat.electricity + Alice.flat.water + Alice.flat.heating + Alice.flat.internet;
+    RUB total_utility = Alice.flat.electricity + Alice.flat.water + current_heating + Alice.flat.internet;
 
     printf("[%02d.%d] Алиса оплатила ЖКХ: %lld руб.\n", month, year, total_utility);
     Alice.vtb.bankcard -= total_utility;
 
     if (month == 12) {
         RUB property_tax = Alice.flat.value * 0.001;
-        printf("[%02d.%d] !!! Алиса оплатила годовой налог на имущество: %lld руб.\n", month, year, property_tax);
+        printf("[%02d.%d] !!! Алиса оплатила годовой налог на имущество: %lld руб.\n",
+            month, year, property_tax);
         Alice.vtb.bankcard -= property_tax;
     }
 }
@@ -433,12 +462,12 @@ void alice_extrawork(const int month, const int year) {
         int weather_is_good = rand() % 10;
         if (weather_is_good >= 4) {
             int profit = 30000;
-            printf("[%02d.%d] Алиса продавала пряники, погода была хорошая и она заработала: %d руб\n", month, year, profit);
+            printf("[%02d.%d] Алиса пекла пряники на заказ, спрос был хороший и она заработала: %d руб\n", month, year, profit);
             Alice.vtb.bankcard += profit;
         }
         else {
             int profit = 10000;
-            printf("[%02d.%d] Алиса продавала пряники, погода была плохая и она заработала: %d руб\n", month, year, profit);
+            printf("[%02d.%d] Алиса пекла пряники на заказ, спрос был плохой и она заработала: %d руб\n", month, year, profit);
             Alice.vtb.bankcard += profit;
 		}
     }
@@ -471,7 +500,8 @@ void alice_start_business(const int month, const int year) {
         sprintf_s(Alice.side_business.name, "Кофейня Алисы");
 
         Alice.vtb.bankcard -= Alice.side_business.initial_investment;
-        printf(GREEN "\n[%02d.%d] БИЗНЕС: Алиса открыла кофейню! Инвестировано %lld руб.\n" RESET, month, year, Alice.side_business.initial_investment);
+        printf(GREEN "\n[%02d.%d] БИЗНЕС: Алиса открыла кофейню! Инвестировано %lld руб.\n"
+            RESET, month, year, Alice.side_business.initial_investment);
     }
 }
 
@@ -775,7 +805,8 @@ void bob_deposit(const int month, const int year)
         Bob.vtb.deposit -= waste;
         Bob.vtb.total_waste_money += waste;
 
-        printf("[%02d.%d] Боб не сдержался и всрал половину вклада, потеряно: %lld руб\n", month, year, waste);
+        printf("[%02d.%d] Боб не сдержался и всрал половину вклада, потеряно: %lld руб\n",
+            month, year, waste);
     }
 }
 
@@ -804,7 +835,8 @@ void bob_car_expenses(const int month, const int year) {
 
     if (rand() % 100 < 20) { 
         RUB ticket = 2500;
-        printf("[%02d.%d] ШТРАФ: Боб превысил скорость. -%lld руб.\n", month, year, ticket);
+        printf("[%02d.%d] ШТРАФ: Боб превысил скорость. -%lld руб.\n",
+            month, year, ticket);
         Bob.vtb.bankcard -= ticket;
         Bob.vtb.total_waste_money += ticket;
     }
@@ -816,7 +848,8 @@ void bob_car_expenses(const int month, const int year) {
 
     if (rand() % 100 < 5) {
         RUB repair = 45000;
-        printf("[%02d.%d] ПОЛОМКА: У Боба задымился капот! Ремонт: -%lld руб.\n", month, year, repair);
+        printf("[%02d.%d] ПОЛОМКА: У Боба задымился капот! Ремонт: -%lld руб.\n",
+            month, year, repair);
         Bob.vtb.bankcard -= repair;
         Bob.vtb.total_waste_money += repair;
     }
@@ -827,7 +860,8 @@ void bob_car_expenses(const int month, const int year) {
     }
 
     if (rand() % 100 < 80) {
-        printf("[%02d.%d] Бобу сняли тонировку: -%lld руб. Наклеил новую: -%lld руб\n", month, year, Bob.car.penalty, Bob.car.toner);
+        printf("[%02d.%d] Бобу сняли тонировку: -%lld руб. Наклеил новую: -%lld руб\n",
+            month, year, Bob.car.penalty, Bob.car.toner);
         Bob.vtb.bankcard -= Bob.car.penalty + Bob.car.toner;
     }
 }
@@ -922,8 +956,9 @@ void bob_stats(const int month, const int year){
 }
 
 void bob_check_military(const int month, const int year) {
+
     if (Bob.age == 22 && month == 3) {
-        printf("[%02d.%d]!!! БОБ УЕХАЛ НА СРОЧНУЮ СЛУЖБУ. УВИДИМСЯ ЧЕРЕЗ ГОД, БОБ !!!\n");
+        printf("[%02d.%d] !!! БОБ УЕХАЛ НА СРОЧНУЮ СЛУЖБУ. УВИДИМСЯ ЧЕРЕЗ ГОД, БОБ !!!\n", month, year);
         Bob.army.is_in_army = true;
     }
 }
@@ -1017,6 +1052,15 @@ void bob_init()
     Bob.vtb.salary = 120'000;
     Bob.food = 20'000;
     Bob.vtb.capital = 0;
+
+    Bob.pension.accumulated = 0;
+    Bob.pension.monthly_contribution = 0;
+    Bob.pension.experience_months = 0;
+    Bob.pension.indexation_rate = 1.0f;
+
+    Bob.microcredit.is_active = false;
+    Bob.microcredit.amount = 0;
+    Bob.microcredit.remaining = 0;
 
     Bob.car.value = 1'400'000;
     Bob.car.gas = 15'000;
@@ -1358,7 +1402,8 @@ void update_bank_rate(const int month, const int year) {
         if (Russia2026.stavka < 5.0) Russia2026.stavka = 5.0;
         if (Russia2026.stavka > 25.0) Russia2026.stavka = 25.0;
 
-        printf("[%02d.%d]--- НОВОСТИ ЭКОНОМИКИ: Центробанк изменил ставку. Теперь она %.1f%% ---\n", month, year, Russia2026.stavka);
+        printf("[%02d.%d]--- НОВОСТИ ЭКОНОМИКИ: Центробанк изменил ставку. Теперь она %.1f%% ---\n",
+            month, year, Russia2026.stavka);
     }
 }
 
@@ -1414,8 +1459,8 @@ void update_business(const int month, const int year, struct Person& p) {
         p.vtb.bankcard += profit;
         if (p.side_business.months_active % 6 == 0) {
             p.side_business.monthly_profit = (RUB)(p.side_business.monthly_profit * 1.2);
-            printf("[%02d.%d] Бизнес '%s' растёт! Прибыль: %lld руб.\n",
-                month, year, p.side_business.name, p.side_business.monthly_profit);
+            printf("[%02d.%d] Бизнес '%s' растёт! Прибыль: %lld руб.\n", month, year,
+                p.side_business.name, p.side_business.monthly_profit);
         }
     }
     else {
@@ -1512,7 +1557,7 @@ void init_stock_market() {
     Bob.portfolio = Alice.portfolio;
 }
 
-void update_stock_prices(const int month, const int year) {
+void update_stock_prices(const int month, const int year) { //
 
     float sentiment_change = ((rand() % 100) - 50) / 1000.0f;
     Alice.portfolio.market_sentiment += sentiment_change;
@@ -1521,7 +1566,7 @@ void update_stock_prices(const int month, const int year) {
     Bob.portfolio.market_sentiment = Alice.portfolio.market_sentiment;
 
 
-    auto updateStock = [&](Stock& s_alice, Stock& s_bob) {
+    auto updateStock = [&](Stock& s_alice, Stock& s_bob) {//
         float random_factor = ((rand() % 100) - 50) / 100.0f;
         float change_percent = (random_factor * s_alice.volatility) + (Alice.portfolio.market_sentiment * 0.05f);
 
@@ -1590,6 +1635,121 @@ void bob_trading_strategy(const int month, const int year) {
         Bob.vtb.bankcard += revenue;
         printf("[%02d.%d] Боб продал акции Яндекса за %lld руб.\n", month, year, revenue);
         Bob.portfolio.yandex.quantity = 0;
+    }
+}
+
+
+void take_microcredit(struct Person& p, const char* name, RUB amount, const int month, const int year) {
+    if (p.microcredit.is_active) {
+        printf("[%02d.%d] У %s уже есть активный микрозайм! Сначала погасите его.\n", month, year, name);
+        return;
+    }
+
+    if (p.vtb.bankcard < -100000) {
+        printf("[%02d.%d] У %s слишком плохая кредитная история, микрозайм отказан!\n", month, year, name);
+        return;
+    }
+
+    p.microcredit.amount = amount;
+    p.microcredit.remaining = amount;
+    p.microcredit.interest_rate = 30.0f + (rand() % 50);
+    p.microcredit.months_left = 6;
+    p.microcredit.is_active = true;
+    p.microcredit.overdue_months = 0;
+
+    float monthly_rate = p.microcredit.interest_rate / 12.0f / 100.0f;
+    p.microcredit.monthly_payment = (amount / 6) + (amount * monthly_rate);
+
+    p.vtb.bankcard += amount;
+
+    printf(RED "[%02d.%d] %s ВЗЯЛ(А) МИКРОЗАЙМ на %lld руб. под %.1f%% годовых!\n" RESET,
+        month, year, name, amount, p.microcredit.interest_rate);
+    printf("    Ежемесячный платеж: %lld руб. на %d месяцев\n",
+        p.microcredit.monthly_payment, p.microcredit.months_left);
+}
+
+void pay_microcredit(struct Person& p, const char* name, const int month, const int year) {
+    if (!p.microcredit.is_active) return;
+
+    if (p.vtb.bankcard >= p.microcredit.monthly_payment) {
+        p.vtb.bankcard -= p.microcredit.monthly_payment;
+        p.microcredit.remaining -= p.microcredit.monthly_payment;
+        p.microcredit.months_left--;
+        p.microcredit.overdue_months = 0;
+
+        printf("[%02d.%d] %s оплатил(а) микрозайм: -%lld руб. Остаток: %lld руб., осталось %d мес.\n",
+            month, year, name, p.microcredit.monthly_payment, p.microcredit.remaining, p.microcredit.months_left);
+
+        if (p.microcredit.months_left <= 0 || p.microcredit.remaining <= 0) {
+            p.microcredit.is_active = false;
+            p.microcredit.remaining = 0;
+            printf(GREEN "[%02d.%d] ПОЗДРАВЛЯЕМ! %s полностью погасил(а) микрозайм!\n" RESET,
+                month, year, name);
+        }
+    }
+    else {
+        
+        p.microcredit.overdue_months++;
+        RUB penalty = p.microcredit.monthly_payment * 0.3f;
+        p.vtb.bankcard -= penalty;
+        p.vtb.total_waste_money += penalty;
+
+        printf(RED "[%02d.%d] %s ПРОСРОЧИЛ(А) платеж по микрозайму! Штраф: -%lld руб. (просрочка: %d мес.)\n" RESET,
+            month, year, name, penalty, p.microcredit.overdue_months);
+
+
+        if (p.microcredit.overdue_months >= 3) {
+            RUB collection_fee = p.microcredit.remaining * 0.5;
+            p.vtb.bankcard -= collection_fee;
+            p.microcredit.is_active = false;
+            printf(RED "[%02d.%d] Долг %s передан коллекторам! Штраф: -%lld руб.\n" RESET,
+                month, year, name, collection_fee);
+        }
+    }
+}
+
+
+void check_emergency_microcredit(struct Person& p, const char* name, const int month, const int year) {
+    if (p.is_bankrupt) return;
+    if (p.microcredit.is_active) return;
+
+
+    if (p.vtb.bankcard < -50000 && rand() % 100 < 30) {
+        RUB needed_amount = (RUB)(-p.vtb.bankcard * 1.2) + 30000;
+        if (needed_amount > 50000 && needed_amount < 200000) {
+            printf(YELLOW "[%02d.%d] ВНИМАНИЕ! У %s критическая нехватка денег! Рекомендуется взять микрозайм.\n" RESET,
+                month, year, name);
+
+
+            if (rand() % 100 < 50) {
+                take_microcredit(p, name, needed_amount, month, year);
+            }
+        }
+    }
+}
+
+void calculate_pension_contributions(struct Person& p, const char* name, const int month, const int year) {
+    if (p.is_bankrupt) return;
+
+
+    p.pension.monthly_contribution = p.vtb.salary * 0.06;
+    p.pension.accumulated += p.pension.monthly_contribution;
+    p.pension.experience_months++;
+    p.vtb.bankcard -= p.pension.monthly_contribution;
+
+
+    if (month == 1 && year > 2026) {
+        p.pension.indexation_rate = 1.0f + (Russia2026.inflation_rate * 0.8f);
+        RUB old_accumulated = p.pension.accumulated;
+        p.pension.accumulated = (RUB)(p.pension.accumulated * p.pension.indexation_rate);
+        printf("[%02d.%d] Пенсионные накопления %s проиндексированы: %lld → %lld руб.\n",
+            month, year, name, old_accumulated, p.pension.accumulated);
+    }
+
+
+    if (month == 12) {
+        printf("[%02d.%d] Пенсионный счет %s: %lld руб. (Стаж: %d мес.)\n",
+            month, year, name, p.pension.accumulated, p.pension.experience_months);
     }
 }
  
@@ -1740,6 +1900,7 @@ void simulation()
             alice_salary(month, year);
             alice_investment_strategy(month, year);
             alice_pay_mortgage(month, year);
+            calculate_pension_contributions(Alice, "Алисы", month, year);
             alice_housing_expenses(month, year);
             alice_food_expenses(month, year);
             alice_car_expenses(month, year);
@@ -1747,6 +1908,8 @@ void simulation()
             alice_extrawork(month, year);
             alice_start_business(month, year);
             update_business(month, year, Alice);
+            pay_microcredit(Alice, "Алиса", month, year);
+            check_emergency_microcredit(Alice, "Алисы", month, year);
             alice_deposit();
             alice_check_bankruptcy(month, year);
         }
@@ -1764,10 +1927,13 @@ void simulation()
             bob_deposit(month,year);
             bob_salary(month, year);
             bob_pay_mortgage(month, year);
+            calculate_pension_contributions(Bob, "Боба", month, year);
             bob_trading_strategy(month, year);
             bob_start_business(month, year);
             update_business(month, year, Bob);
             bob_check_bankruptcy(month, year);
+            pay_microcredit(Bob, "Боб", month, year);
+            check_emergency_microcredit(Bob, "Боба", month, year);
             bob_check_military(month, year);
         }
 
@@ -1821,6 +1987,10 @@ int main()
     print_final_comparison();
 }
 
+
+
+
+// сделать больше инфляции
 // pensia
 // mikozaim
 // wedding
