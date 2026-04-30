@@ -444,11 +444,13 @@ void alice_extrawork(const int month, const int year) {
         int flowers_seeds = 10000;
         Alice.vtb.bankcard -= flowers_seeds;
         int weather_is_good = rand() % 10;
+
         if (weather_is_good >= 4) {
             int profit = 30000;
             printf("[%02d.%d] Алиса вырастила и продала тюльпаны, погода была хорошая и она заработала: %d руб\n", month, year, profit);
 			Alice.vtb.bankcard += profit;
         }
+
         else {
             int profit = 10000;
             printf("[%02d.%d] Алиса вырастила и продала тюльпаны, погода была плохая и она заработала: %d руб\n", month, year, profit);
@@ -460,11 +462,13 @@ void alice_extrawork(const int month, const int year) {
         int testo_cost = 10000;
         Alice.vtb.bankcard -= testo_cost;
         int weather_is_good = rand() % 10;
+
         if (weather_is_good >= 4) {
             int profit = 30000;
             printf("[%02d.%d] Алиса пекла пряники на заказ, спрос был хороший и она заработала: %d руб\n", month, year, profit);
             Alice.vtb.bankcard += profit;
         }
+
         else {
             int profit = 10000;
             printf("[%02d.%d] Алиса пекла пряники на заказ, спрос был плохой и она заработала: %d руб\n", month, year, profit);
@@ -1135,12 +1139,14 @@ void bob_good_events(const int month, const int year) {
             Bob.vtb.total_luck_money += win;
             break;
         }
+
         case 5: {
             printf(CYAN"[%02d.%d] Боб нашел подработку курьером на выходные. +15 000 руб." RESET "\n", month, year);
             Bob.vtb.bankcard += 15000;
             Bob.vtb.total_luck_money += 15000;
             break;
         }
+
         case 6: {
             RUB win = 200000;
             printf(CYAN"[%02d.%d] Боб выиграл в онлайн-покер: +%lld руб." RESET "\n", month, year, win);
@@ -1249,6 +1255,7 @@ void bob_good_events(const int month, const int year) {
             Bob.vtb.total_luck_money += 2500;
             break;
         }
+
         default:
 
             break;
@@ -1269,12 +1276,14 @@ void bob_bad_events(const int month, const int year) {
             Bob.vtb.total_waste_money += bet;
             break;
         }
+
         case 1: {
             printf(RED"[%02d.%d] Боб решил шикануть и снял президентский люкс на выходные. -80 000 руб." RESET "\n", month, year);
             Bob.vtb.bankcard -= 80000;
             Bob.vtb.total_waste_money += 80000;
             break;
         }
+
         case 2:
             printf(RED"[%02d.%d] Боб купил последний айфон. Платёж: -80 000 руб." RESET "\n", month, year);
             Bob.vtb.bankcard -= 120000;
@@ -1292,12 +1301,14 @@ void bob_bad_events(const int month, const int year) {
             Bob.vtb.salary *= 0.7;
             break;
         }
+
         case 5: {
             printf(RED"[%02d.%d] Боб повелся на лохотрон в парке. -3000 руб." RESET "\n", month, year);
             Bob.vtb.bankcard -= 3000;
             Bob.vtb.total_waste_money += 3000;
             break;
         }
+
         case 6: {
             printf(RED"[%02d.%d] Боб решил стать музыкантом и купил гитару" RESET "\n", month, year);
             Bob.vtb.bankcard -= 15000;
@@ -1639,7 +1650,7 @@ void bob_trading_strategy(const int month, const int year) {
 }
 
 
-void take_microcredit(struct Person& p, const char* name, RUB amount, const int month, const int year) {
+void take_microcredit(struct Person& p, const char* name, RUB amount, const int month, const int year) { //char хранит букву, а char* - строку
     if (p.microcredit.is_active) {
         printf("[%02d.%d] У %s уже есть активный микрозайм! Сначала погасите его.\n", month, year, name);
         return;
@@ -1784,6 +1795,7 @@ void global_economic_events(const int month, const int year) {
 }
 
 void take_initial_snapshot() {
+
     // Alice
     GameSnapshot.alice_start_salary = Alice.vtb.salary;
     GameSnapshot.alice_start_flat_value = Alice.flat.value;
@@ -1821,6 +1833,7 @@ void print_personal_growth_report(const char* name, RUB start_capital, RUB end_c
     printf("\n--- АНАЛИЗ ИЗМЕНЕНИЙ ДЛЯ %s ---\n", name);
     printf("Возраст: +%d лет\n", age_passed);
 
+
     RUB capital_diff = end_capital - start_capital;
     float capital_growth_percent = (start_capital > 0) ? (float)capital_diff / start_capital * 100.0f : 0.0f;
 
@@ -1838,24 +1851,29 @@ void print_final_comparison() {
     printf("               ИТОГОВЫЙ СРАВНИТЕЛЬНЫЙ АНАЛИЗ                 \n");
     printf("============================================================\n");
 
+
     RUB alice_end_capital = Alice.vtb.capital;
     RUB bob_end_capital = Bob.vtb.capital;
     RUB alice_start_capital_total = GameSnapshot.alice_start_flat_value + GameSnapshot.alice_start_bankcard + GameSnapshot.alice_start_deposit;
     RUB bob_start_capital_total = GameSnapshot.bob_start_flat_value + GameSnapshot.bob_start_bankcard + GameSnapshot.bob_start_deposit;
 
+
     print_personal_growth_report("АЛИСА", alice_start_capital_total, alice_end_capital,
         GameSnapshot.alice_start_salary, Alice.vtb.salary,
         Alice.age - GameSnapshot.alice_start_age);
 
+
     print_personal_growth_report("БОБ", bob_start_capital_total, bob_end_capital,
         GameSnapshot.bob_start_salary, Bob.vtb.salary,
         Bob.age - GameSnapshot.bob_start_age);
+
 
     printf("\n--- МАКРОЭКОНОМИЧЕСКИЕ ИЗМЕНЕНИЯ ---\n");
     printf("Инфляция: %.2f%% -> %.2f%%\n", GameSnapshot.start_inflation * 100, Russia2026.inflation_rate * 100);
     printf("Ключевая ставка ЦБ: %.2f%% -> %.2f%%\n", GameSnapshot.start_stavka, Russia2026.stavka);
     printf("Курс USD/RUB: %.2f -> %.2f (Рубль %s)\n", GameSnapshot.start_usd, USD_RUB_Rate,
         (USD_RUB_Rate > GameSnapshot.start_usd) ? "ослаб" : "укрепился");
+
 
     printf("\n--- СТАТИСТИКА УДАЧИ ---\n");
     printf("Алиса: Повезло на %lld руб. | Не повезло на %lld руб. (Баланс удачи: %+lld)\n",
@@ -1894,10 +1912,12 @@ void simulation()
 
         if (not Alice.is_bankrupt) {
 			alice_stats(month, year);
-            alice_good_events(month, year);
-            alice_bad_events(month, year);
+            
             alice_inflation(month, year);
             alice_salary(month, year);
+            alice_extrawork(month, year);
+            alice_good_events(month, year);
+            alice_bad_events(month, year);
             alice_investment_strategy(month, year);
             alice_pay_mortgage(month, year);
             calculate_pension_contributions(Alice, "Алисы", month, year);
@@ -1905,7 +1925,6 @@ void simulation()
             alice_food_expenses(month, year);
             alice_car_expenses(month, year);
             alice_pet_expenses(month, year);
-            alice_extrawork(month, year);
             alice_start_business(month, year);
             update_business(month, year, Alice);
             pay_microcredit(Alice, "Алиса", month, year);
@@ -1978,21 +1997,11 @@ int main()
     init_stock_market();
     init_real_estate_market();
 
-    // Снятие начальных данных до начала симуляции
-    take_initial_snapshot();
+    
+    take_initial_snapshot(); // Снятие начальных данных до начала симуляции
 
     simulation();
 
     print_results();
     print_final_comparison();
 }
-
-
-
-
-// сделать больше инфляции
-// pensia
-// mikozaim
-// wedding
-// baby
-// po dnyam
