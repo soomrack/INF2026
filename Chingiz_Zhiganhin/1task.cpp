@@ -31,6 +31,7 @@ struct RealEstate {
 	RUB rental_tax;
 	RUB inherited_apartment_utilities;
 	int is_rented;
+	int is_apartment_sold;
 };
 
 
@@ -41,8 +42,8 @@ struct Pets {
 	RUB insurance;
 	RUB grooming;
 	RUB cat_sitter;
-	RUB litter; 
-	RUB treats; 
+	RUB litter;
+	RUB treats;
 };
 
 
@@ -50,9 +51,9 @@ struct Investments {
 	RUB stocks;
 	RUB crypto;
 	RUB bonds;
-	RUB gold; 
-	RUB etf; 
-	RUB startup; 
+	RUB gold;
+	RUB etf;
+	RUB startup;
 	float stocks_growth_rate;
 	float crypto_volatility;
 	float gold_growth_rate;
@@ -67,7 +68,7 @@ struct Bank {
 	float deposit_rate;
 	RUB credit_card_debt;
 	RUB credit_card_limit;
-	RUB savings_account; 
+	RUB savings_account;
 	RUB tax_refund;
 };
 
@@ -92,6 +93,9 @@ struct Health {
 	RUB sports_equipment;
 	int alcohol_addiction_level;
 	int is_addicted;
+	int is_pregnant;
+	int pregnancy_month;
+	int pregnancy_year;
 };
 
 
@@ -141,7 +145,16 @@ struct Family {
 	RUB grandparents_aid;
 	RUB siblings_gifts;
 	RUB family_events;
-	RUB heritage_tax; 
+	RUB heritage_tax;
+	int is_married;
+	int wedding_year;
+	int wedding_month;
+	RUB husband_salary;
+	RUB child_expenses;
+	int has_child;
+	int child_birth_year;
+	int child_birth_month;
+	RUB maternity_capital;
 };
 
 
@@ -179,8 +192,8 @@ struct Person {
 	RUB gifts;
 	RUB emergency_fund;
 	RUB beauty;
-	RUB electronics; 
-	RUB alcohol; 
+	RUB electronics;
+	RUB alcohol;
 };
 
 
@@ -200,13 +213,13 @@ void alice_init()
 	alice.portfolio.gold_growth_rate = 0.08;
 	alice.portfolio.etf_growth_rate = 0.10;
 
-	
+
 	alice.vtb.account_rub = 500'000;
 	alice.vtb.account_usd = 1'000;
 	alice.vtb.credit_card_debt = 0;
 	alice.vtb.credit_card_limit = 300'000;
 
-	
+
 	alice.food = 3'000;
 	alice.salary = 70'000;
 	alice.subscriptions = 2'500;
@@ -218,7 +231,7 @@ void alice_init()
 	alice.electronics = 5'000;
 	alice.alcohol = 2'000;
 
-	
+
 	alice.car.value = 2'400'000;
 	alice.car.gas = 15'000;
 	alice.car.inshurance = 20'000;
@@ -226,22 +239,23 @@ void alice_init()
 	alice.car.parking = 5'000;
 	alice.car.fine = 0;
 	alice.car.car_wash = 2'000;
-	alice.car.tires = 0; // Переобулась
+	alice.car.tires = 0;
 	alice.car.tax = 4'500;
 
-	
+
 	alice.home.apartment_value = 8'500'000;
 	alice.home.mortgage_payment = 45'000;
 	alice.home.utilities = 7'000;
 	alice.home.property_tax = 3'500;
 	alice.home.repair_fund = 5'000;
-	alice.home.inherited_apartment_value = 4'200'000; // Квартира от бабушки
-	alice.home.rental_income = 35'000; // Арендная плата
+	alice.home.inherited_apartment_value = 4'200'000;
+	alice.home.rental_income = 35'000;
 	alice.home.rental_tax = 4'000;
 	alice.home.inherited_apartment_utilities = 4'500;
 	alice.home.is_rented = 1;
+	alice.home.is_apartment_sold = 0;
 
-	
+
 	alice.animals.cat_food = 2'500;
 	alice.animals.vet_visits = 3'000;
 	alice.animals.toys = 1'000;
@@ -251,22 +265,22 @@ void alice_init()
 	alice.animals.litter = 1'200;
 	alice.animals.treats = 800;
 
-	
+
 	alice.portfolio.stocks = 200'000;
 	alice.portfolio.crypto = 50'000;
 	alice.portfolio.bonds = 100'000;
 	alice.portfolio.gold = 75'000;
 	alice.portfolio.etf = 150'000;
-	alice.portfolio.startup = 0; // Потенциальная инвестиция в стартап
+	alice.portfolio.startup = 0;
 
-	
+
 	alice.education.courses = 15'000;
 	alice.education.books = 3'000;
 	alice.education.certifications = 0;
 	alice.education.mentorship = 0;
 	alice.education.conference = 0;
 
-	
+
 	alice.health.insurance = 7'000;
 	alice.health.dentist = 0;
 	alice.health.medications = 1'500;
@@ -277,8 +291,11 @@ void alice_init()
 	alice.health.sports_equipment = 0;
 	alice.health.alcohol_addiction_level = 0;
 	alice.health.is_addicted = 0;
+	alice.health.is_pregnant = 0;
+	alice.health.pregnancy_month = 0;
+	alice.health.pregnancy_year = 0;
 
-	
+
 	alice.entertainment_detail.cinema = 2'000;
 	alice.entertainment_detail.concerts = 0;
 	alice.entertainment_detail.restaurants = 5'000;
@@ -290,7 +307,7 @@ void alice_init()
 
 	alice.entertainment_total = 0;
 
-	
+
 	alice.freelance.monthly_income = 0;
 	alice.freelance.project_income = 0;
 	alice.freelance.taxes = 0;
@@ -298,14 +315,14 @@ void alice_init()
 	alice.freelance.project_month = 0;
 	alice.freelance.project_duration = 0;
 
-	
+
 	alice.charity.animal_shelter = 1'000;
 	alice.charity.environmental = 500;
 	alice.charity.children_fund = 1'000;
 	alice.charity.church = 0;
 	alice.charity.monthly_donations = 2'500;
 
-	
+
 	alice.vacation.travel_fund = 30'000;
 	alice.vacation.current_trip_cost = 0;
 	alice.vacation.souvenirs = 0;
@@ -313,26 +330,182 @@ void alice_init()
 	alice.vacation.is_traveling = 0;
 	alice.vacation.travel_month = 0;
 
-	
+
 	alice.family.parents_aid = 5'000;
 	alice.family.grandparents_aid = 3'000;
 	alice.family.siblings_gifts = 2'000;
 	alice.family.family_events = 0;
 	alice.family.heritage_tax = 210'000;
+	alice.family.is_married = 0;
+	alice.family.wedding_year = 0;
+	alice.family.wedding_month = 0;
+	alice.family.husband_salary = 0;
+	alice.family.child_expenses = 0;
+	alice.family.has_child = 0;
+	alice.family.child_birth_year = 0;
+	alice.family.child_birth_month = 0;
+	alice.family.maternity_capital = 0;
 
 	alice.lottery_tickets = 20'000;
-	
-	
+
+
 	alice.career.base_salaries[0] = 30'000;
 	alice.career.base_salaries[1] = 45'000;
 	alice.career.base_salaries[2] = 55'000;
 	alice.career.base_salaries[3] = 85'000;
 	alice.career.base_salaries[4] = 95'000;
 	alice.career.base_salaries[5] = 110'000;
-	alice.career.base_salaries[6] = 130'000; 
+	alice.career.base_salaries[6] = 130'000;
 	alice.career.current_profession_id = 0;
 	alice.career.career_change_year = 2027;
 	alice.career.career_change_month = 8;
+}
+
+
+void alice_wedding(const int month, const int year)
+{
+	
+	if (!alice.family.is_married and year == 2029 and month == 6) {
+		alice.family.is_married = 1;
+		alice.family.wedding_year = year;
+		alice.family.wedding_month = month;
+
+		
+		RUB wedding_cost = 500'000;
+		alice.vtb.account_rub -= wedding_cost;
+		alice.family.husband_salary = 85'000;
+		
+
+		RUB wedding_gifts = 150'000;
+		alice.vtb.account_rub += wedding_gifts;
+
+		
+		if (!alice.home.is_apartment_sold) {
+			RUB apartment_sale_price = alice.home.apartment_value;
+			alice.vtb.account_rub += apartment_sale_price;
+			alice.home.is_apartment_sold = 1;
+
+			
+			RUB new_apartment_value = alice.home.apartment_value * 1.6;
+			alice.home.apartment_value = new_apartment_value;
+			alice.home.mortgage_payment = alice.home.mortgage_payment * 1.4;
+			alice.home.utilities = alice.home.utilities * 1.3;
+			alice.home.property_tax = alice.home.property_tax * 1.3;
+			alice.home.repair_fund = alice.home.repair_fund * 1.3;
+		}
+
+		
+		alice.food = alice.food * 2.5;
+		alice.clothes = alice.clothes * 1.8;
+		alice.beauty = alice.beauty * 1.5;
+		alice.entertainment_detail.restaurants = alice.entertainment_detail.restaurants * 1.7;
+		alice.entertainment_detail.cafes = alice.entertainment_detail.cafes * 1.6;
+		alice.gifts = alice.gifts * 2.0;
+		alice.transportation = alice.transportation * 1.5;
+		alice.subscriptions = alice.subscriptions * 1.3;
+	}
+}
+
+
+void alice_pregnancy(const int month, const int year)
+{
+	if (alice.family.is_married and !alice.health.is_pregnant and !alice.family.has_child) {
+		if (year == 2030 and month == 6) {
+			int pregnancy_chance = rand() % 100;
+			if (pregnancy_chance < 50) {
+				alice.health.is_pregnant = 1;
+				alice.health.pregnancy_month = month;
+				alice.health.pregnancy_year = year;
+				alice.health.medications += 3'000;
+				alice.health.vitamins += 2'000;
+				alice.food += 5'000;
+			}
+		}
+	}
+
+
+	if (alice.health.is_pregnant) {
+		int months_pregnant = 0;
+		if (year > alice.health.pregnancy_year) {
+			months_pregnant = (12 - alice.health.pregnancy_month) + month;
+		}
+		else {
+			months_pregnant = month - alice.health.pregnancy_month;
+		}
+
+		if (months_pregnant >= 9 and !alice.family.has_child) {
+			alice.family.has_child = 1;
+			alice.family.child_birth_year = year;
+			alice.family.child_birth_month = month;
+			alice.health.is_pregnant = 0;
+
+
+			alice.family.child_expenses = 25'000;
+			alice.food += 10'000;
+			alice.clothes += 8'000;
+			alice.health.insurance += 5'000;
+			alice.emergency_fund += 5'000;
+			alice.gifts += 3'000;
+			alice.education.courses += 5'000;
+
+			
+			RUB old_husband_salary = alice.family.husband_salary;
+			alice.family.husband_salary = alice.family.husband_salary * 1.3;
+
+	
+			alice.family.maternity_capital = 600'000;
+			alice.vtb.account_rub += alice.family.maternity_capital;
+		}
+	}
+}
+
+
+void alice_husband_salary(const int month, const int year)
+{
+	if (alice.family.is_married) {
+		alice.vtb.account_rub += alice.family.husband_salary;
+
+		if (month == 1 and year > alice.family.wedding_year) {
+			float indexation = 1.08;
+			alice.family.husband_salary = alice.family.husband_salary * indexation;
+		}
+
+		if (month == 12) {
+			RUB husband_bonus = alice.family.husband_salary * 0.5;
+			alice.vtb.account_rub += husband_bonus;
+		}
+	}
+}
+
+
+void alice_child_expenses(const int month, const int year)
+{
+	if (alice.family.has_child) {
+		alice.vtb.account_rub -= alice.family.child_expenses;
+
+		if (month == 4 or month == 9) {
+			RUB seasonal_child_clothes = 10'000;
+			alice.vtb.account_rub -= seasonal_child_clothes;
+		}
+
+		if (month == alice.family.child_birth_month) {
+			RUB birthday_gifts = 15'000;
+			alice.vtb.account_rub -= birthday_gifts;
+		}
+
+		int child_age_years = year - alice.family.child_birth_year;
+		if (child_age_years >= 2 and month >= alice.family.child_birth_month) {
+			RUB kindergarten_cost = 12'000;
+			alice.vtb.account_rub -= kindergarten_cost;
+		}
+
+		if (child_age_years >= 7) {
+			RUB school_supplies = 15'000;
+			if (month == 8) {
+				alice.vtb.account_rub -= school_supplies;
+			}
+		}
+	}
 }
 
 
@@ -341,29 +514,29 @@ void alice_alcohol_addiction()
 	if (alice.alcohol > 1000) {
 		alice.health.alcohol_addiction_level += 2;
 	}
-	
+
 	if (alice.alcohol > 3000) {
 		alice.health.alcohol_addiction_level += 3;
 	}
-	
+
 	if (alice.alcohol > 5000) {
 		alice.health.alcohol_addiction_level += 5;
 	}
-	
+
 	if (alice.health.alcohol_addiction_level >= 70 and !alice.health.is_addicted) {
 		alice.health.is_addicted = 1;
 		printf("\nУ Алисы развилась алкогольная зависимость\n");
 	}
-	
+
 
 	if (alice.health.is_addicted) {
 		if (alice.alcohol < 15'000) {
 			alice.alcohol = 15'000;
 		}
-		
+
 		alice.alcohol += alice.alcohol * 0.05;
 		alice.health.medications += 2'000;
-		
+
 		if (rand() % 100 < 20) {
 			RUB productivity_penalty = alice.salary * 0.1;
 			alice.vtb.account_rub -= productivity_penalty;
@@ -375,28 +548,24 @@ void alice_alcohol_addiction()
 void alice_career_change(const int month, const int year)
 {
 	if (year == alice.career.career_change_year and month == alice.career.career_change_month) {
-		
-		
+
 		int best_profession = alice.career.current_profession_id;
 		RUB best_salary = alice.salary;
-		
+
 		for (int i = 1; i <= 6; i++) {
 			RUB potential_salary = alice.career.base_salaries[i];
-			
-			
+
 			if (potential_salary > best_salary) {
 				best_salary = potential_salary;
 				best_profession = i;
 			}
 		}
-		
-		
+
 		if (best_profession != alice.career.current_profession_id) {
 			alice.salary = best_salary;
 			alice.career.current_profession_id = best_profession;
 		}
-		
-		
+
 		alice.career.career_change_month += 18;
 		if (alice.career.career_change_month > 12) {
 			alice.career.career_change_year += 1;
@@ -410,14 +579,9 @@ void alice_rental_income()
 {
 	if (alice.home.is_rented) {
 		alice.vtb.account_rub += alice.home.rental_income;
-
-		
 		alice.vtb.account_rub -= alice.home.rental_tax;
-
-		
 		alice.vtb.account_rub -= alice.home.inherited_apartment_utilities;
 
-		
 		if (rand() % 100 < 5) {
 			RUB repair_cost = (rand() % 20 + 5) * 1000;
 			alice.vtb.account_rub -= repair_cost;
@@ -437,7 +601,7 @@ void alice_lottery()
 
 	if (random_number == 1) {
 		alice.vtb.account_rub += JACKPOT;
-		printf("\n*** УРРАА! ДЖЕКПОТ %lld РУБЛЕЙ! ***\n", JACKPOT);
+		printf("\nУРРАА! ДЖЕКПОТ %lld РУБЛЕЙ!\n", JACKPOT);
 	}
 }
 
@@ -447,15 +611,15 @@ void alice_salary(const int month, const int year)
 	alice.vtb.account_rub += alice.salary;
 
 	if (month == 2 and year == 2026) {
-		alice.vtb.account_rub += 5'000;  // Премия
+		alice.vtb.account_rub += 5'000;
 	}
 
 	if (month == 12 and year == 2026) {
-		alice.vtb.account_rub += 30'000;  // Новогодняя премия
+		alice.vtb.account_rub += 30'000;
 	}
 
 	if (month == 6 and year == 2026) {
-		alice.vtb.account_rub += 15'000;  // Летний бонус
+		alice.vtb.account_rub += 15'000;
 	}
 
 	if (month == 3 and year == 2026) {
@@ -471,7 +635,6 @@ void alice_salary(const int month, const int year)
 
 void alice_freelance(const int month, const int year)
 {
-	
 	if (!alice.freelance.has_project and month == 4 and year == 2026) {
 		alice.freelance.has_project = 1;
 		alice.freelance.project_month = month;
@@ -485,15 +648,13 @@ void alice_freelance(const int month, const int year)
 		alice.freelance.project_duration = 2;
 		alice.freelance.project_income = 50'000;
 	}
-	
-	
+
 	if (!alice.freelance.has_project and year > 2026 and month == 3) {
 		alice.freelance.has_project = 1;
 		alice.freelance.project_month = month;
 		alice.freelance.project_duration = 4;
 		alice.freelance.project_income = 120'000;
 	}
-	
 
 	if (!alice.freelance.has_project and year > 2026 and month == 9) {
 		alice.freelance.has_project = 1;
@@ -502,15 +663,13 @@ void alice_freelance(const int month, const int year)
 		alice.freelance.project_income = 90'000;
 	}
 
-
 	if (alice.freelance.has_project) {
 		int months_active = month - alice.freelance.project_month;
 		if (months_active >= 0 and months_active < alice.freelance.project_duration) {
 			RUB monthly_income = alice.freelance.project_income / alice.freelance.project_duration;
 			alice.vtb.account_rub += monthly_income;
 
-			
-			RUB freelance_tax = monthly_income * 0.06; // Налог (Самозанятость)
+			RUB freelance_tax = monthly_income * 0.06;
 			alice.vtb.account_rub -= freelance_tax;
 			alice.freelance.taxes += freelance_tax;
 		}
@@ -536,19 +695,19 @@ void alice_food(const int month, const int year)
 	alice.vtb.account_rub -= alice.food;
 
 	if (month == 12) {
-		alice.vtb.account_rub -= 10'000;  // Новогодний стол
+		alice.vtb.account_rub -= 10'000;
 	}
 
 	if (month == 7 and year == 2026) {
-		alice.vtb.account_rub -= 5'000;  // День рождения
+		alice.vtb.account_rub -= 5'000;
 	}
 
 	if (month == 3 and year == 2026) {
-		alice.vtb.account_rub -= 2'000;  // 8 марта
+		alice.vtb.account_rub -= 2'000;
 	}
 
 	if (month == 11 and year == 2026) {
-		alice.vtb.account_rub -= 20'000;  // Черная пятница
+		alice.vtb.account_rub -= 20'000;
 	}
 }
 
@@ -567,13 +726,11 @@ void alice_car(const int month)
 		alice.vtb.account_rub -= fine_amount;
 	}
 
-	
 	if (month == 5 or month == 10) {
 		alice.car.tires = 8'000;
 		alice.vtb.account_rub -= alice.car.tires;
 	}
 
-	
 	if (month == 11) {
 		alice.vtb.account_rub -= alice.car.tax;
 	}
@@ -582,20 +739,25 @@ void alice_car(const int month)
 
 void alice_real_estate(const int month, const int year)
 {
-	alice.vtb.account_rub -= alice.home.mortgage_payment;
+	if (!alice.home.is_apartment_sold or alice.family.is_married) {
+		alice.vtb.account_rub -= alice.home.mortgage_payment;
+	}
 	alice.vtb.account_rub -= alice.home.utilities;
 	alice.vtb.account_rub -= alice.home.property_tax;
 	alice.vtb.account_rub -= alice.home.repair_fund;
 
-	
 	if (month == 10) {
 		RUB property_tax = alice.home.apartment_value * 0.001;
 		alice.vtb.account_rub -= property_tax;
 	}
 
-	
 	if (month == 1 and year > 2026) {
-		alice.home.apartment_value *= 1.15;
+		if (!alice.home.is_apartment_sold) {
+			alice.home.apartment_value *= 1.15;
+		}
+		else {
+			alice.home.apartment_value *= 1.12;
+		}
 		alice.home.inherited_apartment_value *= 1.15;
 	}
 }
@@ -616,8 +778,7 @@ void alice_pets(const int month)
 		alice.vtb.account_rub -= vet_emergency;
 	}
 
-	
-	if (alice.vacation.is_traveling and month == alice.vacation.travel_month) { // Сиделка для домашних животных
+	if (alice.vacation.is_traveling and month == alice.vacation.travel_month) {
 		alice.animals.cat_sitter = 6'000;
 		alice.vtb.account_rub -= alice.animals.cat_sitter;
 	}
@@ -629,37 +790,30 @@ void alice_investments(const int month, const int year)
 	float stocks_return = 1.0 + (alice.portfolio.stocks_growth_rate / 12);
 	alice.portfolio.stocks = alice.portfolio.stocks * stocks_return;
 
-	
 	float crypto_change = 1.0 + ((rand() % 200 - 100) / 100.0 * alice.portfolio.crypto_volatility / 12);
 	alice.portfolio.crypto = alice.portfolio.crypto * crypto_change;
 
-	
 	float bonds_return = 1.0 + (0.06 / 12);
 	alice.portfolio.bonds = alice.portfolio.bonds * bonds_return;
 
-	
 	float gold_return = 1.0 + (alice.portfolio.gold_growth_rate / 12);
 	alice.portfolio.gold = alice.portfolio.gold * gold_return;
 
-	
 	float etf_return = 1.0 + (alice.portfolio.etf_growth_rate / 12);
 	alice.portfolio.etf = alice.portfolio.etf * etf_return;
 
-	
-	if (year == 2027 and month == 1 and alice.portfolio.startup > 0) { // Стартап (возможный доход при выходе)
-		RUB exit_income = alice.portfolio.startup * 3; // Трехкратный выход
+	if (year == 2027 and month == 1 and alice.portfolio.startup > 0) {
+		RUB exit_income = alice.portfolio.startup * 3;
 		alice.vtb.account_rub += exit_income;
 		alice.portfolio.startup = 0;
 	}
 
-	
 	if (alice.vtb.account_rub > 100'000) {
 		RUB investment_amount = alice.vtb.account_rub * 0.1;
 		if (investment_amount > 50'000) investment_amount = 50'000;
 
 		alice.vtb.account_rub -= investment_amount;
 
-		
 		alice.portfolio.stocks += investment_amount * 0.4;
 		alice.portfolio.bonds += investment_amount * 0.2;
 		alice.portfolio.etf += investment_amount * 0.2;
@@ -699,24 +853,20 @@ void alice_health_expenses(const int month)
 	alice.vtb.account_rub -= alice.health.massage;
 	alice.vtb.account_rub -= alice.health.gym_membership;
 
-
 	if (alice.health.dentist > 0) {
 		alice.vtb.account_rub -= alice.health.dentist;
 		alice.health.dentist = 0;
 	}
 
-
 	if (alice.health.psychologist > 0) {
 		alice.vtb.account_rub -= alice.health.psychologist;
 	}
-
 
 	if (alice.health.sports_equipment > 0) {
 		alice.vtb.account_rub -= alice.health.sports_equipment;
 		alice.health.sports_equipment = 0;
 	}
 
-	
 	if (month == 6 or month == 12) {
 		alice.health.dentist = (rand() % 10 + 5) * 1000;
 		alice.vtb.account_rub -= alice.health.dentist;
@@ -739,7 +889,6 @@ void alice_entertainment_expenses(const int month, const int year)
 		alice.entertainment_detail.concerts = 0;
 	}
 
-	
 	if (month == 7 and year == 2026) {
 		alice.entertainment_detail.concerts = 8'000;
 		alice.vtb.account_rub -= alice.entertainment_detail.concerts;
@@ -764,7 +913,6 @@ void alice_vacation_expenses(const int month, const int year)
 {
 	alice.vtb.account_rub -= alice.vacation.travel_fund;
 
-	
 	if (month == 8 and year == 2026 and !alice.vacation.is_traveling) {
 		alice.vacation.is_traveling = 1;
 		alice.vacation.travel_month = 8;
@@ -776,8 +924,7 @@ void alice_vacation_expenses(const int month, const int year)
 		alice.vtb.account_rub -= alice.vacation.visa_fees;
 		alice.vtb.account_rub -= alice.vacation.souvenirs;
 	}
-	
-	
+
 	if (month == 7 and year == 2028 and !alice.vacation.is_traveling) {
 		alice.vacation.is_traveling = 1;
 		alice.vacation.travel_month = 7;
@@ -789,7 +936,6 @@ void alice_vacation_expenses(const int month, const int year)
 		alice.vtb.account_rub -= alice.vacation.visa_fees;
 		alice.vtb.account_rub -= alice.vacation.souvenirs;
 	}
-	
 
 	if (month == 8 and year == 2031 and !alice.vacation.is_traveling) {
 		alice.vacation.is_traveling = 1;
@@ -802,7 +948,6 @@ void alice_vacation_expenses(const int month, const int year)
 		alice.vtb.account_rub -= alice.vacation.visa_fees;
 		alice.vtb.account_rub -= alice.vacation.souvenirs;
 	}
-	
 
 	if (month == 7 and year == 2034 and !alice.vacation.is_traveling) {
 		alice.vacation.is_traveling = 1;
@@ -815,7 +960,6 @@ void alice_vacation_expenses(const int month, const int year)
 		alice.vtb.account_rub -= alice.vacation.visa_fees;
 		alice.vtb.account_rub -= alice.vacation.souvenirs;
 	}
-
 
 	if (alice.vacation.is_traveling and month == alice.vacation.travel_month) {
 		alice.vacation.is_traveling = 0;
@@ -830,13 +974,11 @@ void alice_family_expenses(const int month)
 	alice.vtb.account_rub -= alice.family.grandparents_aid;
 	alice.vtb.account_rub -= alice.family.siblings_gifts;
 
-
 	if (alice.family.family_events > 0) {
 		alice.vtb.account_rub -= alice.family.family_events;
 		alice.family.family_events = 0;
 	}
 
-	
 	if (month == 9) {
 		alice.family.family_events = 15'000;
 		alice.vtb.account_rub -= alice.family.family_events;
@@ -855,13 +997,11 @@ void alice_monthly_others(const int month)
 	alice.vtb.account_rub -= alice.electronics;
 	alice.vtb.account_rub -= alice.alcohol;
 
-	
 	if (month == 4 or month == 9) {
 		RUB seasonal_clothes = 15'000;
 		alice.vtb.account_rub -= seasonal_clothes;
 	}
 
-	
 	if (month == 12) {
 		RUB holiday_gifts = 25'000;
 		alice.vtb.account_rub -= holiday_gifts;
@@ -876,13 +1016,11 @@ void alice_bank_operations(const int month, const int year)
 		alice.vtb.account_rub += deposit_interest;
 	}
 
-	
 	if (alice.vtb.savings_account > 0) {
 		RUB savings_interest = alice.vtb.savings_account * (0.12 / 12);
 		alice.vtb.savings_account += savings_interest;
 	}
 
-	
 	if (alice.vtb.credit_card_debt > 0) {
 		RUB min_payment = alice.vtb.credit_card_debt * 0.05;
 		if (min_payment < 1000) min_payment = alice.vtb.credit_card_debt;
@@ -894,7 +1032,6 @@ void alice_bank_operations(const int month, const int year)
 		alice.vtb.credit_card_debt += credit_perc;
 	}
 
-	
 	if (month == 4) {
 		alice.vtb.tax_refund = (rand() % 10 + 5) * 1000;
 		alice.vtb.account_rub += alice.vtb.tax_refund;
@@ -904,19 +1041,25 @@ void alice_bank_operations(const int month, const int year)
 
 void alice_tax_optimization(const int month, const int year)
 {
-		if (year == 2026 and month == 12) {
+	if (year == 2026 and month == 12) {
 		RUB iis_investment = 200'000;
-
 
 		if (alice.vtb.account_rub > iis_investment) {
 			alice.vtb.account_rub -= iis_investment;
 			alice.portfolio.stocks += iis_investment;
-			
-
 			RUB tax_deduction = iis_investment * 0.13;
 			alice.vtb.account_rub += tax_deduction;
 		}
 	}
+}
+
+
+void alice_family_life_events(const int month, const int year)
+{
+	alice_wedding(month, year);
+	alice_pregnancy(month, year);
+	alice_husband_salary(month, year);
+	alice_child_expenses(month, year);
 }
 
 
@@ -932,6 +1075,7 @@ void simulation()
 		alice_freelance(month, year);
 		alice_investments(month, year);
 		alice_career_change(month, year);
+		alice_family_life_events(month, year);
 
 		alice_real_estate(month, year);
 		alice_food(month, year);
@@ -944,8 +1088,7 @@ void simulation()
 		alice_vacation_expenses(month, year);
 		alice_family_expenses(month);
 		alice_monthly_others(month);
-		
-		
+
 		alice_alcohol_addiction();
 
 		alice_bank_operations(month, year);
@@ -953,6 +1096,7 @@ void simulation()
 		alice_lottery();
 
 		++month;
+
 		if (month == 13) {
 			++year;
 			month = 1;
@@ -977,16 +1121,33 @@ void print_results()
 	capital += alice.portfolio.etf;
 	capital += alice.portfolio.startup;
 
-
+	printf("РЕЗУЛЬТАТЫ 2026-2036\n");
 	printf("Суммарный капитал: %lld руб\n", capital - alice.vtb.credit_card_debt);
-	printf("Собственная квартира: %lld руб\n", alice.home.apartment_value);
-	printf("Унаследованная квартира: %lld руб\n", alice.home.inherited_apartment_value);
-	printf("Автомобиль: %lld руб\n", alice.car.value);
-	printf("Инвестиционный портфель: %lld руб\n", alice.portfolio.stocks + alice.portfolio.crypto + alice.portfolio.bonds + alice.portfolio.gold +
-		alice.portfolio.etf);
-	printf("Средства: %lld руб\n", alice.vtb.account_rub + alice.vtb.savings_account);
+	printf("\nНЕДВИЖИМОСТЬ:\n");
+	printf("  Собственная квартира: %lld руб\n", alice.home.apartment_value);
+	printf("  Унаследованная квартира: %lld руб\n", alice.home.inherited_apartment_value);
+	printf("  Арендный доход: %lld руб/мес\n", alice.home.rental_income);
+
+	printf("\nАВТОМОБИЛЬ И ИНВЕСТИЦИИ:\n");
+	printf("  Автомобиль: %lld руб\n", alice.car.value);
+	printf("  Инвестиционный портфель: %lld руб\n", alice.portfolio.stocks + alice.portfolio.crypto + alice.portfolio.bonds + alice.portfolio.gold + alice.portfolio.etf);
+	printf("  Ликвидные средства: %lld руб\n", alice.vtb.account_rub + alice.vtb.savings_account);
+
+	printf("\nСЕМЕЙНОЕ ПОЛОЖЕНИЕ:\n");
+
+	if (alice.family.is_married) {
+		printf("  Замужем (с %d года)\n", alice.family.wedding_year);
+		printf("  Зарплата мужа: %lld руб/мес\n", alice.family.husband_salary);
+	}
+
+	if (alice.family.has_child) {
+		printf("  Есть ребенок (родился в %d году)\n", alice.family.child_birth_year);
+		printf("  Расходы на ребенка: %lld руб/мес\n", alice.family.child_expenses);
+	}
+
 	if (alice.health.is_addicted) {
-		printf("Текущие расходы на алкоголь: %lld руб/мес\n", alice.alcohol);
+		printf("\nАлкогольная зависимость!\n");
+		printf("Расходы на алкоголь: %lld руб/мес\n", alice.alcohol);
 	}
 }
 
