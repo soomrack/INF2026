@@ -330,7 +330,7 @@ RUB calc_basic_month_cost_without_loan(const Person& p) {
     return total;
 }
 
-// резерв не равен всем деньгам на счёте, он задаёт нижнюю границу перед переводом в savings
+// резерв не равен всем деньгам на счете, он задает нижнюю границу перед переводом в savings
 RUB calc_reserve_target(const Person& p) {
     RUB reserve = 0;
     reserve += calc_basic_month_cost_without_loan(p);
@@ -1015,7 +1015,7 @@ RUB calc_transfer_to_savings(const Person& p) {
     return 0;
 }
 
-// переводим только излишек относительно резерва, а не весь остаток счёта
+// переводим только излишек относительно резерва, а не весь остаток счета
 void move_to_savings(Person& p) {
     RUB transfer = calc_transfer_to_savings(p);
 
@@ -1283,7 +1283,7 @@ void update_income_analbek(int month, int year) {
     Analbek.work_taxi.expenses     = 55000;
 }
 
-// тут семейные расходы меняются ступенчато, чтобы в отчётах были заметны события года
+// тут семейные расходы меняются ступенчато, чтобы в отчетах были заметны события года
 void update_family_costs_dilshot(int month, int year) {
     (void)year;
 
@@ -1303,10 +1303,6 @@ void update_family_costs_analbek(int month, int year) {
         Analbek.family.kids_food_month += 2000;
     }
 }
-
-// ============================================================
-//  ИЗМЕНЕНИЕ МЕДИЦИНСКИХ РАСХОДОВ
-// ============================================================
 
 void update_health_cost_dilshot(int month) {
     if (Dilshot.health.hp < 60) {
@@ -1540,10 +1536,6 @@ void push_history_row(Person& p, int month, int year, RUB basic_cost) {
     p.history_count++;
 }
 
-// ============================================================
-//  ОБНОВЛЕНИЕ ЭКСТРЕМУМОВ КАПИТАЛА
-// ============================================================
-
 void update_best_capital(Person& p, int month, int year) {
     if (p.stats.months_simulated == 0 || p.cap > p.stats.best_capital) {
         p.stats.best_capital = p.cap;
@@ -1569,7 +1561,7 @@ void finalize_month_counters(Person& p) {
     p.stats.months_simulated++;
 }
 
-// basic_cost передаём отдельно, чтобы в историю попала фактическая базовая нагрузка месяца
+// basic_cost передаем отдельно, чтобы в историю попала фактическая базовая нагрузка месяца
 void finalize_person_after_month(
     Person& p,
     int month,
@@ -1732,7 +1724,7 @@ MonthlyStats* history_worst_month(Person& p) {
     return &p.history[idx];
 }
 
-// маржа считается грубо по истории, потому что кредит в таблице хранится отдельно как баланс
+// моржа считается грубо по истории потому, чтоо кредит в таблице хранится отдельно как баланс
 int history_negative_margin_months(const Person& p) {
     int count = 0;
 
@@ -1892,7 +1884,7 @@ double car_to_assets_ratio(const Person& p) {
 }
 
 
-// эти коэффициенты нужны для отчёта, а не для принятия решений внутри модели
+// эти коэфициенты нужны для отчeта, а не для принятия решений внутри модели
 double recurring_cost_to_salary_ratio(const Person& p) {
     if (p.work_taxi.salary <= 0) {
         return 0.0;
@@ -2004,7 +1996,7 @@ double average_capital_history(const Person& p) {
             / static_cast<double>(p.history_count);
 }
 
-// здесь используем простую прокси-метрику разброса без отдельной статистической библиотеки
+// здесь использую простую прокси метрику разброса без отдельной статистической библиотеки
 double capital_volatility_proxy(const Person& p) {
     if (p.history_count <= 1) {
         return 0.0;
@@ -2075,7 +2067,7 @@ int score_health(const Person& p) {
     return hp;
 }
 
-// итоговый score специально грубый и объяснимый, чтобы его было легко читать в отчёте
+// итоговый score специально грубый и объяснимый, чтобы его было легко читать в отчете
 int calc_financial_score(const Person& p) {
     int s1 = score_liquidity(p);
     int s2 = score_debt(p);
@@ -2208,11 +2200,11 @@ int person_is_financially_positive(const Person& p) {
 
 // функции вывода информации
 void print_separator() {
-    std::printf("------------------------------------------------------------\n");
+    std::printf("--- --- --- --- --- --- --- --- --- --- --- --- --- --- --- \n");
 }
 
 void print_big_separator() {
-    std::printf("============================================================\n");
+std::printf("------------------------------------------------------------\n");
 }
 
 void print_title(const char* title) {
@@ -2550,7 +2542,7 @@ void run_postprocessing_stage(Person& p, int month) {
     recalc_cap(p);
 }
 
-// шаг устроен так, чтобы сначала применить сценарий месяца, а потом уже списывать деньги
+// шаг устроен так, чот чтобы сначала применить сценарий месяца, а потом уже списывать рубли
 void step_month(Person& p, int month, int year) {
     RUB basic_cost = 0;
 
@@ -2638,7 +2630,7 @@ void print_year_end_report_if_needed(int month, int year) {
     }
 }
 
-// конец периода не включён в цикл, поэтому симуляция идёт до 03.2027 не доходя до самого шага марта
+// конец периода не включен в цикл, поэтому симуляция идет до 03.2027 не доходя до самого шага марта
 void run_simulation() {
     int month = START_MONTH;
     int year  = START_YEAR;
