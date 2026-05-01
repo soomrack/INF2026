@@ -1,7 +1,7 @@
 #include <DHT.h>
 
-const int PIN_DHT             = A2;   // температура + влажность воздуха
-const int PIN_SOIL_SENSOR     = A3;   // влажность земли
+const int PIN_DHT             = A3;   // температура + влажность воздуха
+const int PIN_SOIL_SENSOR     = A1;   // влажность земли
 const int PIN_LIGHT_SENSOR    = A0;   // освещение
 
 const int PIN_PUMP            = 5;
@@ -128,17 +128,22 @@ private:
     int pin;
 
 public:
-    int light; // 0..100
+    int light;    // 0..100, где 0 - темно, 100 - светло
+    int rawValue; // сырое значение с датчика
 
-    LightSensor(int p) : pin(p), light(0) {}
+    LightSensor(int p) : pin(p), light(0), rawValue(0) {}
 
     void begin() {
         pinMode(pin, INPUT);
     }
 
     void read() {
-        int raw = analogRead(pin);
-        light = map(raw, 0, 1023, 0, 100);
+        rawValue = analogRead(pin);
+
+        // Этот датчик работает как датчик темноты:
+        // чем больше rawValue, тем темнее.
+        // Поэтому шкала инвертирована: 0 - темно, 100 - светло.
+        light = map(rawValue, 1023, 0, 0, 100);
 
         if (light < 0) light = 0;
         if (light > 100) light = 100;
@@ -160,10 +165,12 @@ private:
 
     unsigned long lastPumpStart;
     unsigned long lastPumpStop;
+    unsigned long lastStatusPrint;
     bool pumpCoolingDown;
 
     const unsigned long pumpWorkTimeMs = 3000;      // помпа работает 3 сек
     const unsigned long pumpPauseTimeMs = 10000;    // потом пауза 10 сек
+    const unsigned long statusIntervalMs = 5000;   // статус выводится раз в 5 сек
 
 public:
     SmartFarm(
@@ -186,6 +193,7 @@ public:
           cfg(configRef),
           lastPumpStart(0),
           lastPumpStop(0),
+          lastStatusPrint(0),
           pumpCoolingDown(false) {}
 
     void updateSensors() {
@@ -228,9 +236,6 @@ public:
 
         if (soilSensor.humidity >= cfg.minSoilHumidity) {
             pump.set(false);
-            if (pump.isOn()) {
-                lastPumpStop = now;
-            }
             pumpCoolingDown = false;
             return;
         }
@@ -282,6 +287,9 @@ public:
         Serial.print(lightSensor.light);
         Serial.println(F(" /100"));
 
+        Serial.print(F("Light sensor raw: "));
+        Serial.println(lightSensor.rawValue);
+
         Serial.print(F("Lamp: "));
         Serial.println(lamp.isOn() ? F("ON") : F("OFF"));
 
@@ -301,7 +309,13 @@ public:
         updateSensors();
         controlClimate();
         applyActuators();
-        printStatus();
+
+        unsigned long now = millis();
+
+        if (lastStatusPrint == 0 || now - lastStatusPrint >= statusIntervalMs) {
+            printStatus();
+            lastStatusPrint = now;
+        }
     }
 };
 
@@ -342,5 +356,5 @@ void setup() {
 
 void loop() {
     farm.runCycle();
-    delay(5000);
+    delay(500);
 }
