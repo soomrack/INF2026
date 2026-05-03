@@ -1,13 +1,57 @@
 #include <stdio.h>
 #include <iostream>
+#include <map>
+#include <string>
 
-using RUB = long long int; 
 
-struct Mall{
+using RUB = long long int;
+
+
+struct Restaurant {
+    RUB buffet;
+    RUB coffee_break;
+    RUB banquet_menu;
+    RUB alcohol;
+    RUB wedding_cake;
+};
+
+
+struct Decor {
+    RUB registration_area;
+    RUB hall_decoration;
+    RUB flowers;
+};
+
+
+struct Entertainments {
+    RUB firework;
+    RUB soap_bubbles;
+    RUB smoke_machine;
+};
+
+
+struct Wedding {
+    RUB cost;
+    RUB invitations;
+    RUB outfits;
+    RUB rent_of_space;
+    RUB host;
+    RUB music;
+    RUB photographer;
+    RUB coordinator;
+    RUB transport_and_logistics;
+    struct Restaurant restaurant;
+    struct Decor decor;
+    struct Entertainments entertainments;
+};
+
+
+struct Mall {
     RUB clothes;
     RUB shoes;
     RUB accessories;
 };
+
 
 struct Car {
     RUB value;
@@ -15,18 +59,48 @@ struct Car {
     int years;
 };
 
+
 struct Cat {
     RUB food;
     RUB vet;
     RUB toys;
 };
 
+
+struct Dog {
+    RUB food;
+    RUB vet;
+    RUB toys;
+    RUB groomer;
+    RUB trainer;
+    RUB cosmetics;
+    RUB entry_fees;
+};
+
+
+struct Telephon {
+    RUB cost;
+    RUB connection;
+    int years;
+};
+
+
+struct BeautySalon
+{
+    RUB haircut;
+    RUB manicure;
+    RUB eyelash_extensions;
+};
+
+
 struct Cosmetologist {
     RUB services;
     RUB cosmetic;
 };
 
+
 struct Vacation {
+    RUB cost;
     RUB tickets;
     RUB hotel;
     RUB souvenirs;
@@ -36,87 +110,377 @@ struct Vacation {
     RUB cruises;
 };
 
-struct Real_estate {
+
+struct RealEstate {
     RUB apartment1;
     RUB apartment2;
     RUB apartment3;
+    RUB apartment4;
+    RUB apartment5;
     RUB villa;
+    RUB mansion;
 };
 
-struct Utility_bills {
+
+struct UtilityBills {
     RUB apartment1;
     RUB apartment2;
     RUB apartment3;
+    RUB apartment4;
+    RUB apartment5;
     RUB villa;
+    RUB mansion;
 };
+
 
 struct Bank {
     RUB salary;
     RUB rent;
     RUB account;
+    RUB business_account;
     RUB deposit;
-    float pp = 14.5;
+    float interest_rate = 14.5;
 };
 
-struct Casino{
+
+struct Casino {
     RUB bet;
+    RUB winning;
     int casino_number;
     int person_number;
     int attempts;
+    float taxes;
 };
 
+
+struct Products {
+    RUB dress;
+    RUB blouse;
+    RUB pants;
+    RUB skirt;
+    RUB knitwear;
+    RUB denim;
+    RUB jacket;
+    RUB outerwear;
+    RUB shorts;
+    RUB bag;
+    RUB jewelry;
+    RUB belt;
+    RUB hat;
+    RUB gloves;
+    RUB scarve;
+    RUB sunglasses;
+    RUB socks;
+    RUB gift_certificate;
+};
+
+
+struct Royalty {
+    RUB franchising;
+    RUB supplier_database;
+    RUB promotional_materials;
+    RUB total;
+};
+
+
+struct Incomes {
+    RUB retail_sales;  // retail sales - розничные продажи
+    RUB wholesale_sales;  // Wholesale sales - оптовые продажи
+    RUB online_store;
+    RUB marketplaces;
+    RUB outlet;
+    RUB merch_and_collaborations;
+    struct Royalty royalty;    
+    RUB total;
+};
+
+
+struct Logistics {
+    RUB transport;
+    RUB warehouse;  // warehouse - складская
+    RUB distribution;  // distribution - распределительная
+    RUB total;
+};
+
+
+struct Marketing {
+    RUB digital;
+    RUB ambassador;
+    RUB fashion_show;
+    RUB total;
+};
+
+
+struct Rent {
+    RUB store;
+    RUB office;
+    RUB warehouse;
+    RUB total;
+};
+
+
+struct TopManagement {
+    RUB CEO;
+    RUB creative_director;
+    RUB commercial_director;
+    RUB product_director;
+    RUB operations_director;
+    RUB total;
+};
+
+
+struct Design {
+    RUB head_of_design;
+    RUB fashion_designer;
+    RUB assistant_designer;
+    RUB design_technologist;
+    RUB materials_specialist;
+    RUB total;
+};
+
+
+struct Sales {
+    RUB store_manager;
+    RUB senior_salesperson;
+    RUB sales_consultant;
+    RUB administrator;
+    RUB total;
+};
+
+
+struct Administration {
+    RUB head_of_sales;
+    RUB retail_operation_manager;
+    RUB wholesale_operations_manager;
+    RUB sales_department_administrator;
+    RUB head_of_logistics;
+    RUB warehouse_manager;
+    RUB accountant;
+    RUB lawyer;
+    RUB total;
+};
+
+struct Salaries {
+    struct TopManagement top_management;
+    struct Design design;
+    struct Sales sales;
+    struct Administration administration;
+    RUB total;
+};
+
+
+struct Materials {
+    RUB basic_fabrics;
+    RUB accessories;
+    RUB strings;
+    RUB decor;
+    RUB packaging;
+    RUB labels;
+    RUB total;
+};
+
+
+struct Taxes {
+    float VAT = 0.057;  // VAT - НДС
+    float profit_tax = 0.04;  // profit tax - налог на прибыль
+    float insurance_premiums = 0.038;  // insurance premiums - страховые взносы
+    float personal_income_tax = 0.021;  // personal income tax - НДФЛ
+    RUB total;
+};
+
+
+struct Expenses {
+    struct Salaries salaries;
+    struct Rent rent;
+    struct Marketing marketing;
+    struct Logistics logistics;
+    struct Materials materials;
+    struct Taxes taxes;
+    RUB total;
+};
+
+
+struct NumberOfProducts {
+    std::map<std::string, unsigned> dress
+    {
+        {"1", 8}, {"2", 28}, {"3", 26}, {"4", 14}
+    };
+    std::map<std::string, unsigned> blouse
+    {
+        {"1", 9}, {"2", 25}, {"3", 24}, {"4", 13}
+    };
+    std::map<std::string, unsigned> pants
+    {
+        {"1", 15}, {"2", 13}, {"3", 12}, {"4", 14}
+    };
+    std::map<std::string, unsigned> skirt
+    {
+        {"1", 2}, {"2", 22}, {"3", 18}, {"4", 7}
+    };
+    std::map<std::string, unsigned> knitwear
+    {
+        {"1", 18}, {"2", 10}, {"3", 6}, {"4", 19}
+    };
+    std::map<std::string, unsigned> denim
+    {
+        {"1", 13}, {"2", 11}, {"3", 12}, {"4", 14}
+    };
+    std::map<std::string, unsigned> jacket
+    {
+        {"1", 12}, {"2", 14}, {"3", 13}, {"4", 10}
+    };
+    std::map<std::string, unsigned> outerwear
+    {
+        {"1", 28}, {"2", 4}, {"3", 1}, {"4", 23}
+    };
+    std::map<std::string, unsigned> shorts
+    {
+        {"1", 2}, {"2", 16}, {"3", 15}, {"4", 1}
+    };
+    std::map<std::string, unsigned> bag
+    {
+        {"1", 16}, {"2", 19}, {"3", 16}, {"4", 15}
+    };
+    std::map<std::string, unsigned> jewelry
+    {
+        {"1", 16}, {"2", 14}, {"3", 13}, {"4", 17}
+    };
+    std::map<std::string, unsigned> belt
+    {
+        {"1", 29}, {"2", 7}, {"3", 16}, {"4", 16}
+    };
+    std::map<std::string, unsigned> hat
+    {
+        {"1", 26}, {"2", 3}, {"3", 9}, {"4", 23}
+    };
+    std::map<std::string, unsigned> gloves
+    {
+        {"1", 23}, {"2", 2}, {"3", 1}, {"4", 19}
+    };
+    std::map<std::string, unsigned> scarve
+    {
+        {"1", 18}, {"2", 2}, {"3", 1}, {"4", 17}
+    };
+    std::map<std::string, unsigned> sunglasses
+    {
+        {"1", 1}, {"2", 9}, {"3", 11}, {"4", 1}
+    };
+    std::map<std::string, unsigned> socks
+    {
+        {"1", 29}, {"2", 13}, {"3", 8}, {"4", 26}
+    };
+    std::map<std::string, unsigned> gift_certificate
+    {
+        {"1", 15}, {"2", 16}, {"3", 13}, {"4", 17}
+    };
+    
+};
+
+
+struct FashionBusiness {
+    struct NumberOfProducts number_of_products;
+    struct Products products;
+    struct Incomes incomes;
+    struct Expenses expenses;
+    RUB total_income;
+    RUB total_expenses;
+    RUB revenue;
+    int number_of_stores = 15;
+};
+
+
 struct Person { 
-    RUB food;
     RUB capital;
+    RUB food;
+    RUB household_expenses;
     RUB fitness;
+    RUB spa;
+    RUB home_internet;
+    struct Wedding wedding;
+    struct BeautySalon beauty_salon;
+    struct Telephon telephon;
     struct Cosmetologist cosmetologist;
-    struct Utility_bills utility_bills;
+    struct UtilityBills utility_bills;
     struct Vacation vacation;
     struct Casino casino;
     struct Mall mall;
-    struct Real_estate real_estate;
+    struct RealEstate real_estate;
     struct Bank sber;
     struct Car car;
+    struct Dog dog;
     struct Cat cat;
+    struct FashionBusiness fashion_business;
 };
 
+
 struct Person Alice;
+struct Person Stephany;
+
 
 void alice_casino()
 {
+    Alice.casino.taxes = 0.13;
+    Alice.casino.bet *= 1.06;
+
     Alice.casino.attempts = 10;
 
-    for (int attempt = 0; attempt < Alice.casino.attempts; attempt++){
-        Alice.casino.person_number = rand() % 10;
-        Alice.casino.casino_number = rand() % 10;
+    if (Alice.sber.deposit >= Alice.casino.bet * Alice.casino.attempts){
+        Alice.sber.account += Alice.casino.bet * Alice.casino.attempts;
+        Alice.sber.deposit -= Alice.casino.bet * Alice.casino.attempts;
 
-        if (Alice.casino.person_number == Alice.casino.casino_number){
-            Alice.sber.account += Alice.casino.bet;
+        for (int attempt = 0; attempt < Alice.casino.attempts; attempt++){
+            Alice.casino.person_number = rand() % 10;
+            Alice.casino.casino_number = rand() % 10;
+
+            if (Alice.casino.person_number == Alice.casino.casino_number){
+                Alice.casino.winning = Alice.casino.bet - (Alice.casino.bet * Alice.casino.taxes);
+                Alice.sber.account += Alice.casino.winning;
+            }
+            else {
+                Alice.sber.account -= Alice.casino.bet;
+            };
         }
-        else {
-            Alice.sber.account -= Alice.casino.bet;
-        };
     }
 
 }
+
 
 void alice_income(const int month, const int year) 
 { 
     Alice.sber.account += Alice.sber.rent;
 
+    if ((month == 12)){
+        Alice.sber.salary *= 1.07;
+        Alice.sber.rent *= 1.07;
+
+        Alice.real_estate.apartment1 *= 1.07;
+        Alice.real_estate.apartment2 *= 1.07;
+        Alice.real_estate.apartment3 *= 1.07;
+        Alice.real_estate.villa *= 1.07;
+    };
+
     if ((month == 8) && (year == 2026)) { 
-        Alice.sber.salary *= 1.5; 
+        Alice.sber.salary *= 1.05; 
     } 
 
     Alice.sber.account += Alice.sber.salary;
 }
 
+
 void alice_deposit()
 {
-    Alice.sber.deposit += Alice.sber.deposit * (Alice.sber.pp / 12.0 / 100.0);
-    Alice.sber.deposit += Alice.sber.account - (Alice.sber.account * 0.4);
-    Alice.sber.account = Alice.sber.account * 0.4;
+    Alice.sber.deposit += Alice.sber.deposit * (Alice.sber.interest_rate / 12.0 / 100.0);
+
+    RUB transfer_amount;
+    RUB balance_amount;
+
+    transfer_amount = Alice.sber.account - (Alice.sber.account * 0.4);
+    balance_amount = Alice.sber.account * 0.4;
+
+    Alice.sber.deposit += transfer_amount;
+    Alice.sber.account = balance_amount;
 }
+
 
 void alice_capital() 
 {
@@ -127,125 +491,285 @@ void alice_capital()
     Alice.capital += Alice.real_estate.villa;
 }
 
-void utility_bills()
+
+void alice_utility_bills()
 {
     Alice.sber.deposit -= Alice.utility_bills.apartment1;
+    Alice.utility_bills.apartment1 *= (1.0 + 0.06 / 12);
+
     Alice.sber.deposit -= Alice.utility_bills.apartment2;
+    Alice.utility_bills.apartment2 *= (1.0 + 0.06 / 12);
+
     Alice.sber.deposit -= Alice.utility_bills.apartment3;
+    Alice.utility_bills.apartment3 *= (1.0 + 0.06 / 12);
+
     Alice.sber.deposit -= Alice.utility_bills.villa;
+    Alice.utility_bills.villa *= (1.0 + 0.06 / 12);
 }
+
 
 void print_result() 
 { 
-    printf("Salary = %lld\n", Alice.sber.salary);
-    printf("Capital = %lld\n", Alice.capital);
-    printf("Deposit = %lld\n", Alice.sber.deposit);
-    printf("Account = %lld", Alice.sber.account);
+    printf("Alice's salary = %lld\n", Alice.sber.salary);
+    printf("Alice's capital = %lld\n", Alice.capital);
+    printf("Alice's deposit = %lld\n", Alice.sber.deposit);
+    printf("Alice's account = %lld\n", Alice.sber.account);
+    printf("\n");
+
+    printf("Stephany's account = %lld\n", Stephany.sber.account);
+    printf("Stephany's capital = %lld\n", Stephany.capital);
+    printf("Stephany's business account = %lld\n", Stephany.sber.business_account);
+    printf("Stephany's revenue = %lld\n", Stephany.fashion_business.revenue);
+    printf("Stephany's total income = %lld\n", Stephany.fashion_business.total_income);
+    printf("Stephany's total expenses = %lld\n", Stephany.fashion_business.total_expenses);
 }
+
 
 void alice_vacation()
 {
-    Alice.sber.account -= Alice.vacation.concerts;
-    Alice.sber.account -= Alice.vacation.cruises;
-    Alice.sber.account -=  Alice.vacation.excursions;
-    Alice.sber.account -= Alice.vacation.hotel;
-    Alice.sber.account -= Alice.vacation.restaurants;
-    Alice.sber.account -= Alice.vacation.souvenirs;
-    Alice.sber.account -= Alice.vacation.tickets;
+    Alice.vacation.cost *= 1.07;
+
+    if (Alice.sber.deposit >= Alice.vacation.cost){
+        Alice.sber.account += Alice.vacation.cost;
+        Alice.sber.deposit -= Alice.vacation.cost;
+
+        Alice.sber.account -= Alice.vacation.concerts;
+        Alice.vacation.concerts *= (1.0 + 0.06 / 12);
+
+        Alice.sber.account -= Alice.vacation.cruises;
+        Alice.vacation.cruises *= (1.0 + 0.06 / 12);
+
+        Alice.sber.account -=  Alice.vacation.excursions;
+        Alice.vacation.excursions *= (1.0 + 0.06 / 12);
+
+        Alice.sber.account -= Alice.vacation.hotel;
+        Alice.vacation.hotel *= (1.0 + 0.06 / 12);
+
+        Alice.sber.account -= Alice.vacation.restaurants;
+        Alice.vacation.restaurants *= (1.0 + 0.06 / 12);
+
+        Alice.sber.account -= Alice.vacation.souvenirs;
+        Alice.vacation.souvenirs *= (1.0 + 0.06 / 12);
+
+        Alice.sber.account -= Alice.vacation.tickets;
+        Alice.vacation.tickets *= (1.0 + 0.06 / 12);
+    }
 }
+
 
 void alice_food() 
 {
     Alice.sber.account -= Alice.food;
-    Alice.food *= (1 + 0.06 / 12);
+    Alice.food *= (1.0 + 0.06 / 12);
 }
+
+
+void alice_home_internet()
+{
+    Alice.sber.account -= Alice.home_internet;
+    Alice.home_internet *= (1.0 + 0.06 / 12);
+}
+
 
 void alice_fitness()
 {
     Alice.sber.account -= Alice.fitness;
-    Alice.fitness *= (1 + 0.06 / 12);
+    Alice.fitness *= (1.0 + 0.06 / 12);
 }
+
+
+void alice_spa(const int month)
+{
+    if (month % 2 == 0){
+        Alice.sber.account -=  Alice.spa;
+    }
+
+    Alice.spa *= (1.0 + 0.06 / 12);
+}
+
+
+void alice_household_expenses()
+{
+    Alice.sber.account -= Alice.household_expenses;
+    Alice.household_expenses *= (1.0 + 0.06 / 12);
+}
+
 
 void alice_mall() 
 {
     Alice.sber.account -= Alice.mall.accessories;
-    Alice.mall.accessories *= (1 + 0.06 / 12);
+    Alice.mall.accessories *= (1.0 + 0.06 / 12);
 
     Alice.sber.account -= Alice.mall.clothes;
-    Alice.mall.clothes *= (1 + 0.06 / 12);
+    Alice.mall.clothes *= (1.0 + 0.06 / 12);
 
     Alice.sber.account -= Alice.mall.shoes; 
-    Alice.mall.shoes *= (1 + 0.06 / 12);
+    Alice.mall.shoes *= (1.0 + 0.06 / 12);
 }
+
 
 void alice_cosmetologist()
 {
     Alice.sber.account -= Alice.cosmetologist.cosmetic;
-    Alice.cosmetologist.cosmetic *= (1 + 0.06 / 12);
+    Alice.cosmetologist.cosmetic *= (1.0 + 0.06 / 12);
 
     Alice.sber.account -= Alice.cosmetologist.services;
-    Alice.cosmetologist.services *= (1 + 0.06 / 12);
-
+    Alice.cosmetologist.services *= (1.0 + 0.06 / 12);
 }
+
+
+void alice_beauty_salon()
+{
+    Alice.sber.account -= Alice.beauty_salon.eyelash_extensions;
+    Alice.beauty_salon.eyelash_extensions *= (1.0 + 0.06 / 12);
+
+    Alice.sber.account -= Alice.beauty_salon.haircut;
+    Alice.beauty_salon.haircut *= (1.0 + 0.06 / 12);
+
+    Alice.sber.account -= Alice.beauty_salon.manicure;
+    Alice.beauty_salon.manicure *= (1.0 + 0.06 / 12);
+}
+
 
 void alice_cat()
 {
     Alice.sber.account -= Alice.cat.food;
-    Alice.cat.food *= (1 + 0.06 / 12);
+    Alice.cat.food *= (1.0 + 0.06 / 12);
 
     Alice.sber.account -= Alice.cat.toys;
-    Alice.cat.toys *= (1 + 0.06 / 12);
+    Alice.cat.toys *= (1.0 + 0.06 / 12);
 
     Alice.sber.account -= Alice.cat.vet;
-    Alice.cat.vet *= (1 + 0.06 / 12); 
+    Alice.cat.vet *= (1.0 + 0.06 / 12); 
 }
 
-void alice_car()
+
+void alice_wedding(const int month, const int year)
+{
+    if ((year == 2034) & (month == 7)){
+        Alice.sber.account += Alice.wedding.cost / 2;
+        Alice.sber.deposit -= Alice.wedding.cost / 2;
+
+        Alice.sber.account -= Alice.wedding.coordinator / 2;
+
+        Alice.sber.account -= Alice.wedding.decor.flowers / 2;
+        Alice.sber.account -= Alice.wedding.decor.hall_decoration / 2;
+        Alice.sber.account -= Alice.wedding.decor.registration_area / 2;
+
+        Alice.sber.account -= Alice.wedding.entertainments.firework / 2;
+        Alice.sber.account -= Alice.wedding.entertainments.smoke_machine / 2;
+        Alice.sber.account -= Alice.wedding.entertainments.soap_bubbles / 2;
+
+        Alice.sber.account -= Alice.wedding.host / 2;
+
+        Alice.sber.account -= Alice.wedding.invitations / 2;
+
+        Alice.sber.account -= Alice.wedding.music / 2;
+
+        Alice.sber.account -= Alice.wedding.outfits / 2;
+
+        Alice.sber.account -= Alice.wedding.photographer / 2;
+
+        Alice.sber.account -= Alice.wedding.rent_of_space / 2;
+
+        Alice.sber.account -= Alice.wedding.restaurant.alcohol / 2;
+        Alice.sber.account -= Alice.wedding.restaurant.banquet_menu / 2;
+        Alice.sber.account -= Alice.wedding.restaurant.buffet / 2;
+        Alice.sber.account -= Alice.wedding.restaurant.coffee_break / 2;
+        Alice.sber.account -= Alice.wedding.restaurant.wedding_cake / 2;
+
+        Alice.sber.account -= Alice.wedding.transport_and_logistics / 2;
+    };
+
+}
+
+
+void alice_telephon(const int month)
+{
+    Alice.sber.account -= Alice.telephon.connection;
+    Alice.telephon.connection *= (1.0 + 0.06 / 12); 
+
+    if (month == 12){
+        Alice.telephon.years++;
+        Alice.telephon.cost *= 0.9;
+
+        if (Alice.telephon.years == 3) {
+            Alice.sber.account += Alice.telephon.cost;
+
+            Alice.telephon.cost = 100'000;
+            if (Alice.sber.account >= Alice.telephon.cost) {
+                Alice.sber.account -= Alice.telephon.cost;            
+            }
+            else {
+                Alice.sber.account += Alice.telephon.cost - Alice.sber.account;
+                Alice.sber.account -= Alice.telephon.cost;
+            };
+
+            Alice.telephon.years = 0;
+
+        };
+    };
+
+}
+
+
+void alice_car(const int month)
 {
     Alice.sber.account -= Alice.car.gas;
-    Alice.car.gas *= (1 + 0.06 / 12);
-}
+    Alice.car.gas *= (1.0 + 0.06 / 12);
 
-void alice_car_life()
-{
-    Alice.car.years ++;
+    if (month == 12){
+        Alice.car.years++;
 
-    if (Alice.car.years <= 3){
-        Alice.car.value *= 1.07;
-    }
-    else {
-        Alice.car.value *= 0.9;
-    };
-
-    if (Alice.car.years == 7){
-        Alice.sber.account += Alice.car.value;
-
-        Alice.car.value = 2'400'000;
-        if (Alice.sber.account >= Alice.car.value){
-            Alice.sber.account -= Alice.car.value;            
+        if (Alice.car.years <= 3) {
+            Alice.car.value *= 1.07;
         }
         else {
-            Alice.sber.account += Alice.car.value - Alice.sber.account;
-            Alice.sber.account -= Alice.car.value;
-        }
+            Alice.car.value *= 0.9;
+        };
 
-        Alice.car.years = 0;
+        if (Alice.car.years == 7){
+            Alice.sber.account += Alice.car.value;
+
+            Alice.car.value = 2'400'000;
+            if (Alice.sber.account >= Alice.car.value) {
+                Alice.sber.account -= Alice.car.value;            
+            }
+            else {
+                Alice.sber.account += Alice.car.value - Alice.sber.account;
+                Alice.sber.account -= Alice.car.value;
+            };
+
+            Alice.car.years = 0;
+        };
     };
 }
 
-void indexation()
-{
-    Alice.sber.salary *= 1.07;
-    Alice.sber.rent *= 1.07;
-}
 
-void alice_innit() 
+void alice_init() 
 {
     Alice.sber.account = 0;
     Alice.capital = 0;
     Alice.sber.salary = 200'000;
     Alice.sber.rent = 230'000;
+
     Alice.food = 30'000;
+
+    Alice.household_expenses = 10'000;
+
+    Alice.fitness = 1'800;
+
+    Alice.home_internet = 3'000;
+
+    Alice.spa = 8'000;
+
+    Alice.beauty_salon.eyelash_extensions = 3'000;
+    Alice.beauty_salon.haircut = 2'500;
+    Alice.beauty_salon.manicure = 1'500;
+
+    Alice.telephon.connection = 1'000;
+    Alice.telephon.cost = 100'000;
+    Alice.telephon.years = 0;
 
     Alice.real_estate.apartment1 = 23'000'000;
     Alice.real_estate.apartment2 = 9'000'000;
@@ -265,14 +789,13 @@ void alice_innit()
     Alice.cat.toys = 6'000;
     Alice.cat.vet = 5'000;
 
-    Alice.fitness = 1'800;
-
     Alice.mall.accessories = 7'000;
     Alice.mall.clothes = 40'000;
     Alice.mall.shoes = 50'000;
 
-    Alice.casino.bet = 50'000;
+    Alice.casino.bet = 5'000;
 
+    Alice.vacation.cost = 500'000;
     Alice.vacation.concerts = 40'000;
     Alice.vacation.cruises = 50'000;
     Alice.vacation.excursions = 100'000;
@@ -284,7 +807,1144 @@ void alice_innit()
     Alice.cosmetologist.cosmetic = 30'000;
     Alice.cosmetologist.services = 40'000;
 
+
+    Alice.wedding.cost = 2'800'000;
+
+    Alice.wedding.coordinator = 250'000;
+
+    Alice.wedding.decor.flowers = 250'000;
+    Alice.wedding.decor.hall_decoration = 200'000;
+    Alice.wedding.decor.registration_area = 100'000;
+
+    Alice.wedding.entertainments.firework = 30'000;
+    Alice.wedding.entertainments.smoke_machine = 40'000;
+    Alice.wedding.entertainments.soap_bubbles = 35'000;
+
+    Alice.wedding.host = 200'000;
+
+    Alice.wedding.invitations = 30'000;
+
+    Alice.wedding.music = 150'000;
+
+    Alice.wedding.outfits = 400'000;
+
+    Alice.wedding.photographer = 150'000;
+
+    Alice.wedding.rent_of_space = 60'000;
+
+    Alice.wedding.restaurant.alcohol = 250'000;
+    Alice.wedding.restaurant.banquet_menu = 380'000;
+    Alice.wedding.restaurant.buffet = 20'000;
+    Alice.wedding.restaurant.coffee_break = 20'000;
+    Alice.wedding.restaurant.wedding_cake = 50'000;
+
+    Alice.wedding.transport_and_logistics = 150'000;
+
 }
+
+
+void stephany_food()
+{
+    Stephany.sber.account -= Stephany.food;
+    Stephany.food *= (1.0 + 0.06 / 12);
+}
+
+
+void stephany_fitness()
+{
+    Stephany.sber.account -= Stephany.fitness;
+    Stephany.fitness *= (1.0 + 0.06 / 12);
+}
+
+
+void stephany_spa()
+{
+    Stephany.sber.account -= Stephany.spa;
+    Stephany.spa *= (1.0 + 0.06 / 12);
+}
+
+
+void stephany_household_expenses()
+{
+    Stephany.sber.account -= Stephany.household_expenses;
+    Stephany.household_expenses *= (1.0 + 0.06 / 12);
+}
+
+
+void stephany_mall()
+{
+    Stephany.sber.account -= Stephany.mall.accessories;
+    Stephany.mall.accessories *= (1.0 + 0.06 / 12);
+
+    Stephany.sber.account -= Stephany.mall.clothes;
+    Stephany.mall.clothes *= (1.0 + 0.06 / 12);
+
+    Stephany.sber.account -= Stephany.mall.shoes;
+    Stephany.mall.shoes *= (1.0 + 0.06 / 12);
+}
+
+
+void stephany_cosmetologist()
+{
+    Stephany.sber.account -= Stephany.cosmetologist.cosmetic;
+    Stephany.cosmetologist.cosmetic *= (1.0 + 0.06 / 12);
+
+    Stephany.sber.account -= Stephany.cosmetologist.services;
+    Stephany.cosmetologist.services *= (1.0 + 0.06 / 12);
+}
+
+
+void stephany_beauty_salon()
+{
+    Stephany.sber.account -= Stephany.beauty_salon.eyelash_extensions;
+    Stephany.beauty_salon.eyelash_extensions *= (1.0 + 0.06 / 12);
+
+    Stephany.sber.account -= Stephany.beauty_salon.haircut;
+    Stephany.beauty_salon.haircut *= (1.0 + 0.06 / 12);
+
+    Stephany.sber.account -= Stephany.beauty_salon.manicure;
+    Stephany.beauty_salon.manicure *= (1.0 + 0.06 / 12);;
+}
+
+
+void stephany_real_estate()
+{
+    Stephany.real_estate.apartment1 *= 1.07;
+    Stephany.real_estate.apartment2 *= 1.07;
+    Stephany.real_estate.apartment3 *= 1.07;
+    Stephany.real_estate.apartment4 *= 1.07;
+    Stephany.real_estate.apartment5 *= 1.07;
+    Stephany.real_estate.mansion *= 1.07;
+}
+
+
+void stephany_capital()
+{
+    Stephany.capital += Stephany.real_estate.apartment1;
+    Stephany.capital += Stephany.real_estate.apartment2;
+    Stephany.capital += Stephany.real_estate.apartment3;
+    Stephany.capital += Stephany.real_estate.apartment4;
+    Stephany.capital += Stephany.real_estate.apartment5;
+    Stephany.capital += Stephany.real_estate.mansion;
+    Stephany.capital += Stephany.car.value;
+}
+
+
+void stephany_utility_bills()
+{
+    Stephany.sber.account -= Stephany.utility_bills.apartment1;
+    Stephany.utility_bills.apartment1 *= (1.0 + 0.06 / 12);
+
+    Stephany.sber.account -= Stephany.utility_bills.apartment2;
+    Stephany.utility_bills.apartment2 *= (1.0 + 0.06 / 12);
+
+    Stephany.sber.account -= Stephany.utility_bills.apartment3;
+    Stephany.utility_bills.apartment3 *= (1.0 + 0.06 / 12);
+
+    Stephany.sber.account -= Stephany.utility_bills.apartment4;
+    Stephany.utility_bills.apartment4 *= (1.0 + 0.06 / 12);
+
+    Stephany.sber.account -= Stephany.utility_bills.apartment5;
+    Stephany.utility_bills.apartment5 *= (1.0 + 0.06 / 12);
+
+    Stephany.sber.account -= Stephany.utility_bills.mansion;
+    Stephany.utility_bills.mansion *= (1.0 + 0.06 / 12);
+}
+
+
+void stephany_dog(const int month)
+{
+    Stephany.sber.account -= Stephany.dog.food;
+    Stephany.dog.food *= (1.0 + 0.06 / 12);
+
+    Stephany.sber.account -= Stephany.dog.groomer;
+    Stephany.dog.groomer *= (1.0 + 0.06 / 12);
+
+    Stephany.sber.account -= Stephany.dog.toys;
+    Stephany.dog.toys *= (1.0 + 0.06 / 12);
+
+    Stephany.sber.account -= Stephany.dog.trainer;
+    Stephany.dog.trainer *= (1.0 + 0.06 / 12);
+
+    Stephany.sber.account -= Stephany.dog.vet;
+    Stephany.dog.vet *= (1.0 + 0.06 / 12);
+
+    Stephany.dog.cosmetics *= (1.0 + 0.06 / 12);
+    Stephany.dog.entry_fees *= (1.0 + 0.06 / 12);
+
+    if (month % 2 == 0) {
+            Stephany.sber.account -= Stephany.dog.entry_fees;
+            Stephany.sber.account -= Stephany.dog.cosmetics;
+    };
+}
+
+
+void stephany_telephon(const int month)
+{
+    Stephany.sber.account -= Stephany.telephon.connection;
+    Stephany.telephon.connection *= (1.0 + 0.06 / 12); 
+
+    if (month == 12) {
+        Stephany.telephon.years++;
+        Stephany.telephon.cost *= 0.9;
+ 
+        if (Stephany.telephon.years == 2) {
+            Stephany.sber.account += Stephany.telephon.cost;
+
+            Stephany.telephon.cost = 200'000;
+            Stephany.sber.account -= Stephany.telephon.cost;
+
+            Stephany.telephon.years = 0;
+
+        };
+    };
+
+}
+
+
+void stephany_car(const int month)
+{
+    Stephany.sber.account -= Stephany.car.gas;
+    Stephany.car.gas *= (1.0 + 0.06 / 12);
+
+    if (month == 12){
+        Stephany.car.years++;
+
+        if (Stephany.car.years <= 3){
+            Stephany.car.value *= 1.07;
+        }
+        else {
+            Stephany.car.value *= 0.9;
+        };
+
+        if (Stephany.car.years == 4){
+            Stephany.sber.account += Stephany.car.value;
+
+            Stephany.car.value = 8'000'000;
+            Stephany.sber.account -= Stephany.car.value;
+
+            Stephany.car.years = 0;
+        };
+    };
+}
+
+
+void stephany_retail_sales(const std::string quarter)
+{
+    Stephany.fashion_business.incomes.retail_sales = 0;
+
+    Stephany.fashion_business.incomes.retail_sales += Stephany.fashion_business.products.dress * Stephany.fashion_business.number_of_products.dress[quarter];
+    Stephany.fashion_business.products.dress *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.retail_sales += Stephany.fashion_business.products.blouse * Stephany.fashion_business.number_of_products.blouse[quarter];
+    Stephany.fashion_business.products.blouse *= (1.0 + 0.06 / 4);   
+
+    Stephany.fashion_business.incomes.retail_sales += Stephany.fashion_business.products.pants * Stephany.fashion_business.number_of_products.pants[quarter];
+    Stephany.fashion_business.products.pants *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.retail_sales += Stephany.fashion_business.products.skirt * Stephany.fashion_business.number_of_products.skirt[quarter];
+    Stephany.fashion_business.products.skirt *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.retail_sales += Stephany.fashion_business.products.knitwear * Stephany.fashion_business.number_of_products.knitwear[quarter];
+    Stephany.fashion_business.products.knitwear *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.retail_sales += Stephany.fashion_business.products.denim * Stephany.fashion_business.number_of_products.denim[quarter];
+    Stephany.fashion_business.products.denim *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.retail_sales += Stephany.fashion_business.products.jacket * Stephany.fashion_business.number_of_products.jacket[quarter];
+    Stephany.fashion_business.products.jacket *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.retail_sales += Stephany.fashion_business.products.outerwear * Stephany.fashion_business.number_of_products.outerwear[quarter];
+    Stephany.fashion_business.products.outerwear *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.retail_sales += Stephany.fashion_business.products.shorts * Stephany.fashion_business.number_of_products.shorts[quarter];
+    Stephany.fashion_business.products.shorts *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.retail_sales += Stephany.fashion_business.products.bag * Stephany.fashion_business.number_of_products.bag[quarter];
+    Stephany.fashion_business.products.bag *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.retail_sales += Stephany.fashion_business.products.jewelry * Stephany.fashion_business.number_of_products.jewelry[quarter];
+    Stephany.fashion_business.products.jewelry *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.retail_sales += Stephany.fashion_business.products.belt * Stephany.fashion_business.number_of_products.belt[quarter];
+    Stephany.fashion_business.products.belt *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.retail_sales += Stephany.fashion_business.products.hat * Stephany.fashion_business.number_of_products.hat[quarter];
+    Stephany.fashion_business.products.hat *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.retail_sales += Stephany.fashion_business.products.gloves * Stephany.fashion_business.number_of_products.gloves[quarter];
+    Stephany.fashion_business.products.gloves *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.retail_sales += Stephany.fashion_business.products.scarve * Stephany.fashion_business.number_of_products.scarve[quarter];
+    Stephany.fashion_business.products.scarve *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.retail_sales += Stephany.fashion_business.products.sunglasses * Stephany.fashion_business.number_of_products.sunglasses[quarter];
+    Stephany.fashion_business.products.sunglasses *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.retail_sales += Stephany.fashion_business.products.socks * Stephany.fashion_business.number_of_products.socks[quarter];
+    Stephany.fashion_business.products.socks *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.retail_sales += Stephany.fashion_business.products.gift_certificate * Stephany.fashion_business.number_of_products.gift_certificate[quarter];
+    Stephany.fashion_business.products.gift_certificate *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.total += Stephany.fashion_business.incomes.retail_sales * Stephany.fashion_business.number_of_stores;
+}
+
+
+void stephany_wholesale_sales(const std::string quarter)
+{
+    Stephany.fashion_business.incomes.wholesale_sales = 0;
+
+    Stephany.fashion_business.incomes.wholesale_sales += Stephany.fashion_business.products.dress * Stephany.fashion_business.number_of_products.dress[quarter];
+    Stephany.fashion_business.products.dress *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.wholesale_sales += Stephany.fashion_business.products.blouse * Stephany.fashion_business.number_of_products.blouse[quarter];
+    Stephany.fashion_business.products.blouse *= (1.0 + 0.06 / 4);   
+
+    Stephany.fashion_business.incomes.wholesale_sales += Stephany.fashion_business.products.pants * Stephany.fashion_business.number_of_products.pants[quarter];
+    Stephany.fashion_business.products.pants *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.wholesale_sales += Stephany.fashion_business.products.skirt * Stephany.fashion_business.number_of_products.skirt[quarter];
+    Stephany.fashion_business.products.skirt *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.wholesale_sales += Stephany.fashion_business.products.knitwear * Stephany.fashion_business.number_of_products.knitwear[quarter];
+    Stephany.fashion_business.products.knitwear *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.wholesale_sales += Stephany.fashion_business.products.denim * Stephany.fashion_business.number_of_products.denim[quarter];
+    Stephany.fashion_business.products.denim *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.wholesale_sales += Stephany.fashion_business.products.jacket * Stephany.fashion_business.number_of_products.jacket[quarter];
+    Stephany.fashion_business.products.jacket *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.wholesale_sales += Stephany.fashion_business.products.outerwear * Stephany.fashion_business.number_of_products.outerwear[quarter];
+    Stephany.fashion_business.products.outerwear *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.wholesale_sales += Stephany.fashion_business.products.shorts * Stephany.fashion_business.number_of_products.shorts[quarter];
+    Stephany.fashion_business.products.shorts *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.wholesale_sales += Stephany.fashion_business.products.bag * Stephany.fashion_business.number_of_products.bag[quarter];
+    Stephany.fashion_business.products.bag *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.wholesale_sales += Stephany.fashion_business.products.jewelry * Stephany.fashion_business.number_of_products.jewelry[quarter];
+    Stephany.fashion_business.products.jewelry *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.wholesale_sales += Stephany.fashion_business.products.belt * Stephany.fashion_business.number_of_products.belt[quarter];
+    Stephany.fashion_business.products.belt *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.wholesale_sales += Stephany.fashion_business.products.hat * Stephany.fashion_business.number_of_products.hat[quarter];
+    Stephany.fashion_business.products.hat *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.wholesale_sales += Stephany.fashion_business.products.gloves * Stephany.fashion_business.number_of_products.gloves[quarter];
+    Stephany.fashion_business.products.gloves *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.wholesale_sales += Stephany.fashion_business.products.scarve * Stephany.fashion_business.number_of_products.scarve[quarter];
+    Stephany.fashion_business.products.scarve *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.wholesale_sales += Stephany.fashion_business.products.sunglasses * Stephany.fashion_business.number_of_products.sunglasses[quarter];
+    Stephany.fashion_business.products.sunglasses *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.wholesale_sales += Stephany.fashion_business.products.socks * Stephany.fashion_business.number_of_products.socks[quarter];
+    Stephany.fashion_business.products.socks *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.wholesale_sales += Stephany.fashion_business.products.gift_certificate * Stephany.fashion_business.number_of_products.gift_certificate[quarter];
+    Stephany.fashion_business.products.gift_certificate *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.total += Stephany.fashion_business.incomes.wholesale_sales;
+}
+
+
+void stephany_online_store(const std::string quarter)
+{
+    Stephany.fashion_business.incomes.online_store = 0;
+
+    Stephany.fashion_business.incomes.online_store += Stephany.fashion_business.products.dress * Stephany.fashion_business.number_of_products.dress[quarter];
+    Stephany.fashion_business.products.dress *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.online_store += Stephany.fashion_business.products.blouse * Stephany.fashion_business.number_of_products.blouse[quarter];
+    Stephany.fashion_business.products.blouse *= (1.0 + 0.06 / 4);   
+
+    Stephany.fashion_business.incomes.online_store += Stephany.fashion_business.products.pants * Stephany.fashion_business.number_of_products.pants[quarter];
+    Stephany.fashion_business.products.pants *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.online_store += Stephany.fashion_business.products.skirt * Stephany.fashion_business.number_of_products.skirt[quarter];
+    Stephany.fashion_business.products.skirt *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.online_store += Stephany.fashion_business.products.knitwear * Stephany.fashion_business.number_of_products.knitwear[quarter];
+    Stephany.fashion_business.products.knitwear *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.online_store += Stephany.fashion_business.products.denim * Stephany.fashion_business.number_of_products.denim[quarter];
+    Stephany.fashion_business.products.denim *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.online_store += Stephany.fashion_business.products.jacket * Stephany.fashion_business.number_of_products.jacket[quarter];
+    Stephany.fashion_business.products.jacket *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.online_store += Stephany.fashion_business.products.outerwear * Stephany.fashion_business.number_of_products.outerwear[quarter];
+    Stephany.fashion_business.products.outerwear *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.online_store += Stephany.fashion_business.products.shorts * Stephany.fashion_business.number_of_products.shorts[quarter];
+    Stephany.fashion_business.products.shorts *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.online_store += Stephany.fashion_business.products.bag * Stephany.fashion_business.number_of_products.bag[quarter];
+    Stephany.fashion_business.products.bag *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.online_store += Stephany.fashion_business.products.jewelry * Stephany.fashion_business.number_of_products.jewelry[quarter];
+    Stephany.fashion_business.products.jewelry *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.online_store += Stephany.fashion_business.products.belt * Stephany.fashion_business.number_of_products.belt[quarter];
+    Stephany.fashion_business.products.belt *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.online_store += Stephany.fashion_business.products.hat * Stephany.fashion_business.number_of_products.hat[quarter];
+    Stephany.fashion_business.products.hat *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.online_store += Stephany.fashion_business.products.gloves * Stephany.fashion_business.number_of_products.gloves[quarter];
+    Stephany.fashion_business.products.gloves *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.online_store += Stephany.fashion_business.products.scarve * Stephany.fashion_business.number_of_products.scarve[quarter];
+    Stephany.fashion_business.products.scarve *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.online_store += Stephany.fashion_business.products.sunglasses * Stephany.fashion_business.number_of_products.sunglasses[quarter];
+    Stephany.fashion_business.products.sunglasses *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.online_store += Stephany.fashion_business.products.socks * Stephany.fashion_business.number_of_products.socks[quarter];
+    Stephany.fashion_business.products.socks *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.online_store += Stephany.fashion_business.products.gift_certificate * Stephany.fashion_business.number_of_products.gift_certificate[quarter];
+    Stephany.fashion_business.products.gift_certificate *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.total += Stephany.fashion_business.incomes.online_store;
+}
+
+
+void stephany_marketplaces(const std::string quarter)
+{
+    Stephany.fashion_business.incomes.marketplaces = 0;
+
+    Stephany.fashion_business.incomes.marketplaces += Stephany.fashion_business.products.dress * Stephany.fashion_business.number_of_products.dress[quarter];
+    Stephany.fashion_business.products.dress *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.marketplaces += Stephany.fashion_business.products.blouse * Stephany.fashion_business.number_of_products.blouse[quarter];
+    Stephany.fashion_business.products.blouse *= (1.0 + 0.06 / 4);   
+
+    Stephany.fashion_business.incomes.marketplaces += Stephany.fashion_business.products.pants * Stephany.fashion_business.number_of_products.pants[quarter];
+    Stephany.fashion_business.products.pants *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.marketplaces += Stephany.fashion_business.products.skirt * Stephany.fashion_business.number_of_products.skirt[quarter];
+    Stephany.fashion_business.products.skirt *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.marketplaces += Stephany.fashion_business.products.knitwear * Stephany.fashion_business.number_of_products.knitwear[quarter];
+    Stephany.fashion_business.products.knitwear *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.marketplaces += Stephany.fashion_business.products.denim * Stephany.fashion_business.number_of_products.denim[quarter];
+    Stephany.fashion_business.products.denim *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.marketplaces += Stephany.fashion_business.products.jacket * Stephany.fashion_business.number_of_products.jacket[quarter];
+    Stephany.fashion_business.products.jacket *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.marketplaces += Stephany.fashion_business.products.outerwear * Stephany.fashion_business.number_of_products.outerwear[quarter];
+    Stephany.fashion_business.products.outerwear *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.marketplaces += Stephany.fashion_business.products.shorts * Stephany.fashion_business.number_of_products.shorts[quarter];
+    Stephany.fashion_business.products.shorts *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.marketplaces += Stephany.fashion_business.products.bag * Stephany.fashion_business.number_of_products.bag[quarter];
+    Stephany.fashion_business.products.bag *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.marketplaces += Stephany.fashion_business.products.jewelry * Stephany.fashion_business.number_of_products.jewelry[quarter];
+    Stephany.fashion_business.products.jewelry *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.marketplaces += Stephany.fashion_business.products.belt * Stephany.fashion_business.number_of_products.belt[quarter];
+    Stephany.fashion_business.products.belt *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.marketplaces += Stephany.fashion_business.products.hat * Stephany.fashion_business.number_of_products.hat[quarter];
+    Stephany.fashion_business.products.hat *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.marketplaces += Stephany.fashion_business.products.gloves * Stephany.fashion_business.number_of_products.gloves[quarter];
+    Stephany.fashion_business.products.gloves *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.marketplaces += Stephany.fashion_business.products.scarve * Stephany.fashion_business.number_of_products.scarve[quarter];
+    Stephany.fashion_business.products.scarve *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.marketplaces += Stephany.fashion_business.products.sunglasses * Stephany.fashion_business.number_of_products.sunglasses[quarter];
+    Stephany.fashion_business.products.sunglasses *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.marketplaces += Stephany.fashion_business.products.socks * Stephany.fashion_business.number_of_products.socks[quarter];
+    Stephany.fashion_business.products.socks *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.marketplaces += Stephany.fashion_business.products.gift_certificate * Stephany.fashion_business.number_of_products.gift_certificate[quarter];
+    Stephany.fashion_business.products.gift_certificate *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.total += Stephany.fashion_business.incomes.marketplaces;
+}
+
+
+void stephany_outlet(const std::string quarter)
+{
+    Stephany.fashion_business.incomes.outlet = 0;
+
+    Stephany.fashion_business.incomes.outlet += Stephany.fashion_business.products.dress * Stephany.fashion_business.number_of_products.dress[quarter];
+    Stephany.fashion_business.products.dress *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.outlet += Stephany.fashion_business.products.blouse * Stephany.fashion_business.number_of_products.blouse[quarter];
+    Stephany.fashion_business.products.blouse *= (1.0 + 0.06 / 4);   
+
+    Stephany.fashion_business.incomes.outlet += Stephany.fashion_business.products.pants * Stephany.fashion_business.number_of_products.pants[quarter];
+    Stephany.fashion_business.products.pants *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.outlet += Stephany.fashion_business.products.skirt * Stephany.fashion_business.number_of_products.skirt[quarter];
+    Stephany.fashion_business.products.skirt *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.outlet += Stephany.fashion_business.products.knitwear * Stephany.fashion_business.number_of_products.knitwear[quarter];
+    Stephany.fashion_business.products.knitwear *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.outlet += Stephany.fashion_business.products.denim * Stephany.fashion_business.number_of_products.denim[quarter];
+    Stephany.fashion_business.products.denim *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.outlet += Stephany.fashion_business.products.jacket * Stephany.fashion_business.number_of_products.jacket[quarter];
+    Stephany.fashion_business.products.jacket *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.outlet += Stephany.fashion_business.products.outerwear * Stephany.fashion_business.number_of_products.outerwear[quarter];
+    Stephany.fashion_business.products.outerwear *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.outlet += Stephany.fashion_business.products.shorts * Stephany.fashion_business.number_of_products.shorts[quarter];
+    Stephany.fashion_business.products.shorts *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.total += Stephany.fashion_business.incomes.outlet;   
+}
+
+
+void stephany_merch_and_collaborations(const std::string quarter)
+{
+    Stephany.fashion_business.incomes.merch_and_collaborations = 0;
+
+    Stephany.fashion_business.incomes.merch_and_collaborations += Stephany.fashion_business.products.dress * Stephany.fashion_business.number_of_products.dress[quarter];
+    Stephany.fashion_business.products.dress *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.merch_and_collaborations += Stephany.fashion_business.products.blouse * Stephany.fashion_business.number_of_products.blouse[quarter];
+    Stephany.fashion_business.products.blouse *= (1.0 + 0.06 / 4);   
+
+    Stephany.fashion_business.incomes.merch_and_collaborations += Stephany.fashion_business.products.pants * Stephany.fashion_business.number_of_products.pants[quarter];
+    Stephany.fashion_business.products.pants *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.merch_and_collaborations += Stephany.fashion_business.products.skirt * Stephany.fashion_business.number_of_products.skirt[quarter];
+    Stephany.fashion_business.products.skirt *= (1.0 + 0.06 / 4);    
+
+    Stephany.fashion_business.incomes.merch_and_collaborations += Stephany.fashion_business.products.denim * Stephany.fashion_business.number_of_products.denim[quarter];
+    Stephany.fashion_business.products.denim *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.merch_and_collaborations += Stephany.fashion_business.products.jacket * Stephany.fashion_business.number_of_products.jacket[quarter];
+    Stephany.fashion_business.products.jacket *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.merch_and_collaborations += Stephany.fashion_business.products.shorts * Stephany.fashion_business.number_of_products.shorts[quarter];
+    Stephany.fashion_business.products.shorts *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.merch_and_collaborations += Stephany.fashion_business.products.bag * Stephany.fashion_business.number_of_products.bag[quarter];
+    Stephany.fashion_business.products.bag *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.merch_and_collaborations += Stephany.fashion_business.products.gloves * Stephany.fashion_business.number_of_products.gloves[quarter];
+    Stephany.fashion_business.products.gloves *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.merch_and_collaborations += Stephany.fashion_business.products.scarve * Stephany.fashion_business.number_of_products.scarve[quarter];
+    Stephany.fashion_business.products.scarve *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.total += Stephany.fashion_business.incomes.merch_and_collaborations;      
+}
+
+
+void stephany_royalty()
+{
+    Stephany.fashion_business.incomes.royalty.total = 0;
+
+    Stephany.fashion_business.incomes.royalty.total += Stephany.fashion_business.incomes.royalty.franchising;
+    Stephany.fashion_business.incomes.royalty.franchising *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.royalty.total += Stephany.fashion_business.incomes.royalty.promotional_materials;
+    Stephany.fashion_business.incomes.royalty.promotional_materials *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.royalty.total += Stephany.fashion_business.incomes.royalty.supplier_database;
+    Stephany.fashion_business.incomes.royalty.supplier_database *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.incomes.total += Stephany.fashion_business.incomes.royalty.total;      
+}
+
+
+void stephany_top_management()
+{
+    Stephany.fashion_business.expenses.salaries.top_management.total = 0;
+
+    Stephany.fashion_business.expenses.salaries.top_management.total += Stephany.fashion_business.expenses.salaries.top_management.CEO;
+    Stephany.fashion_business.expenses.salaries.top_management.CEO *= (1.0 + 0.07 / 4);
+
+    Stephany.fashion_business.expenses.salaries.top_management.total += Stephany.fashion_business.expenses.salaries.top_management.creative_director;
+    Stephany.fashion_business.expenses.salaries.top_management.creative_director *= (1.0 + 0.07 / 4);
+
+    Stephany.fashion_business.expenses.salaries.top_management.total += Stephany.fashion_business.expenses.salaries.top_management.commercial_director;
+    Stephany.fashion_business.expenses.salaries.top_management.commercial_director *= (1.0 + 0.07 / 4);
+
+    Stephany.fashion_business.expenses.salaries.top_management.total += Stephany.fashion_business.expenses.salaries.top_management.product_director;
+    Stephany.fashion_business.expenses.salaries.top_management.product_director *= (1.0 + 0.07 / 4);
+
+    Stephany.fashion_business.expenses.salaries.top_management.total += Stephany.fashion_business.expenses.salaries.top_management.operations_director;
+    Stephany.fashion_business.expenses.salaries.top_management.operations_director *= (1.0 + 0.07 / 4);
+
+    Stephany.fashion_business.expenses.salaries.total += Stephany.fashion_business.expenses.salaries.top_management.total;
+}
+
+
+void stephany_design()
+{
+    Stephany.fashion_business.expenses.salaries.design.total = 0;
+
+    Stephany.fashion_business.expenses.salaries.design.total += Stephany.fashion_business.expenses.salaries.design.head_of_design;
+    Stephany.fashion_business.expenses.salaries.design.head_of_design *= (1.0 + 0.07 / 4);
+
+    Stephany.fashion_business.expenses.salaries.design.total += Stephany.fashion_business.expenses.salaries.design.fashion_designer;
+    Stephany.fashion_business.expenses.salaries.design.fashion_designer *= (1.0 + 0.07 / 4);
+
+    Stephany.fashion_business.expenses.salaries.design.total += Stephany.fashion_business.expenses.salaries.design.assistant_designer;
+    Stephany.fashion_business.expenses.salaries.design.assistant_designer *= (1.0 + 0.07 / 4);
+
+    Stephany.fashion_business.expenses.salaries.design.total += Stephany.fashion_business.expenses.salaries.design.design_technologist;
+    Stephany.fashion_business.expenses.salaries.design.design_technologist *= (1.0 + 0.07 / 4);
+
+    Stephany.fashion_business.expenses.salaries.design.total += Stephany.fashion_business.expenses.salaries.design.materials_specialist;
+    Stephany.fashion_business.expenses.salaries.design.materials_specialist *= (1.0 + 0.07 / 4);
+
+
+    Stephany.fashion_business.expenses.salaries.total += Stephany.fashion_business.expenses.salaries.design.total;    
+}
+
+
+void stephany_sales()
+{
+    Stephany.fashion_business.expenses.salaries.sales.total = 0;
+
+    Stephany.fashion_business.expenses.salaries.sales.total += Stephany.fashion_business.expenses.salaries.sales.store_manager;
+    Stephany.fashion_business.expenses.salaries.sales.store_manager *= (1.0 + 0.07 / 4);
+
+    Stephany.fashion_business.expenses.salaries.sales.total += Stephany.fashion_business.expenses.salaries.sales.senior_salesperson * 2;
+    Stephany.fashion_business.expenses.salaries.sales.senior_salesperson *= (1.0 + 0.07 / 4);
+
+    Stephany.fashion_business.expenses.salaries.sales.total += Stephany.fashion_business.expenses.salaries.sales.sales_consultant * 3;
+    Stephany.fashion_business.expenses.salaries.sales.sales_consultant *= (1.0 + 0.07 / 4);
+
+    Stephany.fashion_business.expenses.salaries.sales.total += Stephany.fashion_business.expenses.salaries.sales.administrator;
+    Stephany.fashion_business.expenses.salaries.sales.administrator *= (1.0 + 0.07 / 4);
+
+
+    Stephany.fashion_business.expenses.salaries.total += Stephany.fashion_business.expenses.salaries.sales.total * Stephany.fashion_business.number_of_stores;      
+}
+
+
+void stephany_administration()
+{
+    Stephany.fashion_business.expenses.salaries.administration.total = 0;
+
+    Stephany.fashion_business.expenses.salaries.administration.total += Stephany.fashion_business.expenses.salaries.administration.head_of_sales;
+    Stephany.fashion_business.expenses.salaries.administration.head_of_sales *= (1.0 + 0.07 / 4); 
+
+    Stephany.fashion_business.expenses.salaries.administration.total += Stephany.fashion_business.expenses.salaries.administration.retail_operation_manager;
+    Stephany.fashion_business.expenses.salaries.administration.retail_operation_manager *= (1.0 + 0.07 / 4);
+
+    Stephany.fashion_business.expenses.salaries.administration.total += Stephany.fashion_business.expenses.salaries.administration.wholesale_operations_manager;
+    Stephany.fashion_business.expenses.salaries.administration.wholesale_operations_manager *= (1.0 + 0.07 / 4);
+
+    Stephany.fashion_business.expenses.salaries.administration.total += Stephany.fashion_business.expenses.salaries.administration.sales_department_administrator;
+    Stephany.fashion_business.expenses.salaries.administration.sales_department_administrator *= (1.0 + 0.07 / 4);
+
+    Stephany.fashion_business.expenses.salaries.administration.total += Stephany.fashion_business.expenses.salaries.administration.head_of_logistics;
+    Stephany.fashion_business.expenses.salaries.administration.head_of_logistics *= (1.0 + 0.07 / 4);
+
+    Stephany.fashion_business.expenses.salaries.administration.total += Stephany.fashion_business.expenses.salaries.administration.warehouse_manager;
+    Stephany.fashion_business.expenses.salaries.administration.warehouse_manager *= (1.0 + 0.07 / 4);
+
+    Stephany.fashion_business.expenses.salaries.administration.total += Stephany.fashion_business.expenses.salaries.administration.accountant;
+    Stephany.fashion_business.expenses.salaries.administration.accountant *= (1.0 + 0.07 / 4);
+
+    Stephany.fashion_business.expenses.salaries.administration.total += Stephany.fashion_business.expenses.salaries.administration.lawyer;
+    Stephany.fashion_business.expenses.salaries.administration.lawyer *= (1.0 + 0.07 / 4);
+
+    Stephany.fashion_business.expenses.salaries.total += Stephany.fashion_business.expenses.salaries.administration.total;
+}
+
+
+void stephany_salaries()
+{
+    Stephany.fashion_business.expenses.salaries.total = 0;
+
+    stephany_top_management();
+    stephany_design();
+    stephany_sales();
+    stephany_administration();
+
+    Stephany.fashion_business.expenses.total += Stephany.fashion_business.expenses.salaries.total;
+}
+
+
+void stephany_rent()
+{
+    Stephany.fashion_business.expenses.rent.total = 0;
+
+    Stephany.fashion_business.expenses.rent.total += Stephany.fashion_business.expenses.rent.store;
+    Stephany.fashion_business.expenses.rent.store *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.expenses.rent.total += Stephany.fashion_business.expenses.rent.office;
+    Stephany.fashion_business.expenses.rent.office *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.expenses.rent.total += Stephany.fashion_business.expenses.rent.warehouse;
+    Stephany.fashion_business.expenses.rent.warehouse *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.expenses.total += Stephany.fashion_business.expenses.rent.total;
+}
+
+
+void stephany_marketing()
+{
+    Stephany.fashion_business.expenses.marketing.total = 0;
+
+    Stephany.fashion_business.expenses.marketing.total += Stephany.fashion_business.expenses.marketing.digital;
+    Stephany.fashion_business.expenses.marketing.digital *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.expenses.marketing.total += Stephany.fashion_business.expenses.marketing.ambassador;
+    Stephany.fashion_business.expenses.marketing.ambassador *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.expenses.marketing.total += Stephany.fashion_business.expenses.marketing.fashion_show;
+    Stephany.fashion_business.expenses.marketing.fashion_show *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.expenses.total += Stephany.fashion_business.expenses.marketing.total;
+}
+
+
+void stephany_logistics()
+{
+    Stephany.fashion_business.expenses.logistics.total = 0;
+
+    Stephany.fashion_business.expenses.logistics.total += Stephany.fashion_business.expenses.logistics.transport;
+    Stephany.fashion_business.expenses.logistics.transport *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.expenses.logistics.total += Stephany.fashion_business.expenses.logistics.warehouse;
+    Stephany.fashion_business.expenses.logistics.warehouse *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.expenses.logistics.total += Stephany.fashion_business.expenses.logistics.distribution;
+    Stephany.fashion_business.expenses.logistics.distribution *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.expenses.total += Stephany.fashion_business.expenses.logistics.total;
+}
+
+
+void stephany_materials()
+{
+    Stephany.fashion_business.expenses.materials.total = 0;
+
+    Stephany.fashion_business.expenses.materials.total += Stephany.fashion_business.expenses.materials.basic_fabrics;
+    Stephany.fashion_business.expenses.materials.basic_fabrics *= (1.0 + 0.06 / 4); 
+
+    Stephany.fashion_business.expenses.materials.total += Stephany.fashion_business.expenses.materials.accessories;
+    Stephany.fashion_business.expenses.materials.accessories *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.expenses.materials.total += Stephany.fashion_business.expenses.materials.strings;
+    Stephany.fashion_business.expenses.materials.strings *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.expenses.materials.total += Stephany.fashion_business.expenses.materials.decor;
+    Stephany.fashion_business.expenses.materials.decor *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.expenses.materials.total += Stephany.fashion_business.expenses.materials.packaging;
+    Stephany.fashion_business.expenses.materials.packaging *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.expenses.materials.total += Stephany.fashion_business.expenses.materials.labels;
+    Stephany.fashion_business.expenses.materials.labels *= (1.0 + 0.06 / 4);
+
+    Stephany.fashion_business.expenses.total += Stephany.fashion_business.expenses.materials.total;
+}
+
+
+void stephany_taxes(const RUB revenue)
+{
+    Stephany.fashion_business.expenses.taxes.total = 0;
+
+    Stephany.fashion_business.expenses.taxes.total += revenue * Stephany.fashion_business.expenses.taxes.VAT;
+    Stephany.fashion_business.expenses.taxes.total += revenue * Stephany.fashion_business.expenses.taxes.profit_tax;
+    Stephany.fashion_business.expenses.taxes.total += revenue * Stephany.fashion_business.expenses.taxes.insurance_premiums;
+    Stephany.fashion_business.expenses.taxes.total += revenue * Stephany.fashion_business.expenses.taxes.profit_tax;
+
+    Stephany.fashion_business.expenses.total += Stephany.fashion_business.expenses.taxes.total;
+}
+
+
+void stephany_money_transfer(const RUB revenue)
+{
+    RUB transfer_amount;
+    RUB balance_amount;
+
+    transfer_amount = revenue - (revenue * 0.05);
+    balance_amount = revenue * 0.05;
+
+    Stephany.sber.account += transfer_amount;
+    Stephany.sber.business_account += balance_amount;
+}
+
+
+void quarter_1()
+{
+    std::string quarter = "1";
+
+    Stephany.fashion_business.incomes.total = 0;
+    Stephany.fashion_business.expenses.total = 0;
+
+    stephany_retail_sales(quarter);
+    stephany_wholesale_sales(quarter);
+    stephany_online_store(quarter);
+    stephany_marketplaces(quarter);
+    stephany_outlet(quarter);
+    stephany_merch_and_collaborations(quarter);
+    stephany_royalty();
+
+    stephany_salaries();
+    stephany_rent();
+    stephany_marketing();
+    stephany_logistics();
+    stephany_materials();
+
+    Stephany.fashion_business.revenue = Stephany.fashion_business.incomes.total - Stephany.fashion_business.expenses.total;
+
+    stephany_taxes(Stephany.fashion_business.revenue);
+
+    Stephany.sber.business_account += Stephany.fashion_business.incomes.total;
+    Stephany.sber.business_account -= Stephany.fashion_business.expenses.total;
+
+    Stephany.fashion_business.revenue = Stephany.fashion_business.incomes.total - Stephany.fashion_business.expenses.total;
+
+    stephany_money_transfer(Stephany.fashion_business.revenue);
+
+    Stephany.fashion_business.total_income += Stephany.fashion_business.incomes.total;
+    Stephany.fashion_business.total_expenses += Stephany.fashion_business.expenses.total;
+}
+
+
+void quarter_2()
+{
+    std::string quarter = "2";
+
+    Stephany.fashion_business.incomes.total = 0;
+    Stephany.fashion_business.expenses.total = 0;
+
+    stephany_retail_sales(quarter);
+    stephany_wholesale_sales(quarter);
+    stephany_online_store(quarter);
+    stephany_marketplaces(quarter);
+    stephany_outlet(quarter);
+    stephany_merch_and_collaborations(quarter);
+    stephany_royalty();
+
+    stephany_salaries();
+    stephany_rent();
+    stephany_marketing();
+    stephany_logistics();
+    stephany_materials();
+
+    Stephany.fashion_business.revenue = Stephany.fashion_business.incomes.total - Stephany.fashion_business.expenses.total;
+
+    stephany_taxes(Stephany.fashion_business.revenue);
+
+    Stephany.sber.business_account += Stephany.fashion_business.incomes.total;
+    Stephany.sber.business_account -= Stephany.fashion_business.expenses.total;
+
+    Stephany.fashion_business.revenue = Stephany.fashion_business.incomes.total - Stephany.fashion_business.expenses.total;
+
+    stephany_money_transfer(Stephany.fashion_business.revenue);
+
+    Stephany.fashion_business.total_income += Stephany.fashion_business.incomes.total;
+    Stephany.fashion_business.total_expenses += Stephany.fashion_business.expenses.total;
+}
+
+
+void quarter_3()
+{
+    std::string quarter = "3";
+
+    Stephany.fashion_business.incomes.total = 0;
+    Stephany.fashion_business.expenses.total = 0;
+
+    stephany_retail_sales(quarter);
+    stephany_wholesale_sales(quarter);
+    stephany_online_store(quarter);
+    stephany_marketplaces(quarter);
+    stephany_outlet(quarter);
+    stephany_merch_and_collaborations(quarter);
+    stephany_royalty();
+
+    stephany_salaries();
+    stephany_rent();
+    stephany_marketing();
+    stephany_logistics();
+    stephany_materials();
+
+    Stephany.fashion_business.revenue = Stephany.fashion_business.incomes.total - Stephany.fashion_business.expenses.total;
+
+    stephany_taxes(Stephany.fashion_business.revenue);
+
+    Stephany.sber.business_account += Stephany.fashion_business.incomes.total;
+    Stephany.sber.business_account -= Stephany.fashion_business.expenses.total;
+
+    Stephany.fashion_business.revenue = Stephany.fashion_business.incomes.total - Stephany.fashion_business.expenses.total;
+
+    stephany_money_transfer(Stephany.fashion_business.revenue);
+
+    Stephany.fashion_business.total_income += Stephany.fashion_business.incomes.total;
+    Stephany.fashion_business.total_expenses += Stephany.fashion_business.expenses.total;
+}
+
+
+void quarter_4()
+{
+    std::string quarter = "4";
+
+    Stephany.fashion_business.incomes.total = 0;
+    Stephany.fashion_business.expenses.total = 0;
+
+    stephany_retail_sales(quarter);
+    stephany_wholesale_sales(quarter);
+    stephany_online_store(quarter);
+    stephany_marketplaces(quarter);
+    stephany_outlet(quarter);
+    stephany_merch_and_collaborations(quarter);
+    stephany_royalty();
+
+    stephany_salaries();
+    stephany_rent();
+    stephany_marketing();
+    stephany_logistics();
+    stephany_materials();
+
+    Stephany.fashion_business.revenue = Stephany.fashion_business.incomes.total - Stephany.fashion_business.expenses.total;
+
+    stephany_taxes(Stephany.fashion_business.revenue);
+
+    Stephany.sber.business_account += Stephany.fashion_business.incomes.total;
+    Stephany.sber.business_account -= Stephany.fashion_business.expenses.total;
+
+    Stephany.fashion_business.revenue = Stephany.fashion_business.incomes.total - Stephany.fashion_business.expenses.total;
+
+    stephany_money_transfer(Stephany.fashion_business.revenue);
+
+    Stephany.fashion_business.total_income += Stephany.fashion_business.incomes.total;
+    Stephany.fashion_business.total_expenses += Stephany.fashion_business.expenses.total;
+}
+
+
+void stephany_fashion_business(const int month)
+{
+    if (month == 3) {
+        quarter_1();
+    };
+
+    if (month == 6) {
+        quarter_2();
+    };
+
+    if (month == 9) {
+        quarter_3();
+    };
+
+    if (month == 12) {
+        quarter_4();
+    };
+}
+
+
+void stephany_business_products()
+{
+    Stephany.fashion_business.products.dress = 10'000;
+    Stephany.fashion_business.products.blouse = 7'000;
+    Stephany.fashion_business.products.pants = 7'000;
+    Stephany.fashion_business.products.skirt = 6'000;
+    Stephany.fashion_business.products.knitwear = 6'000;
+    Stephany.fashion_business.products.denim = 8'000;
+    Stephany.fashion_business.products.jacket = 8'000;
+    Stephany.fashion_business.products.outerwear = 16'000;
+    Stephany.fashion_business.products.shorts = 6'000;
+
+    Stephany.fashion_business.products.bag = 7'000;
+    Stephany.fashion_business.products.jewelry = 2'000;
+    Stephany.fashion_business.products.belt = 2'000;
+    Stephany.fashion_business.products.hat = 3'000;
+    Stephany.fashion_business.products.gloves = 4'000;
+    Stephany.fashion_business.products.scarve = 5'000;
+    Stephany.fashion_business.products.sunglasses = 1'500;
+
+    Stephany.fashion_business.products.gift_certificate = 10'000;
+}
+
+
+void stephany_business_royalty()
+{
+    Stephany.fashion_business.incomes.royalty.franchising = 750'000;
+    Stephany.fashion_business.incomes.royalty.promotional_materials = 500'000;
+    Stephany.fashion_business.incomes.royalty.supplier_database = 400'000;
+}
+
+
+void stephany_salaries_top_management()  // 4'400'000
+{
+    Stephany.fashion_business.expenses.salaries.top_management.CEO = 1'200'000;
+    Stephany.fashion_business.expenses.salaries.top_management.creative_director = 1'000'000;
+    Stephany.fashion_business.expenses.salaries.top_management.commercial_director = 800'000;
+    Stephany.fashion_business.expenses.salaries.top_management.product_director = 700'000;
+    Stephany.fashion_business.expenses.salaries.top_management.operations_director = 700'000;
+}
+
+
+void stephany_salaries_design()  //1'160'000
+{
+    Stephany.fashion_business.expenses.salaries.design.head_of_design = 500'000;
+    Stephany.fashion_business.expenses.salaries.design.fashion_designer = 300'000;
+    Stephany.fashion_business.expenses.salaries.design.assistant_designer = 120'000;
+    Stephany.fashion_business.expenses.salaries.design.design_technologist = 250'000;
+    Stephany.fashion_business.expenses.salaries.design.materials_specialist = 240'000;
+}
+
+
+void stephany_salaries_sales()  // 570'000 * 15 = 8'550'000 
+{
+    Stephany.fashion_business.expenses.salaries.sales.store_manager = 250'000;  // 1 на магазин
+    Stephany.fashion_business.expenses.salaries.sales.senior_salesperson = 150'000;  // 2 на магазин
+    Stephany.fashion_business.expenses.salaries.sales.sales_consultant = 60'000;  // 3 на магазин
+    Stephany.fashion_business.expenses.salaries.sales.administrator = 110'000;  // 1 на магазин
+}
+
+
+void stephany_salaries_administration()  // 3'450'000
+{
+    Stephany.fashion_business.expenses.salaries.administration.head_of_sales = 650'000;
+    Stephany.fashion_business.expenses.salaries.administration.retail_operation_manager = 520'000;
+    Stephany.fashion_business.expenses.salaries.administration.wholesale_operations_manager = 450'000;
+    Stephany.fashion_business.expenses.salaries.administration.sales_department_administrator = 260'000;
+    Stephany.fashion_business.expenses.salaries.administration.head_of_logistics = 500'000;
+    Stephany.fashion_business.expenses.salaries.administration.warehouse_manager = 330'000;
+    Stephany.fashion_business.expenses.salaries.administration.accountant = 370'000;
+    Stephany.fashion_business.expenses.salaries.administration.lawyer = 370'000;
+}
+
+
+void stephany_business_salaries()
+{
+    stephany_salaries_top_management();
+    stephany_salaries_design();
+    stephany_salaries_sales();
+    stephany_salaries_administration();
+}
+
+
+void stephany_business_rent()  // 295'000
+{
+    Stephany.fashion_business.expenses.rent.store = 45'000;
+    Stephany.fashion_business.expenses.rent.office = 180'0000;
+    Stephany.fashion_business.expenses.rent.warehouse = 70'0000;
+}
+
+
+void stephany_business_marketing()  // 283'000
+{
+    Stephany.fashion_business.expenses.marketing.digital = 80'000;
+    Stephany.fashion_business.expenses.marketing.ambassador = 200'000;
+    Stephany.fashion_business.expenses.marketing.fashion_show = 3'000'000;
+}
+
+
+void stephany_business_logistics()  // 123'000
+{
+    Stephany.fashion_business.expenses.logistics.transport = 75'000;
+    Stephany.fashion_business.expenses.logistics.distribution = 40'000;
+    Stephany.fashion_business.expenses.logistics.warehouse = 8'000;
+}
+
+
+void stephany_business_materials()  // 107'000
+{
+    Stephany.fashion_business.expenses.materials.basic_fabrics = 70'000;
+    Stephany.fashion_business.expenses.materials.accessories = 15'000;
+    Stephany.fashion_business.expenses.materials.strings = 6'000;
+    Stephany.fashion_business.expenses.materials.decor = 8'000;
+    Stephany.fashion_business.expenses.materials.packaging = 5'000;
+    Stephany.fashion_business.expenses.materials.labels = 3'000;
+}
+
+
+void stephany_business_init()  // 18'368'000
+{
+    stephany_business_products();
+    stephany_business_royalty();
+    stephany_business_salaries();
+    stephany_business_rent();
+    stephany_business_marketing();
+    stephany_business_logistics();
+    stephany_business_materials();
+
+    Stephany.sber.business_account = 0;
+
+    Stephany.fashion_business.revenue = 0;
+
+    Stephany.fashion_business.total_income = 0;
+
+    Stephany.fashion_business.total_expenses = 0;
+}
+
+
+void stephany_init()
+{
+    stephany_business_init();
+
+    Stephany.sber.account = 0;
+
+    Stephany.food = 35'000;
+
+    Stephany.fitness = 25'000;
+
+    Stephany.spa = 20'000;
+
+    Stephany.household_expenses = 25'000;
+
+    Stephany.utility_bills.apartment1 = 45'000;
+    Stephany.utility_bills.apartment2 = 48'000;
+    Stephany.utility_bills.apartment3 = 40'000;
+    Stephany.utility_bills.apartment4 = 50'000;
+    Stephany.utility_bills.apartment5 = 54'000;
+    Stephany.utility_bills.mansion = 68'000;
+
+    Stephany.telephon.connection = 5'000;
+    Stephany.telephon.cost = 200'000;
+    Stephany.telephon.years = 0;
+
+    Stephany.car.gas = 35'000;
+    Stephany.car.value = 8'000'000;
+    Stephany.car.years = 0;
+
+    Stephany.mall.accessories = 80'000;
+    Stephany.mall.clothes = 1'100'000;
+    Stephany.mall.shoes = 1'300'000;
+
+    Stephany.cosmetologist.cosmetic = 120'000;
+    Stephany.cosmetologist.services = 140'000;
+
+    Stephany.beauty_salon.eyelash_extensions = 15'000;
+    Stephany.beauty_salon.haircut = 35'000;
+    Stephany.beauty_salon.manicure = 40'000;
+
+    Stephany.real_estate.apartment1 = 76'000'000;
+    Stephany.real_estate.apartment2 = 83'000'000;
+    Stephany.real_estate.apartment3 = 68'000'000;
+    Stephany.real_estate.apartment4 = 79'000'000;
+    Stephany.real_estate.apartment5 = 93'000'000;
+    Stephany.real_estate.mansion = 145'000'000;
+
+    Stephany.dog.cosmetics = 10'000;
+    Stephany.dog.entry_fees = 15'000;
+    Stephany.dog.food = 15'000;
+    Stephany.dog.groomer = 10'000;
+    Stephany.dog.toys = 12'000;
+    Stephany.dog.trainer = 20'000;
+    Stephany.dog.vet = 5'000;
+}
+
 
 void simulation() 
 {
@@ -293,37 +1953,52 @@ void simulation()
     int year = 2026;
 
     while ( !((month == 3) && (year == 2057)) ) {
+        month++;
+
 
         alice_income(month, year);
+
         alice_mall();
         alice_cat();
         alice_food();
-        alice_car();
+        alice_car(month);
         alice_fitness();
+        alice_cosmetologist();
+        alice_home_internet();
+        alice_household_expenses();
+        alice_telephon(month);
+        alice_spa(month);
+        alice_beauty_salon();
+        alice_utility_bills();
+
+        alice_wedding(month, year);
+
         alice_deposit();
 
-        ++month;
+        if (month == 12) {
+            alice_vacation();
+            alice_casino();       
+        };
+
+
+        stephany_fashion_business(month);
+
+        stephany_food();
+        stephany_fitness();
+        stephany_spa();
+        stephany_household_expenses();
+        stephany_mall();
+        stephany_cosmetologist();
+        stephany_beauty_salon();
+        stephany_utility_bills();
+        stephany_dog(month);
+        stephany_telephon(month);
+        stephany_car(month);
 
         if (month == 12) {
+            stephany_real_estate();
+        };
 
-            alice_car_life();
-
-            indexation();
-
-            if (Alice.sber.deposit >= 500'000){
-                Alice.sber.account += 500'000;
-                Alice.sber.deposit -= 500'000;
-
-                alice_vacation();
-            }
-            
-            if (Alice.sber.deposit >= 50'000){
-                Alice.sber.account += 50'000;
-                Alice.sber.deposit -= 50'000;
-
-                alice_casino();
-            }         
-        }
 
         if (month == 12) {
             month = 1;
@@ -332,12 +2007,17 @@ void simulation()
     }
 
     alice_capital();
+    stephany_capital();
 }
+
+
 
 int main()
 {
 
-    alice_innit();
+    alice_init();
+
+    stephany_init();
 
     simulation();
 
