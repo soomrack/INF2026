@@ -1,0 +1,302 @@
+#include <stdio.h>
+
+
+
+class Thermometer {
+private:
+    int pin;    
+private:
+    float temperature;  // Celcius
+public:
+    Thermometer(int pin) : pin(pin) { temperature = 20; }  // TODO: arduino code
+public:
+    void update_temperature() { temperature = 20; }  // TODO: arduino code
+public:
+    float get_temperature() const { return temperature; }
+};
+
+
+class Heater {
+private:
+    bool is_on;
+public:
+    Heater() : is_on(false) {}
+    
+    void on() { 
+        is_on = true;
+    }
+    
+    void off() { 
+        is_on = false;
+    }
+    
+    void power();
+};
+
+
+void Heater::power()  // TODO: arduino
+{
+    if (is_on) {}
+    else {}
+}
+
+
+class Conditioner {  
+private:
+    bool is_on;
+public:
+    Conditioner() : is_on(false) {}
+    
+    void on() { 
+        is_on = true;
+    }
+    
+    void off() { 
+        is_on = false;
+    }
+    
+    void power();
+};
+
+
+void Conditioner::power()  // TODO: arduino
+{
+    if (is_on) {}
+    else {}
+}
+
+
+class Fan {
+private:
+    bool is_on;
+public:
+    Fan() : is_on(false) {}
+    
+    void on() { 
+        is_on = true;
+    }
+    
+    void off() { 
+        is_on = false;
+    }
+    
+    void power();
+};
+
+
+void Fan::power()  // TODO: arduino
+{
+    if (is_on) {}  // arduino fan on
+    else {}  // arduino fan off
+}
+
+
+class Hygrometer {
+private:
+    int pin;    
+private:
+    float humidity;  // Procent
+public:
+    Hygrometer(int pin) : pin(pin) { humidity = 60; }  // TODO: arduino code
+public:
+    void update_humidity() { humidity = 60; }  // TODO: arduino code
+public:
+    float get_humidity() const { return humidity; }
+};
+
+
+class Pump {
+private:
+    bool is_on;
+public:
+    Pump() : is_on(false) {}
+    
+    void on() { 
+        is_on = true;
+    }
+    
+    void off() { 
+        is_on = false;
+    }
+    
+    void power();
+};
+
+
+void Pump::power()  // TODO: arduino
+{
+    if (is_on) {}  // arduino fan on
+    else {}  // arduino fan off
+}
+
+
+class Clock {
+private:
+    int hours;
+    int minutes; 
+public:
+    Clock() : hours(12), minutes(0) {}  
+    
+    void update() {
+        minutes++;
+        if (minutes >= 60) {
+            minutes = 0;
+            hours++;
+            if (hours >= 24) {
+                hours = 0;
+            }
+        }
+    }
+    
+    int get_hours() const { return hours; }
+    int get_minutes() const { return minutes; }  
+    
+    bool is_night() const {
+        return (hours >= 20 || hours < 6);
+    }
+    
+    bool is_day() const {
+        return !is_night();
+    }
+};
+
+
+class Light {
+private:
+    int pin;    
+private:
+    float illumination;  // Lx
+public:
+    Light(int pin) : pin(pin) { illumination = 3000; }  // TODO: arduino code
+public:
+    void update_illumination() { illumination = 3000; }  // TODO: arduino code
+public:
+    float get_illumination() const { return illumination; }
+};
+
+
+class Lamp {
+private:
+    bool is_on;
+public:
+    bool on_illumination; 
+public:
+    Lamp() : is_on(false), on_illumination(false) {}
+    
+    void on() { 
+        is_on = true;
+        on_illumination = true;
+    }
+    
+    void off() { 
+        is_on = false;
+        on_illumination = false;
+    }
+    
+    void power();
+};
+
+
+void Lamp::power()  // TODO: arduino
+{
+    if (is_on) {}  // arduino fan on
+    else {}  // arduino fan off
+}
+
+
+
+void control_temperature(const Thermometer& thermometer, Heater& heater, Fan& fan, Conditioner& conditioner)  {
+    float temp = thermometer.get_temperature();
+    
+    if (temp > 40) {  
+        heater.off();
+        conditioner.on();
+        fan.on();      
+    }
+    else if (temp < 20) {  
+        heater.on();
+        conditioner.off();
+        fan.on();     
+    }
+    else {  
+        heater.off();
+        conditioner.off();
+        fan.off();    
+    }
+}
+
+
+
+void control_illumination(const Light& light, Clock& clock, Lamp& lamp)
+{
+    
+    if (clock.is_night()) {
+        lamp.off();
+        return;
+    }
+    
+
+    float ill = light.get_illumination();
+
+    if (ill > 5000) {  
+        lamp.off();     
+    }
+    else if (ill < 3000) {  
+        lamp.on();     
+    }
+}
+
+
+
+void control_humidity(const Hygrometer& hygrometer, Pump& pump, Heater& heater, Fan& fan)
+{
+    float hum = hygrometer.get_humidity();  
+    
+    if (hum > 80) {  
+        heater.on();
+        pump.off();
+        fan.on();      
+    }
+    else if (hum < 60) {  
+        heater.off();
+        pump.on();
+        fan.off();     
+    }
+    else {  
+        heater.off();
+        pump.off();
+        fan.off();    
+    }
+}
+
+
+int main()
+{    
+    Thermometer thermometer(10);
+    Heater heater;
+    Fan fan;
+    Conditioner conditioner;
+    Hygrometer hygrometer(11);
+    Pump pump;
+    Light light(12);
+    Lamp lamp;
+    Clock clock;
+
+    for (int count = 10; count > 0; --count) {
+
+        thermometer.get_temperature();
+        hygrometer.get_humidity();
+        light.get_illumination();
+
+        control_temperature(thermometer, heater, fan, conditioner);
+        control_humidity(hygrometer, pump, heater, fan);
+        control_illumination(light, clock, lamp);
+
+        lamp.power();
+        heater.power();
+        pump.power();
+        fan.power();
+        conditioner.power();
+    }
+    
+};
