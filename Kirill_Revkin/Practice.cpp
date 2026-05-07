@@ -6,6 +6,8 @@ using Percent = double;
 struct Cat {
 	RUB value;
 	RUB food;
+	int age_months;
+	int life_months;
 };
 
 struct Car {
@@ -55,6 +57,7 @@ struct Home {
 	RUB furniture;
 	RUB mortgage_debt;
 	RUB mortgage_payment;
+	RUB rent;
 	Percent mortgage_rate;
 	HomeBills bills;
 };
@@ -178,6 +181,7 @@ private:
 	Person David;
 	Home shared_home;
 	TattooSalon salon;
+	int simulation_months;
 	void bank_init(Bank& bank) {
 		bank.salary = 0;
 		bank.card = 0;
@@ -202,27 +206,29 @@ private:
 	}
 
 	void home_bills_init() {
-		shared_home.bills.electricity = 3'500;
-		shared_home.bills.water = 2'500;
-		shared_home.bills.gas = 1000;
-		shared_home.bills.heating = 2'000;
-		shared_home.bills.trash = 500;
+		shared_home.bills.electricity = 2'800;
+		shared_home.bills.water = 1'800;
+		shared_home.bills.gas = 700;
+		shared_home.bills.heating = 2'300;
+		shared_home.bills.trash = 450;
 		shared_home.bills.intercom = 250;
-		shared_home.bills.internet = 1'000;
-		shared_home.bills.tv = 500;
-		shared_home.bills.mobile = 1'000;
-		shared_home.bills.home_insurance = 2'500;
-		shared_home.bills.property_tax = 1'500;
-		shared_home.bills.repairs_fund = 3'000;
-		shared_home.bills.cleaning = 1000;
+		shared_home.bills.internet = 900;
+		shared_home.bills.tv = 350;
+		shared_home.bills.mobile = 1'100;
+		shared_home.bills.home_insurance = 1'500;
+		shared_home.bills.property_tax = 1'000;
+		shared_home.bills.repairs_fund = 2'500;
+		shared_home.bills.cleaning = 1'200;
 	}
 
 	void home_init() {
-		shared_home.value = 12'000'000;
-		shared_home.furniture = 750'000;
-		shared_home.mortgage_debt = 10'000'000;
-		shared_home.mortgage_rate = 12.0;
-		shared_home.mortgage_payment = 110'000;
+		shared_home.value = 10'500'000;
+		shared_home.furniture = 550'000;
+		shared_home.mortgage_debt = 8'500'000;
+		shared_home.mortgage_rate = 10.5;
+		shared_home.mortgage_payment = 115'000;
+		shared_home.rent = 35'000;
+		simulation_months = 0;
 		home_bills_init();
 	}
 
@@ -289,48 +295,50 @@ private:
 	}
 
 	void init_Alice_profile() {
-		Alice.food = 30'000;
-		Alice.clothes = 6'000;
+		Alice.food = 26'000;
+		Alice.clothes = 5'000;
 		Alice.entertainment = 5'000;
-		Alice.medicine = 1'500;
-		Alice.education = 2'500;
-		Alice.subscriptions = 800;
-		Alice.transport = 2'000;
+		Alice.medicine = 1'800;
+		Alice.education = 3'000;
+		Alice.subscriptions = 900;
+		Alice.transport = 2'500;
 		Alice.gifts = 2'000;
-		Alice.cafe = 3'000;
-		Alice.hygiene = 1'200;
+		Alice.cafe = 4'000;
+		Alice.hygiene = 1'300;
 		Alice.cosmetics = 1'500;
 		Alice.pets = 0;
-		Alice.games = 1'500;
-		Alice.car.value = 2'400'000;
-		Alice.car.gas = 15'000;
-		Alice.car.insurance = 6'000;
-		Alice.car.tax = 2'000;
-		Alice.car.repair = 4'000;
-		Alice.car.parking = 4'000;
-		Alice.car.wash = 1'200;
-		Alice.car.tires = 1'500;
-		Alice.car.service = 2'500;
-		Alice.cat.value = 25'000;
-		Alice.cat.food = 5'000;
+		Alice.games = 1'200;
+		Alice.car.value = 1'450'000;
+		Alice.car.gas = 10'500;
+		Alice.car.insurance = 4'500;
+		Alice.car.tax = 1'400;
+		Alice.car.repair = 3'500;
+		Alice.car.parking = 3'000;
+		Alice.car.wash = 900;
+		Alice.car.tires = 1'200;
+		Alice.car.service = 2'000;
+		Alice.cat.value = 18'000;
+		Alice.cat.food = 4'000;
+		Alice.cat.age_months = 42;
+		Alice.cat.life_months = 156;
 		init_Alice_inventory();
 		bank_init(Alice.Tbank);
 		bank_init(Alice.Sberbank);
 		bank_init(Alice.Alfabank);
 		bank_init(Alice.VTB);
-		Alice.Tbank.salary = 400'000;
-		Alice.Tbank.deposit_apr = 14.5;
-		Alice.Sberbank.deposit_apr = 12.0;
-		Alice.Alfabank.deposit_apr = 13.0;
-		Alice.VTB.deposit_apr = 11.5;
+		Alice.Tbank.salary = 175'000;
+		Alice.Tbank.deposit_apr = 6.5;
+		Alice.Sberbank.deposit_apr = 5.5;
+		Alice.Alfabank.deposit_apr = 6.0;
+		Alice.VTB.deposit_apr = 5.0;
 		Alice.Tbank.credit_apr = 24.0;
 		Alice.Sberbank.credit_apr = 23.0;
 		Alice.Alfabank.credit_apr = 25.0;
 		Alice.VTB.credit_apr = 22.0;
-		Alice.Tbank.credit_limit = 200'000;
-		Alice.Sberbank.credit_limit = 150'000;
-		Alice.Alfabank.credit_limit = 250'000;
-		Alice.VTB.credit_limit = 120'000;
+		Alice.Tbank.credit_limit = 120'000;
+		Alice.Sberbank.credit_limit = 90'000;
+		Alice.Alfabank.credit_limit = 130'000;
+		Alice.VTB.credit_limit = 70'000;
 		Alice.Tbank.credit_min_payment_percent = 8.0;
 		Alice.Sberbank.credit_min_payment_percent = 7.0;
 		Alice.Alfabank.credit_min_payment_percent = 9.0;
@@ -346,48 +354,50 @@ private:
 	}
 
 	void init_David_profile() {
-		David.food = 15'000;
-		David.clothes = 4'000;
-		David.entertainment = 4'000;
-		David.medicine = 1'000;
-		David.education = 3'000;
-		David.subscriptions = 600;
-		David.transport = 2'500;
-		David.gifts = 1'000;
-		David.cafe = 2'500;
-		David.hygiene = 900;
+		David.food = 21'000;
+		David.clothes = 4'500;
+		David.entertainment = 4'500;
+		David.medicine = 1'300;
+		David.education = 3'500;
+		David.subscriptions = 700;
+		David.transport = 3'000;
+		David.gifts = 1'500;
+		David.cafe = 3'500;
+		David.hygiene = 1'000;
 		David.cosmetics = 600;
 		David.pets = 0;
-		David.games = 2'000;
-		David.car.value = 1'200'000;
-		David.car.gas = 12'000;
-		David.car.insurance = 4'500;
-		David.car.tax = 1'500;
+		David.games = 1'500;
+		David.car.value = 900'000;
+		David.car.gas = 8'500;
+		David.car.insurance = 3'500;
+		David.car.tax = 1'000;
 		David.car.repair = 3'000;
-		David.car.parking = 2'000;
-		David.car.wash = 900;
-		David.car.tires = 1'200;
-		David.car.service = 1'800;
+		David.car.parking = 1'500;
+		David.car.wash = 700;
+		David.car.tires = 1'000;
+		David.car.service = 1'500;
 		David.cat.value = 0;
 		David.cat.food = 0;
+		David.cat.age_months = 0;
+		David.cat.life_months = 0;
 		init_David_inventory();
 		bank_init(David.Tbank);
 		bank_init(David.Sberbank);
 		bank_init(David.Alfabank);
 		bank_init(David.VTB);
-		David.Tbank.salary = 80'000;
-		David.Tbank.deposit_apr = 14.0;
-		David.Sberbank.deposit_apr = 11.5;
-		David.Alfabank.deposit_apr = 12.5;
-		David.VTB.deposit_apr = 11.0;
+		David.Tbank.salary = 120'000;
+		David.Tbank.deposit_apr = 6.0;
+		David.Sberbank.deposit_apr = 5.2;
+		David.Alfabank.deposit_apr = 5.8;
+		David.VTB.deposit_apr = 5.0;
 		David.Tbank.credit_apr = 26.0;
 		David.Sberbank.credit_apr = 24.0;
 		David.Alfabank.credit_apr = 27.0;
 		David.VTB.credit_apr = 23.0;
 		David.Tbank.credit_limit = 80'000;
-		David.Sberbank.credit_limit = 60'000;
-		David.Alfabank.credit_limit = 90'000;
-		David.VTB.credit_limit = 50'000;
+		David.Sberbank.credit_limit = 55'000;
+		David.Alfabank.credit_limit = 85'000;
+		David.VTB.credit_limit = 45'000;
 		David.Tbank.credit_min_payment_percent = 10.0;
 		David.Sberbank.credit_min_payment_percent = 9.0;
 		David.Alfabank.credit_min_payment_percent = 11.0;
@@ -413,6 +423,21 @@ private:
 		else {
 			RUB rest = amount - bank.card;
 			bank.card = 0;
+			return rest;
+		}
+	}
+
+	RUB pay_from_bank_deposit(Bank& bank, const RUB amount) {
+		if (amount <= 0) {
+			return 0;
+		}
+		if (bank.deposit >= amount) {
+			bank.deposit -= amount;
+			return 0;
+		}
+		else {
+			RUB rest = amount - bank.deposit;
+			bank.deposit = 0;
 			return rest;
 		}
 	}
@@ -443,12 +468,24 @@ private:
 		bank_transfer_cards(from.Tbank, to.Tbank, amount);
 	}
 
-	void pay_from_all_cards(Person& person, const RUB amount, const char* what, const char* who) {
+	RUB pay_from_all_cards_silent(Person& person, const RUB amount) {
 		RUB rest = amount;
 		rest = pay_from_bank_card(person.Tbank, rest);
 		rest = pay_from_bank_card(person.Sberbank, rest);
 		rest = pay_from_bank_card(person.Alfabank, rest);
 		rest = pay_from_bank_card(person.VTB, rest);
+		rest = pay_from_bank_deposit(person.Tbank, rest);
+		rest = pay_from_bank_deposit(person.Sberbank, rest);
+		rest = pay_from_bank_deposit(person.Alfabank, rest);
+		rest = pay_from_bank_deposit(person.VTB, rest);
+		return rest;
+	}
+
+	void pay_from_all_cards(Person& person, const RUB amount, const char* what, const char* who) {
+		RUB rest = pay_from_all_cards_silent(person, amount);
+		if (rest > 0) {
+			rest = pay_from_credit(person.Tbank, rest);
+		}
 		if (rest > 0) {
 			printf("%s cannot pay for %s! Need: %lld, Unpaid: %lld\n", who, what, amount, rest);
 		}
@@ -683,79 +720,86 @@ private:
 	}
 
 	void Alice_salary(const int month, const int year) {
-		if ((month == 8) && (year == 2026))
-		{
-			Alice.Tbank.salary = (RUB)(Alice.Tbank.salary * 1.5);
+		if ((month == 8) && (year == 2026)) {
+			Alice.Tbank.salary = (RUB)(Alice.Tbank.salary * 1.05);
+		}
+		if ((month == 1) && (year > 2026)) {
+			Alice.Tbank.salary = (RUB)(Alice.Tbank.salary * 1.04);
 		}
 		Alice.Tbank.card += Alice.Tbank.salary;
 	}
 
 	void David_salary(const int month, const int year) {
-		if ((month == 1) && (year == 2027))
-		{
-			David.Tbank.salary = 0;
+		if ((month == 8) && (year == 2026)) {
+			David.Tbank.salary = (RUB)(David.Tbank.salary * 1.05);
 		}
-		if ((month == 8) && (year == 2026))
-		{
-			David.Tbank.salary = (RUB)(David.Tbank.salary * 1.5);
+		if ((month == 1) && (year > 2026)) {
+			David.Tbank.salary = (RUB)(David.Tbank.salary * 1.04);
 		}
 		David.Tbank.card += David.Tbank.salary;
 	}
 
+	double monthly_part(const Percent yearly_percent) {
+		return yearly_percent / 100.0 / 12.0;
+	}
+
+	void inflate_rub(RUB& value, const Percent yearly_percent) {
+		value = (RUB)(value * (1.0 + monthly_part(yearly_percent)));
+	}
+
 	void inflation_tick_person(Person& person) {
-		double inflation_month = (10.0 / 100.0 / 12.0);
-		person.food *= (1.0 + inflation_month);
-		person.clothes *= (1.0 + inflation_month);
-		person.entertainment *= (1.0 + inflation_month);
-		person.medicine *= (1.0 + inflation_month);
-		person.education *= (1.0 + inflation_month);
-		person.subscriptions *= (1.0 + inflation_month);
-		person.transport *= (1.0 + inflation_month);
-		person.gifts *= (1.0 + inflation_month);
-		person.cafe *= (1.0 + inflation_month);
-		person.hygiene *= (1.0 + inflation_month);
-		person.cosmetics *= (1.0 + inflation_month);
-		person.pets *= (1.0 + inflation_month);
-		person.games *= (1.0 + inflation_month);
-		person.car.gas *= (1.0 + inflation_month);
-		person.car.insurance *= (1.0 + inflation_month);
-		person.car.tax *= (1.0 + inflation_month);
-		person.car.repair *= (1.0 + inflation_month);
-		person.car.parking *= (1.0 + inflation_month);
-		person.car.wash *= (1.0 + inflation_month);
-		person.car.tires *= (1.0 + inflation_month);
-		person.car.service *= (1.0 + inflation_month);
-		person.car.value *= (1.0 + inflation_month);
-		person.cat.food *= (1.0 + inflation_month);
-		person.cat.value *= (1.0 + inflation_month);
-		person.items.phone.repair_cost *= (1.0 + inflation_month);
-		person.items.laptop.repair_cost *= (1.0 + inflation_month);
-		person.items.headphones.repair_cost *= (1.0 + inflation_month);
-		person.items.smartwatch.repair_cost *= (1.0 + inflation_month);
-		person.items.phone.replace_cost *= (1.0 + inflation_month);
-		person.items.laptop.replace_cost *= (1.0 + inflation_month);
-		person.items.headphones.replace_cost *= (1.0 + inflation_month);
-		person.items.smartwatch.replace_cost *= (1.0 + inflation_month);
-		person.items.gym_membership.service_cost *= (1.0 + inflation_month);
+		inflate_rub(person.food, 11.0);
+		inflate_rub(person.clothes, 7.0);
+		inflate_rub(person.entertainment, 6.0);
+		inflate_rub(person.medicine, 9.0);
+		inflate_rub(person.education, 7.0);
+		inflate_rub(person.subscriptions, 8.0);
+		inflate_rub(person.transport, 10.0);
+		inflate_rub(person.gifts, 6.0);
+		inflate_rub(person.cafe, 10.0);
+		inflate_rub(person.hygiene, 8.0);
+		inflate_rub(person.cosmetics, 8.0);
+		inflate_rub(person.pets, 9.0);
+		inflate_rub(person.games, 5.0);
+		inflate_rub(person.car.gas, 9.0);
+		inflate_rub(person.car.insurance, 7.0);
+		inflate_rub(person.car.tax, 5.0);
+		inflate_rub(person.car.repair, 10.0);
+		inflate_rub(person.car.parking, 8.0);
+		inflate_rub(person.car.wash, 8.0);
+		inflate_rub(person.car.tires, 9.0);
+		inflate_rub(person.car.service, 9.0);
+		inflate_rub(person.car.value, 4.0);
+		inflate_rub(person.cat.food, 10.0);
+		inflate_rub(person.cat.value, 4.0);
+		inflate_rub(person.items.phone.repair_cost, 6.0);
+		inflate_rub(person.items.laptop.repair_cost, 6.0);
+		inflate_rub(person.items.headphones.repair_cost, 6.0);
+		inflate_rub(person.items.smartwatch.repair_cost, 6.0);
+		inflate_rub(person.items.phone.replace_cost, 5.0);
+		inflate_rub(person.items.laptop.replace_cost, 5.0);
+		inflate_rub(person.items.headphones.replace_cost, 5.0);
+		inflate_rub(person.items.smartwatch.replace_cost, 5.0);
+		inflate_rub(person.items.gym_membership.service_cost, 7.0);
 	}
 
 	void inflation_tick_home() {
-		double inflation_month = (10.0 / 100.0 / 12.0);
-		shared_home.value *= (1.0 + inflation_month);
-		shared_home.furniture *= (1.0 + inflation_month);
-		shared_home.bills.electricity *= (1.0 + inflation_month);
-		shared_home.bills.water *= (1.0 + inflation_month);
-		shared_home.bills.gas *= (1.0 + inflation_month);
-		shared_home.bills.heating *= (1.0 + inflation_month);
-		shared_home.bills.trash *= (1.0 + inflation_month);
-		shared_home.bills.intercom *= (1.0 + inflation_month);
-		shared_home.bills.internet *= (1.0 + inflation_month);
-		shared_home.bills.tv *= (1.0 + inflation_month);
-		shared_home.bills.mobile *= (1.0 + inflation_month);
-		shared_home.bills.home_insurance *= (1.0 + inflation_month);
-		shared_home.bills.property_tax *= (1.0 + inflation_month);
-		shared_home.bills.repairs_fund *= (1.0 + inflation_month);
-		shared_home.bills.cleaning *= (1.0 + inflation_month);
+		inflate_rub(shared_home.value, 4.5);
+		inflate_rub(shared_home.furniture, 5.0);
+		inflate_rub(shared_home.rent, 8.0);
+		inflate_rub(shared_home.bills.electricity, 9.0);
+		inflate_rub(shared_home.bills.water, 8.0);
+		inflate_rub(shared_home.bills.gas, 8.0);
+		inflate_rub(shared_home.bills.heating, 8.0);
+		inflate_rub(shared_home.bills.trash, 7.0);
+		inflate_rub(shared_home.bills.intercom, 6.0);
+		inflate_rub(shared_home.bills.internet, 5.0);
+		inflate_rub(shared_home.bills.tv, 5.0);
+		inflate_rub(shared_home.bills.mobile, 5.0);
+		inflate_rub(shared_home.bills.home_insurance, 7.0);
+		inflate_rub(shared_home.bills.property_tax, 6.0);
+		inflate_rub(shared_home.bills.repairs_fund, 9.0);
+		inflate_rub(shared_home.bills.cleaning, 8.0);
 	}
 
 	void mortgage_interest_tick() {
@@ -803,25 +847,25 @@ private:
 		RUB a = 0;
 		RUB d = 0;
 		couple_split_by_salary(total, a, d);
-		RUB Alice_before = person_total_card_money(Alice);
-		pay_from_all_cards(Alice, a, what, "Alice");
-		RUB Alice_after = person_total_card_money(Alice);
-		RUB Alice_paid = Alice_before - Alice_after;
-		RUB Alice_unpaid = a - Alice_paid;
-		if (Alice_unpaid < 0) { Alice_unpaid = 0; }
-		RUB David_before = person_total_card_money(David);
-		pay_from_all_cards(David, d, what, "David");
-		RUB David_after = person_total_card_money(David);
-		RUB David_paid = David_before - David_after;
-		RUB David_unpaid = d - David_paid;
-		if (David_unpaid < 0) { David_unpaid = 0; }
+		RUB Alice_unpaid = pay_from_all_cards_silent(Alice, a);
+		RUB David_unpaid = pay_from_all_cards_silent(David, d);
 		if (Alice_unpaid > 0) {
-			couple_help_if_needed(Alice, David, Alice_unpaid, what);
-			pay_from_all_cards(Alice, Alice_unpaid, what, "Alice");
+			Alice_unpaid = pay_from_all_cards_silent(David, Alice_unpaid);
 		}
 		if (David_unpaid > 0) {
-			couple_help_if_needed(David, Alice, David_unpaid, what);
-			pay_from_all_cards(David, David_unpaid, what, "David");
+			David_unpaid = pay_from_all_cards_silent(Alice, David_unpaid);
+		}
+		if (Alice_unpaid > 0) {
+			Alice_unpaid = pay_from_credit(Alice.Tbank, Alice_unpaid);
+		}
+		if (David_unpaid > 0) {
+			David_unpaid = pay_from_credit(David.Tbank, David_unpaid);
+		}
+		if (Alice_unpaid > 0) {
+			printf("Alice cannot pay for %s! Unpaid: %lld\n", what, Alice_unpaid);
+		}
+		if (David_unpaid > 0) {
+			printf("David cannot pay for %s! Unpaid: %lld\n", what, David_unpaid);
 		}
 	}
 
@@ -881,13 +925,19 @@ private:
 		if (shared_home.mortgage_debt <= 0) {
 			return;
 		}
-		couple_pay_shared_bill_by_salary_with_help(shared_home.mortgage_payment, "mortgage (shared home)");
-		if (shared_home.mortgage_debt >= shared_home.mortgage_payment) {
-			shared_home.mortgage_debt -= shared_home.mortgage_payment;
+		RUB payment = shared_home.mortgage_payment;
+		if (payment > shared_home.mortgage_debt) {
+			payment = shared_home.mortgage_debt;
 		}
-		else {
-			shared_home.mortgage_debt = 0;
+		couple_pay_shared_bill_by_salary_with_help(payment, "mortgage (shared home)");
+		shared_home.mortgage_debt -= payment;
+	}
+
+	void couple_pay_rent() {
+		if (simulation_months >= 12) {
+			return;
 		}
+		couple_pay_shared_bill_by_salary_with_help(shared_home.rent, "temporary rent before moving");
 	}
 
 	void Alice_pay_food() {
@@ -904,6 +954,18 @@ private:
 
 	void David_pay_gas() {
 		pay_with_cards_and_credit(David, David.Tbank, David.Tbank, David.car.gas, "gas", "David");
+	}
+
+	void cat_month_tick(Person& person) {
+		if (person.cat.value <= 0) {
+			person.cat.food = 0;
+			return;
+		}
+		person.cat.age_months += 1;
+		if (person.cat.age_months >= person.cat.life_months) {
+			person.cat.value = 0;
+			person.cat.food = 0;
+		}
 	}
 
 	void Alice_pay_cat_food() {
@@ -1055,36 +1117,36 @@ private:
 	}
 
 	void salon_init() {
-		salon.cash = 1'000'000;
-		salon.price_small = 6'000;
-		salon.price_medium = 12'000;
-		salon.price_large = 20'000;
-		salon.clients_small = 47;
-		salon.clients_medium = 25;
-		salon.clients_large = 13;
-		salon.tips = 15'000;
-		salon.rent = 120'000;
-		salon.utilities = 9'000;
-		salon.internet = 1'200;
-		salon.ink = 10'000;
-		salon.needles = 7'000;
-		salon.gloves = 3'000;
-		salon.antiseptic = 2'500;
-		salon.film = 1'500;
-		salon.paper = 800;
-		salon.cleaning = 2'000;
-		salon.marketing = 15'000;
-		salon.smm = 10'000;
-		salon.ads = 12'000;
-		salon.equipment_value = 600'000;
-		salon.equipment_wear = 10;
+		salon.cash = 320'000;
+		salon.price_small = 4'000;
+		salon.price_medium = 8'000;
+		salon.price_large = 14'000;
+		salon.clients_small = 22;
+		salon.clients_medium = 8;
+		salon.clients_large = 3;
+		salon.tips = 6'000;
+		salon.rent = 30'000;
+		salon.utilities = 6'000;
+		salon.internet = 1'000;
+		salon.ink = 8'000;
+		salon.needles = 5'000;
+		salon.gloves = 2'000;
+		salon.antiseptic = 1'500;
+		salon.film = 1'000;
+		salon.paper = 500;
+		salon.cleaning = 3'000;
+		salon.marketing = 8'000;
+		salon.smm = 4'000;
+		salon.ads = 4'000;
+		salon.equipment_value = 450'000;
+		salon.equipment_wear = 5;
 		salon.equipment_monthly_wear = 3;
-		salon.equipment_repair_cost = 18'000;
-		salon.master_salary = 90'000;
-		salon.admin_salary = 55'000;
-		salon.staff_taxes = 25'000;
+		salon.equipment_repair_cost = 16'000;
+		salon.master_salary = 55'000;
+		salon.admin_salary = 10'000;
+		salon.staff_taxes = 14'000;
 		salon.tax_percent = 6.0;
-		salon.reputation = 50;
+		salon.reputation = 55;
 		salon.reputation_growth = 1;
 		salon.reputation_drop = 2;
 		salon.month_income = 0;
@@ -1093,28 +1155,27 @@ private:
 	}
 
 	void salon_inflation_tick() {
-		double inflation_month = (10.0 / 100.0 / 12.0);
-		salon.price_small *= (1.0 + inflation_month);
-		salon.price_medium *= (1.0 + inflation_month);
-		salon.price_large *= (1.0 + inflation_month);
-		salon.rent *= (1.0 + inflation_month);
-		salon.utilities *= (1.0 + inflation_month);
-		salon.internet *= (1.0 + inflation_month);
-		salon.ink *= (1.0 + inflation_month);
-		salon.needles *= (1.0 + inflation_month);
-		salon.gloves *= (1.0 + inflation_month);
-		salon.antiseptic *= (1.0 + inflation_month);
-		salon.film *= (1.0 + inflation_month);
-		salon.paper *= (1.0 + inflation_month);
-		salon.cleaning *= (1.0 + inflation_month);
-		salon.marketing *= (1.0 + inflation_month);
-		salon.smm *= (1.0 + inflation_month);
-		salon.ads *= (1.0 + inflation_month);
-		salon.master_salary *= (1.0 + inflation_month);
-		salon.admin_salary *= (1.0 + inflation_month);
-		salon.staff_taxes *= (1.0 + inflation_month);
-		salon.equipment_value *= (1.0 + inflation_month);
-		salon.equipment_repair_cost *= (1.0 + inflation_month);
+		inflate_rub(salon.price_small, 6.0);
+		inflate_rub(salon.price_medium, 6.0);
+		inflate_rub(salon.price_large, 6.0);
+		inflate_rub(salon.rent, 8.0);
+		inflate_rub(salon.utilities, 8.0);
+		inflate_rub(salon.internet, 5.0);
+		inflate_rub(salon.ink, 7.0);
+		inflate_rub(salon.needles, 7.0);
+		inflate_rub(salon.gloves, 7.0);
+		inflate_rub(salon.antiseptic, 7.0);
+		inflate_rub(salon.film, 7.0);
+		inflate_rub(salon.paper, 7.0);
+		inflate_rub(salon.cleaning, 8.0);
+		inflate_rub(salon.marketing, 6.0);
+		inflate_rub(salon.smm, 6.0);
+		inflate_rub(salon.ads, 6.0);
+		inflate_rub(salon.master_salary, 7.0);
+		inflate_rub(salon.admin_salary, 7.0);
+		inflate_rub(salon.staff_taxes, 7.0);
+		inflate_rub(salon.equipment_value, 5.0);
+		inflate_rub(salon.equipment_repair_cost, 7.0);
 	}
 
 	RUB salon_income_calculate() {
@@ -1191,12 +1252,12 @@ private:
 			if (salon.clients_small > 10) { salon.clients_small -= 1; }
 			if (salon.clients_medium > 6) { salon.clients_medium -= 1; }
 		}
-		if (salon.reputation > 70) {
+		if ((salon.reputation > 70) && (salon.clients_small < 24)) {
 			salon.clients_small += 1;
-			if ((salon.clients_small % 3) == 0) {
+			if (((salon.clients_small % 3) == 0) && (salon.clients_medium < 9)) {
 				salon.clients_medium += 1;
 			}
-			if ((salon.clients_small % 6) == 0) {
+			if (((salon.clients_small % 6) == 0) && (salon.clients_large < 3)) {
 				salon.clients_large += 1;
 			}
 		}
@@ -1315,12 +1376,12 @@ private:
 	}
 
 	void Alice_move_money_to_deposit() {
-		const RUB emergency_fund = 250'000;
+		const RUB emergency_fund = 220'000;
 		person_move_money_to_best_deposit(Alice, emergency_fund);
 	}
 
 	void David_move_money_to_deposit() {
-		const RUB emergency_fund = 120'000;
+		const RUB emergency_fund = 100'000;
 		person_move_money_to_best_deposit(David, emergency_fund);
 	}
 
@@ -1370,10 +1431,10 @@ private:
 		goals.travel_fund = 0;
 		goals.repair_fund = 0;
 		goals.education_fund = 0;
-		goals.emergency_fund_target = 500'000;
-		goals.monthly_to_travel = 15'000;
-		goals.monthly_to_repair = 10'000;
-		goals.monthly_to_education = 8'000;
+		goals.emergency_fund_target = 350'000;
+		goals.monthly_to_travel = 8'000;
+		goals.monthly_to_repair = 6'000;
+		goals.monthly_to_education = 4'000;
 		goals.last_event_cost = 0;
 	}
 
@@ -1433,24 +1494,9 @@ private:
 	}
 
 	RUB yearly_costs_tick(const int month, const int year) {
+		(void)month;
 		(void)year;
-		RUB total = 0;
-		if (month == 4) {
-			RUB tax = shared_home.bills.property_tax * 12;
-			couple_pay_shared_bill_by_salary_with_help(tax, "property tax yearly (shared home)");
-			total += tax;
-		}
-		if (month == 10) {
-			RUB ins = shared_home.bills.home_insurance * 12;
-			couple_pay_shared_bill_by_salary_with_help(ins, "home insurance yearly (shared home)");
-			total += ins;
-		}
-		if (month == 1) {
-			pay_from_all_cards(Alice, Alice.car.insurance * 12, "car insurance yearly", "Alice");
-			pay_from_all_cards(David, David.car.insurance * 12, "car insurance yearly", "David");
-			total += Alice.car.insurance * 12 + David.car.insurance * 12;
-		}
-		return total;
+		return 0;
 	}
 
 	double season_multiplier_food(const int month) {
@@ -1467,12 +1513,20 @@ private:
 	}
 
 	void couple_season_tick(const int month) {
-		double mF = season_multiplier_food(month);
-		double mE = season_multiplier_entertainment(month);
-		Alice.food = (RUB)(Alice.food * mF);
-		David.food = (RUB)(David.food * mF);
-		Alice.entertainment = (RUB)(Alice.entertainment * mE);
-		David.entertainment = (RUB)(David.entertainment * mE);
+		double food_multiplier = season_multiplier_food(month);
+		double entertainment_multiplier = season_multiplier_entertainment(month);
+		if (food_multiplier > 1.0) {
+			RUB extra = (RUB)(Alice.food * (food_multiplier - 1.0));
+			pay_from_all_cards(Alice, extra, "seasonal food", "Alice");
+			extra = (RUB)(David.food * (food_multiplier - 1.0));
+			pay_from_all_cards(David, extra, "seasonal food", "David");
+		}
+		if (entertainment_multiplier > 1.0) {
+			RUB extra = (RUB)(Alice.entertainment * (entertainment_multiplier - 1.0));
+			pay_from_all_cards(Alice, extra, "seasonal entertainment", "Alice");
+			extra = (RUB)(David.entertainment * (entertainment_multiplier - 1.0));
+			pay_from_all_cards(David, extra, "seasonal entertainment", "David");
+		}
 	}
 
 	RUB planned_medical_event(Person& person, const char* who, const int month, const int year) {
@@ -1501,7 +1555,7 @@ private:
 		}
 		if (cost > 0) {
 			pay_from_all_cards(person, cost, "planned car service", who);
-			person.car.repair += cost / 20;
+			person.car.repair += cost / 80;
 		}
 		return cost;
 	}
@@ -1572,6 +1626,47 @@ private:
 		salon.clients_small += 1;
 	}
 
+	void pay_credit_from_person(Bank& bank, Person& payer) {
+		if (bank.credit_debt <= 0) {
+			return;
+		}
+		RUB before = bank.credit_debt;
+		RUB rest = pay_from_all_cards_silent(payer, before);
+		RUB paid = before - rest;
+		bank.credit_debt -= paid;
+		if (bank.credit_debt < 0) {
+			bank.credit_debt = 0;
+		}
+	}
+
+	void cover_person_credits(Person& debtor, Person& helper) {
+		pay_credit_from_person(debtor.Tbank, debtor);
+		pay_credit_from_person(debtor.Sberbank, debtor);
+		pay_credit_from_person(debtor.Alfabank, debtor);
+		pay_credit_from_person(debtor.VTB, debtor);
+		pay_credit_from_person(debtor.Tbank, helper);
+		pay_credit_from_person(debtor.Sberbank, helper);
+		pay_credit_from_person(debtor.Alfabank, helper);
+		pay_credit_from_person(debtor.VTB, helper);
+	}
+
+	void couple_keep_personal_reserves() {
+		const RUB david_min_reserve = 90'000;
+		RUB david_money = person_total_money_everywhere(David);
+		if (david_money >= david_min_reserve) {
+			return;
+		}
+		RUB need = david_min_reserve - david_money;
+		RUB rest = pay_from_all_cards_silent(Alice, need);
+		RUB moved = need - rest;
+		David.Tbank.card += moved;
+	}
+
+	void couple_cover_all_consumer_credits() {
+		cover_person_credits(Alice, David);
+		cover_person_credits(David, Alice);
+	}
+
 	RUB couple_total_net_worth() {
 		RUB total_cash = person_total_cash(Alice) + person_total_cash(David) + salon.cash;
 		RUB total_assets = person_total_assets(Alice) + person_total_assets(David) + shared_home.value + shared_home.furniture + salon.equipment_value;
@@ -1603,15 +1698,15 @@ private:
 
 	void couple_season_special_expenses(const int month) {
 		if (month == 12) {
-			RUB gifts = 30'000;
+			RUB gifts = 22'000;
 			couple_pay_shared_bill_by_salary_with_help(gifts, "new year gifts (couple)");
 		}
 		if (month == 7) {
-			RUB trip = 120'000;
+			RUB trip = 70'000;
 			couple_pay_shared_bill_by_salary_with_help(trip, "summer vacation (couple)");
 		}
 		if (month == 3) {
-			RUB check = 18'000;
+			RUB check = 16'000;
 			couple_pay_shared_bill_by_salary_with_help(check, "medical checkup (couple)");
 		}
 	}
@@ -1798,6 +1893,8 @@ private:
 		printf("Mortgage debt = %lld\n", shared_home.mortgage_debt);
 		printf("Mortgage rate = %.2f\n", shared_home.mortgage_rate);
 		printf("Mortgage payment = %lld\n", shared_home.mortgage_payment);
+		printf("Temporary rent = %lld\n", shared_home.rent);
+		printf("Simulation months = %d\n", simulation_months);
 		printf("Bills:\n");
 		print_home_summary();
 		printf("Electricity = %lld\n", shared_home.bills.electricity);
@@ -1891,6 +1988,23 @@ private:
 		printf("Education fund = %lld\n", goals.education_fund);
 	}
 
+	void print_model_conclusion() {
+		RUB credits = person_total_credits(Alice) + person_total_credits(David);
+		RUB cash = person_total_cash(Alice) + person_total_cash(David) + salon.cash;
+		RUB net_worth = couple_total_net_worth();
+		printf("========== Model conclusion ==========\n");
+		printf("Simulation length = %d months\n", simulation_months);
+		printf("Mortgage debt after simulation = %lld\n", shared_home.mortgage_debt);
+		printf("Consumer credits after simulation = %lld\n", credits);
+		if ((shared_home.mortgage_debt == 0) && (credits < 50'000) && (cash >= goals.emergency_fund_target) && (net_worth > 0)) {
+			printf("Conclusion: the model is stable. The couple closed the mortgage and did not fall into heavy credit debt.\n");
+		}
+		else {
+			printf("Conclusion: the model is risky. Expenses or debt load should be reduced.\n");
+		}
+		printf("\n");
+	}
+
 	void print_results() {
 		print_home();
 		print_salon();
@@ -1900,6 +2014,7 @@ private:
 		RUB total_assets = person_total_assets(Alice) + person_total_assets(David) + shared_home.value + shared_home.furniture + salon.equipment_value;
 		RUB total_debts = person_total_credits(Alice) + person_total_credits(David) + shared_home.mortgage_debt;
 		print_final_short_summary();
+		print_model_conclusion();
 		printf("========== Total Couple ==========\n");
 		printf("Total cash (with salon) = %lld\n", total_cash);
 		printf("Total assets (cash+property+salon) = %lld\n", total_cash + total_assets);
@@ -1910,7 +2025,7 @@ private:
 	void simulation() {
 		int month = 2;
 		int year = 2026;
-		while (!((month == 3) && (year == 2027))) {
+		while ((shared_home.mortgage_debt > 0) || (simulation_months < 120)) {
 			Alice_salary(month, year);
 			Alice_pay_food();
 			Alice_pay_cat_food();
@@ -1958,6 +2073,7 @@ private:
 			mortgage_interest_tick();
 			couple_inflation_tick();
 			couple_bank_tick();
+			couple_pay_rent();
 			couple_pay_electricity();
 			couple_pay_water();
 			couple_pay_gas_home();
@@ -1972,15 +2088,20 @@ private:
 			couple_pay_repairs_fund();
 			couple_pay_cleaning();
 			couple_pay_mortgage();
+			cat_month_tick(Alice);
+			cat_month_tick(David);
 			person_items_wear_tick(Alice);
 			person_items_service_pay(Alice, "Alice");
 			person_items_repair_or_replace(Alice, "Alice");
 			person_items_wear_tick(David);
 			person_items_service_pay(David, "David");
 			person_items_repair_or_replace(David, "David");
+			all_month_tick(month, year);
+			couple_cover_all_consumer_credits();
+			couple_keep_personal_reserves();
 			Alice_move_money_to_deposit();
 			David_move_money_to_deposit();
-			all_month_tick(month, year);
+			++simulation_months;
 			++month;
 			if (month == 13) {
 				month = 1;
