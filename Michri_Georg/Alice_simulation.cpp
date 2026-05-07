@@ -272,6 +272,27 @@ void print_results()
     printf("Total = %lld\n", Anton.Tbank.salary_account+Anton.Tbank.deposit+Anton.car.value+Anton.home.value);
     printf("Happiness = %d\n", Anton.happiness);
     printf("--------------------------\n\n");
+    printf("Eve year of death: %d \nSalary = %lld\n", Eve.year_of_death, Eve.salary);
+    printf("Deposit = %lld\n", Eve.Tbank.deposit);
+    printf("Salary account = %lld\n", Eve.Tbank.salary_account);
+    printf("Property = %lld\n", Eve.car.value+Eve.home.value);
+    printf("Total = %lld\n", Eve.Tbank.salary_account+Eve.Tbank.deposit+Eve.car.value+Eve.home.value);
+    printf("Happiness = %d\n", Eve.happiness);
+    printf("--------------------------\n\n");
+    printf("Steve year of death: %d \nSalary = %lld\n", Steve.year_of_death, Steve.salary);
+    printf("Deposit = %lld\n", Steve.Tbank.deposit);
+    printf("Salary account = %lld\n", Steve.Tbank.salary_account);
+    printf("Property = %lld\n", Steve.car.value+Steve.home.value);
+    printf("Total = %lld\n", Steve.Tbank.salary_account+Steve.Tbank.deposit+Steve.car.value+Steve.home.value);
+    printf("Happiness = %d\n", Steve.happiness);
+    printf("--------------------------\n\n");
+    printf("Leo year of death: %d \nSalary = %lld\n", Leo.year_of_death, Leo.salary);
+    printf("Deposit = %lld\n", Leo.Tbank.deposit);
+    printf("Salary account = %lld\n", Leo.Tbank.salary_account);
+    printf("Property = %lld\n", Leo.car.value+Leo.home.value);
+    printf("Total = %lld\n", Leo.Tbank.salary_account+Leo.Tbank.deposit+Leo.car.value+Leo.home.value);
+    printf("Happiness = %d\n", Leo.happiness);
+    printf("--------------------------\n\n");
 
 }
 
@@ -1963,6 +1984,7 @@ void simulation()
             print_annual_report(Anton, year);
             print_annual_report(Eve, year);
             print_annual_report(Steve, year);
+            print_annual_report(Leo, year);
         }
 
         ++month;
