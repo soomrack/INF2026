@@ -1,221 +1,331 @@
-#include <stdio.h>
 #include <DHT.h>
 
+// classes
 
-class Thermometer {
+class Sensor {
+public:
+    virtual void read() = 0;
+    virtual ~Sensor() {}
+};
+
+class Actuator {
+public:
+    virtual void apply() = 0;
+    virtual ~Actuator() {}
+};
+
+class RegulationAlgorithm {
+public:
+    virtual void execute() = 0;
+    virtual ~RegulationAlgorithm() {}
+};
+
+// sensors
+
+class Thermometer : public Sensor {
 private:
-    int pin;
     DHT dht;
-public:    
+public:
     float temperature;
-    int humidity_air;
-public:
-    Thermometer(int pin) : pin(pin), dht(pin, DHT11) {
-        temperature = 20;
-        humidity_air = 50;
+    float humidity;
+
+    Thermometer(int pin) : dht(pin, DHT11) {
         dht.begin();
+        temperature = 20.0;
+        humidity = 50.0;
     }
-public:
-    void get_temperature() {
+
+    void read() override {
         temperature = dht.readTemperature();
-        humidity_air = dht.readHumidity();
-        if (isnan(temperature)) temperature = 20;
-        if (isnan(humidity_air)) humidity_air = 50;
+        humidity = dht.readHumidity();
+        if (isnan(temperature)) temperature = 20.0;
+        if (isnan(humidity)) humidity = 50.0;
     }
 };
 
-
-class Gigrometer {
+class SoilMoistureSensor : public Sensor {
 private:
     int pin;
 public:
-    int humidity_soil;
-public:
-    Gigrometer(int pin) : pin(pin) { humidity_soil = 500; }
-public:
-    void get_humidity() {
-        humidity_soil = analogRead(pin);
+    int moisture;
+
+    SoilMoistureSensor(int pin) : pin(pin) {
+        moisture = 500;
+    }
+
+    void read() override {
+        moisture = analogRead(pin);
     }
 };
 
-
-class LightSensor {
+class LightSensor : public Sensor {
 private:
     int pin;
 public:
-    int light_level;
-public:
-    LightSensor(int pin) : pin(pin) { light_level = 500; }
-public:
-    void get_light() {
-        light_level = analogRead(pin);
+    int lightLevel;
+
+    LightSensor(int pin) : pin(pin) {
+        lightLevel = 500;
+    }
+
+    void read() override {
+        lightLevel = analogRead(pin);
     }
 };
 
+// actuatorots
 
-class Relay {
-protected:
+class Heater : public Actuator {
+private:
     int pin;
 public:
     bool on_temperature;
-    bool on_humidity_air;
-    bool on_humidity_soil;
-    bool on_light;
-public:
-    Relay(int pin) : pin(pin) {
-        on_temperature = false;
-        on_humidity_air = false;
-        on_humidity_soil = false;
-        on_light = false;
+
+    Heater(int pin) : pin(pin), on_temperature(false) {
         pinMode(pin, OUTPUT);
-        digitalWrite(pin, HIGH);
+        digitalWrite(pin, LOW);
+    }
+
+    void apply() override {
+        digitalWrite(pin, on_temperature ? LOW : HIGH);
     }
 };
 
+class Fan : public Actuator {
+private:
+    int pin;
+public:
+    bool on_temperature;
 
-class Heater : public Relay {
+    Fan(int pin) : pin(pin), on_temperature(false) {
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin, LOW);
+    }
+
+    void apply() override {
+        digitalWrite(pin, on_temperature ? LOW : HOW);
+    }
+};
+
+class Lamp : public Actuator {
+private:
+    int pin;
 public:
-    Heater(int pin) : Relay(pin) {}
+    bool on_light;
+
+    Lamp(int pin) : pin(pin), on_light(false) {
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin, LOW);
+    }
+
+    void apply() override {
+        digitalWrite(pin, on_light ? LOW : HIGH);
+    }
+};
+
+class Pump : public Actuator {
+private:
+    int pin;
 public:
-    void power() {
-        if (on_temperature || on_humidity_air) {
-            digitalWrite(pin, LOW);
-        } else {
-            digitalWrite(pin, HIGH);
+    bool on_moisture;
+
+    Pump(int pin) : pin(pin), on_moisture(false) {
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin, LOW);
+    }
+
+    void apply() override {
+        digitalWrite(pin, on_moisture ? LOW : HIGH);
+    }
+};
+
+// regulations
+
+class TemperatureRegulation : public RegulationAlgorithm {
+private:
+    Thermometer& thermometer;
+    Heater& heater;
+    Fan& fan;
+public:
+    TemperatureRegulation(Thermometer& t, Heater& h, Fan& f)
+        : thermometer(t), heater(h), fan(f) {}
+
+    void execute() override {
+        if (thermometer.temperature > 30.0) {
+            heater.on_temperature = false;
+            fan.on_temperature = true;
+        }
+        else if (thermometer.temperature < 20.0) {
+            heater.on_temperature = true;
+            fan.on_temperature = true;
+        }
+        else {
+            heater.on_temperature = false;
+            fan.on_temperature = false;
         }
     }
 };
 
+class HumidityRegulation : public RegulationAlgorithm {
+private:
+    Thermometer& thermometer;
+    Fan& fan;
+    Heater& heater;
+public:
+    HumidityRegulation(Thermometer& t, Fan& f, Heater& h)
+        : thermometer(t), fan(f), heater(h) {}
 
-class Fan : public Relay {
-public:
-    Fan(int pin) : Relay(pin) {}
-public:
-    void power() {
-        if (on_temperature || on_humidity_air) {
-            digitalWrite(pin, LOW);
-        } else {
-            digitalWrite(pin, HIGH);
+    void execute() override {
+        if (thermometer.humidity > 80.0) {
+            fan.on_temperature = true;
+            if (thermometer.temperature < 35.0) {
+                heater.on_temperature = true;
+            }
         }
     }
 };
 
+class SoilMoistureRegulation : public RegulationAlgorithm {
+private:
+    SoilMoistureSensor& soilSensor;
+    Pump& pump;
+public:
+    SoilMoistureRegulation(SoilMoistureSensor& s, Pump& p)
+        : soilSensor(s), pump(p) {}
 
-class Pump : public Relay {
-public:
-    Pump(int pin) : Relay(pin) {}
-public:
-    void power() {
-        if (on_humidity_soil) {
-            digitalWrite(pin, LOW);
-        } else {
-            digitalWrite(pin, HIGH);
+    void execute() override {
+        if (soilSensor.moisture < 300) {
+            pump.on_moisture = true;
+        } else if (soilSensor.moisture > 700) {
+            pump.on_moisture = false;
         }
     }
 };
 
+class LightRegulation : public RegulationAlgorithm {
+private:
+    LightSensor& lightSensor;
+    Lamp& lamp;
+    bool isNightTime;
+public:
+    LightRegulation(LightSensor& l, Lamp& la)
+        : lightSensor(l), lamp(la), isNightTime(false) {}
 
-class Lamp : public Relay {
-public:
-    Lamp(int pin) : Relay(pin) {}
-public:
-    void power() {
-        if (on_light) {
-            digitalWrite(pin, LOW);
+    void setNightTime(bool night) {
+        isNightTime = night;
+    }
+
+    void execute() override {
+        if (!isNightTime && lightSensor.lightLevel < 400) {
+            lamp.on_light = true;
         } else {
-            digitalWrite(pin, HIGH);
+            lamp.on_light = false;
         }
     }
 };
 
+class ScheduledVentilation : public RegulationAlgorithm {
+private:
+    Fan& fan;
+    unsigned long lastVentTime;
+    const unsigned long ventInterval;
+    const unsigned long ventDuration;
+    bool isVenting;
+    bool isNightTime;
+public:
+    ScheduledVentilation(Fan& f, unsigned long interval = 1800000, unsigned long duration = 120000)
+        : fan(f), ventInterval(interval), ventDuration(duration),
+          lastVentTime(0), isVenting(false), isNightTime(false) {}
 
-void control_temperature(const Thermometer& thermometer, Heater& heater, Fan& fan) {
-    if (thermometer.temperature > 30.0) {
-        heater.on_temperature = false;
-        fan.on_temperature = true;
+    void setNightTime(bool night) {
+        isNightTime = night;
     }
-    else if (thermometer.temperature < 18.0) {
-        heater.on_temperature = true;
-        fan.on_temperature = true;
+
+    void execute() override {
+        if (isNightTime) {
+            if (isVenting) {
+                isVenting = false;
+            }
+            return;
+        }
+
+        unsigned long now = millis();
+
+        if (!isVenting && (now - lastVentTime >= ventInterval)) {
+            isVenting = true;
+            lastVentTime = now;
+            fan.on_temperature = true;
+        }
+
+        if (isVenting && (now - lastVentTime >= ventDuration)) {
+            isVenting = false;
+            fan.on_temperature = false;
+        }
     }
-    else {
-        heater.on_temperature = false;
-        fan.on_temperature = false;
-    }
+};
+
+// pins
+
+const int PIN_DHT11        = 2;
+const int PIN_HEATER       = 4;
+const int PIN_PUMP         = 5;
+const int PIN_LAMP         = 6;
+const int PIN_FAN          = 7;
+const int PIN_LIGHT_SENSOR = A0;
+const int PIN_SOIL_SENSOR  = A1;
+
+// global objects
+
+Thermometer thermometer(PIN_DHT11);
+SoilMoistureSensor soilSensor(PIN_SOIL_SENSOR);
+LightSensor lightSensor(PIN_LIGHT_SENSOR);
+
+Heater heater(PIN_HEATER);
+Fan fan(PIN_FAN);
+Lamp lamp(PIN_LAMP);
+Pump pump(PIN_PUMP);
+
+TemperatureRegulation tempReg(thermometer, heater, fan);
+HumidityRegulation humReg(thermometer, fan, heater);
+SoilMoistureRegulation soilReg(soilSensor, pump);
+LightRegulation lightReg(lightSensor, lamp);
+ScheduledVentilation ventReg(fan);
+
+bool isNight = false;
+unsigned long lastNightCheck = 0;
+
+void checkNightTime() {
+    unsigned long now = millis();
+    unsigned long hours = (now / 3600000UL) % 24;
+    isNight = (hours >= 22 || hours < 6);
 }
 
-void control_humidity_air(const Thermometer& thermometer, Heater& heater, Fan& fan) {
-    if (thermometer.humidity_air > 80) {
-        heater.on_humidity_air = true;
-        fan.on_humidity_air = true;
-    }
-    else if (thermometer.humidity_air < 40) {
-        heater.on_humidity_air = false;
-        fan.on_humidity_air = false;
-    }
-    else {
-        heater.on_humidity_air = false;
-        fan.on_humidity_air = false;
-    }
-}
+// setup and loop
 
-void control_humidity_soil(const Gigrometer& gigrometer, Pump& pump) {
-    if (gigrometer.humidity_soil < 300) {
-        pump.on_humidity_soil = true;
-    }
-    else if (gigrometer.humidity_soil > 700) {
-        pump.on_humidity_soil = false;
-    }
-}
-
-void control_light(const LightSensor& light, Lamp& lamp) {
-    if (light.light_level < 400) {
-        lamp.on_light = true;
-    }
-    else if (light.light_level > 600) {
-        lamp.on_light = false;
-    }
-}
-
-
-int main() {
+void setup() {
     Serial.begin(9600);
-    
-    Thermometer thermometer(12);   // DHT11 on D12
-    Gigrometer gigrometer(A1);     // soil_humidity on A1
-    LightSensor light(A0);         // lightsensor on A0
-    
-    Heater heater(4);    // heater D4
-    Fan fan(7);          // fan on D7
-    Pump pump(5);        // pump on D5
-    Lamp lamp(6);        // lamp on D6
+}
 
-    while (true) {
-        thermometer.get_temperature();
-        gigrometer.get_humidity();
-        light.get_light();
 
-        control_temperature(thermometer, heater, fan);
-        control_humidity_air(thermometer, heater, fan);
-        control_humidity_soil(gigrometer, pump);
-        control_light(light, lamp);
+void loop() {
+    checkNightTime();
+    lightReg.setNightTime(isNight);
+    ventReg.setNightTime(isNight);
 
-        heater.power();
-        fan.power();
-        pump.power();
-        lamp.power();
+    thermometer.read();
+    soilSensor.read();
+    lightSensor.read();
 
-        Serial.print("Temp: ");
-        Serial.print(thermometer.temperature);
-        Serial.print(" *C | Air humidity: ");
-        Serial.print(thermometer.humidity_air);
-        Serial.print(" % | Soil moisture: ");
-        Serial.print(gigrometer.humidity_soil);
-        Serial.print(" | Light: ");
-        Serial.println(light.light_level);
+    tempReg.execute();
+    humReg.execute();
+    soilReg.execute();
+    lightReg.execute();
+    ventReg.execute();
 
-        delay(10000);
-    }
+    heater.apply();
+    fan.apply();
+    lamp.apply();
+    pump.apply();
 
-    return 0;
+    delay(1000);
 }
