@@ -103,7 +103,7 @@ public:
     }
 
     void apply() override {
-        digitalWrite(pin, on_temperature ? LOW : HOW);
+        digitalWrite(pin, on_temperature ? LOW : HIGH);
     }
 };
 
