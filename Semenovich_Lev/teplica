@@ -1,0 +1,154 @@
+///3331506/50002 Бурмистров Каюков Семенович
+
+#include <Arduino.h>
+
+class Thermometer {
+public:
+    int temperature;
+
+public:
+    Thermometer() {
+        temperature = 0;
+    }
+
+public:
+    void get_temperature() {
+        temperature = 30;// туду значения датчкиа
+
+    }
+};
+
+
+class Humidity {
+public:
+    int humidity;   // ф
+
+public:
+    Humidity() {
+        humidity = 0;
+    }
+
+public:
+    void get_humidity() {
+        humidity = 30;   // туду занчения датчика ф
+    }
+};
+
+
+
+class Light {
+private:
+    int pin;
+
+public:
+    int light;
+
+public:
+    Light(int pin) : pin(pin) {
+        light = 0;
+    }
+
+public:
+    void get_light() {
+        // значение аналогвоого пина
+        light = analogRead(pin);
+    }
+};
+
+
+
+class Lamp {
+private:
+    int pin;
+
+public:
+    bool on_light;
+
+public:
+    Lamp(int pin) : pin(pin) {
+
+        on_light = false;
+
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin, LOW);
+    }
+
+public:
+    void power();
+};
+
+
+
+void Lamp::power()
+{
+    if (on_light) { //вкл
+        digitalWrite(pin, HIGH);
+    }
+    else { //выкл
+        digitalWrite(pin, LOW);
+    }
+}
+
+
+
+// RTC DS3231??
+bool is_night()
+{  // туду время с часов
+    return false;
+}
+
+void control_light(const Light& light, Lamp& lamp)
+{
+    bool night = is_night(); //если темно свет вкл
+    const int LIGHT_LIMIT = 400;
+
+    if (night) {
+        lamp.on_light = false; //ночью свет не вкл
+        return;
+    }
+
+    if (light.light > LIGHT_LIMIT) { //если итак достаточно света в комнате
+        lamp.on_light = false;
+        return;
+    }
+
+    lamp.on_light = true; //если недостаточно света в комнате
+}
+
+
+
+Thermometer thermometer;
+Humidity humidity;
+
+Light light(A0);
+Lamp lamp(8);
+
+
+void setup()
+{
+    Serial.begin(9600);
+}
+
+void loop()
+{
+    thermometer.get_temperature();
+    humidity.get_humidity(); //инфо с датчико
+    light.get_light();
+
+    control_light(light, lamp);
+    lamp.power();
+
+    Serial.print("Освещенность: "); //вывод инфы
+    Serial.print(light.light);
+
+    Serial.print(" | Лампа: ");
+
+    if (lamp.on_light) {
+        Serial.println("ВКЛ");
+    }
+    else {
+        Serial.println("ВЫКЛ");
+    }
+
+    delay(1000);
+}
