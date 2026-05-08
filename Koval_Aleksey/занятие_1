@@ -1,5 +1,6 @@
 #include <iostream>
 #include <math.h>
+#include <algorithm>
 #include <stdio.h>
 using namespace std;
 
@@ -17,6 +18,35 @@ struct PoliticalSituation {
     bool is_election_year;      // год выборов
     bool has_protests;          // наличие протестов
     RUB salary_adjustment;      // корректировка зарплаты
+};
+
+
+struct EconomicStabilizers {
+    bool central_bank_intervention;     
+    bool government_support_program;   
+    bool tax_stimulus;                  
+    RUB stabilization_fund;              
+    float counter_cycle_multiplier;     
+}; 
+
+
+struct CareerConnections {
+    int useful_contacts;          // полезные связи
+    int elite_contacts;           // высокопоставленные знакомства
+    int toxic_contacts;           // токсичные связи
+
+    float reputation;             // репутация (0-100)
+    float networking_skill;       // навык нетворкинга (0-100)
+
+    bool got_job_offer;           // получил оффер
+    bool got_bonus_connection;    // получил бонус через связи
+    bool conflict_at_work;        // конфликт на работе
+
+    RUB networking_costs;         // расходы на нетворкинг
+    RUB business_dinners;         // деловые встречи
+    RUB conference_costs;         // конференции
+
+    int conferences_visited;      // посещено конференций
 };
 
 
@@ -58,7 +88,7 @@ struct TaxDeductions {
 
     bool has_property_deduction;
     RUB property_deduction_used;      // уже использовано из вычета
-    RUB property_deduction_max;       // максимальная сумма вычета (2 млн руб)
+    RUB property_deduction_max;       // максимальная сумма вычета 2 млн руб
     RUB property_deduction_remaining; // остаток вычета
 
     bool has_iis;                     // индивидуальный инвестиционный счет
@@ -71,7 +101,7 @@ struct TaxDeductions {
     RUB pension_deduction;            // вычет на пенсионные взносы
 
     bool has_professional_deduction;
-    float professional_rate;          // процент вычета (20% для НПД)
+    float professional_rate;          // процент вычета 20% для НПД
 
     RUB total_tax_paid_year;          // уплачено налогов за год
     RUB tax_refund_due;               // причитающийся возврат
@@ -87,7 +117,7 @@ struct Gym {
     RUB gym_membership;
     RUB gym_clothes;
     RUB medical_insurance;
-    int gym_visit_count;     // счетчик посещений спортзала (для бонусов)
+    int gym_visit_count;     // счетчик посещений спортзала
 
 };
 
@@ -153,10 +183,27 @@ struct Personality {
 };
 
 
+struct SocialLife {
+    int friends_count;          // количество друзей
+    int close_friends;          // близкие друзья
+    bool in_relationship;       // есть ли отношения
+    bool married;               // брак
+    int social_events;          // мероприятия в месяц
+    float social_satisfaction;  // удовлетворенность социальной жизнью (0-100)
+
+    RUB social_spending;        // траты на встречи
+    RUB gifts;                  // подарки
+    RUB dating_costs;           // свидания
+
+    bool had_conflict;          // был ли конфликт
+    bool made_new_friend;       // появился ли новый друг
+};
+
+
 struct Housing {
     string location;
     RUB rent;
-    float depression_factor;        // фактор влияния на депрессию (1.0 = нейтрально)
+    float depression_factor;        // фактор влияния на депрессию
     float health_factor;            // фактор влияния на здоровье
 };
 
@@ -184,8 +231,10 @@ struct Person {
     Housing housing;
     PoliticalSituation politics;
     Personality personality;
+    SocialLife social;
+    EconomicStabilizers stabilizers;
+    CareerConnections career;
 };
-
 
 struct Person person;
 struct Person karl;
@@ -196,9 +245,9 @@ void person_init(Person& person, bool is_person)
     if (is_person) {
         person.vtb.rate_usd_rub = 78.76;
         person.vtb.account_rub = 0;
-        person.vtb.account_usd = 1000;
+        person.vtb.account_usd = 1'000;
 
-        person.salary = 250'000;
+        person.salary = 200'000;
         person.freelance = 35'000;
         person.vtb.deposit = 0;
         person.vtb.persent_deposit = 20;
@@ -240,19 +289,82 @@ void person_init(Person& person, bool is_person)
         person.helth.missed_work_days = 0;
         person.helth.is_depressed = false;
 
-        person.personality.risk_tolerance = 75;
-        person.personality.impulsivity = 65;
-        person.personality.discipline = 55;
-        person.personality.optimism = 70;
-        person.personality.sociability = 80;
-        person.personality.emotional_stability = 60;
+        person.personality.risk_tolerance = 35;
+        person.personality.impulsivity = 70;
+        person.personality.discipline = 60;
+        person.personality.optimism = 80;
+        person.personality.sociability = 85;
+        person.personality.emotional_stability = 70;
         person.personality.conscientiousness = 65;
-        person.personality.openness = 85;
+        person.personality.openness = 75;
+
+        person.tax_deductions.uses_standard_deduction = true;
+        person.tax_deductions.standard_deduction_amount = 500 * 12; // 500 руб/мес
+
+        person.tax_deductions.has_property_deduction = true;
+        person.tax_deductions.property_deduction_used = 20'000;
+        person.tax_deductions.property_deduction_max = 2'000'000;
+        person.tax_deductions.property_deduction_remaining = 2'000'000;
+
+        person.tax_deductions.has_iis = true;
+        person.tax_deductions.iis_contribution = 10'000;
+        person.tax_deductions.iis_deduction_received = 2'000;
+
+        person.tax_deductions.education_deduction = 0;
+        person.tax_deductions.medical_deduction = 0;
+        person.tax_deductions.charity_deduction = 50'000;
+        person.tax_deductions.pension_deduction = 0;
+
+        person.tax_deductions.has_professional_deduction = true;
+        person.tax_deductions.professional_rate = 0.20; // 20% для НПД
+
+        person.tax_deductions.total_tax_paid_year = 0;
+        person.tax_deductions.tax_refund_due = 0;
+        person.tax_deductions.tax_refund_received = 0;
+        person.tax_deductions.filed_tax_return = false;
+
+        person.tax_deductions.hires_accountant = true;
+        person.tax_deductions.accountant_cost = 5'000; // 5000 руб/мес
+
+        person.social.friends_count = is_person ? 6 : 2;
+        person.social.close_friends = is_person ? 4 : 1;
+        person.social.in_relationship = is_person ? false : true;
+        person.social.married = false;
+        person.social.social_events = 3;
+        person.social.social_satisfaction = 60;
+
+        person.social.social_spending = 8000;
+        person.social.gifts = 5000;
+        person.social.dating_costs = 7000;
+
+        person.social.had_conflict = false;
+        person.social.made_new_friend = false;
+
+        person.career.useful_contacts = is_person ? 10 : 4;
+        person.career.elite_contacts = is_person ? 1 : 0;
+        person.career.toxic_contacts = 5;
+
+        person.career.reputation = is_person ? 65 : 50;
+
+        person.career.networking_skill =
+            person.personality.sociability * 0.7 +
+            person.personality.openness * 0.3;
+
+        person.career.got_job_offer = false;
+        person.career.got_bonus_connection = false;
+        person.career.conflict_at_work = false;
+
+        person.career.networking_costs = 15'000;
+        person.career.business_dinners = 8'000;
+        person.career.conference_costs = 25'000;
+
+        person.career.conferences_visited = 0;
     }
+
     else {
         person.vtb.rate_usd_rub = 78.76;
         person.vtb.account_rub = 50'000;
-        person.vtb.account_usd = 50'000;
+        person.vtb.account_usd = 10'000;
 
         person.salary = 300'000;
         person.freelance = 30'000;
@@ -280,8 +392,8 @@ void person_init(Person& person, bool is_person)
 
         person.tax.car_log = 6'000;
         person.tax.NPD = 6;
-        person.car.value = 3'000'000;
 
+        person.car.value = 3'000'000;
         person.car.gas = 20'000;
         person.car.osago = 8'000;
         person.car.tires = 12'000;
@@ -334,6 +446,40 @@ void person_init(Person& person, bool is_person)
         person.personality.emotional_stability = 75;
         person.personality.conscientiousness = 90;
         person.personality.openness = 60;
+
+        person.social.friends_count = is_person ? 5 : 2;
+        person.social.close_friends = is_person ? 3 : 1;
+        person.social.in_relationship = is_person ? false : true;
+        person.social.married = false;
+        person.social.social_events = 4;
+        person.social.social_satisfaction = 50;
+
+        person.social.social_spending = 8500;
+        person.social.gifts = 15000;
+        person.social.dating_costs = 6000;
+
+        person.social.had_conflict = false;
+        person.social.made_new_friend = false;
+
+        person.career.useful_contacts = is_person ? 8 : 3;
+        person.career.elite_contacts = is_person ? 2 : 0;
+        person.career.toxic_contacts = 1;
+
+        person.career.reputation = is_person ? 80 : 65;
+
+        person.career.networking_skill =
+            person.personality.sociability * 0.8 +
+            person.personality.openness * 0.35;
+
+        person.career.got_job_offer = false;
+        person.career.got_bonus_connection = false;
+        person.career.conflict_at_work = false;
+
+        person.career.networking_costs = 40'000;
+        person.career.business_dinners = 9'000;
+        person.career.conference_costs = 20'000;
+
+        person.career.conferences_visited = 1;
     }
 
     person.helth.flu = { "Грипп", false, 1, 0, 5000, 0, 0.5, -15.0, 0.01 };
@@ -363,6 +509,14 @@ void person_init(Person& person, bool is_person)
     person.personality.current_mood = 70.0;
     person.personality.stress_level = 30.0;
     person.personality.satisfaction = 65.0;
+
+    person.stabilizers.central_bank_intervention = false;
+    person.stabilizers.government_support_program = false;
+    person.stabilizers.tax_stimulus = false;
+    person.stabilizers.stabilization_fund = 5'000'000;
+    person.stabilizers.counter_cycle_multiplier = 1.0;
+
+    person.tax.insurance = 10'000;
 }
 
 
@@ -375,6 +529,246 @@ void person_init()
 void karl_init()
 {
     person_init(karl, false);
+}
+
+
+float normal_random(float mean, float stddev) {
+    const double PI = 3.14159265358979323846;
+    float u1 = (rand() + 1.0) / (RAND_MAX + 2.0);
+    float u2 = (rand() + 1.0) / (RAND_MAX + 2.0);
+
+    float z = sqrt(-2.0 * log(u1)) * cos(2.0 * PI * u2);
+    return mean + stddev * z;
+}
+
+
+float inflation(const int year) {
+    switch (year) {
+    case 2026: return (12.5);
+    case 2027: return (14.0);
+    case 2028: return (13.0);
+    case 2029: return (11.5);
+    }
+    return 0;
+}
+
+
+void process_career_connections(Person& person, int month, int year)
+{
+    float reputation_change = 0;
+
+    if (person.personality.sociability > 60) {
+
+        person.vtb.account_rub -= person.career.networking_costs;
+
+        if (rand() % 100 < person.career.networking_skill) {
+            person.career.useful_contacts++;
+
+            reputation_change += 2.0;
+
+            if (rand() % 100 < 15) {
+                person.career.elite_contacts++;
+            }
+        }
+    }
+
+    if (month == 4 || month == 10) {
+
+        person.vtb.account_rub -= person.career.conference_costs;
+
+        person.career.conferences_visited++;
+
+        reputation_change += 5.0;
+
+        if (rand() % 100 < 30) {
+            person.salary += 15'000;
+        }
+
+        if (rand() % 100 < 20) {
+            person.freelance += 10'000;
+        }
+    }
+
+    int connection_power =
+        person.career.useful_contacts +
+        person.career.elite_contacts * 3;
+
+    if (rand() % 100 < connection_power / 2) {
+
+        person.career.got_bonus_connection = true;
+
+        RUB bonus = 20'000 + connection_power * 1000;
+
+        person.vtb.account_rub += bonus;
+
+        reputation_change += 3.0;
+    }
+    else {
+        person.career.got_bonus_connection = false;
+    }
+
+    if (person.career.reputation > 75 &&
+        rand() % 100 < 12) {
+
+        person.career.got_job_offer = true;
+
+        RUB new_salary = person.salary * 1.25;
+
+        if (new_salary > person.salary) {
+            person.salary = new_salary;
+        }
+    }
+    else {
+        person.career.got_job_offer = false;
+    }
+
+    if (rand() % 100 < 5) {
+
+        person.career.toxic_contacts++;
+
+        reputation_change -= 8.0;
+
+        person.personality.stress_level += 5.0;
+    }
+
+    if (person.personality.impulsivity > 70 &&
+        rand() % 100 < 15) {
+
+        person.career.conflict_at_work = true;
+
+        reputation_change -= 10.0;
+
+        person.salary *= 0.95;
+    }
+    else {
+        person.career.conflict_at_work = false;
+    }
+
+    person.career.reputation += reputation_change;
+
+    if (person.career.reputation > 100)
+        person.career.reputation = 100;
+
+    if (person.career.reputation < 0)
+        person.career.reputation = 0;
+}
+
+
+void process_social_life(Person& person, int month, int year)
+{
+    float impact = 0;
+
+    int events = person.social.social_events;
+
+    if (person.personality.sociability > 70) {
+        events += 2;
+    }
+
+    if (person.personality.is_anxious) {
+        events -= 2;
+    }
+
+    events = max(0, events);
+
+    RUB spending = person.social.social_spending * events;
+    person.vtb.account_rub -= spending;
+
+    impact += events * 1.5;
+
+    if (person.social.in_relationship) {
+        person.vtb.account_rub -= person.social.dating_costs;
+        impact += 5.0;
+
+    if (!person.social.married && rand() % 100 < 5) {       // шанс брака
+        person.social.married = true;
+        person.vtb.account_rub -= 200'000; // свадьба
+        impact += 15.0;
+        }
+    }
+    else if (person.personality.sociability > 60 && rand() % 100 < 10) {
+            person.social.in_relationship = true;
+        }
+
+    if (month == 12) {
+        person.vtb.account_rub -= person.social.gifts;
+        impact += 3.0;
+    }
+
+    if (rand() % 100 < 10) {    //конфликты
+        person.social.had_conflict = true;
+        impact -= 10.0;
+
+        if (person.social.friends_count > 0 && rand() % 2 == 0) {
+            person.social.friends_count--;
+        }
+    }
+    else {
+        person.social.had_conflict = false;
+    }
+
+    if (rand() % 100 < person.personality.sociability) {     //новые друзья
+        person.social.made_new_friend = true;
+        person.social.friends_count++;
+        impact += 4.0;
+    }
+    else {
+        person.social.made_new_friend = false;
+    }
+
+    person.helth.helth_health += impact;
+
+    if (person.helth.helth_health > 100) person.helth.helth_health = 100;
+    if (person.helth.helth_health < 0) person.helth.helth_health = 0;
+
+    person.social.social_satisfaction =
+    (person.social.friends_count * 2 +
+    (person.social.in_relationship ? 20 : 0) + impact);
+
+    if (person.social.social_satisfaction > 100)
+        person.social.social_satisfaction = 100;
+}
+
+
+void activate_automatic_stabilizers(Person& person, int year, int month) {
+    float tension = person.politics.tension_level;
+    float sanctions = person.politics.economic_sanctions;
+
+    if (tension > 0.6 || sanctions > 0.7) {
+        if (!person.stabilizers.central_bank_intervention) {
+            person.stabilizers.central_bank_intervention = true;
+            person.vtb.rate_usd_rub = min(person.vtb.rate_usd_rub, 80.0f);
+            person.vtb.account_rub += 300'000;
+            person.stabilizers.stabilization_fund -= 100'000;
+        }
+    }
+    else {
+        person.stabilizers.central_bank_intervention = false;
+    }
+    if (sanctions > 0.6 && month == 1) {
+        if (!person.stabilizers.government_support_program) {
+            person.stabilizers.government_support_program = true;
+            person.housing.rent *= 0.6;
+            person.utilities *= 0.7;
+        }
+    }
+    else if (sanctions <= 0.5) {
+        person.stabilizers.government_support_program = false;
+        if (person.housing.location == "Moscow")
+            person.housing.rent = 80'000;
+        else if (person.housing.location == "St. Petersburg City Center")
+            person.housing.rent = 100'000;
+    }
+    if ((tension > 0.5 || sanctions > 0.6) && person.politics.is_election_year) {
+        if (!person.stabilizers.tax_stimulus) {
+            person.stabilizers.tax_stimulus = true;
+            person.tax.NPD = max(4.0, person.tax.NPD - 1.0);  // снижени уровня налогов
+            person.tax_deductions.standard_deduction_amount += 5000; 
+        }
+    }
+    else {
+        person.stabilizers.tax_stimulus = false;
+        if (person.tax.NPD < 6) person.tax.NPD = 6;
+    }
 }
 
 
@@ -421,7 +815,21 @@ void apply_personality_to_career(Person& person, int month, int year) {
         (person.personality.conscientiousness / 50);
     if (freelance_multiplier > 1.5) freelance_multiplier = 1.5;
 
-    person.freelance = person.freelance * freelance_multiplier;
+    person.freelance *= (1 + (freelance_multiplier - 1) * 0.1);
+
+    if (person.social.social_satisfaction > 70) {
+        career_multiplier *= 1.05; // связи помогают
+    }
+
+    if (person.social.social_satisfaction < 30) {
+        career_multiplier *= 0.9; // изоляция мешает
+    }
+
+    float networking_bonus =
+        person.career.useful_contacts * 0.01 +
+        person.career.elite_contacts * 0.03;
+
+    career_multiplier += networking_bonus;
 }
 
 
@@ -505,9 +913,10 @@ void apply_personality_to_investments(Person& person, int month) {
             person.Gazprom.obligation += stocks_to_bonds;
         }
     }
-    if (person.personality.is_risk_seeker) {            // Рисковые инвесторы покупают больше акций
+
+    if (person.personality.is_risk_seeker) {     // Рисковые инвесторы покупают больше акций
         if (person.vtb.account_rub > 100'000 && month == 6) {
-            RUB stocks_purchase = min(person.vtb.account_rub * 0.2, 200'000.0);
+            RUB stocks_purchase = min((RUB)(person.vtb.account_rub * 0.2), 200'000LL);
             person.vtb.invest.stocks += stocks_purchase;
             person.vtb.account_rub -= stocks_purchase;
         }
@@ -540,7 +949,7 @@ void update_political_situation(Person& person, int year, int month) {
     }
 
     if ((month >= 3 && month <= 5) || (month >= 9 && month <= 11)) {     // Сезонные протесты
-        if (rand() % 100 < 30) {  // 30% шанс протестов в сезон
+        if (rand() % 100 < 10) {  // 10% шанс протестов в сезон
             person.politics.has_protests = true;
             person.politics.tension_level += 0.2;
         }
@@ -549,7 +958,7 @@ void update_political_situation(Person& person, int year, int month) {
         person.politics.has_protests = false;
     }
 
-    if (rand() % 100 < 5) {  // 5% шанс значимого события
+    if (rand() % 100 < 2) {  // 2% шанс значимого события
         int event = rand() % 3;
         switch (event) {
         case 0: // Новые санкции
@@ -569,50 +978,37 @@ void update_political_situation(Person& person, int year, int month) {
     if (person.politics.tension_level < 0.0) person.politics.tension_level = 0.0;
     if (person.politics.economic_sanctions > 1.0) person.politics.economic_sanctions = 1.0;
     if (person.politics.economic_sanctions < 0.0) person.politics.economic_sanctions = 0.0;
+
+    if (person.politics.economic_sanctions > 0.7) {
+
+        person.career.reputation -= 2;
+
+        if (rand() % 100 < 20) {
+            person.career.useful_contacts--;
+        }
+    }
 }
 
 
-void karl_move_to_mytishchi(Person& person, int year, int month)
+void move_to_moscow(Person& person, int year, int month)
 {
     if (year == 2028 && month == 1) {
-        if (person.housing.location != "Mytishchi") {
-            person.housing.location = "Mytishchi";
-            person.housing.rent = 80'000; 
+        if (person.housing.location != "Moscow") {
+            person.housing.location = "Moscow";
+            person.housing.rent = 200'000; 
             person.housing.depression_factor = 1.3;  
             person.housing.health_factor = 0.9;  
-            person.housing.rent, 150'000 - person.housing.rent;
 
-            RUB moving_cost = 50'000;
+            RUB moving_cost = 150'000;
             person.vtb.account_rub -= moving_cost;
         }
     }
 }
 
 
-float normal_random(float mean, float stddev) {
-    const double PI = 3.14159265358979323846;
-    float u1 = (rand() + 1.0) / (RAND_MAX + 2.0);
-    float u2 = (rand() + 1.0) / (RAND_MAX + 2.0);
-
-    float z = sqrt(-2.0 * log(u1)) * cos(2.0 * PI * u2);
-    return mean + stddev * z;
-}
-
-
-float inflation(const int year) {
-    switch (year) {
-    case 2026: return (12.5);
-    case 2027: return (14.0);
-    case 2028: return (13.0);
-    case 2029: return (11.5);
-    }
-    return 0;
-}
-
-
 bool check_mortality(Person& person, Illness& illness) {
     if (illness.is_active) {
-        float random = (rand() % 1000) / 1000.0; // 0-1
+        float random = (rand() % 1000) / 1000.0; 
         if (random < illness.mortality_risk) {
             return true;
         }
@@ -640,6 +1036,8 @@ void activate_illness(Person& person, int month, int year) {
     if (person.helth.helth_health < 40) {
         base_chance *= 1.5;
     }
+
+    base_chance = min(base_chance, 0.08f);
 
     float random = (rand() % 100) / 100.0;
 
@@ -773,8 +1171,8 @@ void process_illnesses(Person& person, int month, int year) {
     }
 
     if (total_work_efficiency < 1.0) {
-        RUB original_salary = person.salary;
-        person.salary *= total_work_efficiency;
+        RUB loss = person.salary * (1.0 - total_work_efficiency);
+        person.vtb.account_rub -= loss;
         person.freelance *= total_work_efficiency;
     }
 }
@@ -786,15 +1184,13 @@ void person_depression(Person& person, int month, int year)
 
     float helth_health_change = 0;
 
-    update_political_situation(person, year, month);
-
     float political_impact = 0;
     political_impact -= person.politics.tension_level * 10.0;
     political_impact -= person.politics.economic_sanctions * 8.0;
 
     if (person.politics.has_protests) {
         political_impact -= 5.0;
-        if (person.housing.location.find("Center") != string::npos ||         // Если живет в центре города - страдает больше
+        if (person.housing.location.find("Center") != string::npos || // Если живет в центре города - страдает больше
             person.housing.location == "Moscow") {
             political_impact -= 3.0;
         }
@@ -812,7 +1208,7 @@ void person_depression(Person& person, int month, int year)
 
     helth_health_change += political_impact;
 
-    if (person.sport.gym_visit_count > 10) {       // 1. Спортзал положительно влияет
+    if (person.sport.gym_visit_count > 10) {       //Спортзал положительно влияет
         helth_health_change += 2.0;
     }
 
@@ -835,7 +1231,7 @@ void person_depression(Person& person, int month, int year)
         helth_health_change += 5.0;  // отличный день
     }
 
-    if (month == 11) {       // 5. Путешествия поднимают настроение (но временно)
+    if (month == 11) {       // Путешествия поднимают настроение
         helth_health_change += 10.0;
     }
 
@@ -847,7 +1243,7 @@ void person_depression(Person& person, int month, int year)
         person.helth.helth_health = 0;
     }
 
-    if (person.helth.helth_health < 30 && !person.helth.is_depressed) {            // Проверяем, не впала ли в депрессию
+    if (person.helth.helth_health < 30 && !person.helth.is_depressed) {  // Проверяем, не впала ли в депрессию
         person.helth.is_depressed = true;
         person.helth.depression_months = 1;
     }
@@ -856,7 +1252,7 @@ void person_depression(Person& person, int month, int year)
         person.helth.depression_months++;
 
         if (rand() % 3 == 0) {  // 33% шанс не работать на фрилансе
-            person.freelance = 0;
+            person.freelance *= 0.5;
         }
 
         if (rand() % 2 == 0) {  // 50% шанс пропустить зал
@@ -877,7 +1273,7 @@ void person_depression(Person& person, int month, int year)
         }
 
         if (person.helth.depression_months > 2) {
-            person.helth.depression_months += person.helth.drugs_cost * inflation_rate;
+            person.helth.depression_months++;
             person.vtb.account_rub -= person.helth.drugs_cost;
             person.helth.helth_health += 3.0;  // лекарства помогают
         }
@@ -886,6 +1282,18 @@ void person_depression(Person& person, int month, int year)
             person.helth.is_depressed = false;
             person.helth.depression_months = 0;
         }
+    }
+
+    helth_health_change += person.social.social_satisfaction / 20.0;
+
+    if (person.social.friends_count < 2) {
+        helth_health_change -= 5.0;
+    }
+
+    helth_health_change += person.career.reputation / 25.0;
+
+    if (person.career.conflict_at_work) {
+        helth_health_change -= 10.0;
     }
 }
 
@@ -901,9 +1309,9 @@ void person_gym(Person& person, int month, int year)
 
     person.sport.gym_visit_count++;
 
-    if (person.sport.gym_visit_count >= 12) {        // Бонус: если ходит в зал больше 3 раз в неделю (12+ раз в месяц)
+    if (person.sport.gym_visit_count >= 12) { // Бонус: если ходит в зал больше 3 раз в неделю (12+ раз в месяц)
         person.sport.gym_membership = person.sport.gym_membership * 0.9;
-        person.sport.gym_visit_count = 0;        // сбрасываем счетчик
+        person.sport.gym_visit_count = 0;    // сбрасываем счетчик
     }
 
     if (month == 3 || month == 9) {     // Покупка одежды для спортзала (раз в 6 месяцев)
@@ -940,7 +1348,7 @@ void person_vtb_stocks(Person& person, int month)
 {
     if (month == 5) {
         float mean_return = 17.0 / 100;
-        float stddev = 3.0 / 100;
+        float stddev = 1.0 / 100;
 
         float random_return = normal_random(mean_return, stddev);
 
@@ -956,7 +1364,7 @@ void person_alfa_stocks(Person& person, int month)
 {
     if (month == 5) {
         float mean_return = 20.0 / 100;
-        float stddev = 7.0 / 100;
+        float stddev = 2.0 / 100;
 
         float random_return = normal_random(mean_return, stddev);
 
@@ -972,7 +1380,7 @@ void person_T_stocks(Person& person, int month)
 {
     if (month == 5) {
         float mean_return = 17.0 / 100;
-        float stddev = 2.0 / 100;
+        float stddev = 1.0 / 100;
 
         float random_return = normal_random(mean_return, stddev);
 
@@ -988,14 +1396,14 @@ void person_Gazprom_obligations(Person& person, int month)
 {
     if (month == 5) {
         float mean_return = 11.0 / 100;
-        float stddev = 8.0 / 100;
+        float stddev = 1.0 / 100;
 
         float random_return = normal_random(mean_return, stddev);
 
         if (random_return < -5.0 / 100) random_return = -5.0 / 100;
         if (random_return > 25.0 / 100) random_return = 25.0 / 100;
 
-        person.vtb.account_rub += person.Rosatom.obligation * random_return;
+        person.vtb.account_rub += person.Gazprom.obligation * random_return;
     }
 }
 
@@ -1019,7 +1427,7 @@ void person_Rosatom_obligations(Person& person, int month)
 {
     if (month == 5) {
         float mean_return = 12.0 / 100;
-        float stddev = 4.0 / 100;
+        float stddev = 1.0 / 100;
 
         float random_return = normal_random(mean_return, stddev);
 
@@ -1034,8 +1442,8 @@ void person_Rosatom_obligations(Person& person, int month)
 void person_spbbank_stocks(Person& person, int month)
 {
     if (month == 5) {
-        float mean_return = 15.0 / 100;  // Sberbank more conservative
-        float stddev = 4.0 / 100;
+        float mean_return = 15.0 / 100;  
+        float stddev = 2.0 / 100;
 
         float random_return = normal_random(mean_return, stddev);
 
@@ -1063,29 +1471,6 @@ void person_spbbank_obligations(Person& person, int month)
 }
 
 
-
-void person_food(Person& person, const int month, const int year)
-{
-    if (month == 12) {
-        person.vtb.account_rub -= 2000;
-    }
-
-    person.food += person.food * (inflation(year) / 100. / 12.);
-
-    person.vtb.account_rub -= person.food;
-}
-
-
-void person_utilities(Person& person, const int month, const int year)
-{
-    if (month == 2) person.vtb.account_rub -= person.utilities - (3'500 / 30) * 2;
-
-    person.utilities += person.utilities * (inflation(year) / 100. / 12.);
-
-    person.vtb.account_rub -= person.utilities;
-}
-
-
 void person_rent(Person& person, const int year) {
     person.housing.rent += person.housing.rent * (inflation(year) / 100. / 12.);
 
@@ -1096,7 +1481,7 @@ void person_rent(Person& person, const int year) {
 void person_trip(Person& person, const int month, const int year)
 {
     if (year == 2026 && month == 11) {
-        person.vtb.account_usd -= 10'000;
+        person.vtb.account_rub -= 120'000;
         return;
     }
 
@@ -1259,6 +1644,29 @@ void file_tax_return(Person& person, int year) {
         political_salary_factor -= person.politics.economic_sanctions * 0.15;
         political_salary_factor -= person.politics.tension_level * 0.1;
 
+        if (person.stabilizers.government_support_program) {
+            political_salary_factor += 0.12;
+        }
+
+        if (person.stabilizers.central_bank_intervention) {
+            political_salary_factor += 0.08; 
+        }
+
+        if (person.politics.economic_sanctions > 0.6) {
+            political_salary_factor += 0.05;
+            person.freelance *= 1.10; 
+        }
+
+        float avg_impact = (person.politics.economic_sanctions + person.politics.tension_level) / 2;
+        political_salary_factor += avg_impact * 0.2; 
+
+        if (person.personality.conscientiousness > 70 && person.politics.tension_level > 0.5) {
+            political_salary_factor += 0.10; 
+        }
+
+        if (political_salary_factor < 0.85) political_salary_factor = 0.85;
+        if (political_salary_factor > 1.25) political_salary_factor = 1.25;
+
         if (person.politics.has_protests) {
             political_salary_factor -= 0.05;
         }
@@ -1293,7 +1701,7 @@ void file_tax_return(Person& person, int year) {
 void person_deposit(Person& person, const int month)
 {
     if (month == 1) {
-        person.vtb.deposit *= person.vtb.persent_deposit / 100 + 1;
+        person.vtb.deposit *= person.vtb.persent_deposit / 100 + 1.0;
         person.vtb.deposit += 20'000;
         person.vtb.account_rub -= 20'000;
     }
@@ -1301,7 +1709,7 @@ void person_deposit(Person& person, const int month)
 
 
 void person_emotions(Person& person) {
-    if (rand() % 7 == 0) {
+    if (rand() % 100 < 20) {
         person.vtb.account_rub += person.emotions;
         return;
     }
@@ -1324,6 +1732,99 @@ void person_freelancing(Person& person, int month, int year) {
 }
 
 
+void person_expenses_with_stabilization(Person& person, const int month, const int year) {
+    float political_price_multiplier = 1.0;
+
+    political_price_multiplier += person.politics.economic_sanctions * 0.20;
+    political_price_multiplier += person.politics.tension_level * 0.10;
+
+    if (person.politics.tension_level > 0.6) {
+        political_price_multiplier -= 0.15;
+    }
+
+    if (person.stabilizers.government_support_program) {
+        political_price_multiplier -= 0.10;
+    }
+
+    if (person.politics.economic_sanctions > 0.7 && person.stabilizers.stabilization_fund > 0) {
+        political_price_multiplier -= 0.08;
+        person.stabilizers.stabilization_fund -= 50'000;
+    }
+
+    float effective_multiplier = max(0.9f, min(1.15f, political_price_multiplier));
+
+    person.food = (person.food * (1 + (inflation(year) / 100. / 12.)) * effective_multiplier);
+    person.utilities = (person.utilities * (1 + (inflation(year) / 100. / 12.)) * effective_multiplier);
+
+    person.vtb.account_rub -= person.food;
+    person.vtb.account_rub -= person.utilities;
+}
+
+
+void person_investments_with_hedge(Person& person, int month, int year) {
+
+    person_vtb_stocks(person, month);
+    person_alfa_stocks(person, month);
+
+    float political_risk = (person.politics.tension_level + person.politics.economic_sanctions) / 2;
+
+    if (political_risk > 0.5) {
+        float hedge_return = political_risk * 0.15;
+
+        if (person.Gazprom.obligation > 0) {
+            person.vtb.account_rub += person.Gazprom.obligation * hedge_return;
+        }
+
+        if (person.vtb.account_usd > 0) {
+            float usd_appreciation = political_risk * 0.12;
+            person.vtb.rate_usd_rub *= (1 + usd_appreciation);
+        }
+    }
+
+    if (person.politics.is_election_year && month == 1 && person.politics.tension_level > 0.4) {
+        RUB defensive_shift = person.vtb.invest.stocks * 0.3;
+        person.vtb.invest.stocks -= defensive_shift;
+        person.Gazprom.obligation += defensive_shift;
+        
+    }
+}
+
+
+void political_risk_insurance(Person& person, int month, int year) {
+    if (month == 1) {
+        RUB insurance_premium = person.salary * 0.02;
+        person.vtb.account_rub -= insurance_premium;
+        person.stabilizers.stabilization_fund += insurance_premium;
+    }
+
+    if ((person.politics.tension_level > 0.7 || person.politics.economic_sanctions > 0.8) && month == 6) {
+        RUB insurance_payout = person.stabilizers.stabilization_fund * 0.5;
+        person.vtb.account_rub += insurance_payout;
+        person.stabilizers.stabilization_fund -= insurance_payout;
+    }
+}
+
+
+void diversify_against_political_risk(Person& person, int month, int year) {
+    if (month == 1) {
+        if (person.politics.tension_level > 0.5) {
+            RUB rub_to_convert = min(person.vtb.account_rub * 0.3, 500'000.0);
+            person.vtb.account_rub -= rub_to_convert;
+            person.vtb.account_usd += rub_to_convert / person.vtb.rate_usd_rub;
+        }
+
+        if (person.politics.economic_sanctions > 0.6) {
+            RUB energy_exposure = person.Gazprom.obligation;
+            if (energy_exposure > 100'000) {
+                RUB rebalance = energy_exposure * 0.4;
+                person.Gazprom.obligation -= rebalance;
+                person.T.invest.stocks += rebalance;
+            }
+        }
+    }
+}
+
+
 RUB calculate_capital(Person& person)
 {
     RUB capital = 0;
@@ -1342,7 +1843,7 @@ RUB calculate_capital(Person& person)
 
 void print_results(Person& person, const string& name)
 {
-    printf("%s's salary = %lld\n", name.c_str(), person.salary);
+    printf("%s's salary = %lld\n", name.c_str(), person.salary+person.freelance);
     RUB capital = calculate_capital(person);
     printf("%s's capital = %lld RUB\n\n", name.c_str(), capital);
 }
@@ -1351,7 +1852,7 @@ void print_results(Person& person, const string& name)
 void person_car(Person& person, int month, int year)
 {
     if (year == 2028) {
-        person.car.gas == 6'000;  //повышение водительского стажа
+        person.car.gas += 6'000; 
     }
 
     if (month == 3) {
@@ -1365,22 +1866,61 @@ void person_car(Person& person, int month, int year)
     }
 }
 
+void cover_deficit(Person& person)
+{
+    if (person.vtb.account_rub >= 0) return;
+
+    RUB deficit = -person.vtb.account_rub;
+
+    // депозит
+    RUB from_deposit = min(person.vtb.deposit, deficit);
+    person.vtb.deposit -= from_deposit;
+    person.vtb.account_rub += from_deposit;
+
+    // акции (ВTБ)
+    if (person.vtb.account_rub < 0) {
+        RUB need = -person.vtb.account_rub;
+        RUB sell = min(person.vtb.invest.stocks, need);
+        person.vtb.invest.stocks -= sell;
+        person.vtb.account_rub += sell;
+    }
+
+    // акции (T)
+    if (person.vtb.account_rub < 0) {
+        RUB need = -person.vtb.account_rub;
+        RUB sell = min(person.T.invest.stocks, need);
+        person.T.invest.stocks -= sell;
+        person.vtb.account_rub += sell;
+    }
+
+    // облигации
+    if (person.vtb.account_rub < 0) {
+        RUB need = -person.vtb.account_rub;
+        RUB sell = min(person.Gazprom.obligation, need);
+        person.Gazprom.obligation -= sell;
+        person.vtb.account_rub += sell;
+    }
+}
+
 
 void simulation(Person& person)
 {
     int year = 2026;
-    int month = 2;
+    int month = 1;
 
-    while (!(year == 2027 && month == 6)) {
+    while (!(year == 2028 && month == 1)) {
+        activate_automatic_stabilizers(person, year, month);
+        political_risk_insurance(person, month, year);
+        diversify_against_political_risk(person, month, year);
+
         person_salary(person, month, year);
         person_car(person, month, year);
-        person_utilities(person, month, year);
+        person_expenses_with_stabilization(person, month, year);
         person_cat_food(person, month, year);
         person_trip(person, month, year);
         person_rent(person, year);
         person_deposit(person, month);
-        person_vtb_stocks(person, month);
-        person_alfa_stocks(person, month);
+        person_investments_with_hedge(person, month, year);
         person_T_stocks(person, month);
         person_Gazprom_obligations(person, month);
         person_Rosneft_obligations(person, month);
@@ -1389,13 +1929,16 @@ void simulation(Person& person)
         person_spbbank_obligations(person, month);
         person_freelancing(person, month, year);
         person_emotions(person);
-        person_food(person, month, year);
         person_depression(person, month, year);
         person_gym(person, month, year);
         person_medical_insurance(person, month, year);
-        karl_move_to_mytishchi(person, year, month);
+        process_social_life(person, month, year);
+        process_career_connections(person, month, year);
+        move_to_moscow(person, year, month);
         activate_illness(person, month, year);
         process_illnesses(person, month, year);
+        cover_deficit(person);
+
         update_personality_multipliers(person);
         update_personality_dynamics(person, month, year);
         apply_personality_to_career(person, month, year);
@@ -1416,6 +1959,7 @@ void simulation(Person& person)
 
 int main()
 {
+    srand(time(NULL));
     person_init();
     simulation(person);
     print_results(person, "Alice");
