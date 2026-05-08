@@ -1,5 +1,15 @@
 #include <DHT.h>
 
+// pins
+
+const int PIN_DHT11 = 2;
+const int PIN_HEATER = 4;
+const int PIN_PUMP = 5;
+const int PIN_LAMP = 6;
+const int PIN_FAN = 7;
+const int PIN_LIGHT_SENSOR = A0;
+const int PIN_SOIL_SENSOR = A1;
+
 // classes
 
 class Sensor {
@@ -10,13 +20,13 @@ public:
 
 class Actuator {
 public:
-    virtual void apply() = 0;
+    virtual void power() = 0;
     virtual ~Actuator() {}
 };
 
 class RegulationAlgorithm {
 public:
-    virtual void execute() = 0;
+    virtual void control() = 0;
     virtual ~RegulationAlgorithm() {}
 };
 
@@ -86,7 +96,7 @@ public:
         digitalWrite(pin, LOW);
     }
 
-    void apply() override {
+    void power() override {
         digitalWrite(pin, on_temperature ? LOW : HIGH);
     }
 };
@@ -102,7 +112,7 @@ public:
         digitalWrite(pin, LOW);
     }
 
-    void apply() override {
+    void power() override {
         digitalWrite(pin, on_temperature ? LOW : HIGH);
     }
 };
@@ -118,7 +128,7 @@ public:
         digitalWrite(pin, LOW);
     }
 
-    void apply() override {
+    void power() override {
         digitalWrite(pin, on_light ? LOW : HIGH);
     }
 };
@@ -134,7 +144,7 @@ public:
         digitalWrite(pin, LOW);
     }
 
-    void apply() override {
+    void power() override {
         digitalWrite(pin, on_moisture ? LOW : HIGH);
     }
 };
@@ -150,7 +160,7 @@ public:
     TemperatureRegulation(Thermometer& t, Heater& h, Fan& f)
         : thermometer(t), heater(h), fan(f) {}
 
-    void execute() override {
+    void control() override {
         if (thermometer.temperature > 30.0) {
             heater.on_temperature = false;
             fan.on_temperature = true;
@@ -175,7 +185,7 @@ public:
     HumidityRegulation(Thermometer& t, Fan& f, Heater& h)
         : thermometer(t), fan(f), heater(h) {}
 
-    void execute() override {
+    void control() override {
         if (thermometer.humidity > 80.0) {
             fan.on_temperature = true;
             if (thermometer.temperature < 35.0) {
@@ -193,7 +203,7 @@ public:
     SoilMoistureRegulation(SoilMoistureSensor& s, Pump& p)
         : soilSensor(s), pump(p) {}
 
-    void execute() override {
+    void control() override {
         if (soilSensor.moisture < 300) {
             pump.on_moisture = true;
         } else if (soilSensor.moisture > 700) {
@@ -215,7 +225,7 @@ public:
         isNightTime = night;
     }
 
-    void execute() override {
+    void control() override {
         if (!isNightTime && lightSensor.lightLevel < 400) {
             lamp.on_light = true;
         } else {
@@ -241,10 +251,11 @@ public:
         isNightTime = night;
     }
 
-    void execute() override {
+    void control() override {
         if (isNightTime) {
             if (isVenting) {
                 isVenting = false;
+                fan.on_temperature = false;
             }
             return;
         }
@@ -263,16 +274,6 @@ public:
         }
     }
 };
-
-// pins
-
-const int PIN_DHT11        = 2;
-const int PIN_HEATER       = 4;
-const int PIN_PUMP         = 5;
-const int PIN_LAMP         = 6;
-const int PIN_FAN          = 7;
-const int PIN_LIGHT_SENSOR = A0;
-const int PIN_SOIL_SENSOR  = A1;
 
 // global objects
 
@@ -316,16 +317,16 @@ void loop() {
     soilSensor.read();
     lightSensor.read();
 
-    tempReg.execute();
-    humReg.execute();
-    soilReg.execute();
-    lightReg.execute();
-    ventReg.execute();
+    tempReg.control();
+    humReg.control();
+    soilReg.control();
+    lightReg.control();
+    ventReg.control();
 
-    heater.apply();
-    fan.apply();
-    lamp.apply();
-    pump.apply();
+    heater.power();
+    fan.power();
+    lamp.power();
+    pump.power();
 
     delay(1000);
 }
