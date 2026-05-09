@@ -1,7 +1,7 @@
-
 #include <Arduino.h>
 #include <DHT.h>
 
+//
 const byte DHT_PIN = 2;
 const byte SOIL_PIN = A1;
 const byte LIGHT_PIN = A0;
@@ -54,7 +54,7 @@ const ClimateSettings tomato = {"Tomato",
 
                                 22.0,     28.0,
 
-                                70.0,
+                                70,
                                 35,
 
                                 50,
@@ -67,7 +67,7 @@ const ClimateSettings cucumber = {"Cucumber",
 
                                   23.0,       30.0,
 
-                                  80.0,
+                                  80,
                                   45,
 
                                   45,

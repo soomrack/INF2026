@@ -7,3 +7,10 @@
 /Yaroslavskiy_Dmitry/Poly1/x64/Debug
 /Yaroslavskiy_Dmitry/Poly1/.vs
 /Yaroslavskiy_Dmitry/Poly1/Poly1/x64/Debug
+.DS_Store
+.zed/
+.vscode/
+
+
+**/.pio/
+*.log
