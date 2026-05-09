@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <DHT.h>
 
-//
 const byte DHT_PIN = 2;
 const byte SOIL_PIN = A1;
 const byte LIGHT_PIN = A0;
@@ -32,7 +31,7 @@ const int LIGHT_DARK_RAW = 1023;
 const int LIGHT_BRIGHT_RAW = 0;
 
 using Celsius = float;
-using Percent = int;
+using Percent = float;
 using Minutes = unsigned int;
 
 struct ClimateSettings {
@@ -54,7 +53,7 @@ const ClimateSettings tomato = {"Tomato",
 
                                 22.0,     28.0,
 
-                                70,
+                                70.0,
                                 35,
 
                                 50,
@@ -67,7 +66,7 @@ const ClimateSettings cucumber = {"Cucumber",
 
                                   23.0,       30.0,
 
-                                  80,
+                                  80.0,
                                   45,
 
                                   45,
