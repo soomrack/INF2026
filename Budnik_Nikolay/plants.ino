@@ -25,7 +25,6 @@ const unsigned long DAY_MS = 86400000UL;
 
 const byte INITIAL_HOUR = 12;
 
-// Границы калибровки нужно определить под конкретную теплицу и конкретный датчик
 const int SOIL_DRY_RAW = 0;
 const int SOIL_WET_RAW = 1023;
 
