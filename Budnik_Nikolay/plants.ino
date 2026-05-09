@@ -1,3 +1,4 @@
+
 #include <Arduino.h>
 #include <DHT.h>
 
@@ -24,52 +25,55 @@ const unsigned long DAY_MS = 86400000UL;
 
 const byte INITIAL_HOUR = 12;
 
-// Границы калибровки нужно определить под конкретную теплицу и конкретный датчик
+// Границы калибровки нужно определить под конкретную теплицу и конкретный датчик
 const int SOIL_DRY_RAW = 0;
 const int SOIL_WET_RAW = 1023;
 
 const int LIGHT_DARK_RAW = 1023;
 const int LIGHT_BRIGHT_RAW = 0;
 
+using Celsius = float;
+using Percent = int;
+using Minutes = unsigned int;
+
 struct ClimateSettings {
     const char* name;
 
-    float minTemp, maxTemp;
-    float maxAirHumidity;
+    Celsius minTemp, maxTemp;
+    Percent maxAirHumidity;
 
-    int minSoilHumidity;
-    int minLight;
+    Percent minSoilHumidity;
+    Percent minLight;
 
     byte nightStart, nightEnd;
 
-    // Время по смыслу должно быть неотрицательно
-    unsigned int ventilationPeriod, ventilationDuration; // Провертирование каждые ventilationPeriod минут на ventilationDuration минут
+    Minutes ventilationPeriod, ventilationDuration;
 };
 
 const ClimateSettings tomato = {
     "Tomato",
 
-    22.0, 28.0,
-    70.0,
+    22.0, 28.0,   // температура воздуха
+    70.0,         // максимальная влажность воздуха
 
-    35,
-    50,
+    35,           // минимальная влажность почвы
+    50,           // минимальный уровень света
 
-    22, 6,
-    180, 5
+    22, 6,        // ночь: 22:00-06:00
+    180, 5        // проветривание: каждые 180 минут на 5 минут
 };
 
 const ClimateSettings cucumber = {
     "Cucumber",
 
-    23.0, 30.0,
-    80.0,
+    23.0, 30.0,   // температура воздуха
+    80.0,         // максимальная влажность воздуха
 
-    45,
-    45,
+    45,           // минимальная влажность почвы
+    45,           // минимальный уровень света
 
-    22, 6,
-    180, 5
+    22, 6,        // ночь: 22:00-06:00
+    180, 5        // проветривание: каждые 180 минут на 5 минут
 };
 
 const ClimateSettings* climate = &tomato;
@@ -98,7 +102,7 @@ int rawToPercent(int raw, int rawAtZero, int rawAtHundred) {
     return clampPercent(percent);
 }
 
-// Время виртуальное, поэтому считаеться от millis(), после перезагрузки снова стартует с INITIAL_HOUR
+// Время виртуальное, поэтому считается от millis(), после перезагрузки снова стартует с INITIAL_HOUR
 byte getHour() {
     byte passedHours = (millis() % DAY_MS) / HOUR_MS;
     return (INITIAL_HOUR + passedHours) % 24;
@@ -306,7 +310,6 @@ private:
     unsigned long pumpStartTime;
     unsigned long pauseStartTime;
 
-    // Полив идёт импульсами, т.е. короткое включение насоса и пауза на впитывание
 public:
     WateringController(AnalogSensor& soil, Device& pumpDevice)
         : soilSensor(soil),
@@ -326,6 +329,7 @@ public:
         }
 
         if (pumpIsWorking) {
+            // Полив идёт импульсами, т.е. короткое включение насоса и пауза на впитывание
             if (now - pumpStartTime < PUMP_WORK_TIME) {
                 pump.on();
             } else {
@@ -358,4 +362,233 @@ private:
     Device& fan;
 
 public:
-    TemperatureController(AirSensor& air, Device&
+    TemperatureController(AirSensor& air, Device& heaterDevice, Device& fanDevice)
+        : airSensor(air),
+          heater(heaterDevice),
+          fan(fanDevice) {}
+
+    void update() override {
+        if (!airSensor.hasTemperature()) {
+            return;
+        }
+
+        float temp = airSensor.temperature();
+
+        if (temp > climate->maxTemp) {
+            fan.on();
+            return;
+        }
+
+        // Вентилятор помогает равномерно распределять воздух при нагреве
+        if (temp < climate->minTemp) {
+            heater.on();
+            fan.on();
+        }
+    }
+};
+
+class HumidityController : public Controller {
+private:
+    AirSensor& airSensor;
+    Device& fan;
+
+public:
+    HumidityController(AirSensor& air, Device& fanDevice)
+        : airSensor(air),
+          fan(fanDevice) {}
+
+    void update() override {
+        if (!airSensor.hasHumidity()) {
+            return;
+        }
+
+        if (airSensor.humidity() > climate->maxAirHumidity) {
+            fan.on();
+        }
+    }
+};
+
+class VentilationController : public Controller {
+private:
+    Device& fan;
+
+public:
+    VentilationController(Device& fanDevice)
+        : fan(fanDevice) {}
+
+    void update() override {
+        if (isNight()) {
+            return;
+        }
+
+        unsigned int minute = getMinuteOfDay();
+        unsigned int period = climate->ventilationPeriod;
+        unsigned int duration = climate->ventilationDuration;
+
+        if (period > 0 && duration > 0) {
+            if (minute % period < duration) {
+                fan.on();
+            }
+        }
+    }
+};
+
+AirSensor air(DHT_PIN);
+
+AnalogSensor soil(SOIL_PIN, SOIL_DRY_RAW, SOIL_WET_RAW);
+AnalogSensor light(LIGHT_PIN, LIGHT_DARK_RAW, LIGHT_BRIGHT_RAW);
+
+Device pump(PUMP_PIN);
+Device fan(FAN_PIN);
+Device heater(HEATER_PIN);
+Device lamp(LAMP_PIN);
+
+LightController lightController(light, lamp);
+WateringController wateringController(soil, pump);
+TemperatureController temperatureController(air, heater, fan);
+HumidityController humidityController(air, fan);
+VentilationController ventilationController(fan);
+
+Sensor* sensors[] = {
+    &air,
+    &soil,
+    &light
+};
+
+Device* devices[] = {
+    &pump,
+    &fan,
+    &heater,
+    &lamp
+};
+
+Controller* controllers[] = {
+    &lightController,
+    &wateringController,
+    &temperatureController,
+    &humidityController,
+    &ventilationController
+};
+
+const byte SENSOR_COUNT = sizeof(sensors) / sizeof(sensors[0]);
+const byte DEVICE_COUNT = sizeof(devices) / sizeof(devices[0]);
+const byte CONTROLLER_COUNT = sizeof(controllers) / sizeof(controllers[0]);
+
+void beginSensors() {
+    for (byte i = 0; i < SENSOR_COUNT; i++) {
+        sensors[i]->begin();
+    }
+}
+
+void beginDevices() {
+    for (byte i = 0; i < DEVICE_COUNT; i++) {
+        devices[i]->begin();
+    }
+}
+
+void updateSensors() {
+    for (byte i = 0; i < SENSOR_COUNT; i++) {
+        sensors[i]->update();
+    }
+}
+
+void resetDevices() {
+    // Регуляторы заново выставляют запросы каждый цикл, а запись в пины происходит в applyDevices()
+    for (byte i = 0; i < DEVICE_COUNT; i++) {
+        devices[i]->reset();
+    }
+}
+
+void updateControllers() {
+    for (byte i = 0; i < CONTROLLER_COUNT; i++) {
+        controllers[i]->update();
+    }
+}
+
+void applyDevices() {
+    for (byte i = 0; i < DEVICE_COUNT; i++) {
+        devices[i]->apply();
+    }
+}
+
+void printStatus() {
+    static unsigned long lastPrintTime = 0;
+
+    if (millis() - lastPrintTime < PRINT_INTERVAL) {
+        return;
+    }
+
+    lastPrintTime = millis();
+
+    Serial.println(F("- - - - - - GREENHOUSE INFO - - - - - -"));
+
+    Serial.print(F("Climate: "));
+    Serial.println(climate->name);
+
+    Serial.print(F("Hour: "));
+    Serial.println(getHour());
+
+    Serial.print(F("Night: "));
+    Serial.println(isNight() ? F("true") : F("false"));
+
+    Serial.print(F("Temperature: "));
+    if (air.hasTemperature()) {
+        Serial.print(air.temperature());
+        Serial.println(F(" C"));
+    } else {
+        Serial.println(F("N/A"));
+    }
+
+    Serial.print(F("Air humidity: "));
+    if (air.hasHumidity()) {
+        Serial.print(air.humidity());
+        Serial.println(F(" %"));
+    } else {
+        Serial.println(F("N/A"));
+    }
+
+    Serial.print(F("Soil humidity: "));
+    Serial.print(soil.percent());
+    Serial.print(F(" %, raw = "));
+    Serial.println(soil.raw());
+
+    Serial.print(F("Light: "));
+    Serial.print(light.percent());
+    Serial.print(F(" %, raw = "));
+    Serial.println(light.raw());
+
+    Serial.print(F("Pump: "));
+    Serial.println(pump.isOn() ? F("ON") : F("OFF"));
+
+    Serial.print(F("Fan: "));
+    Serial.println(fan.isOn() ? F("ON") : F("OFF"));
+
+    Serial.print(F("Heater: "));
+    Serial.println(heater.isOn() ? F("ON") : F("OFF"));
+
+    Serial.print(F("Lamp: "));
+    Serial.println(lamp.isOn() ? F("ON") : F("OFF"));
+
+    Serial.println();
+}
+
+void setup() {
+    Serial.begin(9600);
+
+    beginSensors();
+    beginDevices();
+
+    Serial.println(F("Greenhouse controller started"));
+}
+
+void loop() {
+    updateSensors();
+
+    resetDevices();
+    updateControllers();
+    applyDevices();
+
+    printStatus();
+
+    delay(100);
+}
