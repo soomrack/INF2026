@@ -1,3 +1,4 @@
+
 #include <Arduino.h>
 #include <DHT.h>
 
@@ -31,7 +32,7 @@ const int LIGHT_DARK_RAW = 1023;
 const int LIGHT_BRIGHT_RAW = 0;
 
 using Celsius = float;
-using Percent = int;
+using Percent = float;
 using Minutes = unsigned int;
 
 struct ClimateSettings {
@@ -53,8 +54,7 @@ const ClimateSettings tomato = {"Tomato",
 
                                 22.0,     28.0,
 
-                                70.0,
-                                35,
+                                70.0,     35,
 
                                 50,
 
@@ -66,8 +66,7 @@ const ClimateSettings cucumber = {"Cucumber",
 
                                   23.0,       30.0,
 
-                                  80.0,
-                                  45,
+                                  80.0,       45,
 
                                   45,
 
@@ -117,7 +116,8 @@ bool isNight() {
   byte hour = getHour();
 
   if (currentClimate->nightStart < currentClimate->nightEnd) {
-    return hour >= currentClimate->nightStart && hour < currentClimate->nightEnd;
+    return hour >= currentClimate->nightStart &&
+           hour < currentClimate->nightEnd;
   }
 
   return hour >= currentClimate->nightStart || hour < currentClimate->nightEnd;
