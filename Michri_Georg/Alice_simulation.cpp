@@ -84,7 +84,7 @@ struct Person {
     void change_health(const int year, const int count);
     void handle_taxes();
     void invest();
-    void Person::attempt_marriage(int year);
+    void attempt_marriage(int year);
     
     bool married;
     int marriage_year;
@@ -104,6 +104,10 @@ struct Person Steve;
 struct Person Leo;
 
 struct Country Russia;
+
+int random(const int begin, const int count);
+
+RUB calculate_income_tax(const RUB salary);
 
 void Person::check_health(int const year){
     if(health >= 100) {
@@ -142,11 +146,13 @@ void Person::check_happiness(int const year){
 
 void Person::change_health(const int year, const int count)
 {
-    if (count < 0){
-        health+=count*(year-start_year)/health;
+    if (health>0){
+        if (count < 0){
+            health+=count*(year-start_year)/(health*100);
     }
-    else{
-        happiness+=count/(year-start_year)*health;
+        else{
+            health+=count/(year-start_year+1)*(health/100);
+    }
     }
 }
 
@@ -212,14 +218,12 @@ void Person::attempt_marriage(int year)
     }
 }
 
-int random(const int begin, const int count);
 
-RUB calculate_income_tax(const RUB salary);
 
 bool Person::spending(const RUB spend)
 {
     if ((Tbank.salary_account < spend)&&(Tbank.deposit < spend)){
-        change_happiness(-spend / 10000 + random(-15,10));
+        change_happiness(-spend / 20000 + random(-15,10));
         return false;
     }
 
@@ -229,7 +233,7 @@ bool Person::spending(const RUB spend)
     else{
         Tbank.salary_account -= spend;
     }
-    change_happiness(spend / 10000 + random(-5,10));
+    change_happiness(spend / 20000 + random(-5,10));
     return true;
 }
 
@@ -877,12 +881,12 @@ void alice_antidepression()
         return;
     }
     else if (Alice.happiness <= 40 && Alice.happiness > 20){
-        while (Alice.spending(1000)){
+        while (Alice.spending(1000) && Alice.happiness <= 40){
             Alice.change_happiness(10);
         }
     }   
     else if (Alice.happiness <= 20){
-        while (Alice.spending(1500)) {
+        while (Alice.spending(1500)  && Alice.happiness <= 40) {
              Alice.change_happiness(12);
         }
     }
@@ -893,12 +897,12 @@ void bob_antidepression(){
         return;
     }
     else if (Bob.happiness <= 40 && Bob.happiness > 20){
-        while (Bob.spending(1000)){
+        while (Bob.spending(1000) && Bob.happiness <= 40){
             Bob.change_happiness(10);
         }
     }   
     else if (Bob.happiness <= 20){
-        while (Bob.spending(1500)) {
+        while (Bob.spending(1500) && Bob.happiness <= 40) {
              Bob.change_happiness(12);
         }
     }
@@ -910,12 +914,12 @@ void anton_antidepression()
         return;
     }
     else if (Anton.happiness <= 40 && Anton.happiness > 20){
-        while (Anton.spending(1000)){
+        while (Anton.spending(1000) && Anton.happiness <= 40){
             Anton.change_happiness(10);
         }
     }   
     else if (Anton.happiness <= 20){
-        while (Anton.spending(1500)) {
+        while (Anton.spending(1500) && Anton.happiness <= 40) {
              Anton.change_happiness(12);
         }
     }
@@ -927,12 +931,12 @@ void eve_antidepression()
         return;
     }
     else if (Eve.happiness <= 45 && Eve.happiness > 21){
-        while (Eve.spending(1000)){
+        while (Eve.spending(1000) && Eve.happiness <= 45){
             Eve.change_happiness(10);
         }
     }   
     else if (Eve.happiness <= 21){
-        while (Eve.spending(1500)) {
+        while (Eve.spending(1500) && Eve.happiness <= 45) {
              Eve.change_happiness(12);
         }
     }
@@ -944,12 +948,12 @@ void steve_antidepression()
         return;
     }
     else if (Steve.happiness <= 25 && Steve.happiness > 15){
-        while (Steve.spending(1000)){
+        while (Steve.spending(1000) && Steve.happiness <= 25){
             Steve.change_happiness(10);
         }
     }   
     else if (Steve.happiness <= 15){
-        while (Steve.spending(1500)) {
+        while (Steve.spending(1500) && Steve.happiness <= 25) {
              Steve.change_happiness(12);
         }
     }
@@ -961,12 +965,12 @@ void leo_antidepression()
         return;
     }
     else if (Leo.happiness <= 50 && Leo.happiness > 35){
-        while (Leo.spending(1000)){
+        while (Leo.spending(1000) && Leo.happiness <= 50){
             Leo.change_happiness(10);
         }
     }   
     else if (Leo.happiness <= 35){
-        while (Leo.spending(1500)) {
+        while (Leo.spending(1500) && Leo.happiness <= 50) {
              Leo.change_happiness(12);
         }
     }
@@ -978,12 +982,12 @@ void alice_medicine_expenses(const int year)
         return;
     }
     else if (Alice.health <= 40 && Alice.health > 20){
-        while (Alice.spending(1000)){
+        while (Alice.spending(1000) && Alice.health <= 40){
             Alice.change_health(year,8);
         }
     }   
     else if (Alice.health <= 20){
-        while (Alice.spending(1500)) {
+        while (Alice.spending(1500) && Alice.health <= 40) {
              Alice.change_health(year,8);
         }
     }
@@ -1000,12 +1004,12 @@ void bob_medicine_expenses(const int year)
         return;
     }
     else if (Bob.health <= 40 && Bob.health > 20){
-        while (Bob.spending(1000)){
+        while (Bob.spending(1000) && Bob.health <= 40){
             Bob.change_health(year,8);
         }
     }   
     else if (Bob.health <= 20){
-        while (Bob.spending(1500)) {
+        while (Bob.spending(1500) && Bob.health <= 40) {
              Bob.change_health(year,8);
         }
     }
@@ -1022,12 +1026,12 @@ void anton_medicine_expenses(const int year)
         return;
     }
     else if (Anton.health <= 40 && Anton.health > 20){
-        while (Anton.spending(1000)){
+        while (Anton.spending(1000) && Anton.health <= 40){
             Anton.change_health(year,8);
         }
     }   
     else if (Anton.health <= 20){
-        while (Anton.spending(1500)) {
+        while (Anton.spending(1500) && Anton.health <= 40) {
              Anton.change_health(year,8);
         }
     }
@@ -1044,12 +1048,12 @@ void eve_medicine_expenses(const int year)
         return;
     }
     else if (Eve.health <= 44 && Eve.health > 20){
-        while (Eve.spending(1000)){
+        while (Eve.spending(1000) && Eve.health <= 44){
             Eve.change_health(year,8);
         }
     }   
     else if (Eve.health <= 20){
-        while (Eve.spending(1500)) {
+        while (Eve.spending(1500) && Eve.health <= 44) {
              Eve.change_health(year,8);
         }
     }
@@ -1066,12 +1070,12 @@ void steve_medicine_expenses(const int year)
         return;
     }
     else if (Steve.health <= 30 && Steve.health > 20){
-        while (Steve.spending(1000)){
+        while (Steve.spending(1000) && Steve.health <= 30){
             Steve.change_health(year,8);
         }
     }   
     else if (Steve.health <= 20){
-        while (Steve.spending(1500)) {
+        while (Steve.spending(1500) && Steve.health <= 30) {
              Steve.change_health(year,8);
         }
     }
@@ -1088,12 +1092,12 @@ void leo_medicine_expenses(const int year)
         return;
     }
     else if (Leo.health <= 30 && Leo.health > 20){
-        while (Leo.spending(1000)){
+        while (Leo.spending(1000) && Leo.health <= 40){
             Leo.change_health(year,8);
         }
     }   
     else if (Leo.health <= 20){
-        while (Leo.spending(1500)) {
+        while (Leo.spending(1500) && Leo.health <= 40) {
              Leo.change_health(year,8);
         }
     }
@@ -1545,6 +1549,7 @@ void alice_init()
     Alice.happiness = 100;
     Alice.happiness_multiplier = 1.0;
     Alice.year_of_death = 2127;
+    Alice.health=100;
 
     Alice.car.value = 2'400'000;
     Alice.car.gas = 15'000;
@@ -1593,6 +1598,7 @@ void bob_init()
     Bob.happiness = 80;
     Bob.happiness_multiplier = 1.0;
     Bob.year_of_death = 2127;
+    Bob.health=100;
 
     Bob.car.value = 2'400'000;
     Bob.car.gas = 15'000;
@@ -1642,6 +1648,7 @@ void anton_init()
     Anton.happiness = 100;
     Anton.happiness_multiplier = 1.0;
     Anton.year_of_death = 2127;
+    Anton.health=100;
 
     Anton.car.value = 2'400'000;
     Anton.car.gas = 15'000;
@@ -1689,6 +1696,7 @@ void eve_init()
     Eve.happiness = 100;
     Eve.happiness_multiplier = 1.0;
     Eve.year_of_death = 2127;
+    Eve.health=100;
 
     Eve.car.value = 5'400'000;
     Eve.car.gas = 25'000;
@@ -1736,6 +1744,7 @@ void steve_init()
     Steve.happiness = 100;
     Steve.happiness_multiplier = 1.0;
     Steve.year_of_death = 2127;
+    Steve.health=100;
 
     Steve.car.value = 0;
     Steve.car.gas = 0;
@@ -1783,6 +1792,7 @@ void leo_init()
     Leo.happiness = 90;
     Leo.happiness_multiplier = 1.0;
     Leo.year_of_death = 2127;
+    Leo.health=100;
 
     Leo.car.value = 5'400'000;
     Leo.car.gas = 25'000;
