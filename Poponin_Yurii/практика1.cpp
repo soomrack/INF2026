@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <windows.h> 
-#define RESET   "\033[0m" //знать что это
+#define RESET   "\033[0m"
 #define RED     "\033[31m"      
 #define GREEN   "\033[32m"     
 #define YELLOW  "\033[33m"      
@@ -14,7 +14,6 @@
 
 
 using RUB = long long int;
-float USD_RUB_Rate = 95.5f;
 
 // Структуры
 
@@ -167,6 +166,7 @@ struct WorldEconomy {
     float estate_modifier;
     float stavka;
     float monthly_base;
+    float usd_rub_rate;
 };
 
 struct RealEstateMarket MoscowRealEstate;
@@ -1425,6 +1425,8 @@ void economy_init() {
     Russia2026.car_modifier = 1.5;
     Russia2026.estate_modifier = 1.0;
     Russia2026.stavka = 14.5;
+	Russia2026.monthly_base = Russia2026.inflation_rate / 12.0;
+    Russia2026.usd_rub_rate = 95.5f;
 }
 
 void apply_salary_indexation(const int month, const int year) {
@@ -1754,7 +1756,7 @@ void calculate_pension_contributions(struct Person& p, const char* name, const i
         p.pension.indexation_rate = 1.0f + (Russia2026.inflation_rate * 0.8f);
         RUB old_accumulated = p.pension.accumulated;
         p.pension.accumulated = (RUB)(p.pension.accumulated * p.pension.indexation_rate);
-        printf("[%02d.%d] Пенсионные накопления %s проиндексированы: %lld → %lld руб.\n",
+        printf("[%02d.%d] Пенсионные накопления %s проиндексированы: %lld -> %lld руб.\n",
             month, year, name, old_accumulated, p.pension.accumulated);
     }
 
@@ -1774,11 +1776,11 @@ void global_economic_events(const int month, const int year) {
         printf("!!! ГЛОБАЛЬНОЕ СОБЫТИЕ: ВВЕДЕНЫ НОВЫЕ САНКЦИИ !!!\n");
         printf("!!! Курс рубля резко упал, инфляция ускоряется. !!!\n");
         printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n" RESET);
-        USD_RUB_Rate *= 1.25f;
+        Russia2026.usd_rub_rate *= 1.25f;
         Russia2026.inflation_rate += 0.02f;
         Russia2026.stavka += 5.0f;
         printf("Новый курс USD/RUB: %.2f | Инфляция: %.1f%% | Ставка ЦБ: %.1f%%\n",
-            USD_RUB_Rate, Russia2026.inflation_rate * 100, Russia2026.stavka);
+            Russia2026.usd_rub_rate, Russia2026.inflation_rate * 100, Russia2026.stavka);
     }
 
     // Неурожай
@@ -1790,7 +1792,7 @@ void global_economic_events(const int month, const int year) {
     // Обвал нефти
     if (event_roll > 950) {
         printf(MAGENTA "\n[%02d.%d] НОВОСТИ: Обвал цен на нефть.\n" RESET, month, year);
-        USD_RUB_Rate *= 1.15f;
+        Russia2026.usd_rub_rate *= 1.15f;
         Russia2026.inflation_rate += 0.01f;
     }
 }
@@ -1814,19 +1816,19 @@ void take_initial_snapshot() {
     // Economy
     GameSnapshot.start_inflation = Russia2026.inflation_rate;
     GameSnapshot.start_stavka = Russia2026.stavka;
-    GameSnapshot.start_usd = USD_RUB_Rate;
+    GameSnapshot.start_usd = Russia2026.usd_rub_rate;
 
     printf("\n=== НАЧАЛЬНЫЙ СНИМОК СОСТОЯНИЯ СДЕЛАН ===\n");
 }
 
 void update_currency_rates(const int month, const int year) {
     float usd_change = ((rand() % 200) - 50) / 100.0f;
-    USD_RUB_Rate += usd_change;
-    if (USD_RUB_Rate < 60.0f) USD_RUB_Rate = 60.0f;
-    if (USD_RUB_Rate > 150.0f) USD_RUB_Rate = 150.0f;
+    Russia2026.usd_rub_rate += usd_change;
+    if (Russia2026.usd_rub_rate < 60.0f) Russia2026.usd_rub_rate = 60.0f;
+    if (Russia2026.usd_rub_rate > 150.0f) Russia2026.usd_rub_rate = 150.0f;
 
     if (month == 12) {
-        printf("\n=== КУРС USD/RUB НА КОНЕЦ %d ГОДА: %.2f ===\n", year, USD_RUB_Rate);
+        printf("\n=== КУРС USD/RUB НА КОНЕЦ %d ГОДА: %.2f ===\n", year, Russia2026.usd_rub_rate);
     }
 }
 
@@ -1872,8 +1874,8 @@ void print_final_comparison() {
     printf("\n--- МАКРОЭКОНОМИЧЕСКИЕ ИЗМЕНЕНИЯ ---\n");
     printf("Инфляция: %.2f%% -> %.2f%%\n", GameSnapshot.start_inflation * 100, Russia2026.inflation_rate * 100);
     printf("Ключевая ставка ЦБ: %.2f%% -> %.2f%%\n", GameSnapshot.start_stavka, Russia2026.stavka);
-    printf("Курс USD/RUB: %.2f -> %.2f (Рубль %s)\n", GameSnapshot.start_usd, USD_RUB_Rate,
-        (USD_RUB_Rate > GameSnapshot.start_usd) ? "ослаб" : "укрепился");
+    printf("Курс USD/RUB: %.2f -> %.2f (Рубль %s)\n", GameSnapshot.start_usd, Russia2026.usd_rub_rate,
+        (Russia2026.usd_rub_rate > GameSnapshot.start_usd) ? "ослаб" : "укрепился");
 
 
     printf("\n--- СТАТИСТИКА УДАЧИ ---\n");
