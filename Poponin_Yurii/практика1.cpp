@@ -12,6 +12,7 @@
 #define MAGENTA "\033[35m"      
 #define CYAN    "\033[36m"      
 
+
 using RUB = long long int;
 float USD_RUB_Rate = 95.5f;
 
@@ -441,37 +442,37 @@ void alice_housing_expenses(const int month, const int year) {
 
 void alice_extrawork(const int month, const int year) {
     if (month >= 5 && month <= 9) {
-        int flowers_seeds = 10000;
+        RUB flowers_seeds = 10000;
         Alice.vtb.bankcard -= flowers_seeds;
-        int weather_is_good = rand() % 10;
+        RUB weather_is_good = rand() % 10;
 
         if (weather_is_good >= 4) {
-            int profit = 30000;
-            printf("[%02d.%d] Алиса вырастила и продала тюльпаны, погода была хорошая и она заработала: %d руб\n", month, year, profit);
+            RUB profit = 30000;
+            printf("[%02d.%d] Алиса вырастила и продала тюльпаны, погода была хорошая и она заработала: %lld руб\n", month, year, profit);
 			Alice.vtb.bankcard += profit;
         }
 
         else {
-            int profit = 10000;
-            printf("[%02d.%d] Алиса вырастила и продала тюльпаны, погода была плохая и она заработала: %d руб\n", month, year, profit);
+            RUB profit = 10000;
+            printf("[%02d.%d] Алиса вырастила и продала тюльпаны, погода была плохая и она заработала: %lld руб\n", month, year, profit);
             Alice.vtb.bankcard += profit;
         }
     }
 
     if (month >= 10 || month <= 3) {
-        int testo_cost = 10000;
+        RUB testo_cost = 10000;
         Alice.vtb.bankcard -= testo_cost;
-        int weather_is_good = rand() % 10;
+        RUB weather_is_good = rand() % 10;
 
         if (weather_is_good >= 4) {
-            int profit = 30000;
-            printf("[%02d.%d] Алиса пекла пряники на заказ, спрос был хороший и она заработала: %d руб\n", month, year, profit);
+            RUB profit = 30000;
+            printf("[%02d.%d] Алиса пекла пряники на заказ, спрос был хороший и она заработала: %lld руб\n", month, year, profit);
             Alice.vtb.bankcard += profit;
         }
 
         else {
-            int profit = 10000;
-            printf("[%02d.%d] Алиса пекла пряники на заказ, спрос был плохой и она заработала: %d руб\n", month, year, profit);
+            RUB profit = 10000;
+            printf("[%02d.%d] Алиса пекла пряники на заказ, спрос был плохой и она заработала: %lld руб\n", month, year, profit);
             Alice.vtb.bankcard += profit;
 		}
     }
@@ -904,34 +905,34 @@ void bob_pet_expenses(const int month, const int year) {
 
 void bob_extrawork(const int month, const int year) {
     if (month >= 5 && month <= 9) {
-        int sab_rent = 10000;
+        RUB sab_rent = 10000;
         Bob.vtb.bankcard -= sab_rent;
         int weather_is_good = rand() % 10;
         if (weather_is_good >= 4) {
-            int profit = 40000;
-            printf("[%02d.%d] Боб подработал, сдавая сабы на пляже, погода была хорошая и он заработал: %d руб\n", month, year, profit);
+            RUB profit = 40000;
+            printf("[%02d.%d] Боб подработал, сдавая сабы на пляже, погода была хорошая и он заработал: %lld руб\n", month, year, profit);
             Bob.vtb.bankcard += profit;
 
         }
         else {
-            int profit = 10000;
-            printf("[%02d.%d] Боб подработал сдавая сабы на пляже, погода была плохая и он заработал: %d руб\n", month, year, profit);
+            RUB profit = 10000;
+            printf("[%02d.%d] Боб подработал сдавая сабы на пляже, погода была плохая и он заработал: %lld руб\n", month, year, profit);
             Bob.vtb.bankcard += profit;
         }
     }
     if (month >= 11 || month <= 2) {
-        int bublik_rent = 10000;
+        RUB bublik_rent = 10000;
         Bob.vtb.bankcard -= bublik_rent;
         int weather_is_good = rand() % 10;
         if (weather_is_good >= 4) {
-            int profit = 40000;
-            printf("[%02d.%d] Боб подработал, сдавая бублики на горке, погода была хорошая и он заработал: %d руб\n", month, year, profit);
+            RUB profit = 40000;
+            printf("[%02d.%d] Боб подработал, сдавая бублики на горке, погода была хорошая и он заработал: %lld руб\n", month, year, profit);
 			Bob.vtb.bankcard += profit;
 
         }
         else {
-            int profit = 10000;
-            printf("[%02d.%d] Боб подработал сдавая бублики на горке, погода была плохая и он заработал: %d руб\n", month, year, profit);
+            RUB profit = 10000;
+            printf("[%02d.%d] Боб подработал сдавая бублики на горке, погода была плохая и он заработал: %lld руб\n", month, year, profit);
             Bob.vtb.bankcard += profit;
         }
     }
@@ -1459,7 +1460,7 @@ void apply_salary_indexation(const int month, const int year) {
     printf("--------------------------------------------\n\n");
 }
 
-void update_business(const int month, const int year, struct Person& p) {
+void update_business(const int month, const int year, struct Person &p) {
     if (!p.side_business.is_active) return;
 
     p.side_business.months_active++;
@@ -1568,7 +1569,7 @@ void init_stock_market() {
     Bob.portfolio = Alice.portfolio;
 }
 
-void update_stock_prices(const int month, const int year) { //
+void update_stock_prices(const int month, const int year) { // 
 
     float sentiment_change = ((rand() % 100) - 50) / 1000.0f;
     Alice.portfolio.market_sentiment += sentiment_change;
@@ -1577,7 +1578,7 @@ void update_stock_prices(const int month, const int year) { //
     Bob.portfolio.market_sentiment = Alice.portfolio.market_sentiment;
 
 
-    auto updateStock = [&](Stock& s_alice, Stock& s_bob) {//
+	auto updateStock = [&](Stock &s_alice, Stock &s_bob) {
         float random_factor = ((rand() % 100) - 50) / 100.0f;
         float change_percent = (random_factor * s_alice.volatility) + (Alice.portfolio.market_sentiment * 0.05f);
 
@@ -1650,7 +1651,7 @@ void bob_trading_strategy(const int month, const int year) {
 }
 
 
-void take_microcredit(struct Person& p, const char* name, RUB amount, const int month, const int year) { //char хранит букву, а char* - строку
+void take_microcredit(struct Person &p, const char* name, RUB amount, const int month, const int year) {
     if (p.microcredit.is_active) {
         printf("[%02d.%d] У %s уже есть активный микрозайм! Сначала погасите его.\n", month, year, name);
         return;
@@ -1679,7 +1680,7 @@ void take_microcredit(struct Person& p, const char* name, RUB amount, const int 
         p.microcredit.monthly_payment, p.microcredit.months_left);
 }
 
-void pay_microcredit(struct Person& p, const char* name, const int month, const int year) {
+void pay_microcredit(struct Person &p, const char* name, const int month, const int year) {
     if (!p.microcredit.is_active) return;
 
     if (p.vtb.bankcard >= p.microcredit.monthly_payment) {
