@@ -5,7 +5,7 @@
 using RUB = long long int;
 using Percent = float;
 
-// ========== СТРУКТУРЫ ==========
+
 struct Car {
     bool exist;
     RUB value;
@@ -35,13 +35,11 @@ struct Home {
 struct Food {
     RUB basic;
     RUB luxury;
-    RUB total() const { return basic + luxury; }
 };
 
 struct Medical {
     RUB basic;
     RUB premium;
-    RUB total() const { return basic + premium; }
 };
 
 struct Child {
@@ -60,7 +58,7 @@ struct Child {
 struct Family {
     bool has_partner;
     RUB partner_expenses;
-    int family_events;
+    RUB family_events;
 };
 
 struct AdvancedHobby {
@@ -105,22 +103,19 @@ struct Person {
     struct Medical medical;
     RUB salary_bonus;
     struct Mortgage mortgage;
-    // Новые характеристики личности (меняются каждый год)
-    int gambling_level;      // 0-10: азартность → больше трат на развлечения/хобби
-    int appetite_level;      // 0-10: аппетит → больше расходов на еду
-    int sociability;         // 0-10: общительность → влияет на семейные события и свадьбу
-    int ambition;            // 0-10: амбициозность → бонус к зарплате или риски
-    int health_habits;       // 0-10: здоровые привычки → меньше мед. расходов, дольше жизнь
-    int impulsiveness;       // 0-10: импульсивность → случайные покупки
-    // Свадебные/семейные параметры
-    int partner_type;        // 0=нейтральный, 1=щедрый (приносит деньги), 2=расточительный (тратит)
-    RUB partner_monthly_effect; // + или - к деньгам каждый месяц от партнёра
-    // Политические параметры (выборы власти, режим, мобилизация)
-    int leader_type;         // 0=нейтрал/стабильный, 1=либерал (↓налоги, ↑соц.расходы), 2=консерватор (↑налоги, семейные ценности), 3=авторитар (жёсткий режим, мобилизация для Бена)
-    RUB political_tax;       // дополнительный ежемесячный политический сбор/налог
-    RUB new_political_expense; // новый расход (оборона, патриотизм, соц.выплаты в зависимости от режима)
-    float death_multiplier;  // множитель шанса смерти (1.0 по умолчанию; при жёстком режиме >1.5 только для Бена)
-    bool mobilization_active; // флаг: мобилизация объявлена (актуально только для Бена, повышает риск смерти и расходы)
+    int gambling_level;
+    int appetite_level;
+    int sociability;
+    int ambition;
+    int health_habits;
+    int impulsiveness;
+    int partner_type;
+    RUB partner_monthly_effect;
+    int leader_type;
+    RUB political_tax;
+    RUB new_political_expense;
+    float death_multiplier;
+    bool mobilization_active;
 };
 
 struct Person Alice;
@@ -157,8 +152,8 @@ void alice_food()
         return;
     }
 
-    RUB total = Alice.food.total();
-    Alice.VTB.money -= total;
+    Alice.VTB.money -= Alice.food.basic;
+    Alice.VTB.money -= Alice.food.luxury;
 
     Alice.food.basic += RUB(Alice.food.basic * 0.015);
     Alice.food.luxury += RUB(Alice.food.luxury * 0.015);
@@ -171,8 +166,8 @@ void alice_medical()
         return;
     }
 
-    RUB total = Alice.medical.total();
-    Alice.VTB.money -= total;
+    Alice.VTB.money -= Alice.medical.basic;
+    Alice.VTB.money -= Alice.medical.premium;
 
     Alice.medical.basic += RUB(Alice.medical.basic * 0.015);
     Alice.medical.premium += RUB(Alice.medical.premium * 0.015);
@@ -390,12 +385,10 @@ void alice_handle_apartment()
     }
 
     if (Alice.VTB.deposit > Alice.flat.price) {
-        // покупка за наличные
         Alice.VTB.deposit -= Alice.flat.price;
         Alice.flat.exist = true;
         printf("Алиса купила квартиру за наличные!\n");
     } else if (Alice.VTB.deposit > Alice.flat.price * 0.2) {
-        // ипотека
         RUB down_payment = Alice.flat.price * 0.2;
         RUB principal = Alice.flat.price - down_payment;
         Alice.VTB.deposit -= down_payment;
@@ -509,7 +502,6 @@ void alice_death_event(int month, int year)
         return;
     }
 
-    // Учёт здоровья: чем выше health_habits, тем ниже шанс смерти
     int death_chance = 6 - (Alice.health_habits / 2);
     if (death_chance < 1) death_chance = 1;
     if (rand() % 1000 < death_chance) {
@@ -693,8 +685,8 @@ void ben_food()
         return;
     }
 
-    RUB total = Ben.food.total();
-    Ben.Sber.money -= total;
+    Ben.Sber.money -= Ben.food.basic;
+    Ben.Sber.money -= Ben.food.luxury;
 
     Ben.food.basic += RUB(Ben.food.basic * 0.015);
     Ben.food.luxury += RUB(Ben.food.luxury * 0.015);
@@ -707,8 +699,8 @@ void ben_medical()
         return;
     }
 
-    RUB total = Ben.medical.total();
-    Ben.Sber.money -= total;
+    Ben.Sber.money -= Ben.medical.basic;
+    Ben.Sber.money -= Ben.medical.premium;
 
     Ben.medical.basic += RUB(Ben.medical.basic * 0.015);
     Ben.medical.premium += RUB(Ben.medical.premium * 0.015);
@@ -916,12 +908,10 @@ void ben_handle_apartment()
     }
 
     if (Ben.Sber.deposit > Ben.flat.price) {
-        // покупка за наличные
         Ben.Sber.deposit -= Ben.flat.price;
         Ben.flat.exist = true;
         printf("Бен купил квартиру за наличные!\n");
     } else if (Ben.Sber.deposit > Ben.flat.price * 0.2) {
-        // ипотека
         RUB down_payment = Ben.flat.price * 0.2;
         RUB principal = Ben.flat.price - down_payment;
         Ben.Sber.deposit -= down_payment;
@@ -1036,11 +1026,10 @@ void ben_death_event(int month, int year)
         return;
     }
 
-    // Учёт здоровья + политический множитель (мобилизация/жёсткий режим повышает риск смерти только для Бена)
     int death_chance = 2 - (Ben.health_habits / 3);
     if (death_chance < 1) death_chance = 1;
     death_chance = (int)(death_chance * Ben.death_multiplier);
-    if (death_chance > 50) death_chance = 50; // cap, чтобы не было 100% смерти
+    if (death_chance > 50) death_chance = 50;
     if (rand() % 1000 < death_chance) {
         Ben.alive = false;
         if (Ben.mobilization_active) {
@@ -1249,7 +1238,7 @@ void alice_init()
     Alice.child.teen_expenses = 25000;
     Alice.child.older_expenses = 13000;
 
-    Alice.family.has_partner = false;  // изначально без партнёра
+    Alice.family.has_partner = false;
     Alice.family.partner_expenses = 0;
     Alice.family.family_events = 0;
 
@@ -1264,17 +1253,15 @@ void alice_init()
     Alice.mortgage.rate = 0;
     Alice.mortgage.months_left = 0;
 
-    // Инициализация личностных характеристик (средние значения)
-    Alice.gambling_level = 3 + rand() % 3;      // 3-5
-    Alice.appetite_level = 4 + rand() % 3;      // 4-6
-    Alice.sociability = 5 + rand() % 3;         // 5-7 (выше шанс свадьбы)
-    Alice.ambition = 4 + rand() % 4;            // 4-7
-    Alice.health_habits = 3 + rand() % 5;       // 3-7
-    Alice.impulsiveness = 3 + rand() % 4;       // 3-6
+    Alice.gambling_level = 3 + rand() % 3;
+    Alice.appetite_level = 4 + rand() % 3;
+    Alice.sociability = 5 + rand() % 3;
+    Alice.ambition = 4 + rand() % 4;
+    Alice.health_habits = 3 + rand() % 5;
+    Alice.impulsiveness = 3 + rand() % 4;
     Alice.partner_type = 0;
     Alice.partner_monthly_effect = 0;
 
-    // Инициализация политических параметров (по умолчанию нейтральный режим)
     Alice.leader_type = 0;
     Alice.political_tax = 2000;
     Alice.new_political_expense = 4000;
@@ -1348,17 +1335,15 @@ void ben_init()
     Ben.mortgage.rate = 0;
     Ben.mortgage.months_left = 0;
 
-    // Инициализация личностных характеристик (средние значения)
-    Ben.gambling_level = 2 + rand() % 4;      // 2-5 (менее азартный чем Алиса)
-    Ben.appetite_level = 3 + rand() % 3;      // 3-5
-    Ben.sociability = 4 + rand() % 3;         // 4-6
-    Ben.ambition = 5 + rand() % 3;            // 5-7 (более амбициозный)
-    Ben.health_habits = 4 + rand() % 4;       // 4-7
-    Ben.impulsiveness = 2 + rand() % 3;       // 2-4
+    Ben.gambling_level = 2 + rand() % 4;
+    Ben.appetite_level = 3 + rand() % 3;
+    Ben.sociability = 4 + rand() % 3;
+    Ben.ambition = 5 + rand() % 3;
+    Ben.health_habits = 4 + rand() % 4;
+    Ben.impulsiveness = 2 + rand() % 3;
     Ben.partner_type = 0;
     Ben.partner_monthly_effect = 0;
 
-    // Инициализация политических параметров (по умолчанию нейтральный режим)
     Ben.leader_type = 0;
     Ben.political_tax = 2000;
     Ben.new_political_expense = 4000;
@@ -1372,27 +1357,26 @@ void alice_update_yearly_traits(int year)
     if (!Alice.alive) return;
 
     int old_gambling = Alice.gambling_level;
-    int change = (rand() % 4) - 1;  // -1,0,1,2
+    int change = (rand() % 4) - 1;
     Alice.gambling_level = Alice.gambling_level + change;
     if (Alice.gambling_level < 0) Alice.gambling_level = 0;
     if (Alice.gambling_level > 10) Alice.gambling_level = 10;
 
     if (Alice.gambling_level > old_gambling) {
-        printf("  Алиса стала более актвивной! Уровень азартности вырос с %d до %d.\n", old_gambling, Alice.gambling_level);
+        printf("  Алиса стала более азартной! Уровень вырос с %d до %d.\n", old_gambling, Alice.gambling_level);
         printf("  Это привело к увеличению расходов на развлечения и хобби.\n");
-        Alice.hobby += 3000 * Alice.gambling_level;  // прямой эффект
+        Alice.hobby += 3000 * Alice.gambling_level;
         Alice.advanced_hobby.gym += 500 * Alice.gambling_level;
         Alice.advanced_hobby.creative += 400 * Alice.gambling_level;
     } else if (Alice.gambling_level < old_gambling) {
         printf("  Алиса стала менее азартной. Уровень снизился с %d до %d.\n", old_gambling, Alice.gambling_level);
     }
 
-    // Импульсивность растёт с "активностью" (повышаются траты на случайные покупки)
     Alice.impulsiveness = (Alice.impulsiveness + Alice.gambling_level / 3);
     if (Alice.impulsiveness > 10) Alice.impulsiveness = 10;
 
-    int old_appetite = Alice.appetite_level;  // высокий аппетит = больше базовых расходов на еду 
-    change = (rand() % 3) - 1;  // -1..+1
+    int old_appetite = Alice.appetite_level;
+    change = (rand() % 3) - 1;
     Alice.appetite_level += change;
     if (Alice.appetite_level < 0) Alice.appetite_level = 0;
     if (Alice.appetite_level > 10) Alice.appetite_level = 10;
@@ -1407,33 +1391,31 @@ void alice_update_yearly_traits(int year)
     Alice.food.luxury = RUB(Alice.food.luxury * appetite_factor * 1.015);
     printf("  Расходы на еду пересчитаны с учётом аппетита и инфляции.\n");
 
-    
-    int old_soci = Alice.sociability; // Общительность влияет на шанс свадьбы, количество семейных событий, расходы на подарки/встречи.
+    int old_soci = Alice.sociability;
     Alice.sociability += (rand() % 3) - 1;
     if (Alice.sociability < 0) Alice.sociability = 0;
     if (Alice.sociability > 10) Alice.sociability = 10;
 
     if (Alice.sociability > old_soci) {
         printf("  Алиса стала более общительной! Теперь чаще ходит на встречи, вечеринки.\n");
-        Alice.family.partner_expenses += 2000;  // больше трат на партнёра/друзей
-        Alice.advanced_hobby.collecting += 1500; // коллекционирование как хобби общения
+        Alice.family.partner_expenses += 2000;
+        Alice.advanced_hobby.collecting += 1500;
     }
 
-
-    int old_amb = Alice.ambition; // Высокая амбициозность = больше шансов на рост зарплаты, но выше стресс - увеличивает мед. расходы
+    int old_amb = Alice.ambition;
     Alice.ambition += (rand() % 3) - 1;
     if (Alice.ambition < 0) Alice.ambition = 0;
     if (Alice.ambition > 10) Alice.ambition = 10;
 
     if (Alice.ambition > 7) {
         printf("  Алиса очень амбициозна! Это даёт бонус к зарплате, но увеличивает стресс.\n");
-        Alice.salary = RUB(Alice.salary * 1.03);  // +3% бонус
+        Alice.salary = RUB(Alice.salary * 1.03);
         Alice.medical.basic += 1500;
     } else if (Alice.ambition < 3) {
-        printf("  Амбициозность снизилась - меньше стресса, но и меньше зарплата ;(.\n");
+        printf("  Амбициозность снизилась - меньше стресса, но и меньше зарплата.\n");
     }
 
-    int old_health = Alice.health_habits; // Высокий уровень здоровья = меньше мед. расходов, ниже шанс смерти, лучше восстановление стресса.
+    int old_health = Alice.health_habits;
     Alice.health_habits += (rand() % 3) - 1;
     if (Alice.health_habits < 0) Alice.health_habits = 0;
     if (Alice.health_habits > 10) Alice.health_habits = 10;
@@ -1465,40 +1447,37 @@ void alice_check_wedding(int year)
     int wedding_chance = 6 + (Alice.sociability / 2);
     if (rand() % 100 < wedding_chance) {
         Alice.family.has_partner = true;
-        Alice.partner_type = rand() % 3;  // 0=нейтрал, 1=щедрый, 2=расточительный
+        Alice.partner_type = rand() % 3;
 
-        if (Alice.partner_type == 1) {   // Щедрый партнёр - приносит деньги
+        if (Alice.partner_type == 1) {
             Alice.partner_monthly_effect = 15000 + rand() % 25000;
             printf("\n [АЛИСА] В %d году Алиса вышла замуж! Партнёр — щедрый человек, который будет вносить %lld руб./мес. в семейный бюджет.\n", year, Alice.partner_monthly_effect * 2);
             printf("   Свадьба прошла весело, много гостей, подарки. Алиса счастлива!\n");
             Alice.family.family_events += 5;
-            Alice.sociability += 1;  // свадьба повышает общительность
-            
-        } else if (Alice.partner_type == 2) { // Расточительный - тратит деньги (на выпивку)
+            Alice.sociability += 1;
+        } else if (Alice.partner_type == 2) {
             Alice.partner_monthly_effect = - (12000 + rand() % 18000);
             printf("\n [АЛИСА] В %d году Алиса вышла замуж! Но партнёр оказался расточительным — будет тратить %lld руб./мес. из её денег.\n", year, -Alice.partner_monthly_effect);
-            printf("   Свадьба была пышной (много потратили), теперь нужно быть осторожнее с финансами...\n");
-            Alice.impulsiveness += 2;  // плохой пример
-            
-        } else { // Нейтральный - обеспечивает только сам себя, деньги не приносит
-            
+            printf("   Свадьба была пышной, теперь нужно быть осторожнее с финансами...\n");
+            Alice.impulsiveness += 2;
+        } else {
             Alice.partner_monthly_effect = 2000 + rand() % 5000;
             printf("\n [АЛИСА] В %d году Алиса вышла замуж! Партнёр обычный, вносит небольшой вклад %lld руб./мес.\n", year, Alice.partner_monthly_effect);
             printf("   Свадьба скромная, но милая. Желаем счастья!\n");
         }
 
-        Alice.family.partner_expenses = 8000 + rand() % 12000;  // базовые расходы на партнёра
-        Alice.advanced_hobby.level += 1;  // больше мотивации
+        Alice.family.partner_expenses = 8000 + rand() % 12000;
+        Alice.advanced_hobby.level += 1;
         if (Alice.partner_type == 1) Alice.ambition += 1;
     }
 }
 
 
-void ben_update_yearly_traits(int year)
+void ben_update_yearly_traits(int const year)
 {
     if (!Ben.alive) return;
 
-    printf("\n=== [БЕН] Ежегодное обновление личности (год %d) ===\n", year);
+    printf("\n=== Бен. Ежегодное обновление личности (год %d) ===\n", year);
 
     int old_gambling = Ben.gambling_level;
     int change = (rand() % 4) - 1;
@@ -1607,23 +1586,22 @@ void ben_check_wedding(int year)
 
 void update_politics(int year)
 {
-    
     if (rand() % 100 >= 18) {
         return; 
     }
 
     printf("\n=== [ПОЛИТИКА] %d год: ну что, выборы прошли, смена власти или реформы ===\n", year);
-    printf("  Текущий лидер был тиап: %d (0=нейтрал, 1=либерал, 2=консерватор, 3=авторитар)\n", Alice.leader_type);
+    printf("  Текущий лидер был тип: %d (0=нейтрал, 1=либерал, 2=консерватор, 3=авторитар)\n", Alice.leader_type);
 
     int old_leader = Alice.leader_type;
-    int new_leader = rand() % 4; // случайный новый тип лидера
+    int new_leader = rand() % 4;
 
-    if (rand() % 10 < 2 && old_leader != 0) {     // Небольшой шанс остаться при старом (стабильность)
+    if (rand() % 10 < 2 && old_leader != 0) {
         new_leader = old_leader;
         printf("  Сохранился текущий курс (стабильность 20%% шанс).\n");
     } else {
         Alice.leader_type = new_leader;
-        Ben.leader_type = new_leader; // синхронизируем для обоих (живут в одной стране)
+        Ben.leader_type = new_leader;
         printf("  Новый лидер/режим: тип %d\n", new_leader);
     }
 
@@ -1632,7 +1610,7 @@ void update_politics(int year)
     Alice.death_multiplier = 1.0f;
     Ben.death_multiplier = 1.0f;
     switch (new_leader) {
-        case 0: { // Нейтральный / стабильный режим
+        case 0: {
             printf("  К власти пришёл какой-то умеренный технократ, всё стабильно, без резких движений.\n");
             printf("  → Налоги чуть опустили для бизнеса, реформ почти нет, спокойно.\n");
             Alice.income_tax_rate = 0.12f;
@@ -1649,14 +1627,14 @@ void update_politics(int year)
             printf("  Эффект: спокойный год, расходы на политику минимальны.\n");
             break;
         }
-        case 1: { // Либеральный реформатор
+        case 1: {
             printf("  Либерал победил, ура! Налоги снизили, но теперь больше трат на соц.выплаты и больницы.\n");
             printf("  → Подоходный налог упал на пару процентов, зато пособия и медицина в плюсе.\n");
             Alice.income_tax_rate = (Alice.income_tax_rate - 0.035f < 0.07f ? 0.07f : Alice.income_tax_rate - 0.035f);
             Ben.income_tax_rate = (Ben.income_tax_rate - 0.035f < 0.07f ? 0.07f : Ben.income_tax_rate - 0.035f);
             Alice.political_tax = 0;
             Ben.political_tax = 0;
-            Alice.new_political_expense = 12000 + rand() % 8000; // соц.выплаты, пособия
+            Alice.new_political_expense = 12000 + rand() % 8000;
             Ben.new_political_expense = 11000 + rand() % 7000;
   
             Alice.death_multiplier = 0.85f;
@@ -1664,7 +1642,7 @@ void update_politics(int year)
             printf("  Эффект: больше денег в кармане, но выше расходы на 'социалку'. Мобилизации нет.\n");
             break;
         }
-        case 2: { // Консервативный 
+        case 2: {
             printf("Выборы выиграл консерватор! Упор на традиции, семью, повышение налогов на 'роскошь'.\n");
             printf("  → Налоги ↑, добавлен сбор 'на поддержку семейных ценностей' и оборону.\n");
             Alice.income_tax_rate += 0.025f;
@@ -1673,7 +1651,7 @@ void update_politics(int year)
             if (Ben.income_tax_rate > 0.25f) Ben.income_tax_rate = 0.25f;
             Alice.political_tax = 5000 + rand() % 4000;
             Ben.political_tax = 4500 + rand() % 3500;
-            Alice.new_political_expense = 6000 + rand() % 5000; // 'патриотическое воспитание', церковь
+            Alice.new_political_expense = 6000 + rand() % 5000;
             Ben.new_political_expense = 7000 + rand() % 6000;
        
             Alice.sport += 2000;
@@ -1681,7 +1659,7 @@ void update_politics(int year)
             printf("  Эффект: выше налоги, но стабильность. Нет мобилизации, но 'духовные' расходы.\n");
             break;
         }
-        case 3: { // Авторитарный / жёсткий режим (актуально для Бена!)
+        case 3: {
             printf("  Ой, жёсткий тип пришёл к власти, 'особый период' объявили, мобилизация и всё такое.\n");
             printf("  → Налоги резко вверх, сборы на оборону, патриотизм везде.\n");
             printf("  → Для Бена плохо: шанс смерти вырос, мобилизация, повестки, стресс — берегись!\n");
@@ -1691,28 +1669,28 @@ void update_politics(int year)
             if (Ben.income_tax_rate > 0.30f) Ben.income_tax_rate = 0.30f;
             Alice.political_tax = 15000 + rand() % 10000;
             Ben.political_tax = 18000 + rand() % 12000;
-            Alice.new_political_expense = 25000 + rand() % 15000; // 'национальная безопасность', пропаганда
+            Alice.new_political_expense = 25000 + rand() % 15000;
             Ben.new_political_expense = 30000 + rand() % 20000;
-            Ben.death_multiplier = 2.2f + (rand() % 8) / 10.0f; // 2.2 - 2.9
+            Ben.death_multiplier = 2.2f + (rand() % 8) / 10.0f;
             Ben.mobilization_active = true;
-            Alice.death_multiplier = 1.1f; // для Алисы чуть выше стресс, но не смертельно
+            Alice.death_multiplier = 1.1f;
 
             if (rand() % 3 == 0) {
                 Alice.hobby = RUB(Alice.hobby * 0.7);
                 Ben.hobby = RUB(Ben.hobby * 0.7);
                 printf("  (В жёстком режиме часть 'несерьёзных' расходов урезана)\n");
             }
-            printf("  Эффект: деньги идут на войну/армию, Бен в зоне риска! Алиса тоже платит, но живёт вроде.\n");
+            printf("  Эффект: деньги идут на войну/армию, Бен в зоне риска! Алиса тоже платит, но живёт.\n");
             break;
         }
     }
 
-    printf("  Дополнитеьные корректировки расходов из-за полит. нестабильности:\n");
-    float factor = 0.9f + (rand() % 30) / 100.0f; // 0.9 - 1.19
+    printf("  Дополнительные корректировки расходов из-за полит. нестабильности:\n");
+    float factor = 0.9f + (rand() % 30) / 100.0f;
     if (rand() % 2 == 0) {
         Alice.rent = RUB(Alice.rent * factor);
         Ben.rent = RUB(Ben.rent * factor);
-        printf("    Аренда/ЖКХ изменена в %.2f\n раз", factor);
+        printf("    Аренда/ЖКХ изменена в %.2f раз\n", factor);
     }
     factor = 0.85f + (rand() % 25) / 100.0f;
     if (rand() % 3 == 0) {
@@ -1721,7 +1699,6 @@ void update_politics(int year)
         printf("    Цены на базовые продукты изменены (инфляция/дефицит от политики)\n");
     }
     if (new_leader == 3 && rand() % 2 == 0) {
-        // В авторитарном режиме могут добавить "штрафы за инакомыслие" или что-то
         Alice.VTB.money -= 5000 + rand() % 15000;
         Ben.Sber.money -= 8000 + rand() % 20000;
         printf("    (В жёстком режиме возможны разовые 'штрафы' за 'неправильное' поведение)\n");
@@ -1750,7 +1727,7 @@ void apply_political_expenses()
         Ben.political_tax = RUB(Ben.political_tax * 1.015);
         Ben.new_political_expense = RUB(Ben.new_political_expense * 1.015);
         if (Ben.mobilization_active) {
-            Ben.Sber.money -= 5000; // доп. "фронтовые" расходы/сборы
+            Ben.Sber.money -= 5000;
      
             if (rand() % 20 == 0) {
                 Ben.Sber.money -= 10000 + rand() % 30000;
@@ -1826,7 +1803,7 @@ void simulation()
         if (Alice.family.has_partner) {
             Alice.VTB.money += Alice.partner_monthly_effect;
             if (Alice.partner_monthly_effect > 0) {
-                Alice.family.partner_expenses = RUB(Alice.family.partner_expenses * 0.98); // щедрый партнёр немного снижает свои траты
+                Alice.family.partner_expenses = RUB(Alice.family.partner_expenses * 0.98);
             }
         }
         if (Ben.family.has_partner) {
@@ -1844,7 +1821,7 @@ void simulation()
             ben_update_yearly_traits(year);
             alice_check_wedding(year);
             ben_check_wedding(year);
-            update_politics(year);  // общая функция выборов и смены режима
+            update_politics(year);
         }
     }
 }
@@ -1867,7 +1844,7 @@ void print_results()
         printf(" Акции = %lld\n", Alice.stocks);
         printf(" Общее имущество = %lld\n", total_assets);
         printf(" Суммарный подоходный налог = %lld\n", Alice.taxes_paid);
-        printf(" Расходы на еду = %lld\n", Alice.food.total());
+        printf(" Расходы на еду = %lld\n", Alice.food.basic + Alice.food.luxury);
         printf(" Расходы на спорт = %lld\n", Alice.sport);
         printf(" Налог на машину = %lld\n", Alice.car_tax);
         printf(" Аренда = %lld\n", Alice.rent);
@@ -1921,7 +1898,7 @@ void print_results()
         printf(" Акции = %lld\n", Ben.stocks);
         printf(" Общее имущество = %lld\n", total_assets);
         printf(" Суммарный подоходный налог = %lld\n", Ben.taxes_paid);
-        printf(" Расходы на еду = %lld\n", Ben.food.total());
+        printf(" Расходы на еду = %lld\n", Ben.food.basic + Ben.food.luxury);
         printf(" Расходы на спорт = %lld\n", Ben.sport);
         printf(" Налог на машину = %lld\n", Ben.car_tax);
         printf(" Аренда = %lld\n", Ben.rent);
@@ -2027,7 +2004,6 @@ void print_results()
     }
     printf("  (Политика влияет на все расходы, налоги и выживаемость Бена в течение всей симуляции)\n");
 
-    // ========== АНАЛИЗ И ВЫВОДЫ ==========
     RUB alice_net = Alice.VTB.money + Alice.VTB.deposit + Alice.stocks +
                     (Alice.flat.exist ? Alice.flat.price : 0) +
                     (Alice.car.exist ? Alice.car.value : 0);
