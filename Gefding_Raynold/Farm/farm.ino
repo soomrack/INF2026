@@ -43,7 +43,7 @@ const Profile profiles[] = {
         // profile 1
         30.0, 20.0,       // tempHigh, tempLow
         80.0, 35.0,       // humHigh, humTempLimit
-        300, 700,         // soilLow, soilHigh
+        300, 700,         // soilLow, soilHigh : lower = wetter
         400,              // lightThreshold
         1800000, 120000   // ventInterval, ventDuration
     },
@@ -51,7 +51,7 @@ const Profile profiles[] = {
         // profile 2
         28.0, 18.0,       // tempHigh, tempLow
         70.0, 30.0,       // humHigh, humTempLimit
-        400, 600,         // soilLow, soilHigh
+        400, 600,         // soilLow, soilHigh : lower = wetter
         300,              // lightThreshold
         3600000, 180000   // ventInterval, ventDuration
     }
@@ -159,7 +159,7 @@ public:
             return;
         }
         bool shouldFan = requestFanTemp || requestFanHum || requestFanVent;
-        digitalWrite(pin, shouldFan ? LOW : HIGH);
+        digitalWrite(pin, shouldFan ? HIGH : LOW);
         currentState = shouldFan;
     }
 
@@ -181,7 +181,7 @@ public:
 
     void power() {
         bool shouldHeat = (requestHeatTemp || requestHeatHum) && fan.isOn();
-        digitalWrite(pin, shouldHeat ? LOW : HIGH);
+        digitalWrite(pin, shouldHeat ? HIGH : LOW);
     }
 };
 
@@ -197,7 +197,7 @@ public:
     }
 
     void power()  {
-        digitalWrite(pin, requestLight ? LOW : HIGH);
+        digitalWrite(pin, requestLight ? HIGH : LOW);
     }
 };
 
@@ -213,7 +213,7 @@ public:
     }
 
     void power()  {
-        digitalWrite(pin, requestPump ? LOW : HIGH);
+        digitalWrite(pin, requestPump ? HIGH : LOW);
     }
 };
 
@@ -249,15 +249,15 @@ void control_humidity(const HumiditySensor& humiditySensor, const TemperatureSen
 }
 
 void control_soilmoisture(const SoilMoistureSensor& soilSensor, Pump& pump, const Profile& profile) {
-    if (soilSensor.moisture < profile.soilLow) {
+    if (soilSensor.moisture > profile.soilHigh) {
         pump.requestPump = true;
-    } else if (soilSensor.moisture > profile.soilHigh) {
+    } else if (soilSensor.moisture < profile.soilLow) {
         pump.requestPump = false;
     }
 }
 
 void control_light(const LightSensor& lightSensor, Lamp& lamp, const Profile& profile) {
-    if (!isNight && lightSensor.lightLevel < profile.lightThreshold) {
+    if (!isNight && lightSensor.lightLevel > profile.lightThreshold) {
         lamp.requestLight = true;
     } else {
         lamp.requestLight = false;
