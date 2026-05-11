@@ -15,33 +15,94 @@ const int PIN_FAN = 7;
 const int PIN_LIGHT_SENSOR = A0;
 const int PIN_SOIL_SENSOR = A1;
 
-// ventilation parametrs - add to profile
+// ventilation
 
 unsigned long lastVentTime = 0;
-const unsigned long ventInterval = 1800000;
-const unsigned long ventDuration = 120000;
 bool isVenting = false;
+
+// profiles
+
+struct Profile {
+    float tempHigh;
+    float tempLow;
+
+    float humHigh;
+    float humTempLimit;
+
+    int soilLow;
+    int soilHigh;
+
+    int lightThreshold;
+
+    unsigned long ventInterval;
+    unsigned long ventDuration;
+};
+
+const Profile profiles[] = {
+    {
+        // profile 1
+        30.0, 20.0,       // tempHigh, tempLow
+        80.0, 35.0,       // humHigh, humTempLimit
+        300, 700,         // soilLow, soilHigh
+        400,              // lightThreshold
+        1800000, 120000   // ventInterval, ventDuration
+    },
+    {
+        // profile 2
+        28.0, 18.0,       // tempHigh, tempLow
+        70.0, 30.0,       // humHigh, humTempLimit
+        400, 600,         // soilLow, soilHigh
+        300,              // lightThreshold
+        3600000, 180000   // ventInterval, ventDuration
+    }
+};
 
 // sensors
 
-class Thermometer {
+class DHTReader {
 private:
     DHT dht;
 public:
     float temperature;
     float humidity;
 
-    Thermometer(int pin) : dht(pin, DHT11) {
+    DHTReader(int pin) : dht(pin, DHT11) {
         dht.begin();
         temperature = 20.0;
         humidity = 50.0;
     }
 
-    void read() {
+    void update() {
         temperature = dht.readTemperature();
         humidity = dht.readHumidity();
         if (isnan(temperature)) temperature = 20.0;
         if (isnan(humidity)) humidity = 50.0;
+    }
+};
+
+class TemperatureSensor {
+private:
+    DHTReader& dhtReader;
+public:
+    float value;
+
+    TemperatureSensor(DHTReader& readerRef) : dhtReader(readerRef), value(20.0) {}
+
+    void read() {
+        value = dhtReader.temperature;
+    }
+};
+
+class HumiditySensor {
+private:
+    DHTReader& dhtReader;
+public:
+    float value;
+
+    HumiditySensor(DHTReader& readerRef) : dhtReader(readerRef), value(50.0) {}
+
+    void read() {
+        value = dhtReader.humidity;
     }
 };
 
@@ -143,47 +204,47 @@ public:
 
 // regulations
 
-void control_temperature(const Thermometer& thermometer, Heater& heater, Fan& fan) {
-        if (thermometer.temperature > 30.0) {
-            heater.on_temperature = false;
-            fan.on_temperature = true;
-        }
-        else if (thermometer.temperature < 20.0) {
-            heater.on_temperature = true;
-            fan.on_temperature = true;
-        }
-        else {
-            heater.on_temperature = false;
-            fan.on_temperature = false;
-        }
+void control_temperature(const TemperatureSensor& temperatureSensor, Heater& heater, Fan& fan, const Profile& profile) {
+    if (temperatureSensor.value > profile.tempHigh) {
+        heater.on_temperature = false;
+        fan.on_temperature = true;
     }
+    else if (temperatureSensor.value < profile.tempLow) {
+        heater.on_temperature = true;
+        fan.on_temperature = true;
+    }
+    else {
+        heater.on_temperature = false;
+        fan.on_temperature = false;
+    }
+}
 
-void control_humidity(const Thermometer& thermometer, Heater& heater, Fan& fan) {
-        if (thermometer.humidity > 80.0) {
+void control_humidity(const HumiditySensor& humiditySensor, const TemperatureSensor& temperatureSensor, Heater& heater, Fan& fan, const Profile& profile) {
+        if (humiditySensor.value > profile.humHigh) {
             fan.on_temperature = true;
-            if (thermometer.temperature < 35.0) {
+            if (temperatureSensor.value < profile.humTempLimit) {
                 heater.on_temperature = true;
             }
         }
     }
 
-void control_soilmoisture(const SoilMoistureSensor& soilSensor, Pump& pump) {
-        if (soilSensor.moisture < 300) {
+void control_soilmoisture(const SoilMoistureSensor& soilSensor, Pump& pump, const Profile& profile) {
+        if (soilSensor.moisture < profile.soilLow) {
             pump.on_moisture = true;
-        } else if (soilSensor.moisture > 700) {
+        } else if (soilSensor.moisture > profile.soilHigh) {
             pump.on_moisture = false;
         }
     }
 
-void control_light(const LightSensor& lightSensor, Lamp& lamp) {
-        if (!isNight && lightSensor.lightLevel < 400) {
+void control_light(const LightSensor& lightSensor, Lamp& lamp, const Profile& profile) {
+        if (!isNight && lightSensor.lightLevel < profile.lightThreshold) {
             lamp.on_light = true;
         } else {
             lamp.on_light = false;
         }
     }
 
-void control_ventilation(Fan& fan) {
+void control_ventilation(Fan& fan, const Profile& profile) {
     if (isNight) {
             if (isVenting) {
                 isVenting = false;
@@ -194,13 +255,13 @@ void control_ventilation(Fan& fan) {
 
         unsigned long now = millis();
 
-        if (!isVenting && (now - lastVentTime >= ventInterval)) {
+        if (!isVenting && (now - lastVentTime >= profile.ventInterval)) {
             isVenting = true;
             lastVentTime = now;
             fan.on_temperature = true;
         }
 
-        if (isVenting && (now - lastVentTime >= ventDuration)) {
+        if (isVenting && (now - lastVentTime >= profile.ventDuration)) {
             isVenting = false;
             fan.on_temperature = false;
         }
@@ -214,7 +275,9 @@ void checkNightTime() {
 
 // setup and loop
 
-Thermometer thermometer(PIN_DHT11);
+DHTReader dhtReader(PIN_DHT11);
+TemperatureSensor temperature(dhtReader);
+HumiditySensor airHumidity(dhtReader);
 SoilMoistureSensor soilSensor(PIN_SOIL_SENSOR);
 LightSensor lightSensor(PIN_LIGHT_SENSOR);
 Heater heater(PIN_HEATER);
@@ -227,18 +290,21 @@ void setup() {
 }
 
 void loop() {
+    const Profile& currentProfile = profiles[0];
     
     checkNightTime();
+    dhtReader.update();
 
-    thermometer.read();
+    temperature.read();
+    airHumidity.read();
     soilSensor.read();
     lightSensor.read();
 
-    control_temperature(thermometer, heater, fan);
-    control_humidity(thermometer, heater, fan);
-    control_soilmoisture(soilSensor, pump);
-    control_light(lightSensor, lamp);
-    control_ventilation(fan);
+    control_temperature(temperature, heater, fan, currentProfile);
+    control_humidity(airHumidity, temperature, heater, fan, currentProfile);
+    control_soilmoisture(soilSensor, pump, currentProfile);
+    control_light(lightSensor, lamp, currentProfile);
+    control_ventilation(fan, currentProfile);
 
     heater.power();
     fan.power();
