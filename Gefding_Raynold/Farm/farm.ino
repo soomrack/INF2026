@@ -138,35 +138,50 @@ public:
 
 // actuators
 
-class Heater {
-private:
-    int pin;
-public:
-    bool on_temperature;
-
-    Heater(int pin) : pin(pin), on_temperature(false) {
-        pinMode(pin, OUTPUT);
-        digitalWrite(pin, LOW);
-    }
-
-    void power()  {
-        digitalWrite(pin, on_temperature ? LOW : HIGH);
-    }
-};
-
 class Fan {
 private:
     int pin;
+    bool currentState = false;
 public:
-    bool on_temperature;
+    bool requestFanTemp = false;
+    bool requestFanHum  = false;
+    bool requestFanVent = false;
 
-    Fan(int pin) : pin(pin), on_temperature(false) {
+    Fan(int pin) : pin(pin) {
         pinMode(pin, OUTPUT);
         digitalWrite(pin, LOW);
     }
 
-    void power()  {
-        digitalWrite(pin, on_temperature ? LOW : HIGH);
+    void power() {
+        if (isNight) {
+            digitalWrite(pin, LOW);
+            currentState = false;
+            return;
+        }
+        bool shouldFan = requestFanTemp || requestFanHum || requestFanVent;
+        digitalWrite(pin, shouldFan ? LOW : HIGH);
+        currentState = shouldFan;
+    }
+
+    bool isOn() const { return currentState; }
+};
+
+class Heater {
+private:
+    int pin;
+    Fan& fan;
+public:
+    bool requestHeatTemp = false;
+    bool requestHeatHum  = false;
+
+    Heater(int pin, Fan& fanRef) : pin(pin), fan(fanRef) {
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin, LOW);
+    }
+
+    void power() {
+        bool shouldHeat = (requestHeatTemp || requestHeatHum) && fan.isOn();
+        digitalWrite(pin, shouldHeat ? LOW : HIGH);
     }
 };
 
@@ -174,15 +189,15 @@ class Lamp {
 private:
     int pin;
 public:
-    bool on_light;
+    bool requestLight = false;
 
-    Lamp(int pin) : pin(pin), on_light(false) {
+    Lamp(int pin) : pin(pin){
         pinMode(pin, OUTPUT);
         digitalWrite(pin, LOW);
     }
 
     void power()  {
-        digitalWrite(pin, on_light ? LOW : HIGH);
+        digitalWrite(pin, requestLight ? LOW : HIGH);
     }
 };
 
@@ -190,15 +205,15 @@ class Pump {
 private:
     int pin;
 public:
-    bool on_moisture;
+    bool requestPump = false; 
 
-    Pump(int pin) : pin(pin), on_moisture(false) {
+    Pump(int pin) : pin(pin){
         pinMode(pin, OUTPUT);
         digitalWrite(pin, LOW);
     }
 
     void power()  {
-        digitalWrite(pin, on_moisture ? LOW : HIGH);
+        digitalWrite(pin, requestPump ? LOW : HIGH);
     }
 };
 
@@ -206,65 +221,68 @@ public:
 
 void control_temperature(const TemperatureSensor& temperatureSensor, Heater& heater, Fan& fan, const Profile& profile) {
     if (temperatureSensor.value > profile.tempHigh) {
-        heater.on_temperature = false;
-        fan.on_temperature = true;
+        heater.requestHeatTemp = false;
+        fan.requestFanTemp = true;
     }
     else if (temperatureSensor.value < profile.tempLow) {
-        heater.on_temperature = true;
-        fan.on_temperature = true;
+        heater.requestHeatTemp = true;
+        fan.requestFanTemp = true;
     }
     else {
-        heater.on_temperature = false;
-        fan.on_temperature = false;
+        heater.requestHeatTemp = false;
+        fan.requestFanTemp = false;
     }
 }
 
 void control_humidity(const HumiditySensor& humiditySensor, const TemperatureSensor& temperatureSensor, Heater& heater, Fan& fan, const Profile& profile) {
-        if (humiditySensor.value > profile.humHigh) {
-            fan.on_temperature = true;
-            if (temperatureSensor.value < profile.humTempLimit) {
-                heater.on_temperature = true;
-            }
+    if (humiditySensor.value > profile.humHigh) {
+        fan.requestFanHum = true;
+        if (temperatureSensor.value < profile.humTempLimit) {
+            heater.requestHeatHum = true;
+        } else {
+            heater.requestHeatHum = false;
         }
+    } else {
+        fan.requestFanHum = false;
+        heater.requestHeatHum = false;
     }
+}
 
 void control_soilmoisture(const SoilMoistureSensor& soilSensor, Pump& pump, const Profile& profile) {
-        if (soilSensor.moisture < profile.soilLow) {
-            pump.on_moisture = true;
-        } else if (soilSensor.moisture > profile.soilHigh) {
-            pump.on_moisture = false;
-        }
+    if (soilSensor.moisture < profile.soilLow) {
+        pump.requestPump = true;
+    } else if (soilSensor.moisture > profile.soilHigh) {
+        pump.requestPump = false;
     }
+}
 
 void control_light(const LightSensor& lightSensor, Lamp& lamp, const Profile& profile) {
-        if (!isNight && lightSensor.lightLevel < profile.lightThreshold) {
-            lamp.on_light = true;
-        } else {
-            lamp.on_light = false;
-        }
+    if (!isNight && lightSensor.lightLevel < profile.lightThreshold) {
+        lamp.requestLight = true;
+    } else {
+        lamp.requestLight = false;
     }
+}
 
 void control_ventilation(Fan& fan, const Profile& profile) {
     if (isNight) {
-            if (isVenting) {
-                isVenting = false;
-                fan.on_temperature = false;
-            }
-            return;
-        }
+        isVenting = false;
+        fan.requestFanVent = false;
+        return;
+    }
 
-        unsigned long now = millis();
+    unsigned long now = millis();
 
-        if (!isVenting && (now - lastVentTime >= profile.ventInterval)) {
-            isVenting = true;
-            lastVentTime = now;
-            fan.on_temperature = true;
-        }
+    if (!isVenting && (now - lastVentTime >= profile.ventInterval)) {
+        isVenting = true;
+        lastVentTime = now;
+        fan.requestFanVent = true;
+    }
 
-        if (isVenting && (now - lastVentTime >= profile.ventDuration)) {
-            isVenting = false;
-            fan.on_temperature = false;
-        }
+    if (isVenting && (now - lastVentTime >= profile.ventDuration)) {
+        isVenting = false;
+        fan.requestFanVent = false;
+    }
 }
 
 void checkNightTime() {
@@ -280,8 +298,8 @@ TemperatureSensor temperature(dhtReader);
 HumiditySensor airHumidity(dhtReader);
 SoilMoistureSensor soilSensor(PIN_SOIL_SENSOR);
 LightSensor lightSensor(PIN_LIGHT_SENSOR);
-Heater heater(PIN_HEATER);
 Fan fan(PIN_FAN);
+Heater heater(PIN_HEATER, fan);
 Lamp lamp(PIN_LAMP);
 Pump pump(PIN_PUMP);
 
@@ -306,8 +324,8 @@ void loop() {
     control_light(lightSensor, lamp, currentProfile);
     control_ventilation(fan, currentProfile);
 
-    heater.power();
     fan.power();
+    heater.power();
     lamp.power();
     pump.power();
 
