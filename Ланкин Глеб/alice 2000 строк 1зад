@@ -1,0 +1,2427 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
+
+using Percent = float;
+
+using RUB = long long int;
+using USD = long long int;
+using Months = int;
+
+struct Car {
+    RUB market_value_rub;
+    RUB monthly_fuel_cost_rub;
+};
+
+struct Bank {
+    RUB rub_balance;
+    USD usd_balance;
+    float usd_to_rub_rate;
+    Percent deposit_interest_percent; // годовой процент по вкладу
+    RUB deposit_balance_rub;
+    RUB monthly_deposit_contribution_rub;
+};
+
+struct House {
+    RUB purchase_price_rub;
+    bool is_owned;
+    RUB monthly_rent_rub;
+};
+struct Mortgage {
+    RUB remaining_debt_rub;
+    RUB monthly_payment_rub;
+    Percent annual_interest_rate; // годовая процентная ставка
+    bool is_active;
+};
+
+struct Credit {
+    RUB initial_debt_rub;
+    Months repayment_months;
+    RUB monthly_payment_rub;
+    RUB remaining_debt_rub;
+    Percent annual_interest_rate;
+};
+
+struct Economy {
+    Percent inflation;
+    Percent market_growth; // рост или падение рынка в процентах
+    Percent key_rate;
+    Percent unemployment;
+    bool crisis;
+};
+
+Economy economy_state;
+
+
+struct Family {
+    bool has_partner;
+    int children_count;
+    RUB child_expenses;
+};
+
+enum HobbyType {
+    HOBBY_NONE = 0,
+    HOBBY_READING = 1,
+    HOBBY_GAMING = 2,
+    HOBBY_SPORTS = 3,
+    HOBBY_MUSIC = 4,
+    HOBBY_COOKING = 5,
+    HOBBY_TRAVEL = 6
+};
+
+struct Hobby {
+    HobbyType type;
+    char name[20];
+    RUB monthly_cost;
+    int happiness_bonus;
+    int stress_reduction;
+    int health_bonus;
+    bool is_active;
+    int months_practiced;
+};
+
+struct Entertainment {
+    bool cinema;
+    bool theater;
+    bool restaurant;
+    bool travel;
+    RUB monthly_budget;
+    int satisfaction; // 0-100
+};
+
+struct LifeEvent {
+    char description[50];
+    int year;
+    int month;
+    bool is_happened;
+    RUB money_effect;
+    int happiness_effect;
+    int stress_effect;
+};
+
+enum Mood {
+    MOOD_BAD = 0,
+    MOOD_NORMAL = 1,
+    MOOD_GOOD = 2,
+    MOOD_EXCELLENT = 3
+};
+
+struct Person {
+    Bank vtb;
+    RUB salary;
+    RUB food;
+    Car car;
+    Credit credit;
+
+    House house;
+    Mortgage mortgage;
+
+    float invest_skill;
+    RUB invest_account;
+    Percent market_return;
+    float risk_level;
+    float strategy_power; // сила инвестиционной стратегии условно
+
+    bool bad_relationship;
+    bool good_relationship;
+    int rel_months;
+
+    int stress;  // 0-100
+    int happiness; // 0-100
+
+    int trip_days;
+    bool on_trip;
+
+    int luck; // 0-100
+    int health; // 0-100
+
+    float education; // уровень образования 0-1
+    bool has_business;
+    RUB business_income;
+
+    Family family_details;
+    int achievements[10]; // достижения 0 - нет 1 - есть
+
+
+    Hobby hobby1;
+    Hobby hobby2;
+    Entertainment fun;
+    LifeEvent events[8];
+    Mood current_mood;
+    int reputation; // 0-100
+    int creativity; // 0-100
+    int discipline; // 0-100
+    int intelligence; // 0-100
+
+    RUB pension_fund;
+    int months_worked;
+    int birthday_month;
+};
+
+Person alice;
+Person bob;
+
+
+void init_alice_hobbies() {
+    alice.hobby1.type = HOBBY_READING;
+    strcpy_s(alice.hobby1.name, sizeof(alice.hobby1.name), "Reading");
+    alice.hobby1.monthly_cost = 1500;
+    alice.hobby1.happiness_bonus = 1;
+    alice.hobby1.stress_reduction = 0;
+    alice.hobby1.health_bonus = 0;
+    alice.hobby1.is_active = true;
+    alice.hobby1.months_practiced = 0;
+
+    alice.hobby2.type = HOBBY_MUSIC;
+    strcpy_s(alice.hobby2.name, sizeof(alice.hobby2.name), "Music");
+    alice.hobby2.monthly_cost = 3000;
+    alice.hobby2.happiness_bonus = 3;
+    alice.hobby2.stress_reduction = 0;
+    alice.hobby2.health_bonus = 0;
+    alice.hobby2.is_active = true;
+    alice.hobby2.months_practiced = 0;
+
+    alice.creativity = 60;
+    alice.discipline = 70;
+}
+
+
+void init_bob_hobbies() {
+    bob.hobby1.type = HOBBY_GAMING;
+    strcpy_s(bob.hobby1.name, sizeof(bob.hobby1.name), "Games");
+    bob.hobby1.monthly_cost = 2000;
+    bob.hobby1.happiness_bonus = 2;
+    bob.hobby1.stress_reduction = 2;
+    bob.hobby1.health_bonus = -1;
+    bob.hobby1.is_active = true;
+    bob.hobby1.months_practiced = 0;
+
+    bob.hobby2.type = HOBBY_SPORTS;
+    strcpy_s(bob.hobby2.name, sizeof(bob.hobby2.name), "Sports");
+    bob.hobby2.monthly_cost = 4000;
+    bob.hobby2.happiness_bonus = 3;
+    bob.hobby2.stress_reduction = 1;
+    bob.hobby2.health_bonus = 4;
+    bob.hobby2.is_active = true;
+    bob.hobby2.months_practiced = 0;
+
+    bob.creativity = 40;
+    bob.discipline = 50;
+}
+
+
+void init_alice_entertainment() {
+    alice.fun.cinema = true;
+    alice.fun.theater = true;
+    alice.fun.restaurant = false;
+    alice.fun.travel = false;
+    alice.fun.monthly_budget = 20000;
+    alice.fun.satisfaction = 50;
+}
+
+
+void init_bob_entertainment() {
+    bob.fun.cinema = false;
+    bob.fun.theater = false;
+    bob.fun.restaurant = true;
+    bob.fun.travel = true;
+    bob.fun.monthly_budget = 30000;
+    bob.fun.satisfaction = 50;
+}
+
+
+void init_alice_events() {
+    strcpy_s(alice.events[0].description, sizeof(alice.events[0].description), "Concert");
+    alice.events[0].year = 2027;
+    alice.events[0].month = 5;
+    alice.events[0].money_effect = -30000;
+    alice.events[0].happiness_effect = 20;
+    alice.events[0].stress_effect = -10;
+    alice.events[0].is_happened = false;
+
+    strcpy_s(alice.events[1].description, sizeof(alice.events[1].description), "Course done");
+    alice.events[1].year = 2028;
+    alice.events[1].month = 3;
+    alice.events[1].money_effect = 50000;
+    alice.events[1].happiness_effect = 15;
+    alice.events[1].stress_effect = -5;
+    alice.events[1].is_happened = false;
+
+    strcpy_s(alice.events[2].description, sizeof(alice.events[2].description), "Birthday");
+    alice.events[2].year = 2027;
+    alice.events[2].month = 3;
+    alice.events[2].money_effect = 10000;
+    alice.events[2].happiness_effect = 10;
+    alice.events[2].stress_effect = -5;
+    alice.events[2].is_happened = false;
+
+    for (int i = 3; i < 8; i++) {
+        alice.events[i].is_happened = true;
+    }
+}
+
+
+void init_bob_events() {
+    strcpy_s(bob.events[0].description, sizeof(bob.events[0].description), "Lottery win!");
+    bob.events[0].year = 2027;
+    bob.events[0].month = 8;
+    bob.events[0].money_effect = 100000;
+    bob.events[0].happiness_effect = 30;
+    bob.events[0].stress_effect = -20;
+    bob.events[0].is_happened = false;
+
+    strcpy_s(bob.events[1].description, sizeof(bob.events[1].description), "Car accident");
+    bob.events[1].year = 2028;
+    bob.events[1].month = 4;
+    bob.events[1].money_effect = -40000;
+    bob.events[1].happiness_effect = -10;
+    bob.events[1].stress_effect = 25;
+    bob.events[1].is_happened = false;
+
+    for (int i = 2; i < 8; i++) {
+        bob.events[i].is_happened = true;
+    }
+}
+
+
+void process_alice_hobby(Hobby& hobby, int month) {
+    if (!hobby.is_active) return;
+
+    if (alice.vtb.rub_balance < hobby.monthly_cost) {
+        printf("Alice cannot afford %s\n", hobby.name);
+        return;
+    }
+
+    alice.vtb.rub_balance -= hobby.monthly_cost;
+    hobby.months_practiced++;
+
+    alice.happiness += hobby.happiness_bonus;
+    alice.stress -= hobby.stress_reduction;
+    alice.health += hobby.health_bonus;
+
+    if (alice.happiness > 100) alice.happiness = 100;
+    if (alice.happiness < 0) alice.happiness = 0;
+    if (alice.stress > 100) alice.stress = 100;
+    if (alice.stress < 0) alice.stress = 0;
+    if (alice.health > 100) alice.health = 100;
+    if (alice.health < 0) alice.health = 0;
+
+    if (hobby.type == HOBBY_READING) alice.creativity += 1;
+    if (hobby.type == HOBBY_SPORTS) alice.discipline += 1;
+    if (hobby.type == HOBBY_MUSIC) alice.creativity += 2;
+
+    if (hobby.months_practiced % 12 == 0) {
+        printf("Alice improved skill in %s!\n", hobby.name);
+    }
+}
+
+
+void process_bob_hobby(Hobby& hobby, int month) {
+    if (!hobby.is_active) return;
+
+    if (bob.vtb.rub_balance < hobby.monthly_cost) {
+        printf("Bob cannot afford %s\n", hobby.name);
+        return;
+    }
+
+    bob.vtb.rub_balance -= hobby.monthly_cost;
+    hobby.months_practiced++;
+
+    bob.happiness += hobby.happiness_bonus;
+    bob.stress -= hobby.stress_reduction;
+    bob.health += hobby.health_bonus;
+
+    if (bob.happiness > 100) bob.happiness = 100;
+    if (bob.happiness < 0) bob.happiness = 0;
+    if (bob.stress > 100) bob.stress = 100;
+    if (bob.stress < 0) bob.stress = 0;
+    if (bob.health > 100) bob.health = 100;
+    if (bob.health < 0) bob.health = 0;
+
+    if (hobby.type == HOBBY_READING) bob.creativity += 1;
+    if (hobby.type == HOBBY_SPORTS) bob.discipline += 1;
+    if (hobby.type == HOBBY_MUSIC) bob.creativity += 2;
+
+    if (hobby.months_practiced % 12 == 0) {
+        printf("Bob improved skill in %s!\n", hobby.name);
+    }
+}
+
+
+void process_alice_entertainment(const int month, const int year) {
+    RUB spent = 0;
+
+    if (alice.fun.theater && month % 3 == 0) {
+        spent += 5000;
+        alice.happiness += 8;
+        alice.creativity += 2;
+    }
+
+    if (alice.fun.cinema && month % 2 == 0) {
+        spent += 2000;
+        alice.happiness += 5;
+    }
+
+    if (alice.fun.restaurant && month % 2 == 1) {
+        spent += 4000;
+        alice.happiness += 7;
+        alice.stress -= 5;
+    }
+
+    if (alice.fun.travel && month == 7) {
+        spent += 50000;
+        alice.happiness += 20;
+        alice.stress -= 15;
+        printf("Alice went on a trip!\n");
+    }
+
+    if (spent > alice.fun.monthly_budget) {
+        alice.stress += 5;
+        printf("Alice spent more on entertainment than budget!\n");
+    }
+
+    if (alice.happiness > 100) alice.happiness = 100;
+    if (alice.happiness < 0) alice.happiness = 0;
+    if (alice.stress > 100) alice.stress = 100;
+    if (alice.stress < 0) alice.stress = 0;
+
+    alice.vtb.rub_balance -= spent;
+}
+
+
+void process_bob_entertainment(const int month, const int year) {
+    RUB spent = 0;
+
+    if (bob.fun.theater && month % 3 == 0) {
+        spent += 5000;
+        bob.happiness += 8;
+        bob.creativity += 2;
+    }
+
+    if (bob.fun.cinema && month % 2 == 0) {
+        spent += 2000;
+        bob.happiness += 5;
+    }
+
+    if (bob.fun.restaurant && month % 2 == 1) {
+        spent += 4000;
+        bob.happiness += 7;
+        bob.stress -= 5;
+    }
+
+    if (bob.fun.travel && month == 7) {
+        spent += 50000;
+        bob.happiness += 20;
+        bob.stress -= 15;
+        printf("Bob went on a trip!\n");
+    }
+
+    if (spent > bob.fun.monthly_budget) {
+        bob.stress += 5;
+        printf("Bob spent more on entertainment than budget!\n");
+    }
+
+    if (bob.happiness > 100) bob.happiness = 100;
+    if (bob.happiness < 0) bob.happiness = 0;
+    if (bob.stress > 100) bob.stress = 100;
+    if (bob.stress < 0) bob.stress = 0;
+
+    bob.vtb.rub_balance -= spent;
+}
+
+
+void process_alice_events(const int month, const int year) {
+    for (int i = 0; i < 8; i++) {
+        if (!alice.events[i].is_happened &&
+            alice.events[i].year == year &&
+            alice.events[i].month == month) {
+
+                alice.vtb.rub_balance += alice.events[i].money_effect;
+                alice.happiness += alice.events[i].happiness_effect;
+                alice.stress += alice.events[i].stress_effect;
+                alice.events[i].is_happened = true;
+
+            printf("Event for Alice: %s\n", alice.events[i].description);
+        }
+    }
+}
+
+
+void process_bob_events(const int month, const int year) {
+    for (int i = 0; i < 8; i++) {
+        if (!bob.events[i].is_happened &&
+            bob.events[i].year == year &&
+            bob.events[i].month == month) {
+
+                bob.vtb.rub_balance += bob.events[i].money_effect;
+                bob.happiness += bob.events[i].happiness_effect;
+                bob.stress += bob.events[i].stress_effect;
+                bob.events[i].is_happened = true;
+
+            printf("Event for Bob: %s\n", bob.events[i].description);
+        }
+    }
+}
+
+
+void update_alice_mood() {
+    if (alice.happiness > 100) alice.happiness = 100;
+    if (alice.happiness < 0) alice.happiness = 0;
+    if (alice.stress > 100) alice.stress = 100;
+    if (alice.stress < 0) alice.stress = 0;
+
+    if (alice.happiness > 80 && alice.stress < 30) {
+        alice.current_mood = MOOD_EXCELLENT;
+        alice.salary = alice.salary * 1.02;
+    }
+    else if (alice.happiness > 60 && alice.stress < 50) {
+        alice.current_mood = MOOD_GOOD;
+    }
+    else if (alice.happiness > 40 && alice.stress < 70) {
+        alice.current_mood = MOOD_NORMAL;
+    }
+    else {
+        alice.current_mood = MOOD_BAD;
+        alice.salary = alice.salary * 0.98;
+    }
+}
+
+
+void update_bob_mood() {
+    if (bob.happiness > 100) bob.happiness = 100;
+    if (bob.happiness < 0) bob.happiness = 0;
+    if (bob.stress > 100) bob.stress = 100;
+    if (bob.stress < 0) bob.stress = 0;
+
+    if (bob.happiness > 80 && bob.stress < 30) {
+        bob.current_mood = MOOD_EXCELLENT;
+        bob.salary = bob.salary * 1.02;
+    }
+    else if (bob.happiness > 60 && bob.stress < 50) {
+        bob.current_mood = MOOD_GOOD;
+    }
+    else if (bob.happiness > 40 && bob.stress < 70) {
+        bob.current_mood = MOOD_NORMAL;
+    }
+    else {
+        bob.current_mood = MOOD_BAD;
+        bob.salary = bob.salary * 0.98;
+    }
+}
+
+
+void calculate_alice_reputation() {
+    int old = alice.reputation;
+    alice.reputation = (alice.creativity + alice.discipline + alice.happiness) / 3;
+
+    if (alice.reputation > 80 && old <= 80) {
+        printf("Alice became famous!\n");
+    }
+}
+
+
+void calculate_bob_reputation() {
+    int old = bob.reputation;
+    bob.reputation = (bob.creativity + bob.discipline + bob.happiness) / 3;
+
+    if (bob.reputation > 80 && old <= 80) {
+        printf("Bob became famous!\n");
+    }
+}
+
+
+void economy_init() {
+    economy_state.inflation = 6.0;
+    economy_state.market_growth = 5.0;
+    economy_state.key_rate = 10.0;
+    economy_state.unemployment = 5.0;
+    economy_state.crisis = false;
+}
+
+
+void bob_init()
+{
+    bob.vtb.usd_to_rub_rate = 78.76;
+    bob.vtb.rub_balance = 500000;
+    bob.vtb.usd_balance = 500;
+
+    bob.salary = 250000;
+    bob.food = 2500;
+
+    bob.car.market_value_rub = 500000;
+    bob.car.monthly_fuel_cost_rub = 12000;
+
+    bob.credit.initial_debt_rub = 1'000'000;
+    bob.credit.monthly_payment_rub = 20000;
+    bob.credit.annual_interest_rate = 9;
+    bob.credit.remaining_debt_rub = bob.credit.initial_debt_rub;
+
+    bob.vtb.deposit_interest_percent = 10.0;
+    bob.vtb.monthly_deposit_contribution_rub = 30000;
+    bob.vtb.deposit_balance_rub = 0;
+
+    bob.house.purchase_price_rub = 4'000'000;
+    bob.house.is_owned = false;
+    bob.house.monthly_rent_rub = 25000;
+
+    bob.mortgage.is_active = false;
+
+    bob.invest_skill = 0.2;
+    bob.invest_account = 50000;
+    bob.market_return = 7.0;
+    bob.risk_level = 0.4;
+    bob.strategy_power = 0.3;
+
+    bob.bad_relationship = false;
+    bob.good_relationship = false;
+    bob.rel_months = 0;
+
+    bob.family_details.has_partner = false;
+    bob.family_details.children_count = 0;
+    bob.family_details.child_expenses = 0;
+
+    bob.stress = 30;
+    bob.happiness = 60;
+
+    bob.on_trip = false;
+    bob.trip_days = 0;
+
+    bob.education = 0.2;
+    bob.has_business = false;
+    bob.business_income = 0;
+
+    bob.pension_fund = 0;
+    bob.months_worked = 0;
+
+    bob.luck = 50;
+    bob.health = 80;
+
+    init_bob_hobbies();
+    init_bob_entertainment();
+    init_bob_events();
+    bob.current_mood = MOOD_NORMAL;
+    bob.reputation = 50;
+    bob.creativity = 40;
+    bob.discipline = 50;
+    bob.intelligence = 65;
+
+    bob.birthday_month = 8;
+}
+
+void alice_init() {
+    alice.vtb.usd_to_rub_rate = 78.76;
+    alice.vtb.rub_balance = 0;
+    alice.vtb.usd_balance = 1000;
+    alice.salary = 180000;
+    alice.food = 3000;
+    alice.car.market_value_rub = 24000;
+    alice.car.monthly_fuel_cost_rub = 15000;
+
+    alice.credit.initial_debt_rub = 3'000'000;
+    alice.credit.monthly_payment_rub = 40'000;
+    alice.credit.repayment_months = (alice.credit.initial_debt_rub / alice.credit.monthly_payment_rub);
+    alice.credit.annual_interest_rate = 10;
+    alice.credit.remaining_debt_rub = alice.credit.initial_debt_rub;
+
+    alice.vtb.deposit_interest_percent = 12.5;
+    alice.vtb.monthly_deposit_contribution_rub = 50'000;
+    alice.vtb.deposit_balance_rub = 0;
+
+    alice.house.purchase_price_rub = 5'000'000;
+    alice.house.is_owned = false;
+    alice.house.monthly_rent_rub = 30000;
+    alice.mortgage.is_active = false;
+
+    alice.invest_skill = 0.1;
+    alice.invest_account = 0;
+    alice.market_return = 8.0;
+    alice.risk_level = 0.3;
+    alice.strategy_power = 0.2;
+
+    alice.pension_fund = 0;
+    alice.months_worked = 0;
+
+    alice.bad_relationship = false;
+    alice.good_relationship = false;
+    alice.rel_months = 0;
+
+    alice.family_details.has_partner = false;
+    alice.family_details.children_count = 1;
+    alice.family_details.child_expenses = 0;
+
+    alice.stress = 20;
+    alice.happiness = 70;
+    alice.on_trip = false;
+    alice.trip_days = 0;
+
+    alice.luck = 50;
+    alice.health = 80;
+    alice.education = 0.3;
+
+    init_alice_hobbies();
+    init_alice_entertainment();
+    init_alice_events();
+    alice.current_mood = MOOD_NORMAL;
+    alice.reputation = 50;
+    alice.creativity = 60;
+    alice.discipline = 70;
+    alice.intelligence = 75;
+
+    alice.birthday_month = 3;
+}
+
+
+void init() {
+    alice_init();
+    economy_init();
+    bob_init();
+}
+
+
+
+void inflation_update(const int month, const int year)
+{
+    if (month == 1) {
+        if (year % 2 == 0) {
+            economy_state.inflation += 1.0;
+        }
+        else {
+            economy_state.inflation -= 0.5;
+        }
+
+        if (economy_state.inflation < 2.0) economy_state.inflation = 2.0;
+        if (economy_state.inflation > 15.0) economy_state.inflation = 15.0;
+    }
+}
+
+
+void economy_system(const int month, const int year)
+{
+    if (month == 1) {
+
+        if (year % 3 == 0) {
+            economy_state.crisis = true;
+
+            economy_state.inflation += 4;
+            economy_state.market_growth -= 5;
+            economy_state.key_rate += 3;
+            economy_state.unemployment += 2;
+        }
+        else {
+            economy_state.crisis = false;
+
+            economy_state.inflation -= 1;
+            economy_state.market_growth += 2;
+            economy_state.key_rate -= 1;
+            economy_state.unemployment -= 0.5;
+        }
+    }
+    if (economy_state.inflation < 1) economy_state.inflation = 1;
+    if (economy_state.market_growth < -10) economy_state.market_growth = -10;
+    if (economy_state.key_rate < 5) economy_state.key_rate = 5;
+    if (economy_state.unemployment < 2) economy_state.unemployment = 2;
+
+    alice.salary *= (1 + economy_state.inflation / 100 / 12);
+    bob.salary *= (1 + economy_state.inflation / 100 / 12);
+
+    RUB spend = 40000 * (1 + economy_state.inflation / 100);
+    alice.vtb.rub_balance -= spend;
+
+    if (economy_state.crisis) {
+        alice.vtb.rub_balance -= 20000;
+    }
+}
+
+
+void apply_alice_crisis_effects(const int month, const int year) {
+    if (!economy_state.crisis) return;
+
+    if (month == 1) {
+        alice.invest_account = static_cast<RUB>(alice.invest_account * 0.85);
+        printf("Alice lost 15%% of investments due to crisis!\n");
+
+        if (rand() % 100 < 15 && alice.salary > 0) {
+            alice.salary = 0;
+            alice.stress += 30;
+            if (alice.stress > 100) alice.stress = 100;
+            printf("Alice lost job due to economic crisis!\n");
+        }
+    }
+}
+
+
+void apply_bob_crisis_effects(const int month, const int year) {
+    if (!economy_state.crisis) return;
+
+    if (month == 1) {
+        bob.invest_account = static_cast<RUB>(bob.invest_account * 0.85);
+        printf("Bob lost 15%% of investments due to crisis!\n");
+
+        if (rand() % 100 < 15 && bob.salary > 0) {
+            bob.salary = 0;
+            bob.stress += 30;
+            if (bob.stress > 100) bob.stress = 100;
+            printf("Bob lost job due to economic crisis!\n");
+        }
+    }
+}
+
+
+void check_alice_unemployment(const int month, const int year) {
+    if (economy_state.unemployment > 8 && alice.salary > 0) {
+        int chance = static_cast<int>((economy_state.unemployment - 8) * 2);
+
+        if (rand() % 100 < chance) {
+            alice.salary = 0;
+            alice.stress += 40;
+            alice.happiness -= 20;
+            printf("Alice lost job due to high unemployment! (%d/%d)\n", month, year);
+        }
+    }
+
+    if (economy_state.unemployment < 5 && alice.salary == 0) {
+        if (rand() % 100 < 15) {
+            alice.salary = 180000;
+            alice.stress -= 20;
+            alice.happiness += 15;
+            printf("Alice found a new job! (%d/%d)\n", month, year);
+        }
+    }
+}
+
+
+void check_bob_unemployment(const int month, const int year) {
+    if (economy_state.unemployment > 8 && bob.salary > 0) {
+        int chance = static_cast<int>((economy_state.unemployment - 8) * 2);
+
+        if (rand() % 100 < chance) {
+            bob.salary = 0;
+            bob.stress += 40;
+            bob.happiness -= 20;
+            printf("Bob lost job due to high unemployment! (%d/%d)\n", month, year);
+        }
+    }
+
+    if (economy_state.unemployment < 5 && bob.salary == 0) {
+        if (rand() % 100 < 15) {
+            bob.salary = 150000;
+            bob.stress -= 20;
+            bob.happiness += 15;
+            printf("Bob found a new job! (%d/%d)\n", month, year);
+        }
+    }
+}
+
+
+void alice_tax()
+{
+    if (alice.salary <= 0) return;
+
+    Percent tax_rate = 13.0;
+    RUB tax = alice.salary * tax_rate / 100;
+
+    alice.vtb.rub_balance -= tax;
+}
+
+
+Percent get_inflation(const int year)
+{
+    switch (year) {
+    case 2026: return 12.5;
+    case 2027: return 14.0;
+    case 2028: return 13.0;
+    case 2029: return 11.5;
+    }
+    return 12.0;
+}
+
+
+void alice_credit(const int month, const int year) {
+    if (alice.credit.remaining_debt_rub <= 0) return;
+
+    alice.credit.remaining_debt_rub += alice.credit.remaining_debt_rub * alice.credit.annual_interest_rate / 100 / 12;
+
+    if (alice.vtb.rub_balance >= alice.credit.monthly_payment_rub) {
+        alice.vtb.rub_balance -= alice.credit.monthly_payment_rub;
+        alice.credit.remaining_debt_rub -= alice.credit.monthly_payment_rub;
+    }
+    else {
+        RUB paid = alice.vtb.rub_balance;
+        alice.vtb.rub_balance = 0;
+        alice.credit.remaining_debt_rub -= paid;
+    }
+
+    if (alice.credit.remaining_debt_rub <= 0) {
+        alice.credit.initial_debt_rub = 0;
+        alice.credit.remaining_debt_rub = 0;
+        printf("Alice paid off credit!\n");
+    }
+}
+
+
+void alice_deposit(const int month, const int year) {
+    if (month % 2 != 0) return;
+    if (alice.vtb.rub_balance < alice.vtb.monthly_deposit_contribution_rub) return;
+
+    alice.vtb.rub_balance -= alice.vtb.monthly_deposit_contribution_rub;
+    alice.vtb.deposit_balance_rub += alice.vtb.monthly_deposit_contribution_rub;
+    alice.vtb.deposit_balance_rub += alice.vtb.deposit_balance_rub * (alice.vtb.deposit_interest_percent / 100) / 12;
+}
+
+
+void alice_food(const int month, const int year)
+{
+    if (month == 12) alice.vtb.rub_balance -= 2000;  // christmas party
+    Percent inflation = economy_state.inflation;
+    alice.food += alice.food * (inflation / 100 / 12);
+    alice.vtb.rub_balance -= alice.food;
+
+
+}
+
+
+void alice_salary(const int month, const int year) {
+    if (alice.salary <= 0) return;
+
+    if (month == 3) {
+        alice.salary *= 1.5;
+    }
+
+    if (month == 2 && year == 2026) {
+        alice.vtb.rub_balance += 5000;
+    }
+
+    RUB pension = alice.salary * 6 / 100;
+    alice.pension_fund += pension;
+    alice.vtb.rub_balance -= pension;
+    alice.months_worked++;
+
+    alice.vtb.rub_balance += alice.salary - pension;
+
+    alice_tax();
+}
+
+
+void alice_car(const int month, const int year)
+{
+    Percent inflation = economy_state.inflation;
+
+    // бензин дорожает
+    alice.car.monthly_fuel_cost_rub += alice.car.monthly_fuel_cost_rub * inflation / 100 / 12;
+    alice.vtb.rub_balance -= alice.car.monthly_fuel_cost_rub;
+
+    // машина дешевеет (1% в месяц)
+    alice.car.market_value_rub -= alice.car.market_value_rub / 100;
+
+    if (rand() % 100 < 15) {
+        RUB repair = 10000 + rand() % 30000;
+        alice.vtb.rub_balance -= repair;
+
+        printf("Random car repair: %lld in %d/%d\n", repair, month, year);
+    }
+}
+
+
+void alice_house(const int month, const int year)
+{
+    if (alice.house.is_owned) return;
+
+    Percent inflation = economy_state.inflation;
+
+    alice.house.monthly_rent_rub += alice.house.monthly_rent_rub * (inflation / 100 / 12);
+    alice.vtb.rub_balance -= alice.house.monthly_rent_rub;
+}
+
+
+void alice_buy_house(const int month, const int year)
+{
+    if (alice.house.is_owned) return;
+    if (alice.vtb.rub_balance >= alice.house.purchase_price_rub) {
+        alice.vtb.rub_balance -= alice.house.purchase_price_rub;
+        alice.house.is_owned = true;
+
+        printf("Alice bought a house in %d/%d\n", month, year);
+    }
+}
+
+
+void alice_take_mortgage(const int month, const int year)
+{
+    if (alice.house.is_owned) return;
+    if (alice.mortgage.is_active) return;
+    if (alice.mortgage.monthly_payment_rub > alice.salary / 2) return;
+
+    RUB first_payment = alice.house.purchase_price_rub / 5;
+    RUB safety = 200000; // запас денег
+
+    if (alice.vtb.rub_balance >= first_payment + safety) {
+
+        alice.vtb.rub_balance -= first_payment;
+
+        alice.mortgage.remaining_debt_rub = alice.house.purchase_price_rub - first_payment;
+        alice.mortgage.monthly_payment_rub = alice.mortgage.remaining_debt_rub / 240; // 20 лет
+        alice.mortgage.annual_interest_rate = 9.5;
+        alice.mortgage.is_active = true;
+        alice.house.is_owned = true;
+        alice.mortgage.monthly_payment_rub *= (1 + economy_state.key_rate / 200);
+
+        printf("Alice took mortgage in %d/%d\n", month, year);
+    }
+}
+
+
+void alice_mortgage_payment(const int month, const int year)
+{
+    if (!alice.mortgage.is_active) return;
+
+    alice.mortgage.remaining_debt_rub += alice.mortgage.remaining_debt_rub * (alice.mortgage.annual_interest_rate / 100) / 12;
+
+    alice.vtb.rub_balance -= alice.mortgage.monthly_payment_rub;
+    alice.mortgage.remaining_debt_rub -= alice.mortgage.monthly_payment_rub;
+
+    if (alice.mortgage.remaining_debt_rub <= 0) {
+        alice.mortgage.is_active = false;
+        printf("Mortgage fully paid in %d/%d\n", month, year);
+    }
+}
+
+
+void alice_house_repair(const int month, const int year)
+{
+    if (!alice.house.is_owned) return;
+
+    if (month == 6) {
+        RUB repair_cost = alice.house.purchase_price_rub * 2 / 100;
+
+        if (alice.vtb.rub_balance >= repair_cost) {
+            alice.vtb.rub_balance -= repair_cost;
+            printf("House repair: %lld in %d/%d\n", repair_cost, month, year);
+        }
+        else {
+            printf("Skipped repair (no money) in %d/%d\n", month, year);
+        }
+    }
+}
+
+
+RUB calculate_alice_tax_amount() {
+    RUB yearly_income = alice.salary * 12;
+    if (alice.has_business) {
+        yearly_income += alice.business_income * 12;
+    }
+
+    if (yearly_income < 500000) {
+        return static_cast<RUB>(yearly_income * 0.13);
+    }
+    else if (yearly_income < 1500000) {
+        return static_cast<RUB>(yearly_income * 0.15);
+    }
+    else {
+        return static_cast<RUB>(yearly_income * 0.18);
+    }
+}
+
+
+RUB calculate_bob_tax_amount() {
+    RUB yearly_income = bob.salary * 12;
+    if (bob.has_business) {
+        yearly_income += bob.business_income * 12;
+    }
+
+    if (yearly_income < 500000) {
+        return static_cast<RUB>(yearly_income * 0.13);
+    }
+    else if (yearly_income < 1500000) {
+        return static_cast<RUB>(yearly_income * 0.15);
+    }
+    else {
+        return static_cast<RUB>(yearly_income * 0.18);
+    }
+}
+
+
+void alice_events(const int month, const int year)
+{
+    // отпуск
+    if (year == 2027 && month == 6) {
+        alice.vtb.rub_balance -= 150000;
+    }
+
+    // болезнь
+    if (year == 2028 && month == 3) {
+        alice.vtb.rub_balance -= 50000;
+    }
+
+    // подарок
+    if (year == 2026 && month == 12) {
+        alice.vtb.rub_balance -= 20000;
+    }
+
+    // бонус
+    if (year == 2027 && month == 1) {
+        alice.vtb.rub_balance += 100000;
+    }
+
+    // потеря работы
+    if (year == 2028 && month == 5) {
+        alice.salary = 0;
+        printf("Alice lost job!\n");
+    }
+    if (year == 2028 && month == 9) {
+        alice.salary = 150000;
+        printf("Alice found a new job!\n");
+    }
+}
+
+void alice_usd_rate(const int month, const int year)
+{
+    if (year == 2026) alice.vtb.usd_to_rub_rate += 0.5;
+    if (year == 2027) alice.vtb.usd_to_rub_rate += 1.0;
+    if (year == 2028) alice.vtb.usd_to_rub_rate -= 0.3;
+
+    // небольшие колебания
+    if (month % 3 == 0) {
+        alice.vtb.usd_to_rub_rate += 0.2;
+    }
+}
+void alice_currency(const int month, const int year)
+{
+    // если курс высокий — продавать
+    if (alice.vtb.usd_to_rub_rate > 85 && alice.vtb.usd_balance > 0) {
+        alice.vtb.rub_balance += alice.vtb.usd_balance * alice.vtb.usd_to_rub_rate;
+        alice.vtb.usd_balance = 0;
+    }
+
+    // если курс низкий — покупать
+    if (alice.vtb.usd_to_rub_rate < 75 && alice.vtb.rub_balance > 100000) {
+        USD buy = 500;
+        alice.vtb.usd_balance += buy;
+        alice.vtb.rub_balance -= buy * alice.vtb.usd_to_rub_rate;
+    }
+}
+
+
+void alice_invest_system(const int month, const int year)
+{
+    if (alice.salary == 0) return;
+    alice.market_return = 8.0;
+
+    if (year == 2027) alice.market_return = -12.0;
+    if (year == 2028) alice.market_return = 18.0;
+
+    if (month % 3 == 0) alice.market_return += 3.0;
+    if (month % 5 == 0) alice.market_return -= 2.0;
+
+    if (alice.invest_skill < 1.0)
+        alice.invest_skill += 0.01;
+
+    if (alice.strategy_power < 1.0)
+        alice.strategy_power += 0.005;
+
+    // редкий обвал
+    if (rand() % 100 < 5) {
+        alice.invest_account *= 0.7;
+        printf("MARKET CRASH!!!\n");
+    }
+
+    if (alice.vtb.rub_balance > 70000) {
+        RUB invest = 30000;
+
+        invest += invest * (alice.invest_skill * 0.5);
+
+        alice.vtb.rub_balance -= invest;
+        alice.invest_account += invest;
+
+        printf("Invested: %lld in %d/%d\n", invest, month, year);
+    }
+
+    float effective_return = economy_state.market_growth;
+
+    // влияние отношений
+    if (alice.bad_relationship) {
+        effective_return -= 5.0;
+    }
+
+    if (alice.good_relationship) {
+        effective_return += 5.0;
+    }
+    // влияние состояния
+    effective_return += (alice.happiness - 50) * 0.05;
+    effective_return -= (alice.stress - 50) * 0.05;
+    float cycle = (month + year * 12) % 12;
+    float risk_effect = ((rand() % 200 - 100) / 100.0) * alice.risk_level * 5;
+
+    // кризис
+    if (economy_state.crisis) {
+        effective_return -= 5;
+    }
+
+    effective_return += risk_effect;
+
+    alice.invest_account +=
+        alice.invest_account * (effective_return / 100 / 12);
+
+    if (effective_return < -5.0 && alice.invest_account > 0) {
+        RUB sell = alice.invest_account / 4;
+
+        alice.invest_account -= sell;
+        alice.vtb.rub_balance += sell;
+    }
+
+    if (effective_return > 10.0) {
+        RUB take_profit = alice.invest_account / 5;
+
+        alice.invest_account -= take_profit;
+        alice.vtb.rub_balance += take_profit;
+
+        printf("Take profit: %lld in %d/%d\n", take_profit, month, year);
+    }
+
+    if (month == 12) {
+        printf("Capital: %lld\n", alice.invest_account);
+        printf("Return: %.2f%%\n", effective_return);
+        printf("Skill: %.2f Strategy: %.2f\n",
+            alice.invest_skill,
+            alice.strategy_power);
+    }
+}
+
+
+void alice_safety_system(const int month, const int year)
+{
+    RUB safe_level = 100000;
+
+    if (alice.vtb.rub_balance < safe_level) {
+        alice.stress += 5;
+    }
+    else {
+        alice.happiness += 2;
+    }
+}
+
+
+void alice_relationship(const int month, const int year)
+{
+    // плохой парень
+    if (year == 2026 && month == 5) {
+        alice.bad_relationship = true;
+        alice.rel_months = 0;
+    }
+
+    if (alice.bad_relationship) {
+        alice.rel_months++;
+
+        RUB extra_spend = 20000;
+        alice.vtb.rub_balance -= extra_spend;
+
+        if (alice.rel_months >= 6) {
+            alice.bad_relationship = false;
+            alice.rel_months = 0;
+        }
+    }
+    // хороший парень
+    if (year == 2027 && month == 5) {
+        alice.good_relationship = true;
+    }
+
+    if (alice.good_relationship) {
+        RUB support = 30000;
+        alice.vtb.rub_balance += support;
+    }
+    // случайные ссоры
+    if (alice.good_relationship && rand() % 100 < 20) {
+        alice.happiness -= 10;
+        printf("Couple argument in %d/%d\n", month, year);
+    }
+
+    // случайные подарки
+    if (alice.good_relationship && rand() % 100 < 15) {
+        RUB gift = 10000;
+        alice.vtb.rub_balance += gift;
+        printf("Gift from partner in %d/%d\n", month, year);
+    }
+}
+
+
+void alice_random_events(const int month, const int year) {
+    int chance = rand() % 100 + (alice.luck - 50);
+
+    if (chance < 25 && alice.vtb.rub_balance > 10000) {
+        RUB cost = 5000 + rand() % 30000;
+        if (alice.vtb.rub_balance >= cost) {
+            alice.vtb.rub_balance -= cost;
+            printf("Alice unexpected expense: %lld in %d/%d\n", cost, month, year);
+        }
+    }
+    else if (chance < 50) {
+        RUB bonus = 15000 + rand() % 50000;
+        alice.vtb.rub_balance += bonus;
+        printf("Alice lucky income: %lld in %d/%d\n", bonus, month, year);
+    }
+    else if (chance < 70) {
+        alice.stress += 8;
+        alice.happiness -= 3;
+        if (alice.stress > 100) alice.stress = 100;
+        if (alice.happiness < 0) alice.happiness = 0;
+        printf("Alice bad emotional event in %d/%d\n", month, year);
+    }
+    else if (chance > 98) {
+        RUB jackpot = 50000;
+        alice.vtb.rub_balance += jackpot;
+        printf("Alice JACKPOT!!! %lld in %d/%d\n", jackpot, month, year);
+    }
+}
+
+
+void bob_random_events(const int month, const int year) {
+    int chance = rand() % 100 + (bob.luck - 50);
+
+    if (chance < 25 && bob.vtb.rub_balance > 10000) {
+        RUB cost = 5000 + rand() % 30000;
+        if (bob.vtb.rub_balance >= cost) {
+            bob.vtb.rub_balance -= cost;
+            printf("Bob unexpected expense: %lld in %d/%d\n", cost, month, year);
+        }
+    }
+    else if (chance < 50) {
+        RUB bonus = 15000 + rand() % 50000;
+        bob.vtb.rub_balance += bonus;
+        printf("Bob lucky income: %lld in %d/%d\n", bonus, month, year);
+    }
+    else if (chance < 70) {
+        bob.stress += 8;
+        bob.happiness -= 3;
+        if (bob.stress > 100) bob.stress = 100;
+        if (bob.happiness < 0) bob.happiness = 0;
+        printf("Bob bad emotional event in %d/%d\n", month, year);
+    }
+    else if (chance > 98) {
+        RUB jackpot = 50000;
+        bob.vtb.rub_balance += jackpot;
+        printf("Bob JACKPOT!!! %lld in %d/%d\n", jackpot, month, year);
+    }
+}
+
+
+void alice_life_system(const int month, const int year)
+{
+    // командировка
+    if (!alice.on_trip && (month % 4 == 0)) {
+        alice.on_trip = true;
+        alice.trip_days = 5;
+
+        printf("Business trip started in %d/%d\n", month, year);
+    }
+    // отпуск
+    if (!alice.on_trip && month == 7) {
+        alice.on_trip = true;
+        alice.trip_days = 10;
+
+        printf("Vacation started in %d/%d\n", month, year);
+    }
+    if (alice.on_trip) {
+        alice.trip_days--;
+
+        if (month % 4 == 0) {
+            alice.vtb.rub_balance += 20000;
+            alice.stress += 5;
+            alice.happiness -= 2;
+        }
+        else {
+            alice.vtb.rub_balance -= 30000;
+            alice.happiness += 5;
+            alice.stress -= 3;
+        }
+
+        if (alice.trip_days <= 0) {
+            alice.on_trip = false;
+            printf("Trip ended in %d/%d\n", month, year);
+        }
+    }
+    // стресс растёт от работы
+    alice.stress += 1;
+
+    if (alice.stress > 80) {
+        alice.salary *= 0.9;
+    }
+
+    if (alice.happiness > 80) {
+        alice.vtb.rub_balance += 10000;
+    }
+
+    if (alice.happiness < 40) {
+        alice.vtb.rub_balance -= 15000;
+    }
+
+    if (alice.stress < 0) alice.stress = 0;
+    if (alice.stress > 100) alice.stress = 100;
+    if (alice.happiness < 0) alice.happiness = 0;
+    if (alice.happiness > 100) alice.happiness = 100;
+}
+
+
+void alice_luck_system(const int month, const int year)
+{
+    alice.luck = 50;
+
+    alice.luck += (alice.happiness - 50) * 0.5;
+    alice.luck -= (alice.stress - 50) * 0.5;
+
+    if (alice.good_relationship) alice.luck += 10;
+    if (alice.bad_relationship) alice.luck -= 10;
+
+    if (alice.luck > 100) alice.luck = 100;
+    if (alice.luck < 0) alice.luck = 0;
+}
+
+
+void alice_decisions(const int month, const int year)
+{
+    if (alice.vtb.rub_balance < 50000) {
+        alice.food *= 0.9;
+        alice.happiness -= 5;
+        printf("Alice is saving money in %d/%d\n", month, year);
+    }
+
+    if (alice.vtb.rub_balance > 300000) {
+        RUB spend = 20000;
+        alice.vtb.rub_balance -= spend;
+        alice.happiness += 5;
+
+        printf("Alice spends on lifestyle: %lld in %d/%d\n", spend, month, year);
+    }
+
+    if (alice.stress > 70) {
+        RUB rest_cost = 15000;
+        alice.vtb.rub_balance -= rest_cost;
+        alice.stress -= 10;
+        alice.happiness += 10;
+
+        printf("Anti-stress spending in %d/%d\n", month, year);
+    }
+}
+
+
+void alice_health_system(const int month, const int year)
+{
+    if (alice.stress > 70) {
+        alice.health -= 2;
+    }
+
+    if (month == 7) {
+        alice.health += 5;
+    }
+
+    if (alice.health < 50) {
+        RUB medical = 20000;
+        alice.vtb.rub_balance -= medical;
+
+        printf("Medical expenses: %lld\n", medical);
+    }
+
+    if (alice.health < 30) {
+        alice.salary *= 0.9;
+    }
+
+    if (alice.health > 100) alice.health = 100;
+    if (alice.health < 0) alice.health = 0;
+}
+
+
+void alice_education_system(const int month, const int year)
+{
+    if (month % 6 == 0) {
+        RUB cost = 30000;
+
+        if (alice.vtb.rub_balance >= cost) {
+            alice.vtb.rub_balance -= cost;
+            alice.education += 0.05;
+
+            printf("Education upgrade in %d/%d\n", month, year);
+        }
+    }
+
+    alice.salary *= (1 + alice.education * 0.01);
+}
+
+
+void bob_salary(const int month, const int year)
+{
+    if (bob.salary <= 0) return;
+
+    RUB pension = bob.salary * 6 / 100;
+    bob.pension_fund += pension;
+    bob.vtb.rub_balance -= pension;
+    bob.months_worked++;
+
+    bob.vtb.rub_balance += bob.salary - pension;
+
+    RUB tax = calculate_bob_tax_amount() / 12;
+    bob.vtb.rub_balance -= tax;
+}
+
+
+void bob_food(const int month, const int year)
+{
+    bob.food += bob.food * (economy_state.inflation / 100 / 12);
+    bob.vtb.rub_balance -= bob.food;
+}
+
+
+void bob_car(const int month, const int year)
+{
+    bob.car.monthly_fuel_cost_rub += bob.car.monthly_fuel_cost_rub * economy_state.inflation / 100 / 12;
+    bob.vtb.rub_balance -= bob.car.monthly_fuel_cost_rub;
+
+    bob.car.market_value_rub -= bob.car.market_value_rub / 100;
+
+    if (rand() % 100 < 10) {
+        RUB repair = 15000;
+        bob.vtb.rub_balance -= repair;
+    }
+}
+
+
+void bob_house(const int month, const int year)
+{
+    if (bob.house.is_owned) return;
+
+    bob.house.monthly_rent_rub += bob.house.monthly_rent_rub * (economy_state.inflation / 100 / 12);
+    bob.vtb.rub_balance -= bob.house.monthly_rent_rub;
+}
+
+
+void bob_invest(const int month, const int year)
+{
+    if (bob.vtb.rub_balance > 50000) {
+        RUB invest = 30000;
+
+        if (bob.vtb.rub_balance >= invest) {
+            bob.vtb.rub_balance -= invest;
+            bob.invest_account += invest;
+        }
+        else {
+            printf("Bob skipped investing\n");
+        }
+    }
+
+    float result = economy_state.market_growth;
+    result += ((rand() % 200 - 100) / 100.0) * bob.risk_level * 3;
+
+    bob.invest_account += bob.invest_account * (result / 100 / 12);
+}
+
+
+void bob_life(const int month, const int year)
+{
+    bob.stress += 1;
+
+    if (bob.stress > 70) {
+        bob.salary *= 0.95;
+    }
+
+    if (bob.happiness > 70) {
+        bob.vtb.rub_balance += 5000;
+    }
+    if (bob.stress > 100) bob.stress = 100;
+    if (bob.stress < 0) bob.stress = 0;
+    if (bob.happiness > 100) bob.happiness = 100;
+    if (bob.happiness < 0) bob.happiness = 0;
+}
+
+
+void bob_lifestyle(const int month, const int year)
+{
+    RUB base = 20000;
+
+    if (bob.happiness > 70) {
+        base += 10000;
+    }
+    if (bob.stress > 60) {
+        base += 15000;
+    }
+
+    bob.vtb.rub_balance -= base;
+}
+
+
+void bob_education(const int month, const int year)
+{
+    if (month % 4 == 0) {
+        RUB cost = 25000;
+
+        if (bob.vtb.rub_balance >= cost) {
+            bob.vtb.rub_balance -= cost;
+            bob.education += 0.03;
+
+            printf("Bob studies in %d/%d\n", month, year);
+        }
+    }
+    bob.salary *= (1 + bob.education * 0.01);
+}
+
+
+void bob_relationships(const int month, const int year)
+{
+    if (!bob.good_relationship && rand() % 100 < 10) {
+        bob.good_relationship = true;
+        printf("Bob found a girlfriend in %d/%d\n", month, year);
+    }
+    if (bob.good_relationship) {
+        RUB cost = 15000;
+        bob.vtb.rub_balance -= cost;
+        bob.happiness += 5;
+
+        if (rand() % 100 < 30) {
+            RUB support = 20000;
+            bob.vtb.rub_balance += support;
+            printf("Bob received support from partner: %lld RUB\n", support);
+        }
+    }
+    if (bob.good_relationship && rand() % 100 < 5) {
+        bob.good_relationship = false;
+        bob.happiness -= 20;
+
+        printf("Bob broke up in %d/%d\n", month, year);
+    }
+}
+
+
+void bob_car_upgrade(const int month, const int year)
+{
+    if (month == 6 && bob.vtb.rub_balance > 100000) {
+        RUB upgrade = 50000;
+
+        bob.vtb.rub_balance -= upgrade;
+        bob.car.market_value_rub += upgrade;
+    }
+}
+
+
+void bob_credit_system(const int month, const int year)
+{
+    if (bob.credit.remaining_debt_rub <= 0) return;
+
+    bob.credit.remaining_debt_rub += bob.credit.remaining_debt_rub * bob.credit.annual_interest_rate / 100 / 12;
+
+    if (bob.vtb.rub_balance >= bob.credit.monthly_payment_rub) {
+        bob.vtb.rub_balance -= bob.credit.monthly_payment_rub;
+        bob.credit.remaining_debt_rub -= bob.credit.monthly_payment_rub;
+    }
+    else {
+        RUB paid = bob.vtb.rub_balance;
+        if (paid > 0) {
+            bob.vtb.rub_balance = 0;
+            bob.credit.remaining_debt_rub -= paid;
+        }
+    }
+
+    if (bob.credit.remaining_debt_rub <= 0) {
+        printf("Bob paid off credit!\n");
+        bob.credit.remaining_debt_rub = 0;
+    }
+}
+
+
+void bob_stress_system(const int month, const int year)
+{
+    bob.stress += 2;
+    if (bob.vtb.rub_balance > 300000) {
+        bob.stress -= 3;
+    }
+    if (bob.stress > 80) {
+        bob.salary *= 0.9;
+    }
+    if (bob.stress < 20) {
+        bob.happiness += 5;
+    }
+
+    if (bob.stress > 100) bob.stress = 100;
+    if (bob.stress < 0) bob.stress = 0;
+    if (bob.happiness > 100) bob.happiness = 100;
+    if (bob.happiness < 0) bob.happiness = 0;
+}
+
+
+void bob_travel(const int month, const int year)
+{
+    if (rand() % 100 < 15) {
+        bob.on_trip = true;
+        bob.trip_days = 3 + rand() % 7;
+
+        printf("Bob goes on trip in %d/%d\n", month, year);
+    }
+
+    if (bob.on_trip) {
+        bob.trip_days--;
+
+        bob.vtb.rub_balance -= 20000;
+        bob.happiness += 5;
+
+        if (bob.trip_days <= 0) {
+            bob.on_trip = false;
+            printf("Bob trip ended\n");
+        }
+    }
+}
+
+
+void bob_business(const int month, const int year)
+{
+    if (!bob.has_business && bob.vtb.rub_balance > 300000) {
+        bob.has_business = true;
+        bob.vtb.rub_balance -= 200000;
+        bob.business_income = 30000;
+
+        printf("Bob started a business!\n");
+    }
+    if (bob.has_business) {
+        bob.vtb.rub_balance += bob.business_income;
+        if (rand() % 100 < 10) {
+            bob.business_income *= 0.8;
+            printf("Business problems!\n");
+        }
+        if (rand() % 100 < 10) {
+            bob.business_income *= 1.2;
+            printf("Business growth!\n");
+        }
+    }
+}
+
+
+void alice_random_life_event(const int month, const int year) {
+    int event = rand() % 100;
+
+    if (event < 5) {
+        RUB win = 50000 + rand() % 200000;
+        alice.vtb.rub_balance += win;
+        alice.happiness += 15;
+        printf("Alice won lottery: %lld RUB!\n", win);
+    }
+    else if (event < 10) {
+        RUB stolen = 10000 + rand() % 50000;
+        if (alice.vtb.rub_balance >= stolen) {
+            alice.vtb.rub_balance -= stolen;
+            alice.stress += 20;
+            printf("Alice was robbed: -%lld RUB\n", stolen);
+        }
+    }
+    else if (event < 15) {
+        RUB inheritance = 100000 + rand() % 300000;
+        alice.vtb.rub_balance += inheritance;
+        alice.happiness += 10;
+        printf("Alice received inheritance: %lld RUB\n", inheritance);
+    }
+    else if (event < 18) {
+        alice.health -= 20;
+        alice.stress += 15;
+        printf("Alice got sick!\n");
+    }
+}
+
+
+void bob_random_life_event(const int month, const int year) {
+    int event = rand() % 100;
+
+    if (event < 5) {
+        RUB win = 50000 + rand() % 200000;
+        bob.vtb.rub_balance += win;
+        bob.happiness += 15;
+        printf("Bob won lottery: %lld RUB!\n", win);
+    }
+    else if (event < 10) {
+        RUB stolen = 10000 + rand() % 50000;
+        if (bob.vtb.rub_balance >= stolen) {
+            bob.vtb.rub_balance -= stolen;
+            bob.stress += 20;
+            printf("Bob was robbed: -%lld RUB\n", stolen);
+        }
+    }
+    else if (event < 15) {
+        RUB inheritance = 100000 + rand() % 300000;
+        bob.vtb.rub_balance += inheritance;
+        bob.happiness += 10;
+        printf("Bob received inheritance: %lld RUB\n", inheritance);
+    }
+    else if (event < 18) {
+        bob.health -= 20;
+        bob.stress += 15;
+        printf("Bob got sick!\n");
+    }
+}
+
+
+int calculate_alice_credit_score() {
+    int score = 500;
+
+    if (alice.credit.remaining_debt_rub == 0) score += 200;
+    else if (alice.credit.remaining_debt_rub < alice.salary * 6) score += 100;
+    else if (alice.credit.remaining_debt_rub > alice.salary * 12) score -= 150;
+
+    if (alice.vtb.rub_balance > 500000) score += 100;
+    else if (alice.vtb.rub_balance > 200000) score += 50;
+
+    if (alice.house.is_owned) score += 150;
+    if (alice.invest_account > 200000) score += 80;
+
+    if (alice.months_worked > 5) score += 100;
+    else if (alice.months_worked > 2) score += 50;
+
+    if (alice.salary > 200000) score += 80;
+    else if (alice.salary > 100000) score += 40;
+
+    if (alice.discipline > 70) score += 50;
+    if (alice.creativity > 70) score += 30;
+    if (alice.stress > 70) score -= 50;
+    if (alice.happiness < 40) score -= 40;
+
+    if (score > 900) score = 900;
+    if (score < 300) score = 300;
+
+    const char* rating;
+    if (score >= 800) rating = "EXCELLENT";
+    else if (score >= 700) rating = "GOOD";
+    else if (score >= 600) rating = "FAIR";
+    else if (score >= 500) rating = "POOR";
+    else rating = "VERY POOR";
+
+    printf("   Alice credit rating: %s (%d)\n", rating, score);
+    return score;
+}
+
+
+int calculate_bob_credit_score() {
+    int score = 500;
+
+    if (bob.credit.remaining_debt_rub == 0) score += 200;
+    else if (bob.credit.remaining_debt_rub < bob.salary * 6) score += 100;
+    else if (bob.credit.remaining_debt_rub > bob.salary * 12) score -= 150;
+
+    if (bob.vtb.rub_balance > 500000) score += 100;
+    else if (bob.vtb.rub_balance > 200000) score += 50;
+
+    if (bob.house.is_owned) score += 150;
+    if (bob.invest_account > 200000) score += 80;
+
+    if (bob.months_worked > 5) score += 100;
+    else if (bob.months_worked > 2) score += 50;
+
+    if (bob.salary > 200000) score += 80;
+    else if (bob.salary > 100000) score += 40;
+
+    if (bob.discipline > 70) score += 50;
+    if (bob.creativity > 70) score += 30;
+    if (bob.stress > 70) score -= 50;
+    if (bob.happiness < 40) score -= 40;
+
+    if (score > 900) score = 900;
+    if (score < 300) score = 300;
+
+    const char* rating;
+    if (score >= 800) rating = "EXCELLENT";
+    else if (score >= 700) rating = "GOOD";
+    else if (score >= 600) rating = "FAIR";
+    else if (score >= 500) rating = "POOR";
+    else rating = "VERY POOR";
+
+    printf("   Bob credit rating: %s (%d)\n", rating, score);
+    return score;
+}
+
+
+void update_alice_child_expenses() {
+    if (alice.family_details.children_count <= 0) return;
+
+    RUB base_expense = 15000;
+    alice.family_details.child_expenses = base_expense * alice.family_details.children_count;
+    alice.vtb.rub_balance -= alice.family_details.child_expenses;
+
+    alice.happiness += alice.family_details.children_count * 3;
+    alice.stress += alice.family_details.children_count * 5;
+
+    if (alice.happiness > 100) alice.happiness = 100;
+    if (alice.stress > 100) alice.stress = 100;
+}
+
+
+void update_bob_child_expenses() {
+    if (bob.family_details.children_count <= 0) return;
+
+    RUB base_expense = 15000;
+    bob.family_details.child_expenses = base_expense * bob.family_details.children_count;
+    bob.vtb.rub_balance -= bob.family_details.child_expenses;
+
+    bob.happiness += bob.family_details.children_count * 3;
+    bob.stress += bob.family_details.children_count * 5;
+
+    if (bob.happiness > 100) bob.happiness = 100;
+    if (bob.stress > 100) bob.stress = 100;
+}
+
+void alice_birthday_gift(const int month, const int year) {
+    if (month == alice.birthday_month) {
+        RUB gift = 20000 + rand() % 50000;
+        alice.vtb.rub_balance += gift;
+        alice.happiness += 15;
+        if (alice.happiness > 100) alice.happiness = 100;
+        printf("Happy Birthday Alice! You received %lld RUB gift!\n", gift);
+    }
+}
+
+
+void bob_birthday_gift(const int month, const int year) {
+    if (month == bob.birthday_month) {
+        RUB gift = 20000 + rand() % 50000;
+        bob.vtb.rub_balance += gift;
+        bob.happiness += 15;
+        if (bob.happiness > 100) bob.happiness = 100;
+        printf("Happy Birthday Bob! You received %lld RUB gift!\n", gift);
+    }
+}
+
+
+void alice_new_year_bonus(const int month, const int year) {
+    if (month == 12) {
+        RUB bonus = 30000 + rand() % 70000;
+        alice.vtb.rub_balance += bonus;
+        alice.happiness += 10;
+        if (alice.happiness > 100) alice.happiness = 100;
+        printf("Alice got New Year bonus: %lld RUB!\n", bonus);
+    }
+}
+
+
+void bob_new_year_bonus(const int month, const int year) {
+    if (month == 12) {
+        RUB bonus = 30000 + rand() % 70000;
+        bob.vtb.rub_balance += bonus;
+        bob.happiness += 10;
+        if (bob.happiness > 100) bob.happiness = 100;
+        printf("Bob got New Year bonus: %lld RUB!\n", bonus);
+    }
+}
+
+void alice_charity_donation(const int month, const int year) {
+    if (month == 12 && alice.vtb.rub_balance > 200000) {
+        RUB donation = 15000;
+        alice.vtb.rub_balance -= donation;
+        alice.happiness += 15;
+        alice.reputation += 10;
+        if (alice.happiness > 100) alice.happiness = 100;
+        printf("Alice donated %lld RUB to charity! Reputation increased!\n", donation);
+    }
+}
+
+void bob_charity_donation(const int month, const int year) {
+    if (month == 12 && bob.vtb.rub_balance > 200000) {
+        RUB donation = 15000;
+        bob.vtb.rub_balance -= donation;
+        bob.happiness += 15;
+        bob.reputation += 10;
+        if (bob.happiness > 100) bob.happiness = 100;
+        printf("Bob donated %lld RUB to charity! Reputation increased!\n", donation);
+    }
+}
+
+void alice_seasonal_expenses(const int month, const int year) {
+    if (month == 6) {
+        RUB summer_cost = 25000;
+        alice.vtb.rub_balance -= summer_cost;
+        printf("Alice spent %lld RUB on summer expenses\n", summer_cost);
+    }
+
+    if (month == 11) {
+        RUB winter_cost = 30000;
+        alice.vtb.rub_balance -= winter_cost;
+        printf("Alice spent %lld RUB on winter preparation\n", winter_cost);
+    }
+}
+
+
+void bob_seasonal_expenses(const int month, const int year) {
+    if (month == 6) {
+        RUB summer_cost = 25000;
+        bob.vtb.rub_balance -= summer_cost;
+        printf("Bob spent %lld RUB on summer expenses\n", summer_cost);
+    }
+    if (month == 11) {
+        RUB winter_cost = 30000;
+        bob.vtb.rub_balance -= winter_cost;
+        printf("Bob spent %lld RUB on winter preparation\n", winter_cost);
+    }
+}
+
+
+void alice_professional_training(const int month, const int year) {
+    if (month % 4 == 0 && alice.salary > 0 && alice.vtb.rub_balance > 50000) {
+        RUB training_cost = 35000;
+        alice.vtb.rub_balance -= training_cost;
+        alice.education += 0.08;
+        alice.salary *= 1.05;
+        printf("Alice completed professional training! Salary increased!\n");
+    }
+}
+
+
+void bob_professional_training(const int month, const int year) {
+    if (month % 4 == 0 && bob.salary > 0 && bob.vtb.rub_balance > 50000) {
+        RUB training_cost = 35000;
+        bob.vtb.rub_balance -= training_cost;
+        bob.education += 0.08;
+        bob.salary *= 1.05;
+        printf("Bob completed professional training! Salary increased!\n");
+    }
+}
+
+
+void alice_vacation_planning(const int month, const int year) {
+    if (month == 7 && !alice.on_trip && alice.vtb.rub_balance > 100000) {
+        int choice = rand() % 3;
+        RUB vacation_cost;
+
+        switch (choice) {
+        case 0:
+            vacation_cost = 80000;
+            printf("Alice went to the seaside!\n");
+            break;
+        case 1:
+            vacation_cost = 60000;
+            printf("Alice went to the mountains!\n");
+            break;
+        default:
+            vacation_cost = 100000;
+            printf("Alice went abroad!\n");
+        }
+
+        alice.vtb.rub_balance -= vacation_cost;
+        alice.happiness += 25;
+        alice.stress -= 20;
+        if (alice.happiness > 100) alice.happiness = 100;
+        if (alice.stress < 0) alice.stress = 0;
+    }
+}
+
+
+void bob_vacation_planning(const int month, const int year) {
+    if (month == 7 && !bob.on_trip && bob.vtb.rub_balance > 100000) {
+        int choice = rand() % 3;
+        RUB vacation_cost;
+
+        switch (choice) {
+        case 0:
+            vacation_cost = 80000;
+            printf("Bob went to the seaside!\n");
+            break;
+        case 1:
+            vacation_cost = 60000;
+            printf("Bob went to the mountains!\n");
+            break;
+        default:
+            vacation_cost = 100000;
+            printf("Bob went abroad!\n");
+        }
+
+        bob.vtb.rub_balance -= vacation_cost;
+        bob.happiness += 25;
+        bob.stress -= 20;
+        if (bob.happiness > 100) bob.happiness = 100;
+        if (bob.stress < 0) bob.stress = 0;
+    }
+}
+
+
+void alice_investment_advice(const int month, const int year) {
+    if (alice.invest_account > 100000 && month % 4 == 0) {
+        if (alice.intelligence > 70) {
+            RUB advice_bonus = alice.invest_account * 3 / 100;
+            alice.invest_account += advice_bonus;
+            printf("Alice got smart investment advice! +%lld RUB\n", advice_bonus);
+        }
+        else if (alice.intelligence < 50 && rand() % 100 < 30) {
+            RUB loss = alice.invest_account * 5 / 100;
+            alice.invest_account -= loss;
+            printf("Alice followed bad investment advice! -%lld RUB\n", loss);
+        }
+    }
+}
+
+
+void bob_investment_advice(const int month, const int year) {
+    if (bob.invest_account > 100000 && month % 4 == 0) {
+        if (bob.intelligence > 70) {
+            RUB advice_bonus = bob.invest_account * 3 / 100;
+            bob.invest_account += advice_bonus;
+            printf("Bob got smart investment advice! +%lld RUB\n", advice_bonus);
+        }
+        else if (bob.intelligence < 50 && rand() % 100 < 30) {
+            RUB loss = bob.invest_account * 5 / 100;
+            bob.invest_account -= loss;
+            printf("Bob followed bad investment advice! -%lld RUB\n", loss);
+        }
+    }
+}
+
+
+void alice_mental_health_check(const int month, const int year) {
+    if (alice.stress > 80 && alice.happiness < 30) {
+        if (rand() % 100 < 20) {
+            alice.happiness -= 15;
+            alice.health -= 10;
+            alice.salary *= 0.95;
+
+            if (alice.happiness < 0) alice.happiness = 0;
+            if (alice.health < 0) alice.health = 0;
+        }
+    }
+    else if (alice.stress < 30 && alice.happiness > 70) {
+        if (rand() % 100 < 30) {
+            RUB bonus = alice.salary * 0.2;
+            alice.vtb.rub_balance += bonus;
+        }
+    }
+}
+
+
+void bob_mental_health_check(const int month, const int year) {
+    if (bob.stress > 80 && bob.happiness < 30) {
+        if (rand() % 100 < 20) {
+            bob.happiness -= 15;
+            bob.health -= 10;
+            bob.salary *= 0.95;
+
+            if (bob.happiness < 0) bob.happiness = 0;
+            if (bob.health < 0) bob.health = 0;
+        }
+    }
+    else if (bob.stress < 30 && bob.happiness > 70) {
+        if (rand() % 100 < 30) {
+            RUB bonus = bob.salary * 0.2;
+            bob.vtb.rub_balance += bonus;
+        }
+    }
+}
+
+
+void alice_seasonal_sales(const int month, const int year) {
+    if (month == 11 && alice.vtb.rub_balance > 50000) {
+        RUB saving = 15000 + rand() % 40000;
+        alice.vtb.rub_balance += saving;
+        alice.happiness += 8;
+    }
+
+    if (month == 7 && alice.vtb.rub_balance > 30000) {
+        RUB saving = 8000 + rand() % 20000;
+        alice.vtb.rub_balance += saving;
+    }
+}
+
+
+void bob_seasonal_sales(const int month, const int year) {
+    if (month == 11 && bob.vtb.rub_balance > 50000) {
+        RUB saving = 15000 + rand() % 40000;
+        bob.vtb.rub_balance += saving;
+        bob.happiness += 8;
+    }
+
+    if (month == 7 && bob.vtb.rub_balance > 30000) {
+        RUB saving = 8000 + rand() % 20000;
+        bob.vtb.rub_balance += saving;
+    }
+}
+
+
+void spend_money(RUB& balance, RUB amount)
+{
+    if (balance >= amount) {
+        balance -= amount;
+    }
+    else {
+        printf("Not enough money\n");
+    }
+}
+
+
+RUB calculate_alice_capital() {
+    RUB capital = 0;
+    capital += alice.vtb.rub_balance;
+    capital += alice.vtb.deposit_balance_rub;
+    capital += static_cast<RUB>(alice.vtb.usd_balance * alice.vtb.usd_to_rub_rate);
+    capital += alice.car.market_value_rub;
+    capital += alice.invest_account;
+
+    if (alice.house.is_owned) {
+        capital += alice.house.purchase_price_rub;
+    }
+
+    if (alice.mortgage.is_active) {
+        capital -= alice.mortgage.remaining_debt_rub;
+    }
+
+    return capital;
+}
+
+
+RUB calculate_bob_capital() {
+    RUB capital = 0;
+    capital += bob.vtb.rub_balance;
+    capital += bob.vtb.deposit_balance_rub;
+    capital += static_cast<RUB>(bob.vtb.usd_balance * bob.vtb.usd_to_rub_rate);
+    capital += bob.car.market_value_rub;
+    capital += bob.invest_account;
+
+    if (bob.house.is_owned) {
+        capital += bob.house.purchase_price_rub;
+    }
+
+    if (bob.mortgage.is_active) {
+        capital -= bob.mortgage.remaining_debt_rub;
+    }
+
+    return capital;
+}
+
+void print_alice_achievements() {
+    printf("\nALICE ACHIEVEMENTS\n");
+
+    if (alice.vtb.rub_balance >= 1000000) {
+        printf("MILLIONAIRE\n");
+        alice.achievements[0] = 1;
+    }
+
+    if (alice.house.is_owned) {
+        printf("HOME OWNER\n");
+        alice.achievements[1] = 1;
+    }
+
+    if (alice.credit.remaining_debt_rub == 0) {
+        printf("DEBT FREE\n");
+        alice.achievements[2] = 1;
+    }
+
+    if (alice.happiness > 80) {
+        printf("HAPPY LIFE\n");
+        alice.achievements[3] = 1;
+    }
+
+    if (alice.invest_account > 200000) {
+        printf("SUCCESSFUL INVESTOR\n");
+        alice.achievements[4] = 1;
+    }
+
+    int count = 0;
+    for (int i = 0; i < 10; i++) {
+        if (alice.achievements[i]) count++;
+    }
+    printf("Total achievements: %d\n", count);
+}
+
+void print_bob_achievements() {
+    printf("\nBOB ACHIEVEMENTS\n");
+
+    if (bob.vtb.rub_balance >= 1000000) {
+        printf("MILLIONAIRE\n");
+        bob.achievements[0] = 1;
+    }
+
+    if (bob.house.is_owned) {
+        printf("HOME OWNER\n");
+        bob.achievements[1] = 1;
+    }
+
+    if (bob.credit.remaining_debt_rub == 0) {
+        printf("DEBT FREE\n");
+        bob.achievements[2] = 1;
+    }
+
+    if (bob.happiness > 80) {
+        printf("HAPPY LIFE\n");
+        bob.achievements[3] = 1;
+    }
+
+    if (bob.invest_account > 200000) {
+        printf("SUCCESSFUL INVESTOR\n");
+        bob.achievements[4] = 1;
+    }
+
+    int count = 0;
+    for (int i = 0; i < 10; i++) {
+        if (bob.achievements[i]) count++;
+    }
+    printf("Total achievements: %d\n", count);
+}
+
+
+void print_results()
+{
+    RUB alice_capital = calculate_alice_capital();
+    RUB bob_capital = calculate_bob_capital();
+
+    printf("\nALICE'S LIFE\n");
+    printf("Salary: %lld RUB\n", alice.salary);
+    printf("Balance: %lld RUB\n", alice.vtb.rub_balance);
+    printf("Capital: %lld RUB\n", alice_capital);
+    printf("Pension fund: %lld RUB\n", alice.pension_fund);
+    printf("Months worked: %d\n", alice.months_worked);
+    printf("Happiness: %.1f/100, Stress: %.1f/100, Health: %.1f/100\n",
+        alice.happiness, alice.stress, alice.health);
+    printf("Hobbies: %s, %s\n", alice.hobby1.name, alice.hobby2.name);
+    printf("Creativity: %d, Discipline: %d, Intelligence: %d, Reputation: %d\n",
+        alice.creativity, alice.discipline, alice.intelligence, alice.reputation);
+    printf("Mood: %d\n", alice.current_mood);
+
+    if (alice.credit.remaining_debt_rub > 0) {
+        printf("Credit left: %lld RUB\n", alice.credit.remaining_debt_rub);
+    }
+    else {
+        printf("Credit: PAID OFF\n");
+    }
+
+    if (alice.house.is_owned) {
+        printf("House: OWNED\n");
+    }
+    else {
+        printf("House: RENT\n");
+    }
+
+    printf("\nBOB'S LIFE\n");
+    printf("Salary: %lld RUB\n", bob.salary);
+    printf("Balance: %lld RUB\n", bob.vtb.rub_balance);
+    printf("Capital: %lld RUB\n", bob_capital);
+    printf("Pension fund: %lld RUB\n", bob.pension_fund);
+    printf("Months worked: %d\n", bob.months_worked);
+    printf("Happiness: %.1f/100, Stress: %.1f/100, Health: %.1f/100\n",
+        bob.happiness, bob.stress, bob.health);
+    printf("Hobbies: %s, %s\n", bob.hobby1.name, bob.hobby2.name);
+    printf("Creativity: %d, Discipline: %d, Intelligence: %d, Reputation: %d\n",
+        bob.creativity, bob.discipline, bob.intelligence, bob.reputation);
+    printf("Mood: %d\n", bob.current_mood);
+
+    if (bob.credit.remaining_debt_rub > 0) {
+        printf("Credit left: %lld RUB\n", bob.credit.remaining_debt_rub);
+    }
+    else {
+        printf("Credit: PAID OFF\n");
+    }
+
+    if (bob.has_business) {
+        printf("Business: ACTIVE (%lld RUB/month)\n", bob.business_income);
+    }
+
+    printf("\nCOMPARISON\n");
+    printf("Capital difference: %lld RUB\n", alice_capital - bob_capital);
+    printf("Happiness difference: %.1f\n", alice.happiness - bob.happiness);
+
+    printf("\nCREDIT SCORES\n");
+    printf("Alice credit score: %d\n", calculate_alice_credit_score());
+    printf("Bob credit score: %d\n", calculate_bob_credit_score());
+
+    print_alice_achievements();
+    print_bob_achievements();
+}
+
+
+void simulation() {
+    int year = 2026;
+    int month = 2;
+    while (!(year == 2029 && month == 2)) {
+        if (economy_state.crisis) {
+            apply_alice_crisis_effects(month, year);
+            apply_bob_crisis_effects(month, year);
+        }
+        inflation_update(month, year);
+        economy_system(month, year);
+        check_alice_unemployment(month, year);
+        alice_usd_rate(month, year);
+        alice_currency(month, year);
+        alice_birthday_gift(month, year);
+        alice_new_year_bonus(month, year);
+        alice_charity_donation(month, year);
+        alice_seasonal_expenses(month, year);
+        alice_professional_training(month, year);
+        alice_vacation_planning(month, year);
+        alice_investment_advice(month, year);
+        alice_mental_health_check(month, year);
+        alice_seasonal_sales(month, year);
+        alice_salary(month, year);
+        alice_car(month, year);
+        alice_food(month, year);
+        alice_decisions(month, year);
+        update_alice_child_expenses();
+        alice_house(month, year);
+        alice_buy_house(month, year);
+        alice_house_repair(month, year);
+        alice_take_mortgage(month, year);
+        alice_mortgage_payment(month, year);
+        alice_events(month, year);
+        alice_random_events(month, year);
+        alice_random_life_event(month, year);
+        alice_life_system(month, year);
+        alice_luck_system(month, year);
+        alice_health_system(month, year);
+        alice_education_system(month, year);
+        alice_safety_system(month, year);
+        process_alice_hobby(alice.hobby1, month);
+        process_alice_hobby(alice.hobby2, month);
+        process_alice_entertainment(month, year);
+        process_alice_events(month, year);
+        update_alice_mood();
+        calculate_alice_reputation();
+        alice_credit(month, year);
+        alice_deposit(month, year);
+        alice_relationship(month, year);
+        alice_invest_system(month, year);
+
+
+        bob_credit_system(month, year);
+        bob_salary(month, year);
+        check_bob_unemployment(month, year);
+        bob_food(month, year);
+        bob_car(month, year);
+        bob_house(month, year);
+        bob_birthday_gift(month, year);
+        bob_new_year_bonus(month, year);
+        bob_charity_donation(month, year);
+        bob_seasonal_expenses(month, year);
+        bob_professional_training(month, year);
+        bob_vacation_planning(month, year);
+        bob_investment_advice(month, year);
+        bob_mental_health_check(month, year);
+        bob_seasonal_sales(month, year);
+        bob_lifestyle(month, year);
+        bob_random_events(month, year);
+        bob_education(month, year);
+        bob_relationships(month, year);
+        bob_stress_system(month, year);
+        bob_travel(month, year);
+        bob_car_upgrade(month, year);
+        bob_business(month, year);
+        bob_invest(month, year);
+        bob_life(month, year);
+        bob_random_life_event(month, year);
+        update_bob_child_expenses();
+        process_bob_hobby(bob.hobby1, month);
+        process_bob_hobby(bob.hobby2, month);
+        process_bob_entertainment(month, year);
+        process_bob_events(month, year);
+        update_bob_mood();
+        calculate_bob_reputation();
+
+        printf("Year: %d Month: %d Alice: %lld Bob: %lld\n",
+            year, month, alice.vtb.rub_balance, bob.vtb.rub_balance);
+
+        ++month;
+        if (month == 13) {
+            ++year;
+            month = 1;
+        }
+    }
+}
+
+int main() {
+    srand(time(0));
+    init();
+    simulation();
+    print_results();
+}
+
