@@ -1,0 +1,1862 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <locale.h>
+
+
+using RUB = long long int;
+using USD = long long int;
+
+// данные по машине: цена, бензин, ремонт и т.п.
+struct Car {
+	RUB value;
+	RUB gas;
+	RUB insurance;
+	RUB maintenance;
+	RUB parking;
+	RUB fine;
+	RUB car_wash;
+	RUB tires;
+	RUB tax;
+};
+
+// жилье и платежи по нему
+struct RealEstate {
+	RUB apartment_value;
+	RUB mortgage_payment;
+	RUB utilities;
+	RUB property_tax;
+	RUB repair_fund;
+	RUB inherited_apartment_value;
+	RUB rental_income;
+	RUB rental_tax;
+	RUB inherited_apartment_utilities;
+	int is_rented;
+	int is_apartment_sold;
+};
+
+// расходы на животных
+struct Pets {
+	RUB cat_food;
+	RUB vet_visits;
+	RUB toys;
+	RUB insurance;
+	RUB grooming;
+	RUB cat_sitter;
+	RUB litter;
+	RUB treats;
+};
+
+// инвестиционный портфель, тут всё меняется каждый месяц
+struct Investments {
+	RUB stocks;
+	RUB crypto;
+	RUB bonds;
+	RUB gold;
+	RUB etf;
+	RUB startup;
+	float stocks_growth_rate;
+	float crypto_volatility;
+	float gold_growth_rate;
+	float etf_growth_rate;
+};
+
+// банковские счета и кредитка
+struct Bank {
+	RUB account_rub;
+	USD account_usd;
+	float rate_usd_rub;
+	float deposit_rate;
+	RUB credit_card_debt;
+	RUB credit_card_limit;
+	RUB savings_account;
+	RUB tax_refund;
+};
+
+// учеба и повышение квалификации
+struct Education {
+	RUB courses;
+	RUB books;
+	RUB certifications;
+	RUB mentorship;
+	RUB conference;
+};
+
+// здоровье, болезни и вредные привычки
+struct Health {
+	RUB insurance;
+	RUB dentist;
+	RUB medications;
+	RUB vitamins;
+	RUB massage;
+	RUB psychologist;
+	RUB gym_membership;
+	RUB sports_equipment;
+	int alcohol_addiction_level;
+	int is_addicted;
+	int is_pregnant;
+	int pregnancy_month;
+	int pregnancy_year;
+	int sick_months;
+	int has_chronic_disease;
+};
+
+// развлечения отдельно, чтобы потом было проще менять
+struct Entertainment {
+	RUB cinema;
+	RUB concerts;
+	RUB restaurants;
+	RUB cafes;
+	RUB museums;
+	RUB hobbies;
+	RUB board_games;
+	RUB video_games;
+};
+
+// фриланс-проекты не постоянные, поэтому есть сроки
+struct Freelance {
+	RUB monthly_income;
+	RUB project_income;
+	RUB taxes;
+	int has_project;
+	int project_month;
+	int project_duration;
+};
+
+// благотворительность оставил отдельным блоком
+struct Charity {
+	RUB animal_shelter;
+	RUB environmental;
+	RUB children_fund;
+	RUB church;
+	RUB monthly_donations;
+};
+
+// отпуск и связанные траты
+struct Vacation {
+	RUB travel_fund;
+	RUB current_trip_cost;
+	RUB souvenirs;
+	RUB visa_fees;
+	int is_traveling;
+	int travel_month;
+};
+
+// семья: свадьба, дети, помощь родственникам
+struct Family {
+	RUB parents_aid;
+	RUB grandparents_aid;
+	RUB siblings_gifts;
+	RUB family_events;
+	RUB heritage_tax;
+	int is_married;
+	int wedding_year;
+	int wedding_month;
+	RUB husband_salary;
+	RUB child_expenses;
+	int has_child;
+	int child_birth_year;
+	int child_birth_month;
+	RUB maternity_capital;
+	int second_child_birth_year;
+	int second_child_birth_month;
+	int has_second_child;
+	RUB second_child_expenses;
+};
+
+// карьера и возможная смена профессии
+struct Profession {
+	int current_profession_id;
+	RUB base_salaries[7];
+	int career_change_year;
+	int career_change_month;
+};
+
+// майнинг только для одной из жизненных моделей
+struct CryptoMining {
+	int has_mining_rig;
+	RUB rig_cost;
+	RUB monthly_electricity;
+	RUB monthly_reward;
+	int mining_active_years;
+};
+
+// небольшой бизнес Максима
+struct SideBusiness {
+	int has_business;
+	RUB business_investment;
+	RUB monthly_profit;
+	RUB business_tax;
+	int business_type;
+	int business_active_years;
+};
+
+// общий человек, сюда собраны все части модели
+struct Person {
+	RUB pets_expenses;
+	RUB lottery_tickets;
+	Bank vtb;
+	RUB food;
+	RUB salary;
+	Car car;
+	RealEstate home;
+	Pets animals;
+	Investments portfolio;
+	RUB subscriptions;
+	RUB fitness;
+	RUB clothes;
+	RUB entertainment_total;
+	Education education;
+	Health health;
+	Entertainment entertainment_detail;
+	Freelance freelance;
+	Charity charity;
+	Vacation vacation;
+	Family family;
+	Profession career;
+	CryptoMining mining;
+	SideBusiness business;
+	RUB transportation;
+	RUB gifts;
+	RUB emergency_fund;
+	RUB beauty;
+	RUB electronics;
+	RUB alcohol;
+	RUB insurance_life;
+	RUB pension_fund;
+	int credit_history_score;
+	int economic_crisis_impact;
+};
+
+// две разные модели жизни для сравнения
+struct Person victoria;
+struct Person maxim;
+
+// начальные данные Виктории
+void victoria_init()
+{
+	victoria.vtb.rate_usd_rub = 84.20;
+	victoria.vtb.deposit_rate = 0.11;
+	victoria.vtb.savings_account = 0;
+	victoria.vtb.tax_refund = 0;
+
+	victoria.portfolio.stocks_growth_rate = 0.12;
+	victoria.portfolio.crypto_volatility = 0.3;
+	victoria.portfolio.gold_growth_rate = 0.08;
+	victoria.portfolio.etf_growth_rate = 0.10;
+
+	victoria.vtb.account_rub = 620'000; // деньги на старте
+	victoria.vtb.account_usd = 1'300; // немного валюты
+	victoria.vtb.credit_card_debt = 0;
+	victoria.vtb.credit_card_limit = 350'000;
+
+	victoria.food = 4'500;
+	victoria.salary = 82'000; // первая зарплата
+	victoria.subscriptions = 3'200;
+	victoria.clothes = 9'000;
+	victoria.transportation = 4'000;
+	victoria.gifts = 6'000;
+	victoria.emergency_fund = 12'000;
+	victoria.beauty = 8'000;
+	victoria.electronics = 6'000;
+	victoria.alcohol = 1'500;
+	victoria.insurance_life = 3'500;
+	victoria.pension_fund = 6'000;
+	victoria.credit_history_score = 720;
+	victoria.economic_crisis_impact = 0;
+
+	victoria.car.value = 2'100'000; // машина уже есть
+	victoria.car.gas = 13'000;
+	victoria.car.insurance = 18'000;
+	victoria.car.maintenance = 9'000;
+	victoria.car.parking = 6'000;
+	victoria.car.fine = 0;
+	victoria.car.car_wash = 1'800;
+	victoria.car.tires = 0;
+	victoria.car.tax = 4'200;
+
+	victoria.home.apartment_value = 9'200'000; // основная квартира
+	victoria.home.mortgage_payment = 52'000;
+	victoria.home.utilities = 8'500;
+	victoria.home.property_tax = 4'200;
+	victoria.home.repair_fund = 6'500;
+	victoria.home.inherited_apartment_value = 3'800'000; // наследственная квартира
+	victoria.home.rental_income = 42'000;
+	victoria.home.rental_tax = 5'000;
+	victoria.home.inherited_apartment_utilities = 5'000;
+	victoria.home.is_rented = 1; // сдается в аренду
+	victoria.home.is_apartment_sold = 0;
+
+	victoria.animals.cat_food = 2'500;
+	victoria.animals.vet_visits = 3'000;
+	victoria.animals.toys = 1'000;
+	victoria.animals.insurance = 1'500;
+	victoria.animals.grooming = 2'000;
+	victoria.animals.cat_sitter = 0;
+	victoria.animals.litter = 1'200;
+	victoria.animals.treats = 800;
+
+	victoria.portfolio.stocks = 260'000; // акции
+	victoria.portfolio.crypto = 40'000;
+	victoria.portfolio.bonds = 140'000;
+	victoria.portfolio.gold = 90'000;
+	victoria.portfolio.etf = 190'000;
+	victoria.portfolio.startup = 0;
+
+	victoria.education.courses = 18'000;
+	victoria.education.books = 4'000;
+	victoria.education.certifications = 0;
+	victoria.education.mentorship = 0;
+	victoria.education.conference = 0;
+
+	victoria.health.insurance = 8'000;
+	victoria.health.dentist = 0;
+	victoria.health.medications = 1'200;
+	victoria.health.vitamins = 2'500;
+	victoria.health.massage = 3'000;
+	victoria.health.psychologist = 0;
+	victoria.health.gym_membership = 5'000;
+	victoria.health.sports_equipment = 0;
+	victoria.health.alcohol_addiction_level = 0;
+	victoria.health.is_addicted = 0;
+	victoria.health.is_pregnant = 0;
+	victoria.health.pregnancy_month = 0;
+	victoria.health.pregnancy_year = 0;
+	victoria.health.sick_months = 0;
+	victoria.health.has_chronic_disease = 0;
+
+	victoria.entertainment_detail.cinema = 2'000;
+	victoria.entertainment_detail.concerts = 0;
+	victoria.entertainment_detail.restaurants = 5'000;
+	victoria.entertainment_detail.cafes = 3'000;
+	victoria.entertainment_detail.museums = 1'000;
+	victoria.entertainment_detail.hobbies = 3'000;
+	victoria.entertainment_detail.board_games = 1'000;
+	victoria.entertainment_detail.video_games = 2'000;
+
+	victoria.entertainment_total = 0;
+
+	victoria.freelance.monthly_income = 0;
+	victoria.freelance.project_income = 0;
+	victoria.freelance.taxes = 0;
+	victoria.freelance.has_project = 0;
+	victoria.freelance.project_month = 0;
+	victoria.freelance.project_duration = 0;
+
+	victoria.charity.animal_shelter = 1'000;
+	victoria.charity.environmental = 500;
+	victoria.charity.children_fund = 1'000;
+	victoria.charity.church = 0;
+	victoria.charity.monthly_donations = 2'500;
+
+	victoria.vacation.travel_fund = 35'000;
+	victoria.vacation.current_trip_cost = 0;
+	victoria.vacation.souvenirs = 0;
+	victoria.vacation.visa_fees = 0;
+	victoria.vacation.is_traveling = 0;
+	victoria.vacation.travel_month = 0;
+
+	victoria.family.parents_aid = 5'000;
+	victoria.family.grandparents_aid = 3'000;
+	victoria.family.siblings_gifts = 2'000;
+	victoria.family.family_events = 0;
+	victoria.family.heritage_tax = 190'000;
+	victoria.family.is_married = 0;
+	victoria.family.wedding_year = 0;
+	victoria.family.wedding_month = 0;
+	victoria.family.husband_salary = 0;
+	victoria.family.child_expenses = 0;
+	victoria.family.has_child = 0;
+	victoria.family.child_birth_year = 0;
+	victoria.family.child_birth_month = 0;
+	victoria.family.maternity_capital = 0;
+	victoria.family.has_second_child = 0;
+	victoria.family.second_child_birth_year = 0;
+	victoria.family.second_child_birth_month = 0;
+	victoria.family.second_child_expenses = 0;
+
+	victoria.lottery_tickets = 12'000; // спорная трата, но пусть будет
+
+	victoria.career.base_salaries[0] = 38'000;
+	victoria.career.base_salaries[1] = 52'000;
+	victoria.career.base_salaries[2] = 68'000;
+	victoria.career.base_salaries[3] = 96'000;
+	victoria.career.base_salaries[4] = 115'000;
+	victoria.career.base_salaries[5] = 135'000;
+	victoria.career.base_salaries[6] = 160'000;
+	victoria.career.current_profession_id = 0;
+	victoria.career.career_change_year = 2029; // первый пересмотр карьеры
+	victoria.career.career_change_month = 5;
+
+	victoria.mining.has_mining_rig = 0;
+	victoria.mining.rig_cost = 0;
+	victoria.mining.monthly_electricity = 0;
+	victoria.mining.monthly_reward = 0;
+	victoria.mining.mining_active_years = 0;
+
+	victoria.business.has_business = 0;
+	victoria.business.business_investment = 0;
+	victoria.business.monthly_profit = 0;
+	victoria.business.business_tax = 0;
+	victoria.business.business_type = 0;
+	victoria.business.business_active_years = 0;
+}
+
+// начальные данные Максима
+void maxim_init()
+{
+	maxim.vtb.rate_usd_rub = 84.20;
+	maxim.vtb.deposit_rate = 0.09;
+	maxim.vtb.savings_account = 0;
+	maxim.vtb.tax_refund = 0;
+
+	maxim.portfolio.stocks_growth_rate = 0.12;
+	maxim.portfolio.crypto_volatility = 0.3;
+	maxim.portfolio.gold_growth_rate = 0.08;
+	maxim.portfolio.etf_growth_rate = 0.10;
+
+	maxim.vtb.account_rub = 350'000; // стартовый остаток
+	maxim.vtb.account_usd = 800;
+	maxim.vtb.credit_card_debt = 70'000; // долг по кредитке
+	maxim.vtb.credit_card_limit = 250'000;
+
+	maxim.food = 5'000;
+	maxim.salary = 75'000; // стартовая зарплата
+	maxim.subscriptions = 2'200;
+	maxim.clothes = 6'500;
+	maxim.transportation = 3'000;
+	maxim.gifts = 4'000;
+	maxim.emergency_fund = 7'000;
+	maxim.beauty = 2'500;
+	maxim.electronics = 9'000;
+	maxim.alcohol = 4'000;
+	maxim.insurance_life = 2'500;
+	maxim.pension_fund = 4'000;
+	maxim.credit_history_score = 580;
+	maxim.economic_crisis_impact = 0;
+
+	maxim.car.value = 1'500'000; // машина попроще
+	maxim.car.gas = 12'000;
+	maxim.car.insurance = 16'000;
+	maxim.car.maintenance = 6'000;
+	maxim.car.parking = 4'000;
+	maxim.car.fine = 0;
+	maxim.car.car_wash = 2'000;
+	maxim.car.tires = 0;
+	maxim.car.tax = 3'800;
+
+	maxim.home.apartment_value = 0;
+	maxim.home.mortgage_payment = 0;
+	maxim.home.utilities = 0;
+	maxim.home.property_tax = 0;
+	maxim.home.repair_fund = 0;
+	maxim.home.inherited_apartment_value = 0;
+	maxim.home.rental_income = 0;
+	maxim.home.rental_tax = 0;
+	maxim.home.inherited_apartment_utilities = 0;
+	maxim.home.is_rented = 0;
+	maxim.home.is_apartment_sold = 0;
+
+	maxim.animals.cat_food = 0;
+	maxim.animals.vet_visits = 0;
+	maxim.animals.toys = 0;
+	maxim.animals.insurance = 0;
+	maxim.animals.grooming = 0;
+	maxim.animals.cat_sitter = 0;
+	maxim.animals.litter = 0;
+	maxim.animals.treats = 0;
+
+	maxim.portfolio.stocks = 80'000;
+	maxim.portfolio.crypto = 120'000;
+	maxim.portfolio.bonds = 45'000;
+	maxim.portfolio.gold = 35'000;
+	maxim.portfolio.etf = 60'000;
+	maxim.portfolio.startup = 0;
+
+	maxim.education.courses = 7'000;
+	maxim.education.books = 3'000;
+	maxim.education.certifications = 0;
+	maxim.education.mentorship = 0;
+	maxim.education.conference = 0;
+
+	maxim.health.insurance = 6'000;
+	maxim.health.dentist = 0;
+	maxim.health.medications = 1'000;
+	maxim.health.vitamins = 1'000;
+	maxim.health.massage = 1'000;
+	maxim.health.psychologist = 0;
+	maxim.health.gym_membership = 2'000;
+	maxim.health.sports_equipment = 0;
+	maxim.health.alcohol_addiction_level = 10;
+	maxim.health.is_addicted = 0;
+	maxim.health.is_pregnant = 0;
+	maxim.health.pregnancy_month = 0;
+	maxim.health.pregnancy_year = 0;
+	maxim.health.sick_months = 0;
+	maxim.health.has_chronic_disease = 0;
+
+	maxim.entertainment_detail.cinema = 3'000;
+	maxim.entertainment_detail.concerts = 0;
+	maxim.entertainment_detail.restaurants = 8'000;
+	maxim.entertainment_detail.cafes = 4'000;
+	maxim.entertainment_detail.museums = 500;
+	maxim.entertainment_detail.hobbies = 5'000;
+	maxim.entertainment_detail.board_games = 2'000;
+	maxim.entertainment_detail.video_games = 4'000;
+
+	maxim.entertainment_total = 0;
+
+	maxim.freelance.monthly_income = 0;
+	maxim.freelance.project_income = 0;
+	maxim.freelance.taxes = 0;
+	maxim.freelance.has_project = 0;
+	maxim.freelance.project_month = 0;
+	maxim.freelance.project_duration = 0;
+
+	maxim.charity.animal_shelter = 0;
+	maxim.charity.environmental = 0;
+	maxim.charity.children_fund = 0;
+	maxim.charity.church = 0;
+	maxim.charity.monthly_donations = 0;
+
+	maxim.vacation.travel_fund = 25'000;
+	maxim.vacation.current_trip_cost = 0;
+	maxim.vacation.souvenirs = 0;
+	maxim.vacation.visa_fees = 0;
+	maxim.vacation.is_traveling = 0;
+	maxim.vacation.travel_month = 0;
+
+	maxim.family.parents_aid = 2'000;
+	maxim.family.grandparents_aid = 1'000;
+	maxim.family.siblings_gifts = 1'000;
+	maxim.family.family_events = 0;
+	maxim.family.heritage_tax = 0;
+	maxim.family.is_married = 0;
+	maxim.family.wedding_year = 0;
+	maxim.family.wedding_month = 0;
+	maxim.family.husband_salary = 0;
+	maxim.family.child_expenses = 0;
+	maxim.family.has_child = 0;
+	maxim.family.child_birth_year = 0;
+	maxim.family.child_birth_month = 0;
+	maxim.family.maternity_capital = 0;
+	maxim.family.has_second_child = 0;
+	maxim.family.second_child_birth_year = 0;
+	maxim.family.second_child_birth_month = 0;
+	maxim.family.second_child_expenses = 0;
+
+	maxim.lottery_tickets = 8'000;
+
+	maxim.career.base_salaries[0] = 42'000;
+	maxim.career.base_salaries[1] = 78'000;
+	maxim.career.base_salaries[2] = 92'000;
+	maxim.career.base_salaries[3] = 145'000;
+	maxim.career.base_salaries[4] = 205'000;
+	maxim.career.base_salaries[5] = 230'000;
+	maxim.career.base_salaries[6] = 290'000;
+	maxim.career.current_profession_id = 0;
+	maxim.career.career_change_year = 2029;
+	maxim.career.career_change_month = 10;
+
+	maxim.mining.has_mining_rig = 0;
+	maxim.mining.rig_cost = 0;
+	maxim.mining.monthly_electricity = 0;
+	maxim.mining.monthly_reward = 0;
+	maxim.mining.mining_active_years = 0;
+
+	maxim.business.has_business = 1; // у Максима уже есть бизнес
+	maxim.business.business_investment = 180'000;
+	maxim.business.monthly_profit = 18'000; // прибыль до налогов
+	maxim.business.business_tax = 4'000;
+	maxim.business.business_type = 1;
+	maxim.business.business_active_years = 0;
+}
+
+// кризис влияет сразу на доходы и базовые расходы
+void victoria_economic_crisis(const int month, const int year)
+{
+	if (year == 2033 and month == 10) {
+		victoria.economic_crisis_impact = 1;
+		victoria.salary = victoria.salary * 0.85;
+		victoria.food = victoria.food * 1.2;
+		victoria.car.gas = victoria.car.gas * 1.3;
+		victoria.home.utilities = victoria.home.utilities * 1.25;
+	}
+
+	if (victoria.economic_crisis_impact == 1 and year >= 2035 and month == 10) {
+		victoria.economic_crisis_impact = 0;
+		victoria.salary = victoria.salary * 1.18;
+	}
+}
+
+// здесь собраны решения Максима, которые отличаются от Виктории
+void maxim_different_choices(const int month, const int year)
+{
+	if (maxim.home.apartment_value == 0 and !maxim.family.is_married) {
+		RUB rent_cost = 25'000;
+		maxim.vtb.account_rub -= rent_cost;
+
+		if (month == 12) { // годовая премия или траты
+			RUB rent_deposit = 25'000;
+			maxim.vtb.account_rub -= rent_deposit;
+		}
+	}
+
+	if (!maxim.mining.has_mining_rig and year == 2029 and month == 4) {
+		maxim.mining.has_mining_rig = 1;
+		maxim.mining.rig_cost = 250'000;
+		maxim.mining.monthly_electricity = 8'000;
+		maxim.mining.monthly_reward = 15'000;
+		maxim.vtb.account_rub -= maxim.mining.rig_cost;
+	}
+
+	if (maxim.mining.has_mining_rig) {
+		maxim.vtb.account_rub -= maxim.mining.monthly_electricity;
+		maxim.vtb.account_rub += maxim.mining.monthly_reward;
+		maxim.mining.mining_active_years++;
+
+		if (maxim.mining.mining_active_years >= 36) {
+			maxim.mining.monthly_reward = maxim.mining.monthly_reward * 0.7;
+		}
+
+		if (rand() % 100 < 5) {
+			RUB mining_breakdown = 30'000;
+			maxim.vtb.account_rub -= mining_breakdown;
+		}
+	}
+
+	if (!maxim.family.is_married and year == 2034 and month == 9) {
+		maxim.salary = maxim.salary * 2.5;
+		maxim.vtb.rate_usd_rub = 95.00;
+		maxim.vtb.account_usd += 5'000;
+		maxim.food = maxim.food * 1.5;
+		maxim.home.utilities = 30'000;
+		maxim.car.gas = maxim.car.gas * 1.2;
+	}
+}
+
+// второй ребенок появляется не сразу, а через отдельное событие
+void victoria_second_pregnancy(const int month, const int year)
+{
+	if (victoria.family.has_child and !victoria.health.is_pregnant and !victoria.family.has_second_child) {
+		if (year == 2035 and month == 2) {
+			int pregnancy_chance = rand() % 100;
+			if (pregnancy_chance < 40) {
+				victoria.health.is_pregnant = 1;
+				victoria.health.pregnancy_month = month;
+				victoria.health.pregnancy_year = year;
+			}
+		}
+	}
+
+	if (victoria.health.is_pregnant and victoria.family.has_child) {
+		int months_pregnant = 0;
+		if (year > victoria.health.pregnancy_year) {
+			months_pregnant = (12 - victoria.health.pregnancy_month) + month;
+		}
+		else {
+			months_pregnant = month - victoria.health.pregnancy_month;
+		}
+
+		if (months_pregnant >= 9 and !victoria.family.has_second_child) {
+			victoria.family.has_second_child = 1;
+			victoria.family.second_child_birth_year = year;
+			victoria.family.second_child_birth_month = month;
+			victoria.health.is_pregnant = 0;
+
+			victoria.family.second_child_expenses = 22'000;
+			victoria.food += 8'000;
+			victoria.clothes += 6'000;
+
+			RUB additional_maternity = 150'000; // доплата за второго ребенка
+			victoria.vtb.account_rub += additional_maternity;
+		}
+	}
+}
+
+// расходы на второго ребенка идут каждый месяц
+void victoria_second_child_expenses(const int month, const int year)
+{
+	if (victoria.family.has_second_child) {
+		victoria.vtb.account_rub -= victoria.family.second_child_expenses;
+
+		if (month == 4 or month == 9) {
+			RUB seasonal_clothes_second = 8'000;
+			victoria.vtb.account_rub -= seasonal_clothes_second;
+		}
+
+		int second_child_age = year - victoria.family.second_child_birth_year;
+		if (second_child_age >= 2 and month >= victoria.family.second_child_birth_month) {
+			RUB kindergarten_second = 10'000;
+			victoria.vtb.account_rub -= kindergarten_second;
+		}
+	}
+}
+
+// кредитная история Виктории немного улучшается или портится
+void victoria_credit_score_impact(const int month, const int /*year*/)
+{
+	if (victoria.vtb.credit_card_debt == 0 and victoria.vtb.account_rub > 100'000) {
+		if (victoria.credit_history_score < 800) {
+			victoria.credit_history_score += 5;
+		}
+	}
+	else if (victoria.vtb.credit_card_debt > victoria.vtb.credit_card_limit * 0.7) {
+		if (victoria.credit_history_score > 400) {
+			victoria.credit_history_score -= 10;
+		}
+	}
+
+	if (victoria.credit_history_score >= 750 and month == 12) {
+		RUB credit_bonus = 15'000; // бонус за хорошую историю
+		victoria.vtb.account_rub += credit_bonus;
+	}
+}
+
+// консультант немного улучшает доходность, если портфель уже вырос
+void victoria_investment_advisor(const int month, const int year)
+{
+	if (year == 2030 and month == 1) {
+		if (victoria.portfolio.stocks > 500'000) {
+			victoria.portfolio.stocks_growth_rate += 0.02;
+		}
+	}
+}
+
+// случайные проблемы со здоровьем
+void victoria_health_events(const int month, const int year)
+{
+	if (rand() % 100 < 3 and victoria.health.sick_months == 0) {
+		victoria.health.sick_months = 1;
+		RUB sick_leave_loss = victoria.salary * 0.4;
+		victoria.vtb.account_rub -= sick_leave_loss;
+		victoria.health.medications += 2'000;
+	}
+
+	if (victoria.health.sick_months > 0) {
+		victoria.health.sick_months++;
+		if (victoria.health.sick_months > 1) {
+			victoria.health.sick_months = 0;
+		}
+	}
+
+	if (year == 2033 and month == 5 and !victoria.health.has_chronic_disease) {
+		if (rand() % 100 < 15) {
+			victoria.health.has_chronic_disease = 1;
+			victoria.health.medications += 5'000;
+			victoria.health.insurance += 3'000;
+		}
+	}
+}
+
+// отдельные события на крипторынке
+void victoria_crypto_crash(const int month, const int year)
+{
+	if (year == 2031 and month == 7) {
+		RUB crypto_loss = victoria.portfolio.crypto * 0.5;
+		victoria.portfolio.crypto -= crypto_loss;
+	}
+
+	if (year == 2036 and month == 3) {
+		RUB crypto_gain = victoria.portfolio.crypto * 1.8;
+		victoria.portfolio.crypto = crypto_gain;
+	}
+}
+
+// просадка и восстановление акций
+void victoria_stock_market_crash(const int month, const int year)
+{
+	if (year == 2034 and month == 5) {
+		RUB stock_loss = victoria.portfolio.stocks * 0.3;
+		victoria.portfolio.stocks -= stock_loss;
+	}
+
+	if (year == 2037 and month == 9) {
+		RUB stock_gain = victoria.portfolio.stocks * 1.4;
+		victoria.portfolio.stocks = stock_gain;
+	}
+}
+
+// свадьба сильно меняет расходы и жилье
+void victoria_wedding(const int month, const int year)
+{
+	if (!victoria.family.is_married and year == 2031 and month == 9) {
+		victoria.family.is_married = 1;
+		victoria.family.wedding_year = year;
+		victoria.family.wedding_month = month;
+
+		RUB wedding_cost = 500'000; // свадьба дорогая
+		victoria.vtb.account_rub -= wedding_cost;
+		victoria.family.husband_salary = 85'000; // доход мужа
+
+		RUB wedding_gifts = 150'000; // подарки частично покрывают расходы
+		victoria.vtb.account_rub += wedding_gifts;
+
+		if (!victoria.home.is_apartment_sold) {
+			RUB apartment_sale_price = victoria.home.apartment_value;
+			victoria.vtb.account_rub += apartment_sale_price;
+			victoria.home.is_apartment_sold = 1;
+
+			RUB new_apartment_value = victoria.home.apartment_value * 1.6;
+			victoria.home.apartment_value = new_apartment_value;
+			victoria.home.mortgage_payment = victoria.home.mortgage_payment * 1.4;
+			victoria.home.utilities = victoria.home.utilities * 1.3;
+			victoria.home.property_tax = victoria.home.property_tax * 1.3;
+			victoria.home.repair_fund = victoria.home.repair_fund * 1.3;
+		}
+
+		victoria.food = victoria.food * 2.5;
+		victoria.clothes = victoria.clothes * 1.8;
+		victoria.beauty = victoria.beauty * 1.5;
+		victoria.entertainment_detail.restaurants = victoria.entertainment_detail.restaurants * 1.7;
+		victoria.entertainment_detail.cafes = victoria.entertainment_detail.cafes * 1.6;
+		victoria.gifts = victoria.gifts * 2.0;
+		victoria.transportation = victoria.transportation * 1.5;
+		victoria.subscriptions = victoria.subscriptions * 1.3;
+	}
+}
+
+// беременность и рождение первого ребенка
+void victoria_pregnancy(const int month, const int year)
+{
+	if (victoria.family.is_married and !victoria.health.is_pregnant and !victoria.family.has_child) {
+		if (year == 2032 and month == 4) {
+			int pregnancy_chance = rand() % 100;
+			if (pregnancy_chance < 50) {
+				victoria.health.is_pregnant = 1;
+				victoria.health.pregnancy_month = month;
+				victoria.health.pregnancy_year = year;
+				victoria.health.medications += 3'000;
+				victoria.health.vitamins += 2'000;
+				victoria.food += 5'000;
+			}
+		}
+	}
+
+	if (victoria.health.is_pregnant) {
+		int months_pregnant = 0;
+		if (year > victoria.health.pregnancy_year) {
+			months_pregnant = (12 - victoria.health.pregnancy_month) + month;
+		}
+		else {
+			months_pregnant = month - victoria.health.pregnancy_month;
+		}
+
+		if (months_pregnant >= 9 and !victoria.family.has_child) {
+			victoria.family.has_child = 1;
+			victoria.family.child_birth_year = year;
+			victoria.family.child_birth_month = month;
+			victoria.health.is_pregnant = 0;
+
+			victoria.family.child_expenses = 25'000;
+			victoria.food += 10'000;
+			victoria.clothes += 8'000;
+			victoria.health.insurance += 5'000;
+			victoria.emergency_fund += 5'000;
+			victoria.gifts += 3'000;
+			victoria.education.courses += 5'000;
+
+			RUB old_husband_salary = victoria.family.husband_salary;
+			victoria.family.husband_salary = old_husband_salary * 1.3;
+
+			victoria.family.maternity_capital = 600'000; // маткапитал
+			victoria.vtb.account_rub += victoria.family.maternity_capital;
+		}
+	}
+}
+
+// зарплата мужа учитывается отдельно
+void victoria_husband_salary(const int month, const int year)
+{
+	if (!victoria.family.is_married) return;
+
+	victoria.vtb.account_rub += victoria.family.husband_salary;
+
+	if (month == 1 and year > victoria.family.wedding_year) {
+		float indexation = 1.08;
+		victoria.family.husband_salary = victoria.family.husband_salary * indexation;
+	}
+	if (month == 12) {
+		RUB husband_bonus = victoria.family.husband_salary * 0.5;
+		victoria.vtb.account_rub += husband_bonus;
+	}
+
+}
+
+// расходы на ребенка зависят от возраста и месяца
+void victoria_child_expenses(const int month, const int year)
+{
+	if (victoria.family.has_child) {
+		victoria.vtb.account_rub -= victoria.family.child_expenses;
+
+		if (month == 4 or month == 9) {
+			RUB seasonal_child_clothes = 10'000;
+			victoria.vtb.account_rub -= seasonal_child_clothes;
+		}
+
+		if (month == victoria.family.child_birth_month) {
+			RUB birthday_gifts = 15'000;
+			victoria.vtb.account_rub -= birthday_gifts;
+		}
+
+		int child_age_years = year - victoria.family.child_birth_year;
+		if (child_age_years >= 2 and month >= victoria.family.child_birth_month) {
+			RUB kindergarten_cost = 12'000;
+			victoria.vtb.account_rub -= kindergarten_cost;
+		}
+
+		if (child_age_years >= 7) {
+			RUB school_supplies = 15'000;
+			if (month == 8) {
+				victoria.vtb.account_rub -= school_supplies;
+			}
+		}
+	}
+}
+
+// простая модель вредной привычки
+void victoria_alcohol_addiction()
+{
+	if (victoria.alcohol > 1000) {
+		victoria.health.alcohol_addiction_level += 2;
+	}
+
+	if (victoria.alcohol > 3000) {
+		victoria.health.alcohol_addiction_level += 3;
+	}
+
+	if (victoria.alcohol > 5000) {
+		victoria.health.alcohol_addiction_level += 5;
+	}
+
+	if (victoria.health.alcohol_addiction_level >= 70 and !victoria.health.is_addicted) {
+		victoria.health.is_addicted = 1;
+		printf("\nУ Виктории развилась алкогольная зависимость\n");
+	}
+
+	if (victoria.health.is_addicted) {
+		if (victoria.alcohol < 15'000) {
+			victoria.alcohol = 15'000;
+		}
+
+		victoria.alcohol += victoria.alcohol * 0.05;
+		victoria.health.medications += 2'000;
+
+		if (rand() % 100 < 20) {
+			RUB productivity_penalty = victoria.salary * 0.1;
+			victoria.vtb.account_rub -= productivity_penalty;
+		}
+	}
+}
+
+// смена профессии у Виктории
+void victoria_career_change(const int month, const int year)
+{
+	if (year == victoria.career.career_change_year and month == victoria.career.career_change_month) {
+		int best_profession = victoria.career.current_profession_id;
+		RUB best_salary = victoria.salary;
+
+		for (int i = 1; i <= 6; i++) {
+			RUB potential_salary = victoria.career.base_salaries[i];
+
+			if (potential_salary > best_salary) {
+				best_salary = potential_salary;
+				best_profession = i;
+			}
+		}
+
+		if (best_profession != victoria.career.current_profession_id) {
+			victoria.salary = best_salary;
+			victoria.career.current_profession_id = best_profession;
+		}
+
+		victoria.career.career_change_month += 18;
+		if (victoria.career.career_change_month > 12) {
+			victoria.career.career_change_year += 1;
+			victoria.career.career_change_month -= 12;
+		}
+	}
+}
+
+// смена профессии у Максима
+void maxim_career_change(const int month, const int year)
+{
+	if (year == maxim.career.career_change_year and month == maxim.career.career_change_month) {
+		int best_profession = maxim.career.current_profession_id;
+		RUB best_salary = maxim.salary;
+
+		for (int i = 1; i <= 6; i++) {
+			RUB potential_salary = maxim.career.base_salaries[i];
+
+			if (potential_salary > best_salary) {
+				best_salary = potential_salary;
+				best_profession = i;
+			}
+		}
+
+		if (best_profession != maxim.career.current_profession_id) {
+			maxim.salary = best_salary;
+			maxim.career.current_profession_id = best_profession;
+		}
+
+		maxim.career.career_change_month += 18;
+		if (maxim.career.career_change_month > 12) {
+			maxim.career.career_change_year += 1;
+			maxim.career.career_change_month -= 12;
+		}
+	}
+}
+
+// доход от сдачи наследственной квартиры
+void victoria_rental_income()
+{
+	if (!victoria.home.is_rented) return;
+
+	victoria.vtb.account_rub += victoria.home.rental_income;
+	victoria.vtb.account_rub -= victoria.home.rental_tax;
+	victoria.vtb.account_rub -= victoria.home.inherited_apartment_utilities;
+
+	if (rand() % 100 < 5) {
+		RUB repair_cost = (rand() % 20 + 5) * 1000;
+		victoria.vtb.account_rub -= repair_cost;
+	}
+}
+
+// лотерея оставлена как редкое случайное событие
+void victoria_lottery()
+{
+	const RUB JACKPOT = 500'000'000; // шанс почти нулевой
+	const int JACKPOT_CHANCE = 15000000;
+
+	victoria.vtb.account_rub -= victoria.lottery_tickets;
+
+	int random_number = rand() % JACKPOT_CHANCE + 1;
+
+	if (random_number == 1) {
+		victoria.vtb.account_rub += JACKPOT;
+		printf("\nУРРАА! ВИКТОРИЯ ВЫИГРАЛА ДЖЕКПОТ %lld РУБЛЕЙ!\n", JACKPOT);
+	}
+}
+
+// у Максима тоже есть лотерея, но расходы меньше
+void maxim_lottery()
+{
+	const RUB JACKPOT = 500'000'000;
+	const int JACKPOT_CHANCE = 15000000;
+
+	maxim.vtb.account_rub -= maxim.lottery_tickets;
+
+	int random_number = rand() % JACKPOT_CHANCE + 1;
+
+	if (random_number == 1) {
+		maxim.vtb.account_rub += JACKPOT;
+		printf("\nЙУХУУ! МАКСИМ ВЫИГРАЛ ДЖЕКПОТ %lld РУБЛЕЙ!\n", JACKPOT);
+	}
+}
+
+// зарплата Виктории и разовые премии
+void victoria_salary(const int month, const int year)
+{
+	victoria.vtb.account_rub += victoria.salary;
+
+	if (month == 2 and year == 2028) {
+		victoria.vtb.account_rub += 5'000;
+	}
+
+	if (month == 12 and year == 2028) {
+		victoria.vtb.account_rub += 30'000;
+	}
+
+	if (month == 6 and year == 2028) {
+		victoria.vtb.account_rub += 15'000;
+	}
+
+	if (month == 3 and year == 2028) {
+		victoria.salary = victoria.salary * 1.5;
+	}
+
+	if (month == 1 and year > 2028) {
+		float indexation = 1.10;
+		victoria.salary = victoria.salary * indexation;
+	}
+}
+
+// зарплата Максима, рост другой
+void maxim_salary(const int month, const int year)
+{
+	maxim.vtb.account_rub += maxim.salary;
+
+	if (month == 12 and year == 2028) {
+		maxim.vtb.account_rub += 15'000;
+	}
+
+	if (month == 7 and year == 2029) {
+		maxim.salary = maxim.salary * 1.2;
+	}
+
+	if (month == 1 and year > 2028) {
+		float indexation = 1.05;
+		maxim.salary = maxim.salary * indexation;
+	}
+}
+
+// фриланс появляется по месяцам, не круглый год
+void victoria_freelance(const int month, const int year)
+{
+	if (!victoria.freelance.has_project and month == 4 and year == 2028) {
+		victoria.freelance.has_project = 1;
+		victoria.freelance.project_month = month;
+		victoria.freelance.project_duration = 3;
+		victoria.freelance.project_income = 80'000;
+	}
+
+	if (!victoria.freelance.has_project and month == 9 and year == 2028) {
+		victoria.freelance.has_project = 1;
+		victoria.freelance.project_month = month;
+		victoria.freelance.project_duration = 2;
+		victoria.freelance.project_income = 50'000;
+	}
+
+	if (!victoria.freelance.has_project and year > 2028 and month == 3) {
+		victoria.freelance.has_project = 1;
+		victoria.freelance.project_month = month;
+		victoria.freelance.project_duration = 4;
+		victoria.freelance.project_income = 120'000;
+	}
+
+	if (!victoria.freelance.has_project and year > 2028 and month == 9) {
+		victoria.freelance.has_project = 1;
+		victoria.freelance.project_month = month;
+		victoria.freelance.project_duration = 3;
+		victoria.freelance.project_income = 90'000;
+	}
+
+	if (victoria.freelance.has_project) {
+		int months_active = month - victoria.freelance.project_month;
+		if (months_active >= 0 and months_active < victoria.freelance.project_duration) {
+			RUB monthly_income = victoria.freelance.project_income / victoria.freelance.project_duration;
+			victoria.vtb.account_rub += monthly_income;
+
+			RUB freelance_tax = monthly_income * 0.06;
+			victoria.vtb.account_rub -= freelance_tax;
+			victoria.freelance.taxes += freelance_tax;
+		}
+		else {
+			victoria.freelance.has_project = 0;
+		}
+	}
+}
+
+// бизнес Виктории сейчас почти не используется, но блок оставлен
+void victoria_business_income()
+{
+	if (!victoria.business.has_business) return;
+
+	victoria.vtb.account_rub += victoria.business.monthly_profit;
+	victoria.vtb.account_rub -= victoria.business.business_tax;
+	victoria.business.business_active_years++;
+
+	if (victoria.business.business_active_years >= 24) {
+		victoria.business.monthly_profit = victoria.business.monthly_profit * 1.15;
+	}
+}
+
+// бизнес Максима приносит прибыль каждый месяц
+void maxim_business_income()
+{
+	if (!maxim.business.has_business) return;
+
+	maxim.vtb.account_rub += maxim.business.monthly_profit;
+	maxim.vtb.account_rub -= maxim.business.business_tax;
+	maxim.business.business_active_years++;
+
+	if (rand() % 100 < 10 and maxim.business.business_active_years > 12) {
+		maxim.business.monthly_profit = maxim.business.monthly_profit * 1.2;
+	}
+
+}
+
+// еда растет из-за инфляции
+void victoria_food(const int month, const int year)
+{
+	float inflation = 0.12;
+	switch (year) {
+	case 2028: inflation = 0.125; break;
+	case 2029: inflation = 0.14; break;
+	case 2030: inflation = 0.13; break;
+	case 2031: inflation = 0.115; break;
+	default: inflation = 0.10; break;
+	}
+
+	victoria.food += victoria.food * (inflation / 12);
+	victoria.vtb.account_rub -= victoria.food;
+
+	if (month == 12) {
+		victoria.vtb.account_rub -= 10'000;
+	}
+
+	if (month == 7 and year == 2028) {
+		victoria.vtb.account_rub -= 5'000;
+	}
+
+	if (month == 3 and year == 2028) {
+		victoria.vtb.account_rub -= 2'000;
+	}
+
+	if (month == 11 and year == 2028) {
+		victoria.vtb.account_rub -= 20'000;
+	}
+}
+
+// еда Максима, отдельная траектория
+void maxim_food(const int month, const int year)
+{
+	float inflation = 0.12;
+	switch (year) {
+	case 2028: inflation = 0.125; break;
+	case 2029: inflation = 0.14; break;
+	case 2030: inflation = 0.13; break;
+	case 2031: inflation = 0.115; break;
+	default: inflation = 0.10; break;
+	}
+
+	maxim.food += maxim.food * (inflation / 12);
+	maxim.vtb.account_rub -= maxim.food;
+
+	if (month == 12) {
+		maxim.vtb.account_rub -= 5'000;
+	}
+}
+
+// автомобиль Виктории: бензин, парковка, штрафы
+void victoria_car(const int month)
+{
+	victoria.vtb.account_rub -= victoria.car.gas;
+	victoria.vtb.account_rub -= victoria.car.insurance;
+	victoria.vtb.account_rub -= victoria.car.maintenance;
+	victoria.vtb.account_rub -= victoria.car.parking;
+	victoria.vtb.account_rub -= victoria.car.car_wash;
+
+	if (rand() % 100 < 33) {
+		int fine_amount = (rand() % 5 + 1) * 500;
+		victoria.car.fine += fine_amount;
+		victoria.vtb.account_rub -= fine_amount;
+	}
+
+	if (month == 5 or month == 10) {
+		victoria.car.tires = 8'000;
+		victoria.vtb.account_rub -= victoria.car.tires;
+	}
+
+	if (month == 11) {
+		victoria.vtb.account_rub -= victoria.car.tax;
+	}
+}
+
+// автомобиль Максима чуть дешевле в обслуживании
+void maxim_car(const int month)
+{
+	maxim.vtb.account_rub -= maxim.car.gas;
+	maxim.vtb.account_rub -= maxim.car.insurance;
+	maxim.vtb.account_rub -= maxim.car.maintenance;
+	maxim.vtb.account_rub -= maxim.car.parking;
+	maxim.vtb.account_rub -= maxim.car.car_wash;
+
+	if (rand() % 100 < 25) {
+		int fine_amount = (rand() % 3 + 1) * 500;
+		maxim.car.fine += fine_amount;
+		maxim.vtb.account_rub -= fine_amount;
+	}
+
+	if (month == 5 or month == 10) {
+		maxim.car.tires = 6'000;
+		maxim.vtb.account_rub -= maxim.car.tires;
+	}
+
+	if (month == 11) {
+		maxim.vtb.account_rub -= maxim.car.tax;
+	}
+}
+
+// недвижимость Виктории и ежегодный рост стоимости
+void victoria_real_estate(const int month, const int year)
+{
+	if (!victoria.home.is_apartment_sold or victoria.family.is_married) {
+		victoria.vtb.account_rub -= victoria.home.mortgage_payment;
+	}
+	victoria.vtb.account_rub -= victoria.home.utilities;
+	victoria.vtb.account_rub -= victoria.home.property_tax;
+	victoria.vtb.account_rub -= victoria.home.repair_fund;
+
+	if (month == 10) {
+		RUB property_tax = victoria.home.apartment_value * 0.001;
+		victoria.vtb.account_rub -= property_tax;
+	}
+
+	if (month == 1 and year > 2028) {
+		if (!victoria.home.is_apartment_sold) {
+			victoria.home.apartment_value *= 1.15;
+		}
+		else {
+			victoria.home.apartment_value *= 1.12;
+		}
+		victoria.home.inherited_apartment_value *= 1.15;
+	}
+}
+
+// кот тоже влияет на бюджет, иногда непредсказуемо
+void victoria_pets(const int month)
+{
+	victoria.vtb.account_rub -= victoria.animals.cat_food;
+	victoria.vtb.account_rub -= victoria.animals.vet_visits;
+	victoria.vtb.account_rub -= victoria.animals.toys;
+	victoria.vtb.account_rub -= victoria.animals.insurance;
+	victoria.vtb.account_rub -= victoria.animals.grooming;
+	victoria.vtb.account_rub -= victoria.animals.litter;
+	victoria.vtb.account_rub -= victoria.animals.treats;
+
+	if (rand() % 100 < 10) {
+		int vet_emergency = (rand() % 10 + 5) * 1000;
+		victoria.vtb.account_rub -= vet_emergency;
+	}
+
+	if (victoria.vacation.is_traveling and month == victoria.vacation.travel_month) {
+		victoria.animals.cat_sitter = 6'000;
+		victoria.vtb.account_rub -= victoria.animals.cat_sitter;
+	}
+}
+
+// инвестиции Виктории распределены более спокойно
+void victoria_investments(const int month, const int year)
+{
+	float stocks_return = 1.0 + (victoria.portfolio.stocks_growth_rate / 12);
+	victoria.portfolio.stocks = victoria.portfolio.stocks * stocks_return;
+
+	float crypto_change = 1.0 + ((rand() % 200 - 100) / 100.0 * victoria.portfolio.crypto_volatility / 12);
+	victoria.portfolio.crypto = victoria.portfolio.crypto * crypto_change;
+
+	float bonds_return = 1.0 + (0.06 / 12);
+	victoria.portfolio.bonds = victoria.portfolio.bonds * bonds_return;
+
+	float gold_return = 1.0 + (victoria.portfolio.gold_growth_rate / 12);
+	victoria.portfolio.gold = victoria.portfolio.gold * gold_return;
+
+	float etf_return = 1.0 + (victoria.portfolio.etf_growth_rate / 12);
+	victoria.portfolio.etf = victoria.portfolio.etf * etf_return;
+
+	if (year == 2029 and month == 1 and victoria.portfolio.startup > 0) {
+		RUB exit_income = victoria.portfolio.startup * 3;
+		victoria.vtb.account_rub += exit_income;
+		victoria.portfolio.startup = 0;
+	}
+
+	if (victoria.vtb.account_rub > 100'000) {
+		RUB investment_amount = victoria.vtb.account_rub * 0.1;
+		if (investment_amount > 50'000) investment_amount = 50'000;
+
+		victoria.vtb.account_rub -= investment_amount;
+
+		victoria.portfolio.stocks += investment_amount * 0.4;
+		victoria.portfolio.bonds += investment_amount * 0.2;
+		victoria.portfolio.etf += investment_amount * 0.2;
+		victoria.portfolio.gold += investment_amount * 0.15;
+		victoria.portfolio.crypto += investment_amount * 0.05;
+	}
+}
+
+// Максим вкладывает более рискованно
+void maxim_investments(const int /*month*/, const int /*year*/)
+{
+	float stocks_return = 1.0 + (maxim.portfolio.stocks_growth_rate / 12);
+	maxim.portfolio.stocks = maxim.portfolio.stocks * stocks_return;
+
+	float crypto_change = 1.0 + ((rand() % 200 - 100) / 100.0 * maxim.portfolio.crypto_volatility / 12);
+	maxim.portfolio.crypto = maxim.portfolio.crypto * crypto_change;
+
+	float bonds_return = 1.0 + (0.06 / 12);
+	maxim.portfolio.bonds = maxim.portfolio.bonds * bonds_return;
+
+	float gold_return = 1.0 + (maxim.portfolio.gold_growth_rate / 12);
+	maxim.portfolio.gold = maxim.portfolio.gold * gold_return;
+
+	float etf_return = 1.0 + (maxim.portfolio.etf_growth_rate / 12);
+	maxim.portfolio.etf = maxim.portfolio.etf * etf_return;
+
+	if (maxim.vtb.account_rub > 50'000) {
+		RUB investment_amount = maxim.vtb.account_rub * 0.15;
+		if (investment_amount > 30'000) investment_amount = 30'000;
+
+		maxim.vtb.account_rub -= investment_amount;
+
+		maxim.portfolio.crypto += investment_amount * 0.6;
+		maxim.portfolio.stocks += investment_amount * 0.4;
+	}
+}
+
+// образование Виктории
+void victoria_education_expenses(const int month, const int year)
+{
+	victoria.vtb.account_rub -= victoria.education.courses;
+	victoria.vtb.account_rub -= victoria.education.books;
+	victoria.vtb.account_rub -= victoria.education.certifications;
+
+	if (victoria.education.mentorship > 0) {
+		victoria.vtb.account_rub -= victoria.education.mentorship;
+	}
+
+	if (month == 9 and year == 2028) {
+		victoria.education.certifications = 25'000;
+		victoria.vtb.account_rub -= victoria.education.certifications;
+	}
+
+	if (month == 5 and year == 2029) {
+		victoria.education.conference = 40'000;
+		victoria.vtb.account_rub -= victoria.education.conference;
+	}
+}
+
+// регулярные медицинские расходы
+void victoria_health_expenses(const int month)
+{
+	victoria.vtb.account_rub -= victoria.health.insurance;
+	victoria.vtb.account_rub -= victoria.health.medications;
+	victoria.vtb.account_rub -= victoria.health.vitamins;
+	victoria.vtb.account_rub -= victoria.health.massage;
+	victoria.vtb.account_rub -= victoria.health.gym_membership;
+
+	if (victoria.health.dentist > 0) {
+		victoria.vtb.account_rub -= victoria.health.dentist;
+		victoria.health.dentist = 0;
+	}
+
+	if (victoria.health.psychologist > 0) {
+		victoria.vtb.account_rub -= victoria.health.psychologist;
+	}
+
+	if (victoria.health.sports_equipment > 0) {
+		victoria.vtb.account_rub -= victoria.health.sports_equipment;
+		victoria.health.sports_equipment = 0;
+	}
+
+	if (month == 6 or month == 12) {
+		victoria.health.dentist = (rand() % 10 + 5) * 1000;
+		victoria.vtb.account_rub -= victoria.health.dentist;
+	}
+}
+
+// развлечения Виктории
+void victoria_entertainment_expenses(const int month, const int year)
+{
+	victoria.vtb.account_rub -= victoria.entertainment_detail.cinema;
+	victoria.vtb.account_rub -= victoria.entertainment_detail.restaurants;
+	victoria.vtb.account_rub -= victoria.entertainment_detail.cafes;
+	victoria.vtb.account_rub -= victoria.entertainment_detail.museums;
+	victoria.vtb.account_rub -= victoria.entertainment_detail.hobbies;
+	victoria.vtb.account_rub -= victoria.entertainment_detail.board_games;
+	victoria.vtb.account_rub -= victoria.entertainment_detail.video_games;
+
+	if (victoria.entertainment_detail.concerts > 0) {
+		victoria.vtb.account_rub -= victoria.entertainment_detail.concerts;
+		victoria.entertainment_detail.concerts = 0;
+	}
+
+	if (month == 7 and year == 2028) {
+		victoria.entertainment_detail.concerts = 8'000;
+		victoria.vtb.account_rub -= victoria.entertainment_detail.concerts;
+	}
+}
+
+// пожертвования, не обязательные но учитываются
+void victoria_charity_donations()
+{
+	victoria.vtb.account_rub -= victoria.charity.animal_shelter;
+	victoria.vtb.account_rub -= victoria.charity.environmental;
+	victoria.vtb.account_rub -= victoria.charity.children_fund;
+	victoria.vtb.account_rub -= victoria.charity.monthly_donations;
+
+	if (victoria.charity.church > 0) {
+		victoria.vtb.account_rub -= victoria.charity.church;
+	}
+}
+
+// крупные поездки по годам
+void victoria_vacation_expenses(const int month, const int year)
+{
+	victoria.vtb.account_rub -= victoria.vacation.travel_fund;
+
+	if (month == 8 and year == 2028 and !victoria.vacation.is_traveling) {
+		victoria.vacation.is_traveling = 1;
+		victoria.vacation.travel_month = 8;
+		victoria.vacation.current_trip_cost = 85'000;
+		victoria.vacation.visa_fees = 7'000;
+		victoria.vacation.souvenirs = 10'000;
+
+		victoria.vtb.account_rub -= victoria.vacation.current_trip_cost;
+		victoria.vtb.account_rub -= victoria.vacation.visa_fees;
+		victoria.vtb.account_rub -= victoria.vacation.souvenirs;
+	}
+
+	if (month == 7 and year == 2030 and !victoria.vacation.is_traveling) {
+		victoria.vacation.is_traveling = 1;
+		victoria.vacation.travel_month = 7;
+		victoria.vacation.current_trip_cost = 120'000;
+		victoria.vacation.visa_fees = 8'000;
+		victoria.vacation.souvenirs = 15'000;
+
+		victoria.vtb.account_rub -= victoria.vacation.current_trip_cost;
+		victoria.vtb.account_rub -= victoria.vacation.visa_fees;
+		victoria.vtb.account_rub -= victoria.vacation.souvenirs;
+	}
+
+	if (month == 8 and year == 2033 and !victoria.vacation.is_traveling) {
+		victoria.vacation.is_traveling = 1;
+		victoria.vacation.travel_month = 8;
+		victoria.vacation.current_trip_cost = 150'000;
+		victoria.vacation.visa_fees = 10'000;
+		victoria.vacation.souvenirs = 20'000;
+
+		victoria.vtb.account_rub -= victoria.vacation.current_trip_cost;
+		victoria.vtb.account_rub -= victoria.vacation.visa_fees;
+		victoria.vtb.account_rub -= victoria.vacation.souvenirs;
+	}
+
+	if (month == 7 and year == 2037 and !victoria.vacation.is_traveling) {
+		victoria.vacation.is_traveling = 1;
+		victoria.vacation.travel_month = 7;
+		victoria.vacation.current_trip_cost = 180'000;
+		victoria.vacation.visa_fees = 12'000;
+		victoria.vacation.souvenirs = 25'000;
+
+		victoria.vtb.account_rub -= victoria.vacation.current_trip_cost;
+		victoria.vtb.account_rub -= victoria.vacation.visa_fees;
+		victoria.vtb.account_rub -= victoria.vacation.souvenirs;
+	}
+
+	if (victoria.vacation.is_traveling and month == victoria.vacation.travel_month) {
+		victoria.vacation.is_traveling = 0;
+		victoria.vacation.current_trip_cost = 0;
+	}
+}
+
+// помощь семье каждый месяц
+void victoria_family_expenses(const int month)
+{
+	victoria.vtb.account_rub -= victoria.family.parents_aid;
+	victoria.vtb.account_rub -= victoria.family.grandparents_aid;
+	victoria.vtb.account_rub -= victoria.family.siblings_gifts;
+
+	if (victoria.family.family_events > 0) {
+		victoria.vtb.account_rub -= victoria.family.family_events;
+		victoria.family.family_events = 0;
+	}
+
+	if (month == 9) {
+		victoria.family.family_events = 15'000;
+		victoria.vtb.account_rub -= victoria.family.family_events;
+	}
+}
+
+// прочие ежемесячные расходы Виктории
+void victoria_monthly_others(const int month)
+{
+	victoria.vtb.account_rub -= victoria.subscriptions;
+	victoria.vtb.account_rub -= victoria.clothes;
+	victoria.vtb.account_rub -= victoria.transportation;
+	victoria.vtb.account_rub -= victoria.gifts;
+	victoria.vtb.account_rub -= victoria.emergency_fund;
+	victoria.vtb.account_rub -= victoria.beauty;
+	victoria.vtb.account_rub -= victoria.electronics;
+	victoria.vtb.account_rub -= victoria.alcohol;
+	victoria.vtb.account_rub -= victoria.insurance_life;
+	victoria.vtb.account_rub -= victoria.pension_fund;
+
+	if (month == 4 or month == 9) {
+		RUB seasonal_clothes = 15'000;
+		victoria.vtb.account_rub -= seasonal_clothes;
+	}
+
+	if (month == 12) {
+		RUB holiday_gifts = 25'000;
+		victoria.vtb.account_rub -= holiday_gifts;
+	}
+}
+
+// прочие ежемесячные расходы Максима
+void maxim_monthly_others(const int month)
+{
+	maxim.vtb.account_rub -= maxim.subscriptions;
+	maxim.vtb.account_rub -= maxim.clothes;
+	maxim.vtb.account_rub -= maxim.transportation;
+	maxim.vtb.account_rub -= maxim.gifts;
+	maxim.vtb.account_rub -= maxim.emergency_fund;
+	maxim.vtb.account_rub -= maxim.beauty;
+	maxim.vtb.account_rub -= maxim.electronics;
+	maxim.vtb.account_rub -= maxim.alcohol;
+	maxim.vtb.account_rub -= maxim.insurance_life;
+	maxim.vtb.account_rub -= maxim.pension_fund;
+
+	if (month == 4 or month == 9) {
+		RUB seasonal_clothes = 8'000;
+		maxim.vtb.account_rub -= seasonal_clothes;
+	}
+
+	if (month == 12) {
+		RUB holiday_gifts = 15'000;
+		maxim.vtb.account_rub -= holiday_gifts;
+	}
+}
+
+// банковские операции Виктории: проценты, кредитка, вычет
+void victoria_bank_operations(const int month, const int /*year*/)
+{
+	if (victoria.vtb.account_rub > 0) {
+		RUB deposit_interest = victoria.vtb.account_rub * (victoria.vtb.deposit_rate / 12);
+		victoria.vtb.account_rub += deposit_interest;
+	}
+
+	if (victoria.vtb.savings_account > 0) {
+		RUB savings_interest = victoria.vtb.savings_account * (0.12 / 12);
+		victoria.vtb.savings_account += savings_interest;
+	}
+
+	if (victoria.vtb.credit_card_debt > 0) {
+		RUB min_payment = victoria.vtb.credit_card_debt * 0.05;
+		if (min_payment < 1000) min_payment = victoria.vtb.credit_card_debt;
+
+		victoria.vtb.account_rub -= min_payment;
+		victoria.vtb.credit_card_debt -= min_payment;
+
+		RUB credit_perc = victoria.vtb.credit_card_debt * (0.24 / 12);
+		victoria.vtb.credit_card_debt += credit_perc;
+	}
+
+	if (month == 4) {
+		victoria.vtb.tax_refund = (rand() % 10 + 5) * 1000;
+		victoria.vtb.account_rub += victoria.vtb.tax_refund;
+	}
+}
+
+// банковские операции Максима
+void maxim_bank_operations(const int /*month*/, const int /*year*/)
+{
+	if (maxim.vtb.account_rub > 0) {
+		RUB deposit_interest = maxim.vtb.account_rub * (maxim.vtb.deposit_rate / 12);
+		maxim.vtb.account_rub += deposit_interest;
+	}
+
+	if (maxim.vtb.credit_card_debt > 0) {
+		RUB min_payment = maxim.vtb.credit_card_debt * 0.05;
+		if (min_payment < 1000) min_payment = maxim.vtb.credit_card_debt;
+
+		maxim.vtb.account_rub -= min_payment;
+		maxim.vtb.credit_card_debt -= min_payment;
+
+		RUB credit_perc = maxim.vtb.credit_card_debt * (0.28 / 12);
+		maxim.vtb.credit_card_debt += credit_perc;
+	}
+}
+
+// налоговый вычет через инвестиции
+void victoria_tax_optimization(const int month, const int year)
+{
+	if (year == 2028 and month == 12) {
+		RUB iis_investment = 200'000;
+
+		if (victoria.vtb.account_rub > iis_investment) {
+			victoria.vtb.account_rub -= iis_investment;
+			victoria.portfolio.stocks += iis_investment;
+			RUB tax_deduction = iis_investment * 0.13;
+			victoria.vtb.account_rub += tax_deduction;
+		}
+	}
+}
+
+// семейные события собраны вместе, так проще читать симуляцию
+void victoria_family_life_events(const int month, const int year)
+{
+	victoria_wedding(month, year);
+	victoria_pregnancy(month, year);
+	victoria_second_pregnancy(month, year);
+	victoria_husband_salary(month, year);
+	victoria_child_expenses(month, year);
+	victoria_second_child_expenses(month, year);
+}
+
+// прочие жизненные события Виктории
+void victoria_additional_events(const int month, const int year)
+{
+	victoria_economic_crisis(month, year);
+	victoria_credit_score_impact(month, year);
+	victoria_investment_advisor(month, year);
+	victoria_health_events(month, year);
+	victoria_crypto_crash(month, year);
+	victoria_stock_market_crash(month, year);
+	victoria_business_income();
+}
+
+// основной цикл идет по месяцам
+void simulation()
+{
+	int year = 2028; // начало моделирования
+	int month = 2; // старт с февраля
+
+	victoria_init();
+	maxim_init();
+
+	while (!(year == 2038 and month == 2)) {
+
+		victoria_salary(month, year);
+		victoria_rental_income();
+		victoria_freelance(month, year);
+		victoria_investments(month, year);
+		victoria_career_change(month, year);
+		victoria_family_life_events(month, year);
+		victoria_additional_events(month, year);
+
+		victoria_real_estate(month, year);
+		victoria_food(month, year);
+		victoria_pets(month);
+		victoria_car(month);
+		victoria_education_expenses(month, year);
+		victoria_health_expenses(month);
+		victoria_entertainment_expenses(month, year);
+		victoria_charity_donations();
+		victoria_vacation_expenses(month, year);
+		victoria_family_expenses(month);
+		victoria_monthly_others(month);
+
+		victoria_alcohol_addiction();
+
+		victoria_bank_operations(month, year);
+		victoria_tax_optimization(month, year);
+		victoria_lottery();
+
+		maxim_salary(month, year);
+		maxim_career_change(month, year);
+		maxim_investments(month, year);
+		maxim_food(month, year);
+		maxim_car(month);
+		maxim_business_income();
+		maxim_different_choices(month, year);
+		maxim_monthly_others(month);
+		maxim_bank_operations(month, year);
+		maxim_lottery();
+
+		++month;
+		if (month == 13) {
+			++year;
+			month = 1;
+		}
+	}
+}
+
+// итог по Виктории
+void print_victoria_results()
+{
+	RUB capital = 0;
+	capital += victoria.car.value; // считаю активы грубо
+	capital += victoria.home.apartment_value;
+	capital += victoria.home.inherited_apartment_value;
+	capital += victoria.vtb.account_rub;
+	capital += victoria.vtb.savings_account;
+	capital += victoria.vtb.account_usd * victoria.vtb.rate_usd_rub;
+	capital += victoria.portfolio.stocks;
+	capital += victoria.portfolio.crypto;
+	capital += victoria.portfolio.bonds;
+	capital += victoria.portfolio.gold;
+	capital += victoria.portfolio.etf;
+	capital += victoria.portfolio.startup;
+
+	if (victoria.business.has_business) {
+		capital += victoria.business.business_investment;
+	}
+
+	if (victoria.mining.has_mining_rig) {
+		capital += victoria.mining.rig_cost * 0.5;
+	}
+
+	printf("\n********* ВИКТОРИЯ *********\n");
+	printf("Суммарный капитал: %lld руб\n", capital - victoria.vtb.credit_card_debt); // итог A/B
+	printf("Зарплата: %lld руб/мес\n", victoria.salary);
+	printf("Недвижимость: %lld руб (своя) + %lld руб (наследство)\n",
+		victoria.home.apartment_value, victoria.home.inherited_apartment_value);
+	printf("Автомобиль: %lld руб\n", victoria.car.value);
+	printf("Инвестиционный портфель: %lld руб\n",
+		victoria.portfolio.stocks + victoria.portfolio.crypto +
+		victoria.portfolio.bonds + victoria.portfolio.gold + victoria.portfolio.etf);
+	printf("Ликвидные средства: %lld руб\n",
+		victoria.vtb.account_rub + victoria.vtb.savings_account);
+	printf("Кредитная история: %d баллов\n", victoria.credit_history_score);
+
+	if (victoria.family.is_married) {
+		printf("Замужем (с %d года)\n", victoria.family.wedding_year);
+		printf("Зарплата мужа: %lld руб/мес\n", victoria.family.husband_salary);
+	}
+
+	if (victoria.family.has_child) {
+		printf("Детей: %d\n", (victoria.family.has_child ? 1 : 0) + (victoria.family.has_second_child ? 1 : 0));
+	}
+
+	if (victoria.health.is_addicted) {
+		printf("Алкогольная зависимость (расходы: %lld руб/мес)\n", victoria.alcohol);
+	}
+
+	if (victoria.health.has_chronic_disease) {
+		printf("Хроническое заболевание\n");
+	}
+}
+
+// итог по Максиму
+void print_maxim_results()
+{
+	RUB capital = 0;
+	capital += maxim.car.value; // активы Максима
+	capital += maxim.home.apartment_value;
+	capital += maxim.home.inherited_apartment_value;
+	capital += maxim.vtb.account_rub;
+	capital += maxim.vtb.savings_account;
+	capital += maxim.vtb.account_usd * maxim.vtb.rate_usd_rub;
+	capital += maxim.portfolio.stocks;
+	capital += maxim.portfolio.crypto;
+	capital += maxim.portfolio.bonds;
+	capital += maxim.portfolio.gold;
+	capital += maxim.portfolio.etf;
+	capital += maxim.portfolio.startup;
+
+	if (maxim.business.has_business) {
+		capital += maxim.business.business_investment;
+	}
+
+	if (maxim.mining.has_mining_rig) {
+		capital += maxim.mining.rig_cost * 0.3;
+	}
+
+	printf("\n********* МАКСИМ *********\n");
+	printf("Суммарный капитал: %lld руб\n", capital - maxim.vtb.credit_card_debt); // сравниваю с Викторией
+	printf("Зарплата: %lld руб/мес\n", maxim.salary);
+	printf("Недвижимость: нет (аренда жилья)\n");
+	printf("Автомобиль: %lld руб\n", maxim.car.value);
+	printf("Инвестиционный портфель: %lld руб\n",
+		maxim.portfolio.stocks + maxim.portfolio.crypto +
+		maxim.portfolio.bonds + maxim.portfolio.gold + maxim.portfolio.etf);
+	printf("Ликвидные средства: %lld руб\n",
+		maxim.vtb.account_rub + maxim.vtb.savings_account);
+	printf("Кредитная история: %d баллов\n", maxim.credit_history_score);
+
+	if (maxim.business.has_business) {
+		printf("Собственный бизнес (прибыль: %lld руб/мес)\n", maxim.business.monthly_profit);
+	}
+}
+
+// запуск программы
+int main()
+{
+	setlocale(LC_ALL, "Russian");
+	srand(time(NULL)); // чтобы случайные события менялись
+
+	simulation();
+	print_victoria_results();
+	print_maxim_results();
+
+	return 0;
+}
