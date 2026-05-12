@@ -1,178 +1,467 @@
 #include <DHT.h>
 
-#define DHTPIN 12
-#define DHTTYPE DHT11
-#define PIN_HEATER 4
-#define PIN_PUMP 5
-#define PIN_LAMP 6
-#define PIN_VENT 7
-#define PIN_LIGHT A0
-#define PIN_SOIL A1
+bool isNightTime = false;
+bool prevIsNight = false; 
 
-DHT dht(DHTPIN, DHTTYPE);
+const int PIN_DHT = 2;
+const int PIN_RELE_HEATER = 4;
+const int PIN_RELE_PUMP = 5;
+const int PIN_RELE_LAMP = 6;
+const int PIN_RELE_VENT = 7;
+const int PIN_ANALOG_LIGHT = A0;
+const int PIN_ANALOG_SOIL = A1;
 
-unsigned long pumpStartTime = 0;
-bool isPumpRunning = false;
-unsigned long lastWateringTime = 0;
-const unsigned long MAX_PUMP_TIME = 10000;
-const unsigned long REST_TIME = 60000;
+unsigned long ventilationStartTime = 0;
+bool ventInProgress = false;
 
-class AirSensor {
+struct PlantProfile {
+    float maxTemperature;
+    float minTemperature;
+    float maxHumidity;
+    float heatWithHumLimit;
+    int drySoilBorder;
+    int wetSoilBorder;
+    int darkLightBorder;
+    unsigned long timeBetweenVent;
+    unsigned long ventWorkTime;
+};
+
+const PlantProfile appProfiles[] = {
+    { 32.0, 22.0, 75.0, 34.0, 350, 650, 450, 1500000, 90000 },
+    { 26.0, 16.0, 65.0, 28.0, 450, 750, 350, 2700000, 150000 }
+};
+
+
+// Классы датчиков
+
+class DHTReader {
+private:
+    DHT dhtDevice;
 public:
     float temperature;
     float humidity;
+
+    DHTReader(int pinNumber) : dhtDevice(pinNumber, DHT11) {
+        dhtDevice.begin();
+        temperature = 20.0;
+        humidity = 50.0;
+    }
+
+    void update() {
+        temperature = dhtDevice.readTemperature();
+        humidity = dhtDevice.readHumidity();
+        
+        if (isnan(temperature)) {
+            Serial.println(F("! Ошибка чтения температуры DHT, использую 20.0"));
+            temperature = 20.0;
+        }
+        if (isnan(humidity)) {
+            Serial.println(F("! Ошибка чтения влажности DHT, использую 50.0"));
+            humidity = 50.0;
+        }
+    }
+};
+
+class TemperatureSensor {
+private:
+    DHTReader* ptrReader; 
+public:
+    float value;
+
+    TemperatureSensor(DHTReader* dhtPtr) {
+        ptrReader = dhtPtr; 
+        value = 20.0;
+    }
+
     void read() {
-        temperature = dht.readTemperature();
-        humidity = dht.readHumidity();
+        value = ptrReader->temperature; 
+    }
+};
+
+class HumiditySensor {
+private:
+    DHTReader* ptrReader; 
+public:
+    float value;
+
+    HumiditySensor(DHTReader* dhtPtr) {
+        ptrReader = dhtPtr;
+        value = 50.0;
+    }
+
+    void read() {
+        value = ptrReader->humidity; 
+    }
+};
+
+class SoilMoistureSensor {
+private:
+    int analogPin;
+public:
+    int moisture;
+
+    SoilMoistureSensor(int pinNum) {
+        analogPin = pinNum;
+        moisture = 500;
+    }
+
+    void read() {
+        moisture = analogRead(analogPin);
     }
 };
 
 class LightSensor {
+private:
+    int analogPin;
 public:
     int lightLevel;
+
+    LightSensor(int pinNum) {
+        analogPin = pinNum;
+        lightLevel = 500;
+    }
+
     void read() {
-        lightLevel = analogRead(PIN_LIGHT);
+        lightLevel = analogRead(analogPin);
     }
 };
 
-class SoilSensor {
-public:
-    int moistureLevel;
-    void read() {
-        moistureLevel = analogRead(PIN_SOIL);
-    }
-};
+// Классы исполнительных устройств
 
-class Relay {
-protected:
+class Vent {
+private:
     int pin;
+    bool activeState = false;
 public:
-    bool isActive;
-    Relay(int p) {
-        pin = p;
-        isActive = false;
-    }
-    void begin() {
+    bool needVentByTemp = false;
+    bool needVentByHum  = false;
+    bool needVentByTime = false;
+
+    Vent(int pinNum) {
+        pin = pinNum;
         pinMode(pin, OUTPUT);
         digitalWrite(pin, LOW);
     }
-    void applyState() {
-        if (isActive) {
+
+    void power() {
+        bool prev = activeState;
+        if (isNightTime) {
+            digitalWrite(pin, LOW);
+            activeState = false;
+        } else {
+            bool shouldVent = needVentByTemp || needVentByHum || needVentByTime;
+            if (shouldVent == true) {
+                digitalWrite(pin, HIGH);
+            } else {
+                digitalWrite(pin, LOW);
+            }
+            activeState = shouldVent;
+        }
+        if (activeState != prev) {
+            Serial.print(F("Вентилятор: "));
+            if (activeState == true) {
+                Serial.println(F("ВКЛ"));
+            } else {
+                Serial.println(F("ВЫКЛ"));
+            }
+        }
+    }
+
+    bool isOn() const { 
+        return activeState; 
+    }
+};
+
+class Heater {
+private:
+    int pin;
+    Vent* linkedVent; 
+    bool activeState = false;
+public:
+    bool needHeatByTemp = false;
+    bool needHeatByHum  = false;
+
+    Heater(int pinNum, Vent* ventPtr) {
+        pin = pinNum;
+        linkedVent = ventPtr; 
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin, LOW);
+    }
+
+    void power() {
+        bool prev = activeState;
+        bool demandsFlag = needHeatByTemp || needHeatByHum;
+        bool shouldHeat = demandsFlag && linkedVent->isOn();
+        
+        if (shouldHeat == true) {
             digitalWrite(pin, HIGH);
         } else {
             digitalWrite(pin, LOW);
         }
+        
+        activeState = shouldHeat;
+        if (activeState != prev) {
+            Serial.print(F("Обогреватель: "));
+            if (activeState == true) {
+                Serial.println(F("ВКЛ"));
+            } else {
+                Serial.println(F("ВЫКЛ"));
+            }
+        }
     }
 };
 
-class Heater : public Relay {
+class Lamp {
+private:
+    int pin;
+    bool activeState = false;
 public:
-    Heater(int p) : Relay(p) {}
-};
+    bool needLight = false;
 
-class Fan : public Relay {
-public:
-    Fan(int p) : Relay(p) {}
-};
-
-class Pump : public Relay {
-public:
-    Pump(int p) : Relay(p) {}
-};
-
-class Lamp : public Relay {
-public:
-    Lamp(int p) : Relay(p) {}
-};
-
-void control_temperature_and_air(const AirSensor& air, Heater& heater, Fan& fan) {
-    if (isnan(air.temperature)) return;
-
-    if (air.temperature > 28.0) {
-        heater.isActive = false;
-        fan.isActive = true;
-    } else if (air.temperature < 22.0) {
-        heater.isActive = true;
-        fan.isActive = false;
-    } else {
-        heater.isActive = false;
-        fan.isActive = false;
+    Lamp(int pinNum) {
+        pin = pinNum;
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin, LOW);
     }
 
-    if (air.humidity > 70.0) {
-        fan.isActive = true;
+    void power() {
+        bool prev = activeState;
+        bool shouldLight = needLight;
+        
+        if (shouldLight == true) {
+            digitalWrite(pin, HIGH);
+        } else {
+            digitalWrite(pin, LOW);
+        }
+        
+        activeState = shouldLight;
+        if (activeState != prev) {
+            Serial.print(F("Лампа: "));
+            if (activeState == true) {
+                Serial.println(F("ВКЛ"));
+            } else {
+                Serial.println(F("ВЫКЛ"));
+            }
+        }
+    }
+};
+
+class Pump {
+private:
+    int pin;
+    bool activeState = false;
+public:
+    bool needPump = false; 
+
+    Pump(int pinNum) {
+        pin = pinNum;
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin, LOW);
+    }
+
+    void power() {
+        bool prev = activeState;
+        bool shouldPump = needPump;
+        
+        if (shouldPump == true) {
+            digitalWrite(pin, HIGH);
+        } else {
+            digitalWrite(pin, LOW);
+        }
+        
+        activeState = shouldPump;
+        if (activeState != prev) {
+            Serial.print(F("Помпа: "));
+            if (activeState == true) {
+                Serial.println(F("ВКЛ"));
+            } else {
+                Serial.println(F("ВЫКЛ"));
+            }
+        }
+    }
+};
+
+// Функции регулирования
+
+void control_temperature(const TemperatureSensor& tempSens, Heater& heater, Vent& vent, const PlantProfile& activeProfile) {
+    if (tempSens.value > activeProfile.maxTemperature) {
+        Serial.println(F("Регулятор температуры: жарко -> ventilator ВКЛ, обогрев ВЫКЛ"));
+        heater.needHeatByTemp = false;
+        vent.needVentByTemp = true;
+    }
+    else if (tempSens.value < activeProfile.minTemperature) {
+        Serial.println(F("Регулятор температуры: холодно -> обогрев и вентилятор ВКЛ"));
+        heater.needHeatByTemp = true;
+        vent.needVentByTemp = true;
+    }
+    else {
+        if (heater.needHeatByTemp || vent.needVentByTemp) {
+            Serial.println(F("Регулятор температуры: норма -> все выкл"));
+        }
+        heater.needHeatByTemp = false;
+        vent.needVentByTemp = false;
     }
 }
 
-void control_soil_humidity(const SoilSensor& soil, Pump& pump) {
+void control_humidity(const HumiditySensor& humSens, const TemperatureSensor& tempSens, Heater& heater, Vent& vent, const PlantProfile& activeProfile) {
+    if (humSens.value > activeProfile.maxHumidity) {
+        Serial.print(F("Регулятор влажности: высокая влажность -> вентилятор ВКЛ"));
+        vent.needVentByHum = true;
+        if (tempSens.value < activeProfile.heatWithHumLimit) {
+            Serial.println(F(", обогрев ВКЛ (помощь в осушении)"));
+            heater.needHeatByHum = true;
+        } else {
+            Serial.println(F(", обогрев не нужен"));
+            heater.needHeatByHum = false;
+        }
+    } else {
+        if (vent.needVentByHum || heater.needHeatByHum) {
+            Serial.println(F("Регулятор влажности: влажность в норме -> все выкл"));
+        }
+        vent.needVentByHum = false;
+        heater.needHeatByHum = false;
+    }
+}
+
+void control_soilmoisture(const SoilMoistureSensor& soil, Pump& pump, const PlantProfile& activeProfile) {
+    if (soil.moisture > activeProfile.wetSoilBorder) {
+        if (!pump.needPump) Serial.println(F("Регулятор почвы: сухо! -> помпа ВКЛ"));
+        pump.needPump = true;
+    }
+    else if (soil.moisture < activeProfile.drySoilBorder) {
+        if (pump.needPump) Serial.println(F("Регулятор почвы: влажно -> помпа ВЫКЛ"));
+        pump.needPump = false;
+    }
+}
+
+void control_light(const LightSensor& light, Lamp& lamp, const PlantProfile& activeProfile) {
+    if (!isNightTime && light.lightLevel < activeProfile.darkLightBorder) {
+        if (!lamp.needLight) Serial.println(F("Регулятор света: темно -> лампа ВКЛ"));
+        lamp.needLight = true;
+    } else {
+        if (lamp.needLight) {
+            if (isNightTime) Serial.println(F("Регулятор света: ночь -> лампа ВЫКЛ"));
+            else Serial.println(F("Регулятор света: достаточно светло -> лампа ВЫКЛ"));
+        }
+        lamp.needLight = false;
+    }
+}
+
+void control_ventilation(Vent& vent, const PlantProfile& activeProfile) {
+    if (isNightTime) {
+        if (ventInProgress) {
+            Serial.println(F("Проветривание: наступила ночь -> остановка"));
+            ventInProgress = false;
+            vent.needVentByTime = false;
+        }
+        return;
+    }
+    
     unsigned long currentTime = millis();
 
-    if (soil.moistureLevel > 700 && !isPumpRunning) {
-        if (currentTime - lastWateringTime > REST_TIME) {
-            pump.isActive = true;
-            isPumpRunning = true;
-            pumpStartTime = currentTime;
+    if (!ventInProgress && (currentTime - ventilationStartTime >= activeProfile.timeBetweenVent)) {
+        Serial.println(F("Проветривание: запуск по расписанию"));
+        ventInProgress = true;
+        ventilationStartTime = currentTime;
+        vent.needVentByTime = true;
+    }
+
+    if (ventInProgress && (currentTime - ventilationStartTime >= activeProfile.ventWorkTime)) {
+        Serial.println(F("Проветривание: завершение по длительности"));
+        ventInProgress = false;
+        vent.needVentByTime = false;
+    }
+}
+
+void updateTimeStatus() {
+    unsigned long systemTime = millis();
+    unsigned long currentHours = (systemTime / 3600000UL) % 24;
+    
+    bool newNight = (currentHours >= 22 || currentHours < 6);
+    if (newNight != isNightTime) {
+        isNightTime = newNight;
+        Serial.print(F("=== Смена времени суток: "));
+        if (isNightTime == true) {
+            Serial.println(F("НОЧЬ"));
+        } else {
+            Serial.println(F("ДЕНЬ"));
         }
-    } 
-    
-    if (isPumpRunning && soil.moistureLevel < 400) {
-        pump.isActive = false;
-        isPumpRunning = false;
-        lastWateringTime = currentTime;
-    }
-    
-    if (isPumpRunning && (currentTime - pumpStartTime > MAX_PUMP_TIME)) {
-        pump.isActive = false;
-        isPumpRunning = false;
-        lastWateringTime = currentTime;
     }
 }
 
-void control_light(const LightSensor& lightSensor, Lamp& lamp) {
-    if (lightSensor.lightLevel < 300) {
-        lamp.isActive = true;
-    } else {
-        lamp.isActive = false;
-    }
-}
+// Создание объектов системы
 
-AirSensor airSensor;
-LightSensor lightSensor;
-SoilSensor soilSensor;
+DHTReader mainDht(PIN_DHT);
 
-Heater heater(PIN_HEATER);
-Fan fan(PIN_VENT);
-Pump pump(PIN_PUMP);
-Lamp lamp(PIN_LAMP);
+TemperatureSensor temperature(&mainDht);
+HumiditySensor airHumidity(&mainDht);
+SoilMoistureSensor soilSensor(PIN_ANALOG_SOIL);
+LightSensor lightSensor(PIN_ANALOG_LIGHT);
+
+Vent vent(PIN_RELE_VENT);
+Heater heater(PIN_RELE_HEATER, &vent);
+Lamp lamp(PIN_RELE_LAMP);
+Pump pump(PIN_RELE_PUMP);
 
 void setup() {
     Serial.begin(9600);
-    dht.begin();
-    heater.begin();
-    fan.begin();
-    pump.begin();
-    lamp.begin();
+    Serial.println(F("=== Умная теплица v2.0 ==="));
+    Serial.println(F("Профиль 1 (растение по умолчанию)"));
+    Serial.println(F("Система запущена"));
 }
 
 void loop() {
-    airSensor.read();
-    lightSensor.read();
+    static unsigned long cycleCount = 0;
+    cycleCount++;
+    Serial.print(F("\n--- Цикл "));
+    Serial.print(cycleCount);
+    Serial.println(F(" ---"));
+
+    const PlantProfile& currentProfile = appProfiles[0];
+    
+    updateTimeStatus();
+    mainDht.update();
+
+    temperature.read();
+    airHumidity.read();
     soilSensor.read();
+    lightSensor.read();
 
-    control_temperature_and_air(airSensor, heater, fan);
-    control_soil_humidity(soilSensor, pump);
-    control_light(lightSensor, lamp);
+    Serial.println(F("Датчики:"));
+    Serial.print(F("  Температура: ")); Serial.print(temperature.value); Serial.println(F(" C"));
+    Serial.print(F("  Влажность воздуха: ")); Serial.print(airHumidity.value); Serial.println(F(" %"));
+    Serial.print(F("  Влажность почвы (0-1023): ")); Serial.println(soilSensor.moisture);
+    Serial.print(F("  Освещённость (0-1023): ")); Serial.println(lightSensor.lightLevel);
+    Serial.print(F("  Ночь: ")); 
+    if (isNightTime == true) {
+        Serial.println(F("да"));
+    } else {
+        Serial.println(F("нет"));
+    }
 
-    heater.applyState();
-    fan.applyState();
-    pump.applyState();
-    lamp.applyState();
+    control_temperature(temperature, heater, vent, currentProfile);
+    control_humidity(airHumidity, temperature, heater, vent, currentProfile);
+    control_soilmoisture(soilSensor, pump, currentProfile);
+    control_light(lightSensor, lamp, currentProfile);
+    control_ventilation(vent, currentProfile);
 
-    Serial.print(airSensor.temperature);
-    Serial.print(" ");
-    Serial.print(airSensor.humidity);
-    Serial.print(" ");
-    Serial.println(soilSensor.moistureLevel);
+    vent.power();
+    heater.power();
+    lamp.power();
+    pump.power();
+
+    Serial.print(F("Состояние актуаторов: вент=")); 
+    if (vent.isOn() == true) { Serial.print(F("ВКЛ")); } else { Serial.print(F("выкл")); }
+    
+    Serial.print(F(", нагрев=")); 
+    bool currentHeatState = heater.needHeatByTemp || heater.needHeatByHum;
+    if (currentHeatState == true) { Serial.print(F("ВКЛ")); } else { Serial.print(F("выкл")); }
+    
+    Serial.print(F(", лампа=")); 
+    if (lamp.needLight == true) { Serial.print(F("ВКЛ")); } else { Serial.print(F("выкл")); }
+    
+    Serial.print(F(", помпа=")); 
+    if (pump.needPump == true) { Serial.println(F("ВКЛ")); } else { Serial.println(F("выкл")); }
 
     delay(2000);
 }
