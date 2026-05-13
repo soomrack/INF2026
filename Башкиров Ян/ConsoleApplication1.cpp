@@ -1,10 +1,19 @@
-﻿#include <stdio.h>
+﻿// Задание 01 "Alice and Bob"
+// Моделируем 3 года жизни Натальи: 2026 - 2028 годы
+// Шаг моделирования - один месяц
+// Все суммы в рублях, кроме отдельного счёта в долларах
+
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
 using Percent = float;
 using RUB = long long int;
 using USD = long long int;
+
+// ---------- структуры данных ----------
+// Сначала описаны все вещи, которыми владеет Наталья (машина, квартира, питомцы)
+// потом банк и сам персонаж. Структуры тут только хранят суммы по статьям расходов.
 
 struct Car {
     RUB value;
@@ -483,8 +492,10 @@ struct Person {
     Crypto crypto;
     Stock stock;
 };
+// главный персонаж - Наталья
 struct Person natalia;
 
+// муж появляется только после свадьбы. Поэтому до неё isPresent = false
 struct Husband {
     RUB salary;
     RUB food;
@@ -514,6 +525,7 @@ struct Grandmother {
     RUB car_value;
     RUB jewelry;
 };
+// бабушка Наталье помогает деньгами, но в 2027 умирает и оставляет наследство
 struct Grandmother zinaida;
 
 struct Grandfather {
@@ -525,8 +537,10 @@ struct Grandfather {
     int death_month;
     RUB inheritance_left;
 };
+// дедушка тоже умирает в 2027 и оставляет наследство
 struct Grandfather ivan;
 
+// сестра Ольга должна Наталье деньги и постепенно отдаёт их
 struct Sister {
     RUB salary;
     RUB help_to_family;
@@ -537,6 +551,7 @@ struct Sister {
 };
 struct Sister olga;
 
+// подруга Марина наоборот берёт у Натальи в долг, может вернуть с процентом, а может не вернуть совсем
 struct Friend {
     RUB help_amount;
     int help_month;
@@ -547,6 +562,8 @@ struct Friend {
 };
 struct Friend marina;
 
+// глобальные флаги состояния. Их меняют функции событий
+// все животные всегда живы, но переменные на всякий будут
 bool isCatAlive = true;
 bool isDogAlive = true;
 bool isHamsterAlive = true;
@@ -564,6 +581,10 @@ bool isKreditActive = false;
 bool isBlackJobActive = false;
 bool isOlgaPaying = false;
 
+// ---------- функции обновления цен ----------
+// случайное изменение цены каждый месяц
+// srand с привязкой к дате чтобы при перезапуске результат был такой же
+// в отдельные месяцы есть искусственные сдвиги - как будто новость на рынке
 void update_crypto_prices(int month, int year)
 {
     srand(month * 1000 + year * 10000);
@@ -584,6 +605,7 @@ void update_crypto_prices(int month, int year)
     natalia.crypto.profit_loss = natalia.crypto.current_value - natalia.crypto.total_invested;
 }
 
+// акции российских компаний. Дивиденды приходят раз в год в декабре
 void update_stock_prices(int month, int year)
 {
     srand(month * 2000 + year * 5000);
@@ -607,6 +629,10 @@ void update_stock_prices(int month, int year)
     }
 }
 
+// ---------- инициализация всех данных ----------
+// тут просто задаём стартовые значения всех полей всех структур
+// получается очень длинно но иначе никак, всё это надо где-то прописать
+// курс доллара взят актуальный на момент написания
 void natalia_init()
 {
     natalia.vtb.rate_usd_rub = 78.76;
@@ -1033,6 +1059,9 @@ void natalia_init()
     marina.returned = false;
 }
 
+// ---------- ежемесячные расходы ----------
+// еда. Инфляция своя на каждый год, делим на 12 потому что это месячный шаг
+// в декабре доп.траты на праздничный стол
 void natalia_food(int month, int year)
 {
     if (month == 12) natalia.vtb.account_rub -= 2000;
@@ -1044,6 +1073,8 @@ void natalia_food(int month, int year)
     natalia.vtb.account_rub -= natalia.food;
 }
 
+// машина: бензин и парковка каждый месяц, мойка по чётным, ТО и страховки раз в год
+// иногда случайно прилетают штрафы (8% шанс в месяц)
 void natalia_car_expenses(int month, int year)
 {
     if (month == 10 && year == 2026) natalia.vtb.account_rub -= natalia.car.tires;
@@ -1071,6 +1102,9 @@ void natalia_car_expenses(int month, int year)
     natalia.car.STO += natalia.car.STO * (inflation_service / 100.0 / 6.0);
 }
 
+// съёмная квартира до того как Наталья переедет в свою (по ипотеке)
+// в январе 2026 разовая выплата залога и комиссии риелтора
+// коммуналка растёт быстрее аренды
 void natalia_flat_expenses(int month, int year)
 {
     natalia.vtb.account_rub -= natalia.flat.rent;
@@ -1096,6 +1130,9 @@ void natalia_flat_expenses(int month, int year)
     natalia.flat.housing_and_communal_services += natalia.flat.housing_and_communal_services * (inflation_communal / 100.0 / 7.0);
 }
 
+// ---------- расходы на питомцев ----------
+// у каждого животного похожая логика: один раз покупка + регулярный корм + редкие траты
+// я не стал объединять их в одну функцию чтобы можно было читать про каждого отдельно
 void natalia_cat_expenses(int month, int year)
 {
     if (isCatAlive)
@@ -1125,6 +1162,7 @@ void natalia_cat_expenses(int month, int year)
     }
 }
 
+// собака покупается в марте 2026
 void natalia_dog_expenses(int month, int year)
 {
     if (isDogAlive)
@@ -1151,6 +1189,7 @@ void natalia_dog_expenses(int month, int year)
     }
 }
 
+// хомяк в апреле 2026, опилки и сено покупаем каждый месяц
 void natalia_hamster_expenses(int month, int year)
 {
     if (isHamsterAlive)
@@ -1177,6 +1216,7 @@ void natalia_hamster_expenses(int month, int year)
     }
 }
 
+// попугай в мае 2026
 void natalia_parrot_expenses(int month, int year)
 {
     if (isParrotAlive)
@@ -1198,6 +1238,7 @@ void natalia_parrot_expenses(int month, int year)
     }
 }
 
+// рыбки в июне 2026, аквариум большая разовая трата
 void natalia_fish_expenses(int month, int year)
 {
     if (isFishAlive)
@@ -1219,6 +1260,7 @@ void natalia_fish_expenses(int month, int year)
     }
 }
 
+// кролик в июле 2026
 void natalia_rabbit_expenses(int month, int year)
 {
     if (isRabbitAlive)
@@ -1241,6 +1283,7 @@ void natalia_rabbit_expenses(int month, int year)
     }
 }
 
+// черепаха в августе 2026, последний питомец
 void natalia_turtle_expenses(int month, int year)
 {
     if (isTurtleAlive)
@@ -1259,6 +1302,8 @@ void natalia_turtle_expenses(int month, int year)
     }
 }
 
+// поездки. 4 разные поездки за 3 года, каждая со своим набором трат
+// инфляция на путешествия 10% в год - туризм быстро дорожает
 void natalia_trip_expenses(int month, int year)
 {
     if (month == 5 && year == 2026)
@@ -1296,15 +1341,22 @@ void natalia_trip_expenses(int month, int year)
     natalia.trip.meals += natalia.trip.meals * (inflation_trip / 100.0 / 10.0);
 }
 
+// ---------- доходы ----------
+// зарплата каждый месяц. В марте 2026 был большой рост зарплаты после повышения
+// плюс премия в феврале 2026 и новогодние премии в декабре
 void natalia_salary(int month, int year)
 {
     natalia.vtb.account_rub += natalia.salary;
-    if (month == 3) natalia.salary = natalia.salary * 1.5;
+    // повышение случилось один раз - в марте 2026 (раньше писал каждый март, что оштбка)
+    if (month == 3 && year == 2026) natalia.salary = natalia.salary * 1.5;
     if (month == 2 && year == 2026) natalia.vtb.account_rub += 5000;
     if (month == 12 && year == 2026) natalia.vtb.account_rub += 15000;
     if (month == 12 && year == 2027) natalia.vtb.account_rub += 25000;
 }
 
+// ---------- жизненные события (семья) ----------
+// свадьба - август 2026. Расходы на свадьбу делятся пополам с Толиком
+// а медовый месяц и стилисты только за Наталью
 void natalia_wedding(int month, int year)
 {
     if (month == 8 && year == 2026 && !isMarried)
@@ -1333,6 +1385,8 @@ void natalia_wedding(int month, int year)
     }
 }
 
+// после свадьбы бюджет общий, поэтому зарплата Толика идёт на тот же счёт
+// после развода Толик платит алименты и поддержку ребёнку
 void tolik_income_and_expenses(int month, int year)
 {
     if (tolik.isPresent && !isDivorced)
@@ -1359,6 +1413,8 @@ void tolik_income_and_expenses(int month, int year)
     }
 }
 
+// беременность начинается в октябре 2026 (только если есть брак)
+// 9 месяцев расходов на врачей, витамины, потом вещ для младенца
 void natalia_pregnancy(int month, int year)
 {
     if (isMarried && !isPregnant && !isChildAlive)
@@ -1395,6 +1451,7 @@ void natalia_pregnancy(int month, int year)
     }
 }
 
+// роды в июле 2027. После родов Наталья уходит в декрет и её зарплата временно падает (получает 40% декретные)
 void natalia_childbirth(int month, int year)
 {
     if (isPregnant && month == 7 && year == 2027)
@@ -1407,6 +1464,7 @@ void natalia_childbirth(int month, int year)
     }
 }
 
+// расходы на ребёнка после рождения - подгузники, питание, потом ясли/сад, школьные расходы появятся в 2029 году
 void natalia_child_expenses(int month, int year)
 {
     if (isChildAlive)
@@ -1440,6 +1498,11 @@ void natalia_child_expenses(int month, int year)
     }
 }
 
+// ---------- кредиты (это та самая "детально промоделированная тема") ----------
+// потребительский кредит на 300 тыс под 18% годовых на 2 года
+// каждый месяц списываем платёж, копим переплату
+// при возможности (есть свободные деньги) - досрочное погашение в апреле 2027
+// досрочное погашение со штрафом early_repayment_fee
 void natalia_kredit_expenses(int month, int year)
 {
     if (natalia.kredit.isActive)
@@ -1470,6 +1533,9 @@ void natalia_kredit_expenses(int month, int year)
     }
 }
 
+// ипотека на 20 лет под 9.5% после свадьбы
+// первоначальный взнос разовый, потом ежемесячные платежи
+// раз в год дополнительно страховка квартиры и налог на имущество
 void natalia_mortgage_expenses(int month, int year)
 {
     if (natalia.mortgage.isActive)
@@ -1496,6 +1562,8 @@ void natalia_mortgage_expenses(int month, int year)
     }
 }
 
+// ---------- прочие расходы ----------
+// здоровье: лекарства каждый месяц, витамины раз в квартал, стоматолог 2 раза в год
 void natalia_health_expenses(int month, int year)
 {
     if (month % 3 == 0) natalia.vtb.account_rub -= natalia.health.vitamins;
@@ -1508,6 +1576,7 @@ void natalia_health_expenses(int month, int year)
     if (month == 5 && year == 2028) natalia.vtb.account_rub -= natalia.health.glasses;
 }
 
+// образование: курсы и онлайн-подписки, в 2028 поступление в магистратуру
 void natalia_education_expenses(int month, int year)
 {
     if (month == 9 && year == 2026)
@@ -1521,6 +1590,7 @@ void natalia_education_expenses(int month, int year)
     if (month == 10 && year == 2028) natalia.vtb.account_rub -= natalia.education.conference;
 }
 
+// развлечения: подписки на стриминг каждый месяц, остальное по событиям
 void natalia_entertainment_expenses(int month, int year)
 {
     if (month % 2 == 0) natalia.vtb.account_rub -= natalia.entertainment.cinema;
@@ -1538,6 +1608,7 @@ void natalia_entertainment_expenses(int month, int year)
     if (month == 11 && year == 2027) natalia.vtb.account_rub -= natalia.entertainment.cosmetics;
 }
 
+// благотворительность: помощь родителям каждый месяц, разовые в декабре
 void natalia_charity_expenses(int month, int year)
 {
     if (month == 12)
@@ -1552,6 +1623,10 @@ void natalia_charity_expenses(int month, int year)
     if (month == 4 && year == 2028) natalia.vtb.account_rub -= natalia.charity.environmental;
 }
 
+// ---------- разные побочные истории ----------
+// нелегальная подработка. Стартует в январе 2027, но есть риск попасться
+// если поймают - штраф и работа прекращается. Иногда приходится давать взятку
+// активируется только если ещё нет ребёнка и не замужем
 void natalia_black_job(int month, int year)
 {
     if (isBlackJobActive)
@@ -1578,6 +1653,7 @@ void natalia_black_job(int month, int year)
     }
 }
 
+// лотерея: в декабре каждого года покупаются билеты, шанс выигрыша низкий
 void natalia_lottery(int month, int year)
 {
     if (month == 12 && year == 2026)
@@ -1612,6 +1688,8 @@ void natalia_lottery(int month, int year)
     }
 }
 
+// наследство: за вычетом налога и услуг нотариуса
+// тут только наследство, не зависящее от смерти бабушки (отдельная функция)
 void natalia_inheritance(int month, int year)
 {
     if (!natalia.inheritance.isReceived && year == natalia.inheritance.year && month == natalia.inheritance.month)
@@ -1628,6 +1706,8 @@ void natalia_inheritance(int month, int year)
     }
 }
 
+// дача покупается в мае 2027 (если уже есть и семья и ребёнок)
+// потом каждый сезон расходы на обслуживание, налоги в октябре
 void natalia_dacha_expenses(int month, int year)
 {
     if (hasDacha)
@@ -1650,6 +1730,9 @@ void natalia_dacha_expenses(int month, int year)
     }
 }
 
+// развод в сентябре 2028. Большие разовые расходы на адвоката и раздел имущества
+// потом Толик платит алименты и поддержку ребёнку (см tolik_income_and_expenses)
+// в декабре после развода - терапия у психолога
 void natalia_divorce(int month, int year)
 {
     if (!natalia.divorce.isHappened && isMarried && isChildAlive && year == natalia.divorce.year && month == natalia.divorce.month)
@@ -1671,6 +1754,9 @@ void natalia_divorce(int month, int year)
     }
 }
 
+// ---------- инвестиции ----------
+// крипта: купили в январе 2026, продали в декабре 2028
+// каждый месяц обновляем цены, в конце продаём всё и платим налог 13% с прибыли
 void natalia_crypto_investment(int month, int year)
 {
     if (month == 1 && year == 2026)
@@ -1696,6 +1782,7 @@ void natalia_crypto_investment(int month, int year)
     }
 }
 
+// акции: то же самое плюс дивиденды раз в год (см. update_stock_prices)
 void natalia_stock_investment(int month, int year)
 {
     if (month == 2 && year == 2026)
@@ -1723,6 +1810,9 @@ void natalia_stock_investment(int month, int year)
     }
 }
 
+// ---------- родственники и друзья ----------
+// Ольга (сестра) каждый месяц возвращает долг постепенно
+// плюс однократно в марте 2026 Наталья сама помогает сестре
 void natalia_sister_help(int month, int year)
 {
     if (olga.isPresent && olga.paying_back)
@@ -1742,6 +1832,8 @@ void natalia_sister_help(int month, int year)
     }
 }
 
+// Марина (подруга) одалживает деньги в ноябре 2026
+// через полгода обещает вернуть с процентом, но через год может и не вернуть
 void natalia_friend_help(int month, int year)
 {
     if (!marina.borrowed && month == marina.help_month && year == marina.help_year)
@@ -1764,6 +1856,8 @@ void natalia_friend_help(int month, int year)
     }
 }
 
+// бабушка пока жива - её пенсия приходит на счёт но и расходы на её еду/лекарства
+// в сентябре 2027 умирает, переходит большое наследство (дом, дача, машина, украшения)
 void natalia_grandmother_care(int month, int year)
 {
     if (zinaida.isAlive)
@@ -1791,6 +1885,9 @@ void natalia_grandmother_care(int month, int year)
     }
 }
 
+// случайные события на основе rand()
+// 5% - кража, 5% - нашли деньги, 3% - подарок и т.д.
+// маловероятные крайние события вроде неожиданной свадьбы, скорее для разнообразия
 void natalia_random_events(int month, int year)
 {
     int event = rand() % 100;
@@ -1826,6 +1923,10 @@ void natalia_random_events(int month, int year)
     }
 }
 
+// ---------- главный цикл симуляции ----------
+// начинаем с февраля 2026 (январь - это инициализация в natalia_init)
+// идём по месяцам пока не дойдём до января 2029
+// каждый месяц вызываем все функции по очереди
 void simulation()
 {
     int year = 2026;
@@ -1875,6 +1976,9 @@ void simulation()
     }
 }
 
+// суммарный капитал в конце симуляции
+// сюда входят: деньги на счёте, имущество, инвестиции
+// минус остатки по кредиту и ипотеке (которые ещё надо выплатить)
 RUB calculate_total_capital()
 {
     RUB total = 0;
@@ -1895,6 +1999,7 @@ RUB calculate_total_capital()
     return total;
 }
 
+// итоговый вывод. Сюда смотрит преподаватель чтобы понять что получилось
 void print_results()
 {
     printf("\n========== SIMULATION RESULTS ==========\n");
@@ -1935,6 +2040,7 @@ void print_results()
     printf("==========================================\n");
 }
 
+// точка входа. Запускаем инициализацию, цикл симуляции и печать результата
 int main()
 {
     srand(time(NULL));
