@@ -1,7 +1,6 @@
 #include <DHT.h>
 
-bool isNightTime = false;
-bool prevIsNight = false; 
+bool isNightTime = false; 
 
 const int PIN_DHT = 3;
 const int PIN_RELE_HEATER = 4;
@@ -32,7 +31,7 @@ struct PlantProfile {
 };
 
 const PlantProfile appProfiles[] = {
-    { 32.0, 22.0, 75.0, 34.0, 350, 650, 450, 1500000, 90000, 5000, 600000 },
+    { 32.0, 22.0, 75.0, 34.0, 350, 650, 17, 1500000, 90000, 1000, 200000 },
     { 26.0, 16.0, 65.0, 28.0, 450, 750, 350, 2700000, 150000, 5000, 600000 },
     { 35.0, 15.0, 50.0, 25.0, 200, 500, 500, 3600000, 60000, 3000, 1200000 },
     { 22.0, 12.0, 70.0, 20.0, 500, 800, 300, 1800000, 180000, 8000, 300000 }
@@ -160,7 +159,7 @@ public:
                 digitalWrite(pin, HIGH);
             } else {
                 digitalWrite(pin, LOW);
-            }
+            } 
             activeState = shouldVent;
         }
         if (activeState != prev) {
@@ -214,6 +213,10 @@ public:
                 Serial.println(F("ВЫКЛ"));
             }
         }
+    }
+
+    bool isOn() const {
+        return activeState;
     }
 };
 
@@ -364,7 +367,7 @@ void control_soilmoisture(const SoilMoistureSensor& soil, Pump& pump, const Plan
 }
 
 void control_light(const LightSensor& light, Lamp& lamp, const PlantProfile& activeProfile) {
-    if (!isNightTime && light.lightLevel < activeProfile.darkLightBorder) {
+    if (!isNightTime && light.lightLevel > activeProfile.darkLightBorder) {
         if (!lamp.needLight) Serial.println(F("Регулятор света: темно -> лампа ВКЛ"));
         lamp.needLight = true;
     } else {
@@ -404,6 +407,10 @@ void control_ventilation(Vent& vent, const PlantProfile& activeProfile) {
 
 void updateTimeStatus() {
     unsigned long systemTime = millis();
+    if(systemTime < 3600000UL){
+      isNightTime = false;
+      return;
+    }
     unsigned long currentHours = (systemTime / 3600000UL) % 24;
     
     bool newNight = (currentHours >= 22 || currentHours < 6);
@@ -434,9 +441,6 @@ Pump pump(PIN_RELE_PUMP);
 
 void setup() {
     Serial.begin(9600);
-    Serial.println(F("=== Умная теплица v2.0 ==="));
-    Serial.println(F("Профиль 1 (растение по умолчанию)"));
-    Serial.println(F("Система запущена"));
 }
 
 void loop() {
@@ -483,8 +487,7 @@ void loop() {
     if (vent.isOn() == true) { Serial.print(F("ВКЛ")); } else { Serial.print(F("выкл")); }
     
     Serial.print(F(", нагрев=")); 
-    bool currentHeatState = heater.needHeatByTemp || heater.needHeatByHum;
-    if (currentHeatState == true) { Serial.print(F("ВКЛ")); } else { Serial.print(F("выкл")); }
+    if (heater.isOn() == true) { Serial.print(F("ВКЛ")); } else { Serial.print(F("выкл")); }
     
     Serial.print(F(", лампа=")); 
     if (lamp.needLight == true) { Serial.print(F("ВКЛ")); } else { Serial.print(F("выкл")); }
