@@ -22,7 +22,10 @@ const unsigned long MINUTE_MS = 60000UL;
 const unsigned long HOUR_MS = 3600000UL;
 const unsigned long DAY_MS = 86400000UL;
 
-const byte INITIAL_HOUR = 12; // Стартовое время, см. далее
+const int soil_dry_raw = 0;
+const int soil_wet_raw = 1023;
+const int light_dark_raw = 1023;
+const int light_bright_raw = 0;
 
 const int SOIL_DRY_RAW = 0;
 const int SOIL_WET_RAW = 1023;
