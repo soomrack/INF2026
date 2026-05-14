@@ -593,7 +593,7 @@ RUB capital(const Person& p) {
     return total_assets(p) - total_debt(p);
 }
 
-RUB salary_for_month(const Person& p, int month, int year) {
+RUB salary_for_month(const Person& p, int month, int year) { // сделать отдельные две функции
     RUB salary = p.work.salary;
     if (p.work.taxi_job) {
         RUB fee = percent(p.work.taxi_orders, 22.0);
