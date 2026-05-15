@@ -86,7 +86,7 @@ const ClimateSettings cucumber = {
     .ventilation_duration = 5
 };
 
-const ClimateSettings* current_climate = &tomato; // По умолчанию выращиваем помидоры, чтобы ошибки не было или других неожиданностей
+const ClimateSettings* current_climate = &tomato; // По умолчанию выращиваем помидоры, чтобы не было ошибки или других неожиданностей
 
 void set_climate(const ClimateSettings& climate) {
     current_climate = &climate;
