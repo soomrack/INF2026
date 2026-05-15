@@ -1,531 +1,557 @@
 #include <Arduino.h>
 #include <DHT.h>
 
-const byte DHT_PIN = 2;
-const byte SOIL_PIN = A1;
-const byte LIGHT_PIN = A0;
+const byte dht_model = DHT11;
 
-const byte PUMP_PIN = 5;
-const byte FAN_PIN = 7;
-const byte HEATER_PIN = 4;
-const byte LAMP_PIN = 6;
+const byte dht_pin = 2;
+const byte soil_pin = A1;
+const byte light_pin = A0;
 
-#define DHT_MODEL DHT11
+const byte pump_pin = 5;
+const byte fan_pin = 7;
+const byte heater_pin = 4;
+const byte lamp_pin = 6;
 
-const unsigned long AirSensor_READ_INTERVAL = 2000UL;
-const unsigned long PRINT_INTERVAL = 5000UL;
+const unsigned long air_sensor_interval = 2000UL;
+const unsigned long print_interval = 5000UL;
 
-const unsigned long PUMP_WORK_TIME = 3000UL;
-const unsigned long PUMP_PAUSE_TIME = 10000UL;
+const unsigned long pump_work_time = 3000UL;
+const unsigned long pump_pause_time = 10000UL;
 
-const unsigned long MINUTE_MS = 60000UL;
-const unsigned long HOUR_MS = 3600000UL;
-const unsigned long DAY_MS = 86400000UL;
+const unsigned long minute_ms = 60000UL;
+const unsigned long hour_ms = 3600000UL;
+const unsigned long day_ms = 86400000UL;
 
-const byte INITIAL_HOUR = 12; // Стартовое время, см. далее
+const byte initial_hour = 12;
 
-const int SOIL_DRY_RAW = 0;
-const int SOIL_WET_RAW = 1023;
+// Границы калибровки нужно определить под конкретную теплицу и конкретный датчик
+const int soil_dry_raw = 0;
+const int soil_wet_raw = 1023;
 
-const int LIGHT_DARK_RAW = 1023;
-const int LIGHT_BRIGHT_RAW = 0;
+const int light_dark_raw = 1023;
+const int light_bright_raw = 0;
 
 using Celsius = float;
-using Percent = float;
+using Percent = int;
 using Minutes = unsigned int;
 
 struct ClimateSettings {
-  const char *name;
+    const char* name;
 
-  Celsius minTemp, maxTemp;
+    Celsius min_temp;
+    Celsius max_temp;
 
-  Percent maxAirHumidity;
-  Percent minSoilHumidity;
+    Percent max_air_humidity;
+    Percent min_soil_humidity;
+    Percent min_light;
 
-  Percent minLight;
+    byte night_start;
+    byte night_end;
 
-  byte nightStart, nightEnd;
-
-  Minutes ventilationPeriod, ventilationDuration;
+    Minutes ventilation_period;
+    Minutes ventilation_duration;
 };
 
-const ClimateSettings tomato = {"Tomato",
+const ClimateSettings tomato = {
+    .name = "Tomato",
 
-                                22.0,     28.0,
+    .min_temp = 22.0,
+    .max_temp = 28.0,
 
-                                70.0,     35,
+    .max_air_humidity = 70,
+    .min_soil_humidity = 35,
+    .min_light = 50,
 
-                                50,
+    .night_start = 22,
+    .night_end = 6,
 
-                                22,       6,
+    .ventilation_period = 180,
+    .ventilation_duration = 5
+};
 
-                                180,      5};
+const ClimateSettings cucumber = {
+    .name = "Cucumber",
 
-const ClimateSettings cucumber = {"Cucumber",
+    .min_temp = 23.0,
+    .max_temp = 30.0,
 
-                                  23.0,       30.0,
+    .max_air_humidity = 80,
+    .min_soil_humidity = 45,
+    .min_light = 45,
 
-                                  80.0,       45,
+    .night_start = 22,
+    .night_end = 6,
 
-                                  45,
+    .ventilation_period = 180,
+    .ventilation_duration = 5
+};
 
-                                  22,         6,
+const ClimateSettings* current_climate = &tomato; // По умолчанию выращиваем помидоры, чтобы не было ошибки или других неожиданностей
 
-                                  180,        5};
-
-const ClimateSettings *currentClimate = &tomato; // Переключатель настроек
-
-int limitToPercentRange(long value) {
-  if (value < 0) {
-    return 0;
-  }
-
-  if (value > 100) {
-    return 100;
-  }
-
-  return (int)value;
+void set_climate(const ClimateSettings& climate) {
+    current_climate = &climate;
 }
 
-int rawToPercent(int raw, int rawAtZero, int rawAtHundred) {
-  if (rawAtZero == rawAtHundred) {
-    return 0;
-  }
-
-  // rawAtZero и rawAtHundred могут идти в обратном порядке
-  long percent = (long)(raw - rawAtZero) * 100L;
-  percent = percent / (rawAtHundred - rawAtZero);
-
-  return limitToPercentRange(percent);
+void set_climate(const ClimateSettings* climate) {
+    current_climate = climate;
 }
 
-// Т.к. нету RTC или чего-то подобного, приходится вводить виртуальное время
-// для грамотной работы вентиляции, освещения и тд
-byte getHour() {
-  byte passedHours = (millis() % DAY_MS) / HOUR_MS;
-  return (INITIAL_HOUR + passedHours) % 24;
+Percent convert_raw_to_percent(int raw, int zero_raw, int hundred_raw) {
+    if (zero_raw == hundred_raw) {
+        return 0;
+    }
+
+    // zero_raw и hundred_raw могут идти в обратном порядке
+    long value = (long)(raw - zero_raw) * 100L;
+    value = value / (hundred_raw - zero_raw);
+
+    return (Percent)constrain(value, 0L, 100L);
 }
 
-Minutes getMinuteOfDay() {
-  unsigned long passedMinutes = (millis() % DAY_MS) / MINUTE_MS;
-  return (Minutes)((INITIAL_HOUR * 60 + passedMinutes) % 1440);
+// Время виртуальное, поэтому после перезагрузки снова стартует с initial_hour
+byte get_hour() {
+    byte passed_hours = (millis() % day_ms) / hour_ms;
+    return (initial_hour + passed_hours) % 24;
 }
 
-bool isNight() {
-  byte hour = getHour();
+Minutes get_minute_of_day() {
+    unsigned long passed_minutes = (millis() % day_ms) / minute_ms;
+    return (Minutes)((initial_hour * 60 + passed_minutes) % 1440);
+}
 
-  if (currentClimate->nightStart < currentClimate->nightEnd) {
-    return hour >= currentClimate->nightStart &&
-           hour < currentClimate->nightEnd;
-  }
+bool is_night_now() {
+    byte hour = get_hour();
 
-  return hour >= currentClimate->nightStart || hour < currentClimate->nightEnd;
+    // Для ночи через полночь нужна отдельная проверка
+    if (current_climate->night_start < current_climate->night_end) {
+        return hour >= current_climate->night_start &&
+               hour < current_climate->night_end;
+    }
+
+    return hour >= current_climate->night_start ||
+           hour < current_climate->night_end;
+}
+
+bool ventilation_time_has_come() {
+    Minutes period = current_climate->ventilation_period;
+    Minutes duration = current_climate->ventilation_duration;
+
+    if (period == 0 || duration == 0) {
+        return false;
+    }
+
+    return get_minute_of_day() % period < duration;
 }
 
 class Sensor {
 public:
-  virtual void begin() = 0;
-  virtual void update() = 0;
-};
-
-class Controller {
-public:
-  virtual void update() = 0;
+    virtual void begin() = 0;
+    virtual void update() = 0;
 };
 
 class AirSensor : public Sensor {
 private:
-  DHT dht;
+    DHT dht;
 
-  float temperatureValue;
-  float humidityValue;
+    float temperature_value;
+    float humidity_value;
 
-  bool temperatureIsReady;
-  bool humidityIsReady;
+    bool temperature_ready;
+    bool humidity_ready;
 
-  bool wasRead;
-  unsigned long lastReadTime;
+    bool was_read;
+    unsigned long last_read;
 
 public:
-  AirSensor(byte pin)
-      : dht(pin, DHT_MODEL), temperatureValue(0), humidityValue(0),
-        temperatureIsReady(false), humidityIsReady(false), wasRead(false),
-        lastReadTime(0) {}
+    AirSensor(byte pin)
+        : dht(pin, dht_model),
+          temperature_value(0),
+          humidity_value(0),
+          temperature_ready(false),
+          humidity_ready(false),
+          was_read(false),
+          last_read(0) {}
 
-  void begin() override { dht.begin(); }
-
-  void update() override {
-    unsigned long now = millis();
-
-    if (wasRead && now - lastReadTime < AirSensor_READ_INTERVAL) {
-      return;
+    void begin() override {
+        dht.begin();
     }
 
-    wasRead = true;
-    lastReadTime = now;
+    void update() override {
+        unsigned long now = millis();
 
-    float newHumidity = dht.readHumidity();
-    float newTemperature = dht.readTemperature();
+        if (was_read && now - last_read < air_sensor_interval) {
+            return;
+        }
 
-    if (!isnan(newHumidity)) {
-      humidityValue = newHumidity;
-      humidityIsReady = true;
+        was_read = true;
+        last_read = now;
+
+        float humidity = dht.readHumidity();
+        float temperature = dht.readTemperature();
+
+        // При ошибке DHT возвращает NaN
+        if (!isnan(humidity)) {
+            humidity_value = humidity;
+            humidity_ready = true;
+        }
+
+        if (!isnan(temperature)) {
+            temperature_value = temperature;
+            temperature_ready = true;
+        }
     }
 
-    if (!isnan(newTemperature)) {
-      temperatureValue = newTemperature;
-      temperatureIsReady = true;
+    bool has_temperature() const {
+        return temperature_ready;
     }
-  }
 
-  bool hasTemperature() const { return temperatureIsReady; }
+    bool has_humidity() const {
+        return humidity_ready;
+    }
 
-  bool hasHumidity() const { return humidityIsReady; }
+    float temperature() const {
+        return temperature_value;
+    }
 
-  float temperature() const { return temperatureValue; }
-
-  float humidity() const { return humidityValue; }
+    float humidity() const {
+        return humidity_value;
+    }
 };
 
 class AnalogSensor : public Sensor {
 private:
-  byte pin;
-  int rawValue;
-  int percentValue;
+    byte pin;
+    int raw_value;
+    Percent percent_value;
 
-  int rawAtZero;
-  int rawAtHundred;
-
-public:
-  AnalogSensor(byte sensorPin, int zeroValue, int hundredValue)
-      : pin(sensorPin), rawValue(0), percentValue(0), rawAtZero(zeroValue),
-        rawAtHundred(hundredValue) {}
-
-  void begin() override { pinMode(pin, INPUT); }
-
-  void update() override {
-    rawValue = analogRead(pin);
-    percentValue = rawToPercent(rawValue, rawAtZero, rawAtHundred);
-  }
-
-  int percent() const { return percentValue; }
-
-  int raw() const { return rawValue; }
-};
-
-class Device {
-private:
-  byte pin;
-  bool activeHigh;
-  bool needToTurnOn;
+    int zero_raw;
+    int hundred_raw;
 
 public:
-  Device(byte devicePin, bool isActiveHigh = true)
-      : pin(devicePin), activeHigh(isActiveHigh), needToTurnOn(false) {}
+    AnalogSensor(byte sensor_pin, int zero_value, int hundred_value)
+        : pin(sensor_pin),
+          raw_value(0),
+          percent_value(0),
+          zero_raw(zero_value),
+          hundred_raw(hundred_value) {}
 
-  void begin() {
-    pinMode(pin, OUTPUT);
-    off();
-    apply();
-  }
-
-  void reset() { needToTurnOn = false; }
-
-  void on() { needToTurnOn = true; }
-
-  void off() { needToTurnOn = false; }
-
-  bool isOn() const { return needToTurnOn; }
-
-  void apply() {
-    if (activeHigh) {
-      digitalWrite(pin, needToTurnOn ? HIGH : LOW);
-    } else {
-      digitalWrite(pin, needToTurnOn ? LOW : HIGH);
+    void begin() override {
+        pinMode(pin, INPUT);
     }
-  }
-};
 
-class LightController : public Controller {
-private:
-  AnalogSensor &lightSensor;
-  Device &lamp;
-
-public:
-  LightController(AnalogSensor &light, Device &lampDevice)
-      : lightSensor(light), lamp(lampDevice) {}
-
-  void update() override {
-    if (!isNight() && lightSensor.percent() < currentClimate->minLight) {
-      lamp.on();
+    void update() override {
+        raw_value = analogRead(pin);
+        percent_value = convert_raw_to_percent(raw_value, zero_raw, hundred_raw);
     }
-  }
+
+    Percent percent_reading() const {
+        return percent_value;
+    }
+
+    int raw() const {
+        return raw_value;
+    }
 };
 
-class WateringController : public Controller {
+class Actuator {
 private:
-  AnalogSensor &soilSensor;
-  Device &pump;
-
-  bool pumpIsWorking;
-  bool pumpIsWaiting;
-
-  unsigned long pumpStartTime;
-  unsigned long pauseStartTime;
+    byte pin;
+    bool active_high;
+    bool turn_on_request;
 
 public:
-  WateringController(AnalogSensor &soil, Device &pumpDevice)
-      : soilSensor(soil), pump(pumpDevice), pumpIsWorking(false),
-        pumpIsWaiting(false), pumpStartTime(0), pauseStartTime(0) {}
+    Actuator(byte actuator_pin, bool is_active_high = true)
+        : pin(actuator_pin),
+          active_high(is_active_high),
+          turn_on_request(false) {}
 
-  void update() override {
+    void begin() {
+        pinMode(pin, OUTPUT);
+        off();
+        apply();
+    }
+
+    void reset() {
+        turn_on_request = false;
+    }
+
+    void on() {
+        turn_on_request = true;
+    }
+
+    void off() {
+        turn_on_request = false;
+    }
+
+    bool is_on() const {
+        return turn_on_request;
+    }
+
+    void apply() {
+        bool pin_is_high = active_high == turn_on_request;
+        digitalWrite(pin, pin_is_high ? HIGH : LOW);
+    }
+};
+
+AirSensor air(dht_pin);
+
+AnalogSensor soil(soil_pin, soil_dry_raw, soil_wet_raw);
+AnalogSensor light(light_pin, light_dark_raw, light_bright_raw);
+
+Actuator pump(pump_pin);
+Actuator fan(fan_pin);
+Actuator heater(heater_pin);
+Actuator lamp(lamp_pin);
+
+Sensor* sensors[] = {
+    &air,
+    &soil,
+    &light
+};
+
+Actuator* actuators[] = {
+    &pump,
+    &fan,
+    &heater,
+    &lamp
+};
+
+const byte sensor_count = sizeof(sensors) / sizeof(sensors[0]);
+const byte actuator_count = sizeof(actuators) / sizeof(actuators[0]);
+
+void begin_sensors() {
+    for (byte i = 0; i < sensor_count; i++) {
+        sensors[i]->begin();
+    }
+}
+
+void begin_actuators() {
+    for (byte i = 0; i < actuator_count; i++) {
+        actuators[i]->begin();
+    }
+}
+
+void update_sensors() {
+    for (byte i = 0; i < sensor_count; i++) {
+        sensors[i]->update();
+    }
+}
+
+void reset_actuators() {
+    // Регуляторы заново выставляют запросы каждый цикл
+    for (byte i = 0; i < actuator_count; i++) {
+        actuators[i]->reset();
+    }
+}
+
+void apply_actuators() {
+    for (byte i = 0; i < actuator_count; i++) {
+        actuators[i]->apply();
+    }
+}
+
+bool is_light_low() {
+    return light.percent_reading() < current_climate->min_light;
+}
+
+bool is_soil_dry() {
+    return soil.percent_reading() < current_climate->min_soil_humidity;
+}
+
+bool is_temperature_high() {
+    return air.has_temperature() &&
+           air.temperature() > current_climate->max_temp;
+}
+
+bool is_temperature_low() {
+    return air.has_temperature() &&
+           air.temperature() < current_climate->min_temp;
+}
+
+bool is_humidity_high() {
+    return air.has_humidity() &&
+           air.humidity() > current_climate->max_air_humidity;
+}
+
+bool can_ventilate_now() {
+    return !is_night_now() &&
+           !heater.is_on() &&
+           !is_temperature_low();
+}
+
+void control_light() {
+    if (!is_night_now() && is_light_low()) {
+        lamp.on();
+    }
+}
+
+void control_watering() {
+    static bool watering = false;
+    static bool waiting = false;
+
+    static unsigned long watering_start = 0;
+    static unsigned long pause_start = 0;
+
     unsigned long now = millis();
 
-    if (soilSensor.percent() >= currentClimate->minSoilHumidity) {
-      pumpIsWorking = false;
-      pumpIsWaiting = false;
-      return;
-    }
-
-    if (pumpIsWorking) {
-      if (now - pumpStartTime < PUMP_WORK_TIME) {
-        pump.on();
-      } else {
-        pumpIsWorking = false;
-        pumpIsWaiting = true;
-        pauseStartTime = now;
-      }
-
-      return;
-    }
-
-    if (pumpIsWaiting) {
-      if (now - pauseStartTime < PUMP_PAUSE_TIME) {
+    if (!is_soil_dry()) {
+        watering = false;
+        waiting = false;
         return;
-      }
-
-      pumpIsWaiting = false;
     }
 
-    pumpIsWorking = true;
-    pumpStartTime = now;
+    if (watering) {
+        // Полив идет импульсами, чтобы вода успевала впитываться
+        if (now - watering_start < pump_work_time) {
+            pump.on();
+        } else {
+            watering = false;
+            waiting = true;
+            pause_start = now;
+        }
+
+        return;
+    }
+
+    if (waiting) {
+        if (now - pause_start < pump_pause_time) {
+            return;
+        }
+
+        waiting = false;
+    }
+
+    watering = true;
+    watering_start = now;
     pump.on();
-  }
-};
+}
 
-class TemperatureController : public Controller {
-private:
-  AirSensor &airSensor;
-  Device &heater;
-  Device &fan;
-
-public:
-  TemperatureController(AirSensor &air, Device &heaterDevice, Device &fanDevice)
-      : airSensor(air), heater(heaterDevice), fan(fanDevice) {}
-
-  void update() override {
-    if (!airSensor.hasTemperature()) {
-      return;
-    }
-
-    float temp = airSensor.temperature();
-
-    if (temp > currentClimate->maxTemp) {
-      fan.on();
-      return;
-    }
-
-    if (temp < currentClimate->minTemp) {
-      heater.on();
-      fan.on();
-    }
-  }
-};
-
-class HumidityController : public Controller {
-private:
-  AirSensor &airSensor;
-  Device &fan;
-
-public:
-  HumidityController(AirSensor &air, Device &fanDevice)
-      : airSensor(air), fan(fanDevice) {}
-
-  void update() override {
-    if (!airSensor.hasHumidity()) {
-      return;
-    }
-
-    if (airSensor.humidity() > currentClimate->maxAirHumidity) {
-      fan.on();
-    }
-  }
-};
-
-class VentilationController : public Controller {
-private:
-  Device &fan;
-
-public:
-  VentilationController(Device &fanDevice) : fan(fanDevice) {}
-
-  void update() override {
-    if (isNight()) {
-      return;
-    }
-
-    unsigned int minute = getMinuteOfDay();
-    unsigned int period = currentClimate->ventilationPeriod;
-    unsigned int duration = currentClimate->ventilationDuration;
-
-    if (period > 0 && duration > 0) {
-      if (minute % period < duration) {
+void control_temperature() {
+    if (is_temperature_high()) {
         fan.on();
-      }
+        return;
     }
-  }
-};
 
-AirSensor air(DHT_PIN);
-
-AnalogSensor soil(SOIL_PIN, SOIL_DRY_RAW, SOIL_WET_RAW);
-AnalogSensor light(LIGHT_PIN, LIGHT_DARK_RAW, LIGHT_BRIGHT_RAW);
-
-Device pump(PUMP_PIN);
-Device fan(FAN_PIN);
-Device heater(HEATER_PIN);
-Device lamp(LAMP_PIN);
-
-LightController lightController(light, lamp);
-WateringController wateringController(soil, pump);
-TemperatureController temperatureController(air, heater, fan);
-HumidityController humidityController(air, fan);
-VentilationController ventilationController(fan);
-
-Sensor *sensors[] = {&air, &soil, &light};
-
-Device *devices[] = {&pump, &fan, &heater, &lamp};
-
-Controller *controllers[] = {&lightController, &wateringController,
-                             &temperatureController, &humidityController,
-                             &ventilationController};
-
-const byte SENSOR_COUNT = sizeof(sensors) / sizeof(sensors[0]);
-const byte DEVICE_COUNT = sizeof(devices) / sizeof(devices[0]);
-const byte CONTROLLER_COUNT = sizeof(controllers) / sizeof(controllers[0]);
-
-void beginSensors() {
-  for (byte i = 0; i < SENSOR_COUNT; i++) {
-    sensors[i]->begin();
-  }
+    // При нагреве вентилятор помогает распределять теплый воздух
+    if (is_temperature_low()) {
+        heater.on();
+        fan.on();
+    }
 }
 
-void beginDevices() {
-  for (byte i = 0; i < DEVICE_COUNT; i++) {
-    devices[i]->begin();
-  }
+void control_humidity() {
+    if (is_humidity_high() && !heater.is_on()) {
+        fan.on();
+    }
 }
 
-void updateSensors() {
-  for (byte i = 0; i < SENSOR_COUNT; i++) {
-    sensors[i]->update();
-  }
+void control_ventilation() {
+    // Плановое проветривание не включается во время нагрева
+    if (can_ventilate_now() && ventilation_time_has_come()) {
+        fan.on();
+    }
 }
 
-void resetDevices() {
-  for (byte i = 0; i < DEVICE_COUNT; i++) {
-    devices[i]->reset();
-  }
+void print_climate_status(){
+    Serial.print(F("Climate: "));
+    Serial.println(current_climate->name);
+
+    Serial.print(F("Hour: "));
+    Serial.println(get_hour());
+
+    Serial.print(F("Night: "));
+    Serial.println(is_night_now() ? F("true") : F("false"));
+
+    Serial.print(F("Temperature: "));
+    if (air.has_temperature()) {
+        Serial.print(air.temperature());
+        Serial.println(F(" C"));
+    } else {
+        Serial.println(F("N/A"));
+    }
 }
 
-void updateControllers() {
-  for (byte i = 0; i < CONTROLLER_COUNT; i++) {
-    controllers[i]->update();
-  }
+void print_air_status(){
+    Serial.print(F("Air humidity: "));
+    if (air.has_humidity()) {
+        Serial.print(air.humidity());
+        Serial.println(F(" %"));
+    } else {
+        Serial.println(F("N/A"));
+    }
 }
 
-void applyDevices() {
-  for (byte i = 0; i < DEVICE_COUNT; i++) {
-    devices[i]->apply();
-  }
+void print_soil_status(){
+    Serial.print(F("Soil humidity: "));
+    Serial.print(soil.percent_reading());
+    Serial.print(F(" %, raw = "));
+    Serial.println(soil.raw());
 }
 
-void printStatus() {
-  static unsigned long lastPrintTime = 0;
+void print_light_status(){
+    Serial.print(F("Light: "));
+    Serial.print(light.percent_reading());
+    Serial.print(F(" %, raw = "));
+    Serial.println(light.raw());
+}
 
-  if (millis() - lastPrintTime < PRINT_INTERVAL) {
-    return;
-  }
+void print_actuators_status() {
+    Serial.print(F("Pump: "));
+    Serial.println(pump.is_on() ? F("ON") : F("OFF"));
 
-  lastPrintTime = millis();
+    Serial.print(F("Fan: "));
+    Serial.println(fan.is_on() ? F("ON") : F("OFF"));
 
-  Serial.print(F("Climate: "));
-  Serial.println(currentClimate->name);
+    Serial.print(F("Heater: "));
+    Serial.println(heater.is_on() ? F("ON") : F("OFF"));
 
-  Serial.print(F("Hour: "));
-  Serial.println(getHour());
+    Serial.print(F("Lamp: "));
+    Serial.println(lamp.is_on() ? F("ON") : F("OFF"));
+}
 
-  Serial.print(F("Night: "));
-  Serial.println(isNight() ? F("true") : F("false"));
+void print_status() {
+    static unsigned long last_print = 0;
 
-  Serial.print(F("Temperature: "));
-  if (air.hasTemperature()) {
-    Serial.print(air.temperature());
-    Serial.println(F(" C"));
-  } else {
-    Serial.println(F("N/A"));
-  }
+    if (millis() - last_print < print_interval) {
+        return;
+    }
 
-  Serial.print(F("Air humidity: "));
-  if (air.hasHumidity()) {
-    Serial.print(air.humidity());
-    Serial.println(F(" %"));
-  } else {
-    Serial.println(F("N/A"));
-  }
+    last_print = millis();
 
-  Serial.print(F("Soil humidity: "));
-  Serial.print(soil.percent());
-  Serial.print(F(" %, raw = "));
-  Serial.println(soil.raw());
+    print_climate_status();
+    print_air_status();
+    print_soil_status();
+    print_light_status();
+    print_actuators_status();
 
-  Serial.print(F("Light: "));
-  Serial.print(light.percent());
-  Serial.print(F(" %, raw = "));
-  Serial.println(light.raw());
-
-  Serial.print(F("Pump: "));
-  Serial.println(pump.isOn() ? F("ON") : F("OFF"));
-
-  Serial.print(F("Fan: "));
-  Serial.println(fan.isOn() ? F("ON") : F("OFF"));
-
-  Serial.print(F("Heater: "));
-  Serial.println(heater.isOn() ? F("ON") : F("OFF"));
-
-  Serial.print(F("Lamp: "));
-  Serial.println(lamp.isOn() ? F("ON") : F("OFF"));
-
-  Serial.println();
+    Serial.println();
 }
 
 void setup() {
-  Serial.begin(9600);
+    Serial.begin(9600);
 
-  beginSensors();
-  beginDevices();
+    set_climate(&tomato);
 
-  Serial.println(F("Greenhouse controller started"));
+    begin_sensors();
+    begin_actuators();
+
+    Serial.println(F("Greenhouse controller started"));
 }
 
 void loop() {
-  updateSensors();
+    update_sensors();
 
-  resetDevices();
-  updateControllers();
-  applyDevices();
+    reset_actuators();
 
-  printStatus();
+    control_light();
+    control_watering();
+    control_temperature();
+    control_humidity();
+    control_ventilation();
 
-  delay(100);
+    apply_actuators();
+
+    print_status();
+
+    delay(100);
 }
