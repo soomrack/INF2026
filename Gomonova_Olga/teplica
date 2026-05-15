@@ -1,0 +1,486 @@
+// ===== ПИНЫ УСТРОЙСТВ =====
+#define FAN_PIN_1 7
+#define FAN_PIN_2 7  
+
+#define LED_PIN 6   
+
+#define PUMP_PIN 5 
+
+#define HEATER_PIN 4     
+
+// ===== ПИНЫ ДАТЧИКОВ =====
+#define LIGHT_SENSOR_PIN_1 A3 
+#define LIGHT_SENSOR_PIN_2 A3 
+#define LIGHT_SENSOR_PIN_3 A3 
+
+#define HUMIDITY_SENSOR_PIN A1
+
+#define DHT21_PIN_1 3
+#define DHT21_PIN_2 3           
+
+// ===== РАБОТА С DHT21 =====
+#include <DHT.h>               
+#define DHTTYPE DHT21          
+
+DHT dht_1(DHT21_PIN_1, DHTTYPE);  
+DHT dht_2(DHT21_PIN_2, DHTTYPE);  
+
+// ===== НАСТРОЙКИ ПОМПЫ =====
+#define PUMP_WORK_TIME    3 * 1000   
+#define PUMP_COOLDOWN_TIME 6 * 1000 
+
+// ===== НАСТРОЙКИ ПРОВЕТРИВАНИЯ ПО РАСПИСАНИЮ =====
+#define SCHEDULED_VENTILATION_INTERVAL 1000 * 1000 
+#define SCHEDULED_VENTILATION_DURATION 5 * 1000   
+
+// ===== НАСТРОЙКИ ОСВЕЩЕНИЯ ПО РАСПИСАНИЮ =====
+#define SCHEDULED_LIGHT_INTERVAL 15000 * 1000    
+#define SCHEDULED_LIGHT_DURATION 1 * 1000    
+
+// ===== НАСТРОЙКИ ВРЕМЕНИ ОБНОВЛЕНИЯ =====
+#define SENSOR_READ_INTERVAL 1 * 1000    
+#define CONTROL_INTERVAL 1 * 1000        
+#define PRINT_INTERVAL 2 * 1000          
+
+// ===== ПОРОГОВЫЕ ЗНАЧЕНИЯ =====
+struct Thresholds {
+  int light_min;
+  int light_max;       
+  float temp_high;      
+  float temp_low;       
+  int soil_dry;         
+  int soil_wet;
+  float humidity_high;  
+};
+
+Thresholds thresholds = {
+  15,    // light_min
+  250,    //light_max
+  28.0,   // temp_high
+  25.0,   // temp_low
+  700,    // soil_dry
+  400,    // soil_wet
+  50.0    // humidity_high (%)
+};
+
+// ===== СТРУКТУРА ДЛЯ ПРОВЕТРИВАНИЯ ПО РАСПИСАНИЮ =====
+struct ScheduledVentilation {
+  unsigned long last_time;
+  unsigned long start_time;
+  bool is_active;
+  unsigned long interval;
+  unsigned long duration;
+};
+
+// ===== СТРУКТУРА ДЛЯ ОСВЕЩЕНИЯ ПО РАСПИСАНИЮ =====
+struct ScheduledLight {
+  unsigned long last_time;
+  unsigned long start_time;
+  bool is_active;
+  unsigned long interval;
+  unsigned long duration;
+};
+
+// ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ =====
+// Флаги включения устройств
+bool need_fan_1 = false;
+bool need_fan_2 = false;
+
+bool need_heater = false;
+bool need_light = false;
+bool need_pump = false;
+
+// Флаги состояния устройств
+bool heater_state = false;
+bool fan_state_1 = false;
+bool fan_state_2 = false;
+bool led_state = false;
+
+// Переменные для таймера помпы
+unsigned long pump_start_time = 0;
+unsigned long pump_cooldown_end_time = 0;
+bool pump_is_working = false;
+bool pump_is_cooldown = false;
+
+// Переменные для проветривания по расписанию
+ScheduledVentilation scheduled_ventilation = {
+  0,    // last_time
+  0,    // start_time
+  false, // is_active
+  SCHEDULED_VENTILATION_INTERVAL,  // interval
+  SCHEDULED_VENTILATION_DURATION   // duration
+};
+
+// Переменные для освещения по расписанию
+ScheduledLight scheduled_light = {
+  0,    // last_time
+  0,    // start_time
+  false, // is_active
+  SCHEDULED_LIGHT_INTERVAL,    // interval
+  SCHEDULED_LIGHT_DURATION     // duration
+};
+
+// Переменные для хранения показаний датчиков
+float air_temperature = 0.0;
+float air_humidity = 0.0;
+int light_level_1 = 0;      // Первый датчик освещенности
+int light_level_2 = 0;      // Второй датчик освещенности
+int light_level_3 = 0;      // Третий датчик освещенности
+int processed_light_level = 0;  // Обработанное значение освещенности
+int soil_moisture = 0;
+
+// Таймеры для millis
+unsigned long last_sensor_read_time = 0;
+unsigned long last_control_time = 0;
+unsigned long last_print_time = 0;
+
+// ===== ПРОТОТИПЫ ФУНКЦИЙ =====
+void read_light_sensors();
+void read_dht_sensors();
+int process_light_data();
+void manage_fan(float temperature, float humidity, float temp_high_threshold, float humidity_high_threshold);
+void manage_heater(float temperature, float low_threshold);
+void manage_light();
+void manage_pump(int soil_moisture, int dry_threshold);
+void apply_device_states();
+void print_status();
+
+// ===== ФУНКЦИЯ ЧТЕНИЯ DHT =====
+void read_dht_sensors() {
+  float temp1, hum1;
+  
+  temp1 = dht_1.readTemperature();
+  hum1 = dht_1.readHumidity();
+  
+  if (!isnan(temp1) && !isnan(hum1) && temp1 != 0.0 && hum1 != 0.0) {
+    air_temperature = temp1;
+    air_humidity = hum1;
+    return;
+  }
+  
+  float temp2 = dht_2.readTemperature();
+  float hum2 = dht_2.readHumidity();
+  
+  if (!isnan(temp2) && !isnan(hum2) && temp2 != 0.0 && hum2 != 0.0) {
+    air_temperature = temp2;
+    air_humidity = hum2;
+    return;
+  }
+}
+
+// ===== Алгоритм освещенности =====
+void read_light_sensors() {
+  light_level_1 = analogRead(LIGHT_SENSOR_PIN_1);
+  light_level_2 = analogRead(LIGHT_SENSOR_PIN_2);
+  light_level_3 = analogRead(LIGHT_SENSOR_PIN_3);
+}
+
+int process_light_data() {
+  int min_val = light_level_1;
+  int max_val = light_level_1;
+  
+  if (light_level_2 < min_val) min_val = light_level_2; //ищем мин
+  if (light_level_3 < min_val) min_val = light_level_3;
+  
+  if (light_level_2 > max_val) max_val = light_level_2; //ищем макс
+  if (light_level_3 > max_val) max_val = light_level_3;
+  
+  int avg_val = (light_level_1 + light_level_2 + light_level_3) / 3; //среднее
+  
+  int result;
+  if (max_val - min_val > 100) {  //если много, то берем оставшееся знач
+    result = (light_level_1 + light_level_2 + light_level_3 - max_val - min_val);
+  } else {  //просто среднее
+    result = avg_val;
+  }
+  
+  return result;
+}
+
+// ===== ФУНКЦИИ УПРАВЛЕНИЯ =====
+void manage_fan(float temperature, float humidity, float temp_high_threshold, float humidity_high_threshold) {
+  unsigned long current_time = millis();
+  
+  // Проветривание по расписанию
+  if (scheduled_ventilation.is_active) {
+    if (current_time - scheduled_ventilation.start_time >= scheduled_ventilation.duration) {
+      scheduled_ventilation.is_active = false;
+      need_fan_2 = false;
+    } else {
+      need_fan_2 = true;
+    }
+  }
+  
+  // Проверяем, не пора ли начать новое проветривание
+  if (current_time - scheduled_ventilation.last_time >= scheduled_ventilation.interval) {
+    scheduled_ventilation.is_active = true;
+    scheduled_ventilation.start_time = current_time;
+    scheduled_ventilation.last_time = current_time;
+    need_fan_2 = true;
+  }
+  
+  // Высокая влажность
+  if (humidity > humidity_high_threshold) {
+    need_fan_1 = true;
+  }
+  
+  // Высокая температура
+  if (temperature > temp_high_threshold) {
+    need_fan_1 = true;
+    need_fan_2 = true;
+  }
+  
+  // Если нагреватель нужен, вентилятор тоже нужен
+  if (need_heater) {
+    need_fan_1 = true;
+    need_fan_2 = true;
+    return;
+  }
+  
+  // Все условия в норме
+  need_fan_1 = false;
+  need_fan_2 = false;
+}
+
+void manage_heater(float temperature, float low_threshold) {
+  if (temperature < low_threshold) {
+    need_heater = true;
+  } else {
+    need_heater = false;
+  }
+}
+
+void manage_light() {
+  bool need_light_temp = false;
+  
+  if (processed_light_level < thresholds.light_min) { //норм сост
+    need_light_temp = true;
+  } else if (processed_light_level > thresholds.light_max) {
+    need_light_temp = false;
+  }
+  
+  unsigned long current_time = millis(); //расписание
+  
+  if (scheduled_light.is_active) { //проверка времени
+    if (current_time - scheduled_light.start_time >= scheduled_light.duration) {
+      scheduled_light.is_active = false;
+    } else if (!need_light_temp) {
+      need_light_temp = true;
+    }
+  } else { //новое освещ
+    if (current_time - scheduled_light.last_time >= scheduled_light.interval) {
+      scheduled_light.is_active = true;
+      scheduled_light.start_time = current_time;
+      scheduled_light.last_time = current_time;
+      if (!need_light_temp) {
+        need_light_temp = true;
+      }
+    }
+  }
+  
+  need_light = need_light_temp;
+}
+
+void manage_pump(int soil_moisture, int dry_threshold) {
+  unsigned long current_time = millis();
+
+  if (pump_is_working) {
+    if (current_time - pump_start_time >= PUMP_WORK_TIME) {
+      pump_is_working = false;
+      pump_is_cooldown = true;
+      pump_cooldown_end_time = current_time + PUMP_COOLDOWN_TIME;
+      need_pump = false;
+    } else {
+      need_pump = true;
+    }
+    return;
+  }
+  
+  if (pump_is_cooldown) {
+    if (current_time >= pump_cooldown_end_time) {
+      pump_is_cooldown = false;
+    }
+    need_pump = false;
+    return;
+  }
+  
+  if (soil_moisture < dry_threshold) {
+    need_pump = true;
+    pump_is_working = true;
+    pump_start_time = current_time;
+  } else {
+    need_pump = false;
+  }
+}
+
+// ===== ФУНКЦИЯ ВКЛ/ВЫКЛ УСТРОЙСТВ =====
+void apply_device_states() {
+  // Вентилятор
+  if (need_fan_1) {
+    digitalWrite(FAN_PIN_1, HIGH);
+    fan_state_1 = true;
+  } else {
+    digitalWrite(FAN_PIN_1, LOW);
+    fan_state_1 = false;
+  }
+  
+  if (need_fan_2) {
+    digitalWrite(FAN_PIN_2, HIGH);
+    fan_state_2 = true;
+  } else {
+    digitalWrite(FAN_PIN_2, LOW);
+    fan_state_2 = false;
+  }
+  
+  // Нагреватель
+  if (need_heater) {
+    digitalWrite(HEATER_PIN, HIGH);
+    heater_state = true;
+  } else {
+    digitalWrite(HEATER_PIN, LOW);
+    heater_state = false;
+  }
+  
+  // Свет
+  if (need_light) {
+    digitalWrite(LED_PIN, HIGH);
+    led_state = true;
+  } else {
+    digitalWrite(LED_PIN, LOW);
+    led_state = false;
+  }
+  
+  // Помпа
+  if (need_pump) {
+    digitalWrite(PUMP_PIN, HIGH);
+  } else {
+    digitalWrite(PUMP_PIN, LOW);
+  }
+}
+
+// ===== ФУНКЦИЯ ВЫВОДА СТАТУСА =====
+void print_status() {
+  bool pump_actually_on = digitalRead(PUMP_PIN);
+  
+  Serial.print("=== ДАТЧИКИ ===");
+  Serial.print(" Свет:");
+  Serial.print(light_level_1);
+  Serial.print(",");
+  Serial.print(light_level_2);
+  Serial.print(",");
+  Serial.print(light_level_3);
+  Serial.print("]->");
+  Serial.print(processed_light_level);
+  Serial.print(" T:");
+  Serial.print(air_temperature);
+  Serial.print("°C H:");
+  Serial.print(air_humidity);
+  Serial.print("% Почва:");
+  Serial.print(soil_moisture);
+  
+  Serial.print(" | УСТРОЙСТВА: LED:");
+  Serial.print(led_state ? "1" : "0");
+  Serial.print(" HEAT:");
+  Serial.print(heater_state ? "1" : "0");
+  Serial.print(" FAN 1:");
+  Serial.print(fan_state_1 ? "1" : "0");
+  Serial.print(" FAN 2:");
+  Serial.print(fan_state_2 ? "1" : "0");
+  Serial.print(" PUMP:");
+  Serial.print(pump_actually_on ? "1" : "0");
+  
+  Serial.print("\n");
+
+  if (scheduled_ventilation.is_active) {
+    unsigned long remaining_fan = scheduled_ventilation.duration - (millis() - scheduled_ventilation.start_time);
+    Serial.print(" | ПРОВЕТРИВАНИЕ: ост.");
+    Serial.print(remaining_fan / 1000);
+    Serial.print("с");
+  }
+  
+  if (scheduled_light.is_active) {
+    unsigned long remaining_light = scheduled_light.duration - (millis() - scheduled_light.start_time);
+    Serial.print(" | СВЕТ ПО РАСПИСАНИЮ: ост.");
+    Serial.print(remaining_light / 1000);
+    Serial.print("с");
+  }
+  
+  Serial.print("\n");
+}
+
+// ===== ОСНОВНАЯ ПРОГРАММА =====
+
+void setup() {
+  pinMode(FAN_PIN_1, OUTPUT);
+  pinMode(FAN_PIN_2, OUTPUT);
+  
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(PUMP_PIN, OUTPUT);
+  pinMode(HEATER_PIN, OUTPUT);
+  
+  pinMode(LIGHT_SENSOR_PIN_1, INPUT);
+  pinMode(LIGHT_SENSOR_PIN_2, INPUT);
+  pinMode(LIGHT_SENSOR_PIN_3, INPUT);
+  pinMode(HUMIDITY_SENSOR_PIN, INPUT);
+
+  dht_1.begin();
+  dht_2.begin();   
+  
+  unsigned long start_time = millis();
+  last_sensor_read_time = start_time;
+  last_control_time = start_time;
+  last_print_time = start_time;
+  
+  scheduled_ventilation.last_time = start_time;
+  scheduled_light.last_time = start_time;
+
+  Serial.begin(9600);
+  Serial.println("Умная теплица запущена");
+  
+  delay(2000);
+}
+
+void loop() {
+  unsigned long current_time = millis();
+  
+  // Чтение датчиков 
+  if (current_time - last_sensor_read_time >= SENSOR_READ_INTERVAL) {
+    read_light_sensors();
+    processed_light_level = process_light_data();
+    soil_moisture = analogRead(HUMIDITY_SENSOR_PIN);
+    
+    read_dht_sensors();
+    
+    last_sensor_read_time = current_time;
+  }
+  
+
+  // Управление устройствами
+  if (current_time - last_control_time >= CONTROL_INTERVAL) {
+    // понижение температуры, влажности воздуха; проветривание по расписанию; работа с нагревателем
+    manage_fan(air_temperature, air_humidity, thresholds.temp_high, thresholds.humidity_high);
+
+    // вкл/выкл нагревателя (при низкой температуре воздуха)
+    manage_heater(air_temperature, thresholds.temp_low);
+
+    //вкл/выкл освещения; по расписанию
+    manage_light();
+
+    // вкл/выкл помпы по датчику (работа n-ное кол-во времени, потом кулдаун)
+    manage_pump(soil_moisture, thresholds.soil_dry);
+    
+    // передача флагов с предыдущих функций для вкл/выкл устройств
+    apply_device_states();
+    
+    last_control_time = current_time;
+  }
+  
+  // Вывод статуса 
+  if (current_time - last_print_time >= PRINT_INTERVAL) {
+    print_status();
+    last_print_time = current_time;
+    delay(100); 
+  }
+
+  delay(10);
+}
