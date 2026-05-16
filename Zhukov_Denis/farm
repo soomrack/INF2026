@@ -1,111 +1,178 @@
 #include <DHT.h>
 
-#define DHTPIN 12
+#define DHTPIN 2
 #define DHTTYPE DHT11
-
 #define LIGHT_SENSOR_PIN A0
 #define SOIL_SENSOR_PIN A1
-
 #define HEATER_PIN 4
+#define FAN_PIN 7
 #define PUMP_PIN 5
 #define LAMP_PIN 6
-#define FAN_PIN 7
+
+#define PUMP_WORK_TIME 60000
+#define PUMP_PAUSE_TIME 600000
+#define VENT_INTERVAL 7200000
+#define VENT_DURATION 300000
+
+bool isNight = false;
+unsigned long lastNightCheck = 0;
 
 DHT dht(DHTPIN, DHTTYPE);
 
-class Thermometer {
+
+struct ClimateProfile {
+    float temp_min;
+    float temp_max;
+    int soil_dry;
+    int soil_wet;
+    int soil_wet_hysteresis;
+    int light_min;
+    int light_max;
+    int humidity_min;
+    int humidity_max;
+};
+
+const ClimateProfile TOMATO = {18, 32, 300, 600, 100, 200, 500, 40, 70};
+const ClimateProfile CUCUMBER = {16, 30, 400, 700, 120, 150, 550, 50, 80};
+
+const ClimateProfile& PROFILE = TOMATO;
+
+
+unsigned long lastVentTime = 0;
+bool isVenting = false;
+unsigned long ventStartTime = 0;
+
+
+class DHTSensor {
+private:
+    DHT& _dht;
 public:
-  int temperature;
-  
-  void get_temperature() {
-    temperature = dht.readTemperature();
-    if (isnan(temperature)) temperature = 20;
+    float temperature;
+    int humidity;
+    
+    DHTSensor(DHT& dht) : _dht(dht) {
+        temperature = 20;
+        humidity = 50;
+    }
+    
+    void read() {
+        temperature = _dht.readTemperature();
+        humidity = _dht.readHumidity();
+        
+        if (isnan(temperature)) temperature = 20;
+        if (isnan(humidity)) humidity = 50;
     }
 };
 
 
-class Hygrometer {
-public:
-  int humidity;
-
-  void get_humidity() {
-    humidity = dht.readHumidity();
-    if (isnan(humidity)) humidity = 50;
-  }
-};
-
-
 class LightSensor {
+private:
+    int pin;
 public:
-  int light;
+    int light;
 
-  void get_light() {
-    light = analogRead(LIGHT_SENSOR_PIN);
-  }
+    LightSensor(int pin) : pin(pin) {
+        light = 500;
+    }
+
+    void get_light() {
+        light = analogRead(pin);
+    }
 };
 
 
 class SoilSensor {
+private:
+    int pin;
 public:
     int moisture;
-    
+
+    SoilSensor(int pin) : pin(pin) {
+        moisture = 500;
+    }
+
     void get_moisture() {
-        moisture = analogRead(SOIL_SENSOR_PIN);
+        moisture = analogRead(pin);
     }
 };
 
 
 class Heater {
 private:
-  int pin;
+    int pin;
 public:
-   bool on_temperature;
-
-   Heater(int pin) : pin(pin) {
-    on_temperature = false;
-    pinMode(pin, OUTPUT);
-    digitalWrite(pin, LOW);
-   }
-
-   void power() {
-    digitalWrite(pin, on_temperature ? HIGH : LOW);
-   }
+    bool on_temperature;
+    
+    Heater(int pin) : pin(pin), on_temperature(false) {
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin, LOW);
+    }
+    
+    void power() {
+        digitalWrite(pin, on_temperature ? LOW : HIGH);
+    }
 };
 
 
 class Fan {
 private:
-  int pin;
+    int pin;
 public:
-  bool on_temperature;
-
-  Fan(int pin) : pin(pin) {
-    on_temperature = false;
-    pinMode(pin, OUTPUT);
-    digitalWrite(pin, LOW);
-  }
-
-  void power() {
-    digitalWrite(pin, on_temperature ? HIGH : LOW);
-  }
+    bool on_temperature;
+    bool on_schedule;
+    
+    Fan(int pin) : pin(pin) {
+        on_temperature = false;
+        on_schedule = false;
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin, HIGH);
+    }
+    
+    void power() {
+        digitalWrite(pin, (on_temperature || on_schedule) ? LOW : HIGH);
+    }
 };
 
 
 class Pump {
-  private:
-  int pin;
-  public:
-  bool on_humidity;
-
-  Pump(int pin) : pin(pin) {
-    on_humidity = false;
-    pinMode(pin, OUTPUT);
-    digitalWrite(pin, LOW);
-  }
-
-  void power() {
-    digitalWrite(pin, on_humidity ? HIGH : LOW);
-  }
+private:
+    int pin;
+    unsigned long lastWorkTime;
+    unsigned long lastStopTime;
+    bool isWorking;
+public:
+    bool on_humidity;
+    
+    Pump(int pin) : pin(pin) {
+        on_humidity = false;
+        isWorking = false;
+        lastWorkTime = 0;
+        lastStopTime = 0;
+        pinMode(pin, OUTPUT);
+        digitalWrite(pin, HIGH);
+    }
+    
+    void power() {
+        unsigned long currentTime = millis();
+        
+        if (on_humidity && !isWorking) {
+            if (currentTime - lastStopTime >= PUMP_PAUSE_TIME || lastStopTime == 0) {
+                isWorking = true;
+                lastWorkTime = currentTime;
+                digitalWrite(pin, LOW);
+            }
+        }
+        else if (isWorking && (currentTime - lastWorkTime >= PUMP_WORK_TIME)) {
+            isWorking = false;
+            lastStopTime = currentTime;
+            digitalWrite(pin, HIGH);
+        }
+        else if (!on_humidity && isWorking) {
+            isWorking = false;
+            lastStopTime = currentTime;
+            digitalWrite(pin, HIGH);
+        }
+    }
 };
 
 
@@ -115,94 +182,152 @@ private:
 public:
     bool on_light;
     
-    Lamp(int pin) : pin(pin) {
-        on_light = false;
+    Lamp(int pin) : pin(pin), on_light(false) {
         pinMode(pin, OUTPUT);
         digitalWrite(pin, LOW);
     }
     
     void power() {
-        digitalWrite(pin, on_light ? HIGH : LOW);
+        digitalWrite(pin, on_light ? LOW : HIGH);
     }
 };
 
 
-void control_temperature(Thermometer& t, Heater& h, Fan& f)
-{
-  if (t.temperature > 30){
-    h.on_temperature = false;
-    f.on_temperature = true;
-  }
-
-  else if (t.temperature < 20){
-    h.on_temperature = true;
-    f.on_temperature = false;
-  }
-
-  else {
-    h.on_temperature = false;
-    f.on_temperature = false;
-  }
-}
-
-
-void control_humidity(Hygrometer& h, Pump& p, SoilSensor& s) 
-{
-  if (s.moisture < 300) {
-    p.on_humidity = true;
-  }
-  else if (h.humidity < 40 && s.moisture < 600) {
-    p.on_humidity = true;
-  }
-  else if (s.moisture > 600 && h.humidity > 60) {
-    p.on_humidity = false;
-  }
-  else p.on_humidity = false;
-}
-
-
-void control_light(LightSensor& ls, Lamp& l) {
-    if (ls.light < 200) {
-        l.on_light = true;
+void printStatus(DHTSensor& dhtSensor, LightSensor& light, SoilSensor& soil,
+                 Heater& heater, Fan& fan, Pump& pump, Lamp& lamp) {
+    Serial.print("Temperature:");
+    Serial.print(dhtSensor.temperature);
+    Serial.print(" | Humidity:");
+    Serial.print(dhtSensor.humidity);
+    Serial.print(" | Light:");
+    Serial.print(light.light);
+    Serial.print(" | Soil:");
+    Serial.print(soil.moisture);
+    Serial.print(" | Heater:");
+    Serial.print(heater.on_temperature ? "ON" : "OFF");
+    Serial.print(" | Fan:");
+    if (fan.on_temperature || fan.on_schedule) {
+        if (fan.on_temperature) Serial.print("temperature ON");
+        if (fan.on_schedule) Serial.print("schedule ON");
+    } else {
+        Serial.print("OFF");
     }
-    else if (ls.light > 500) {
-        l.on_light = false;
+    Serial.print(" | Pump:");
+    Serial.print(pump.on_humidity ? "ON" : "OFF");
+    Serial.print(" | Lamp:");
+    Serial.println(lamp.on_light ? "ON" : "OFF");
+}
+
+
+void control_temperature(DHTSensor& dhtSensor, Heater& heater, Fan& fan) {
+    if (dhtSensor.temperature > PROFILE.temp_max) {
+        heater.on_temperature = false;
+        fan.on_temperature = true;
+    }
+    else if (dhtSensor.temperature < PROFILE.temp_min) {
+        heater.on_temperature = true;
+        fan.on_temperature = false;
+    }
+    else {
+        heater.on_temperature = false;
+        fan.on_temperature = false;
+    }
+    
+    if (dhtSensor.humidity > PROFILE.humidity_max) {
+        fan.on_temperature = true;
     }
 }
 
 
-int main()
-{
-  init();
-  dht.begin();
-  
-  Thermometer thermometer;
-  Hygrometer hygrometer;
-  LightSensor lightsensor;
-  SoilSensor soilsensor;
+void control_humidity(SoilSensor& soil, DHTSensor& dhtSensor, Pump& pump) {
+    bool needWater = false;
+    
+    if (soil.moisture < PROFILE.soil_dry) {
+        needWater = true;
+    }
+    else if (dhtSensor.humidity < PROFILE.humidity_min && 
+             soil.moisture < (PROFILE.soil_wet - PROFILE.soil_wet_hysteresis)) {
+        needWater = true;
+    }
+    
+    pump.on_humidity = needWater;
+}
 
-  Heater heater(HEATER_PIN);
-  Fan fan(FAN_PIN);
-  Pump pump(PUMP_PIN);
-  Lamp lamp(LAMP_PIN);
 
-  for (int count = 10; count != 0; --count) {
-    thermometer.get_temperature();
-    hygrometer.get_humidity();
-    lightsensor.get_light();
-    soilsensor.get_moisture();
+void control_light(LightSensor& lightSensor, Lamp& lamp) {
+    if (!isNight && lightSensor.light < PROFILE.light_min) {
+        lamp.on_light = true;
+    }
+    else if (lightSensor.light > PROFILE.light_max) {
+        lamp.on_light = false;
+    }
+}
 
-    control_temperature(thermometer, heater, fan);
-    control_humidity(hygrometer, pump, soilsensor);
-    control_light(lightsensor, lamp);
 
+void control_ventilation(Fan& fan) {
+    unsigned long currentTime = millis();
+    
+    if (!isVenting) {
+        if (currentTime - lastVentTime >= VENT_INTERVAL || lastVentTime == 0) {
+            isVenting = true;
+            ventStartTime = currentTime;
+            fan.on_schedule = true;
+            Serial.println(" VENT START ");
+        }
+    }
+    else {
+        if (currentTime - ventStartTime >= VENT_DURATION) {
+            isVenting = false;
+            lastVentTime = currentTime;
+            fan.on_schedule = false;
+            Serial.println(" VENT STOP ");
+        }
+    }
+}
+
+
+void checkNightTime() {
+    unsigned long now = millis();
+    unsigned long hours = (now / 3600000UL) % 24;
+    isNight = (hours >= 22 || hours < 6);
+}
+
+
+DHTSensor dhtSensor(dht);
+LightSensor lightSensor(LIGHT_SENSOR_PIN);
+SoilSensor soilSensor (SOIL_SENSOR_PIN);
+Heater heater(HEATER_PIN);
+Fan fan(FAN_PIN);
+Pump pump(PUMP_PIN);
+Lamp lamp(LAMP_PIN);
+
+
+void setup() {
+    Serial.begin(9600);
+    dht.begin();
+    Serial.println("Smart Farm Started");
+    delay(1000);
+}
+
+
+void loop() {
+    checkNightTime();
+
+    dhtSensor.read();
+    lightSensor.get_light();
+    soilSensor.get_moisture();
+    
+    control_temperature(dhtSensor, heater, fan);
+    control_humidity(soilSensor, dhtSensor, pump);
+    control_light(lightSensor, lamp);
+    control_ventilation(fan);
+    
     heater.power();
     fan.power();
     pump.power();
     lamp.power();
-
+    
+    printStatus(dhtSensor, lightSensor, soilSensor, heater, fan, pump, lamp);
+    
     delay(2000);
-  }
-
-  return 0;
 }
