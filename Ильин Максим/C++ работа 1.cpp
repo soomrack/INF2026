@@ -768,17 +768,17 @@ void pvz_expenses() {
 	
 	if (cur_month == 1 && cur_year > 2026) {
 		pvz.rent_per_month = static_cast<RUB>(
-											  pvz.rent_per_month * (1.0 + INFLATION_OTHER / 100.0)
-											  );
+			 pvz.rent_per_month * (1.0 + INFLATION_OTHER / 100.0)
+		 );
 		pvz.utilities_per_month = static_cast<RUB>(
-												   pvz.utilities_per_month * (1.0 + INFLATION_UTILITIES / 100.0)
-												   );
+			 pvz.utilities_per_month * (1.0 + INFLATION_UTILITIES / 100.0)
+		 );
 		pvz.salary_per_employee = static_cast<RUB>(
-												   pvz.salary_per_employee * (1.0 + 4.0 / 100.0)
-												   );
+			 pvz.salary_per_employee * (1.0 + 4.0 / 100.0)
+		  );
 		pvz.supplies_per_month = static_cast<RUB>(
-												  pvz.supplies_per_month * (1.0 + INFLATION_OTHER / 100.0)
-												  );
+			 pvz.supplies_per_month * (1.0 + INFLATION_OTHER / 100.0)
+		);
 	}
 	
 	family.account = family.account - total;
@@ -930,7 +930,7 @@ void pvz_random_events() {
 		amount = 45000;
 		break;
 	case 32:
-		message = "[ПВЗ] Выиграли конкурс Ozon: сертификат на 30,000 руб. на оборудование!";
+		message = "[ПВЗ] Выиграли конкурс Ozon: сертификат на 30,000 руб. на оборудование";
 		amount = -30000;
 		break;
 	case 33:
@@ -942,7 +942,7 @@ void pvz_random_events() {
 		amount = -15000;
 		break;
 	default:
-		message = "[ПВЗ] Обычный день, ничего интересного.";
+		message = "[ПВЗ] Обычный день, ничего ytg ghjbpjikj.";
 		amount = 0;
 		break;
 	}
@@ -977,8 +977,8 @@ void family_food() {
 	
 	if (cur_month == 1 && cur_year > 2026) {
 		food_budget = static_cast<RUB>(
-									   food_budget * (1.0 + INFLATION_FOOD / 100.0)
-									   );
+			food_budget * (1.0 + INFLATION_FOOD / 100.0)
+		 );
 	}
 	
 	if (cur_month == 12) {
@@ -1005,8 +1005,8 @@ void utilities() {
 	
 	if (cur_month == 1 && cur_year > 2026) {
 		housing.utilities_per_month = static_cast<RUB>(
-													   housing.utilities_per_month * (1.0 + INFLATION_UTILITIES / 100.0)
-													   );
+			 housing.utilities_per_month * (1.0 + INFLATION_UTILITIES / 100.0)
+		 );
 	}
 	
 	if (family.account >= cost) {
@@ -1025,8 +1025,8 @@ void internet() {
 	
 	if (cur_month == 1 && cur_year > 2026) {
 		housing.internet_per_month = static_cast<RUB>(
-													  housing.internet_per_month * (1.0 + 2.0 / 100.0)
-													  );
+			 housing.internet_per_month * (1.0 + 2.0 / 100.0)
+		 );
 	}
 	
 	if (family.account >= cost) {
@@ -1261,11 +1261,11 @@ void lada_life() {
 	
 	if (cur_month == 1 && cur_year > 2026) {
 		lada.gas_price_per_liter = static_cast<RUB>(
-													lada.gas_price_per_liter * (1.0 + INFLATION_GAS / 100.0)
-													);
+			lada.gas_price_per_liter * (1.0 + INFLATION_GAS / 100.0)
+		);
 		lada.gas_per_month = static_cast<RUB>(
-											  lada.gas_per_month * (1.0 + INFLATION_GAS / 100.0)
-											  );
+			lada.gas_per_month * (1.0 + INFLATION_GAS / 100.0)
+		  );
 	}
 	
 	if (cur_month >= 6 && cur_month <= 8) {
@@ -1337,8 +1337,8 @@ void lada_life() {
 		
 		if (cur_year > 2026) {
 			lada.maintenance_per_year = static_cast<RUB>(
-														 lada.maintenance_per_year * (1.0 + INFLATION_OTHER / 100.0)
-														 );
+				lada.maintenance_per_year * (1.0 + INFLATION_OTHER / 100.0)
+			);
 		}
 	}
 	
@@ -1355,8 +1355,8 @@ void lada_life() {
 		}
 		if (cur_year > 2026) {
 			lada.tire_change_per_season = static_cast<RUB>(
-														   lada.tire_change_per_season * (1.0 + INFLATION_OTHER / 100.0)
-														   );
+				 lada.tire_change_per_season * (1.0 + INFLATION_OTHER / 100.0)
+			 );
 		}
 	}
 	
@@ -1391,11 +1391,11 @@ void lada_life() {
 		
 		if (cur_year > 2026) {
 			lada.winter_tires_set = static_cast<RUB>(
-													 lada.winter_tires_set * (1.0 + INFLATION_OTHER / 100.0)
-													 );
+				lada.winter_tires_set * (1.0 + INFLATION_OTHER / 100.0)
+			);
 			lada.summer_tires_set = static_cast<RUB>(
-													 lada.summer_tires_set * (1.0 + INFLATION_OTHER / 100.0)
-													 );
+				 lada.summer_tires_set * (1.0 + INFLATION_OTHER / 100.0)
+			 );
 		}
 	}
 	
@@ -1654,14 +1654,14 @@ void health_life() {
 void gifts_life() {
 	if (cur_month == 1 && cur_year > 2026) {
 		gifts.birthday_gifts_per_year = static_cast<RUB>(
-														 gifts.birthday_gifts_per_year * (1.0 + INFLATION_OTHER / 100.0)
-														 );
+			 gifts.birthday_gifts_per_year * (1.0 + INFLATION_OTHER / 100.0)
+		 );
 		gifts.new_year_gifts_per_year = static_cast<RUB>(
-														 gifts.new_year_gifts_per_year * (1.0 + INFLATION_OTHER / 100.0)
-														 );
+			 gifts.new_year_gifts_per_year * (1.0 + INFLATION_OTHER / 100.0)
+			 );
 		gifts.other_holidays_per_year = static_cast<RUB>(
-														 gifts.other_holidays_per_year * (1.0 + INFLATION_OTHER / 100.0)
-														 );
+				 gifts.other_holidays_per_year * (1.0 + INFLATION_OTHER / 100.0)
+			 );
 	}
 	
 	if (cur_month == 1) {
@@ -1746,8 +1746,8 @@ void clothes_life() {
 		}
 		if (cur_year > 2026) {
 			clothes.shoes_per_year = static_cast<RUB>(
-													  clothes.shoes_per_year * (1.0 + INFLATION_OTHER / 100.0)
-													  );
+				 clothes.shoes_per_year * (1.0 + INFLATION_OTHER / 100.0)
+			 );
 		}
 	}
 }
@@ -1757,8 +1757,8 @@ void education_life() {
 	
 	if (cur_month == 1 && cur_year > 2026) {
 		edu.books_per_month = static_cast<RUB>(
-											   edu.books_per_month * (1.0 + INFLATION_OTHER / 100.0)
-											   );
+		  edu.books_per_month * (1.0 + INFLATION_OTHER / 100.0)
+		  );
 	}
 	
 	if (family.account >= books) {
@@ -1775,8 +1775,8 @@ void education_life() {
 		}
 		if (cur_year > 2026) {
 			edu.courses_per_year = static_cast<RUB>(
-													edu.courses_per_year * (1.0 + INFLATION_OTHER / 100.0)
-													);
+					edu.courses_per_year * (1.0 + INFLATION_OTHER / 100.0)
+				);
 		}
 	}
 }
@@ -1787,11 +1787,11 @@ void transport_life() {
 	
 	if (cur_month == 1 && cur_year > 2026) {
 		transport.public_transport_per_month = static_cast<RUB>(
-																transport.public_transport_per_month * (1.0 + INFLATION_OTHER / 100.0)
-																);
+				transport.public_transport_per_month * (1.0 + INFLATION_OTHER / 100.0)
+			);
 		transport.taxi_per_month = static_cast<RUB>(
-													transport.taxi_per_month * (1.0 + INFLATION_OTHER / 100.0)
-													);
+				transport.taxi_per_month * (1.0 + INFLATION_OTHER / 100.0)
+			);
 	}
 	
 	if (family.account >= pub) {
@@ -1816,8 +1816,8 @@ void charity_life() {
 		}
 		if (cur_year > 2026) {
 			charity.donations_per_year = static_cast<RUB>(
-														  charity.donations_per_year * (1.0 + INFLATION_OTHER / 100.0)
-														  );
+				 charity.donations_per_year * (1.0 + INFLATION_OTHER / 100.0)
+			  );
 		}
 	}
 }
@@ -1831,8 +1831,8 @@ void insurance_life() {
 		}
 		if (cur_year > 2026) {
 			insurance.life_insurance_per_year = static_cast<RUB>(
-																 insurance.life_insurance_per_year * (1.0 + INFLATION_OTHER / 100.0)
-																 );
+					 insurance.life_insurance_per_year * (1.0 + INFLATION_OTHER / 100.0)
+			 );
 		}
 	}
 	
@@ -1844,8 +1844,8 @@ void insurance_life() {
 		}
 		if (cur_year > 2026) {
 			insurance.property_insurance_per_year = static_cast<RUB>(
-																	 insurance.property_insurance_per_year * (1.0 + INFLATION_OTHER / 100.0)
-																	 );
+				 insurance.property_insurance_per_year * (1.0 + INFLATION_OTHER / 100.0)
+				 );
 		}
 	}
 }
@@ -1896,7 +1896,6 @@ void print_mid_results() {
 	printf("  Активы: %lld руб.\n", total_assets);
 	printf("  Долги: %lld руб.\n", total_debt);
 	printf("  Чистый капитал: %lld руб.\n", net_worth);
-	printf("============================================================\n");
 }
 
 void print_final_results() {
