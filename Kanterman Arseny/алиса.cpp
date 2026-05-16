@@ -1,17 +1,15 @@
 #include <stdio.h>
-#include <stdlib.h>  
+#include <stdlib.h>
 #include <time.h>   
 #include <string>
 #include <vector>
-
 
 using Percent = float;
 using RUB = long long int;
 using USD = long long int;
 using MonthCount = int;
 
-
-struct MonthData {
+struct Month {
 	int year;
 	int month;
 	
@@ -26,7 +24,6 @@ struct MonthData {
 	RUB alice_invest_amount;
 	RUB alice_invest_result;
 	std::string alice_invest_type;
-	
 	
 	RUB john_account_rub;
 	USD john_account_usd;
@@ -44,8 +41,7 @@ struct MonthData {
 	std::vector<std::string> events;
 };
 
-
-struct UtilitiesData {
+struct Utility {
 	RUB total;
 	RUB rent;
 	RUB electricity;
@@ -67,22 +63,19 @@ struct UtilitiesData {
 	bool used_usd;
 };
 
-
-struct HolidayData {
+struct Holiday {
 	std::string name;
 	RUB amount;
 	std::string description;
 };
 
-
-struct CharityData {
+struct Charity {
 	std::string name;
 	RUB amount;
 	std::string description;
 };
 
-
-struct HealthData {
+struct Health {
 	int alice_health;
 	int john_health;
 	RUB medicine_fund;
@@ -91,8 +84,7 @@ struct HealthData {
 	RUB spent_on_medicine;
 };
 
-
-struct SavingsData {
+struct Saving {
 	RUB vacation_fund;
 	RUB emergency_fund;
 	RUB big_purchase_fund;
@@ -103,15 +95,13 @@ struct SavingsData {
 	RUB education_goal;
 };
 
-
-struct SportsData {
+struct Sport {
 	int alice_workouts;
 	int john_workouts;
 	RUB spent_on_sports;
 };
 
-
-struct RealEstateData {
+struct RealEstate {
 	RUB apartment_value;
 	RUB mortgage_debt;
 	RUB mortgage_paid;
@@ -119,57 +109,50 @@ struct RealEstateData {
 	bool bought;
 };
 
-
-struct EducationData {
+struct Education {
 	RUB education_fund;
 	int alice_courses;
 	int john_courses;
 	RUB spent;
 };
 
-
-struct TravelData {
+struct Travel {
 	RUB travel_fund;
 	int trips_taken;
 	RUB spent;
 };
 
-
-struct SimulationData {
-	std::vector<MonthData> months;
-	std::vector<UtilitiesData> utilities_history;
-	std::vector<HolidayData> holidays;
-	std::vector<CharityData> charities;
-	std::vector<HealthData> health_history;
-	std::vector<SavingsData> savings_history;
-	std::vector<SportsData> sports_history;
-	std::vector<RealEstateData> realestate_history;
-	std::vector<EducationData> education_history;
-	std::vector<TravelData> travel_history;
+struct Simulation {
+	std::vector<Month> months;
+	std::vector<Utility> utilities_history;
+	std::vector<Holiday> holidays;
+	std::vector<Charity> charities;
+	std::vector<Health> health_history;
+	std::vector<Saving> savings_history;
+	std::vector<Sport> sports_history;
+	std::vector<RealEstate> realestate_history;
+	std::vector<Education> education_history;
+	std::vector<Travel> travel_history;
 	
 	RUB yearly_utilities[4] = {0};
 	int yearly_doctor_visits_alice[4] = {0};
 	int yearly_doctor_visits_john[4] = {0};
 	RUB yearly_medicine_spent[4] = {0};
-} sim_data;
-
+} sim_info;
 
 int year = 2026;
 int month = 2;
-
 
 struct Car {
 	RUB value;
 	RUB gas;
 };
 
-
 struct Bank {
 	RUB account_rub;
 	USD account_usd;
 	float rate_usd_rub;
 };
-
 
 struct Credit {
 	RUB debt;
@@ -180,8 +163,7 @@ struct Credit {
 	RUB partial_payment;
 };
 
-
-struct RealEstate {
+struct RealEstatePerson {
 	RUB apartment_value;
 	RUB mortgage_debt;
 	RUB mortgage_payment;
@@ -190,63 +172,20 @@ struct RealEstate {
 	bool is_rented;
 };
 
-
 struct Person { 
 	Bank vtb;
 	RUB salary;
 	RUB food;
 	Car car;
 	Credit credit;
-	RealEstate realty;
-	RUB debt_initial;  // Для отслеживания начального долга
+	RealEstatePerson realty;
+	RUB debt_initial;
 };
-
 
 struct Person alice;
 struct Person john;
 
-
-// Статические переменные для отслеживания состояния
-static int alice_health = 100;
-static int john_health = 100;
-static RUB medicine_fund = 0;
-static int doctor_visits_alice = 0;
-static int doctor_visits_john = 0;
-
-
-static RUB vacation_fund = 0;
-static RUB emergency_fund = 0;
-static RUB big_purchase_fund = 0;
-static RUB education_fund_local = 0;
-
-
-static int alice_workouts = 0;
-static int john_workouts = 0;
-static RUB sports_spent = 0;
-
-
-static RUB apartment_value = 8000000;
-static RUB mortgage_debt = 0;
-static int months_paid = 0;
-static bool bought_apartment = false;
-
-
-static RUB education_fund_global = 0;
-static int alice_courses = 0;
-static int john_courses = 0;
-static RUB spent_on_education = 0;
-
-
-static RUB travel_fund = 0;
-static int trips_taken = 0;
-static RUB spent_on_travel = 0;
-
-
-static RUB yearly_utilities[4] = {0};
-static int last_inflation_year = 2026;
-
-
-void  alice_init() {
+void alice_init() {
 	alice.vtb.rate_usd_rub = 78.76;
 	alice.vtb.account_rub = 0;
 	alice.vtb.account_usd = 1000;
@@ -267,8 +206,7 @@ void  alice_init() {
 	alice.realty.is_rented = false;
 }
 
-
-void  john_init() {
+void john_init() {
 	john.vtb.rate_usd_rub = 78.76;
 	john.vtb.account_rub = 150000;  
 	john.vtb.account_usd = 2000;     
@@ -289,8 +227,7 @@ void  john_init() {
 	john.realty.is_rented = false;
 }
 
-
-void  alice_food(const int month, const int year) {
+void alice_food(const int month, const int year) {
 	if (month == 12) alice.vtb.account_rub -= 2000;
 	
 	Percent inflation = 12.0;
@@ -305,8 +242,7 @@ void  alice_food(const int month, const int year) {
 	alice.vtb.account_rub -= alice.food;
 }
 
-
-void  john_food(const int month, const int year) {
+void john_food(const int month, const int year) {
 	if (month == 12) john.vtb.account_rub -= 3000;
 	Percent inflation = 12.0;
 	switch (year) {
@@ -319,8 +255,7 @@ void  john_food(const int month, const int year) {
 	john.vtb.account_rub -= john.food;
 }
 
-
-void  alice_salary(const int month, const int year) {
+void alice_salary(const int month, const int year) {
 	if (month == 3) {
 		alice.salary = (RUB)(alice.salary * 1.5);
 	}
@@ -331,8 +266,7 @@ void  alice_salary(const int month, const int year) {
 	alice.vtb.account_rub += alice.salary;
 }
 
-
-void  john_salary(const int month, const int year) {
+void john_salary(const int month, const int year) {
 	if (month == 3) {
 		john.salary = (RUB)(john.salary * 1.5);
 	}
@@ -351,15 +285,13 @@ void  john_salary(const int month, const int year) {
 	john.vtb.account_rub += john.salary;
 }
 
-
-void  alice_car() {
+void alice_car() {
 	if (alice.car.value > 0) {
 		alice.vtb.account_rub -= alice.car.gas;
 	}
 }
 
-
-void  john_car() {
+void john_car() {
 	if (john.car.value > 0) {
 		john.vtb.account_rub -= john.car.gas;
 		if (month >= 6 && month <= 8) {
@@ -368,8 +300,7 @@ void  john_car() {
 	}
 }
 
-
-void  alice_credit(const int year, const int month) {
+void alice_credit(const int year, const int month) {
 	if (alice.credit.debt <= 0) return;
 	
 	if (alice.vtb.account_rub >= alice.credit.payment) {
@@ -382,8 +313,7 @@ void  alice_credit(const int year, const int month) {
 	}
 }
 
-
-void  john_credit(const int year, const int month) {
+void john_credit(const int year, const int month) {
 	if (john.credit.debt <= 0) return;
 	
 	if (john.vtb.account_rub >= john.credit.payment) {
@@ -396,8 +326,7 @@ void  john_credit(const int year, const int month) {
 	}
 }
 
-
-void  alice_early_credit_payment() {
+void alice_early_credit_payment() {
 	RUB threshold = 500000;
 	
 	if (alice.vtb.account_rub <= threshold || alice.credit.debt <= 0) return;
@@ -413,8 +342,7 @@ void  alice_early_credit_payment() {
 	alice.credit.debt -= extra_payment;
 }
 
-
-void  john_early_credit_payment() {
+void john_early_credit_payment() {
 	RUB threshold = 400000;
 	
 	if (john.vtb.account_rub <= threshold || john.credit.debt <= 0) return;
@@ -430,8 +358,7 @@ void  john_early_credit_payment() {
 	john.credit.debt -= extra_payment;
 }
 
-
-void  alice_invest() {
+void alice_invest() {
 	RUB invest_threshold = 300000;
 	RUB min_invest = 100000;
 	
@@ -445,7 +372,7 @@ void  alice_invest() {
 	
 	alice.vtb.account_rub -= invest_amount;
 	
-	int invest_type = rand() % 2;	
+	int invest_type = rand() % 2;    
 	
 	if (invest_type == 0) {
 		RUB profit = (RUB)(invest_amount * 0.05);
@@ -465,8 +392,7 @@ void  alice_invest() {
 	}
 }
 
-
-void  john_invest() {
+void john_invest() {
 	RUB invest_threshold = 400000;
 	RUB min_invest = 150000;
 	
@@ -480,7 +406,7 @@ void  john_invest() {
 	
 	john.vtb.account_rub -= invest_amount;
 	
-	int invest_type = rand() % 2;	
+	int invest_type = rand() % 2;    
 	
 	if (invest_type == 0) {
 		RUB profit = (RUB)(invest_amount * 0.06);
@@ -500,8 +426,7 @@ void  john_invest() {
 	}
 }
 
-
-void  alice_car_transaction(int current_month, int current_year) {
+void alice_car_transaction(int current_month, int current_year) {
 	static int alice_car_purchase_month = 2;
 	static int alice_car_purchase_year = 2026;
 	
@@ -521,7 +446,7 @@ void  alice_car_transaction(int current_month, int current_year) {
 		return;
 	}
 	
-	RUB budget_car = (RUB)(alice.car.value * 0.8);	
+	RUB budget_car = (RUB)(alice.car.value * 0.8);    
 	
 	if (alice.vtb.account_rub >= budget_car + alice.car.gas) {
 		alice.vtb.account_rub -= (budget_car + alice.car.gas);
@@ -534,8 +459,7 @@ void  alice_car_transaction(int current_month, int current_year) {
 	}
 }
 
-
-void  john_car_transaction(int current_month, int current_year) {
+void john_car_transaction(int current_month, int current_year) {
 	static int john_car_purchase_month = 2;
 	static int john_car_purchase_year = 2026;
 	
@@ -545,7 +469,7 @@ void  john_car_transaction(int current_month, int current_year) {
 	
 	john.vtb.account_rub += john.car.value;
 	
-	RUB new_car_price = (RUB)(john.car.value * 1.25);	
+	RUB new_car_price = (RUB)(john.car.value * 1.25);    
 	
 	if (john.vtb.account_rub >= new_car_price + john.car.gas) {
 		john.vtb.account_rub -= (new_car_price + john.car.gas);
@@ -555,8 +479,7 @@ void  john_car_transaction(int current_month, int current_year) {
 	}
 }
 
-
-void  family_utilities(const int month, const int year) {
+void family_utilities(const int month, const int year) {
 	static RUB rent = 45000;
 	static RUB electricity = 3500;
 	static RUB water = 2000;
@@ -573,7 +496,7 @@ void  family_utilities(const int month, const int year) {
 	static RUB tv_subscription = 1000;
 	static RUB music_subscription = 500;
 	static RUB cinema_subscription = 800;
-	
+	static int last_inflation_year = 2026;
 	
 	if (month == 1 && year > last_inflation_year) {
 		float utilities_inflation = 1.0;
@@ -604,14 +527,12 @@ void  family_utilities(const int month, const int year) {
 		last_inflation_year = year;
 	}
 	
-	
 	RUB current_rent = rent;
 	RUB current_electricity = electricity;
 	RUB current_water = water;
 	RUB current_gas = gas;
 	RUB current_cleaning = cleaning;
 	RUB current_home_repair = home_repair;
-	
 	
 	switch (month) {
 	case 12:
@@ -632,16 +553,13 @@ void  family_utilities(const int month, const int year) {
 	case 10:
 		current_cleaning += 1500;
 		break;
-	}	
+	}    
 	
-	
-	// вероятность непредвиденных расходов до 25%
 	int unexpected = rand() % 100;
 	if (unexpected < 25) {  
 		RUB unexpected_cost = 0;
 		std::string incident_type;
 		
-		//список возможных инцидентов 
 		switch (rand() % 15) {  
 			case 0: 
 			unexpected_cost = 5000; 
@@ -708,17 +626,13 @@ void  family_utilities(const int month, const int year) {
 		current_home_repair += unexpected_cost;
 		home_repair += unexpected_cost;
 		
-		
-		//событие в месячные данные для отслеживания
-		if (!sim_data.months.empty()) {
+		if (!sim_info.months.empty()) {
 			std::string event_desc = "Непредвиденный ремонт: " + incident_type + " - " + 
 			std::to_string(unexpected_cost) + " RUB";
-			sim_data.months.back().events.push_back(event_desc);
+			sim_info.months.back().events.push_back(event_desc);
 		}
 	}
 	
-	
-	//сезонные аварии (более вероятны зимой)
 	if ((month == 12 || month == 1 || month == 2) && (rand() % 100) < 10) {
 		RUB seasonal_cost = 0;
 		std::string seasonal_issue;
@@ -741,15 +655,13 @@ void  family_utilities(const int month, const int year) {
 		current_home_repair += seasonal_cost;
 		home_repair += seasonal_cost;
 		
-		if (!sim_data.months.empty()) {
+		if (!sim_info.months.empty()) {
 			std::string event_desc = "Сезонная авария: " + seasonal_issue + " - " + 
 			std::to_string(seasonal_cost) + " RUB";
-			sim_data.months.back().events.push_back(event_desc);
+			sim_info.months.back().events.push_back(event_desc);
 		}
 	}
 	
-	
-	//летние проблемы
 	if ((month == 6 || month == 7 || month == 8) && (rand() % 100) < 8) {
 		RUB summer_cost = 0;
 		std::string summer_issue;
@@ -772,15 +684,13 @@ void  family_utilities(const int month, const int year) {
 		current_home_repair += summer_cost;
 		home_repair += summer_cost;
 		
-		if (!sim_data.months.empty()) {
+		if (!sim_info.months.empty()) {
 			std::string event_desc = "Летняя проблема: " + summer_issue + " - " + 
 			std::to_string(summer_cost) + " RUB";
-			sim_data.months.back().events.push_back(event_desc);
+			sim_info.months.back().events.push_back(event_desc);
 		}
 	}
 	
-	
-	// крупные непредвиденные расходы (низкая вероятность, но большие суммы)
 	if (rand() % 100 < 5) {
 		RUB major_cost = 0;
 		std::string major_issue;
@@ -807,19 +717,18 @@ void  family_utilities(const int month, const int year) {
 		current_home_repair += major_cost;
 		home_repair += major_cost;
 		
-		if (!sim_data.months.empty()) {
+		if (!sim_info.months.empty()) {
 			std::string event_desc = "КРУПНЫЙ РЕМОНТ: " + major_issue + " - " + 
 			std::to_string(major_cost) + " RUB";
-			sim_data.months.back().events.push_back(event_desc);
+			sim_info.months.back().events.push_back(event_desc);
 		}
 	}
 	
-	RUB total_utilities = current_rent + current_electricity + current_water + current_gas + 
-	internet_tv + mobile_family + current_cleaning + security + garbage + 
+	RUB total_utilities = current_rent + current_electricity + current_water + current_gas + internet_tv + mobile_family + current_cleaning + security + garbage + 
 	elevator + current_home_repair + parking + gym + 
 	tv_subscription + music_subscription + cinema_subscription;
 	
-	bool used_usd = false;	
+	bool used_usd = false;    
 	
 	if (total_utilities <= john.salary * 0.5) {
 		john.vtb.account_rub -= total_utilities;
@@ -835,9 +744,7 @@ void  family_utilities(const int month, const int year) {
 		}
 	}
 	
-	
-	// Сохранение данных
-	UtilitiesData ud;
+	Utility ud;
 	ud.total = total_utilities;
 	ud.rent = current_rent;
 	ud.electricity = current_electricity;
@@ -858,20 +765,20 @@ void  family_utilities(const int month, const int year) {
 	ud.percent_of_salary = (float)total_utilities / john.salary * 100;
 	ud.used_usd = used_usd;
 	
-	sim_data.utilities_history.push_back(ud);
+	sim_info.utilities_history.push_back(ud);
 	
+	static RUB yearly_utilities[4] = {0};
 	int year_index = year - 2026;
 	if (year_index >= 0 && year_index < 4) {
 		yearly_utilities[year_index] += total_utilities;
-		sim_data.yearly_utilities[year_index] = yearly_utilities[year_index];
+		sim_info.yearly_utilities[year_index] = yearly_utilities[year_index];
 	}
 }
 
-
-void  new_year_gifts(const int month, const int year) {
+void new_year_gifts(const int month, const int year) {
 	if (month != 12) return;
 	
-	HolidayData hd;
+	Holiday hd;
 	hd.name = "New Year";
 	hd.amount = 0;
 	
@@ -897,7 +804,7 @@ void  new_year_gifts(const int month, const int year) {
 	
 	RUB new_year_food = 8000;
 	alice_part = new_year_food / 2;
-	john_part = new_year_food / 2;	
+	john_part = new_year_food / 2;    
 	
 	if (alice.vtb.account_rub >= alice_part && john.vtb.account_rub >= john_part) {
 		alice.vtb.account_rub -= alice_part;
@@ -906,14 +813,13 @@ void  new_year_gifts(const int month, const int year) {
 	}
 	
 	hd.description = "New Year celebration and gifts";
-	sim_data.holidays.push_back(hd);
+	sim_info.holidays.push_back(hd);
 }
 
-
-void  march_8_gifts(const int month, const int year) {
+void march_8_gifts(const int month, const int year) {
 	if (month != 3) return;
 	
-	HolidayData hd;
+	Holiday hd;
 	hd.name = "International Women's Day";
 	hd.amount = 0;
 	
@@ -938,14 +844,13 @@ void  march_8_gifts(const int month, const int year) {
 	}
 	
 	hd.description = "International Women's Day gifts";
-	sim_data.holidays.push_back(hd);
+	sim_info.holidays.push_back(hd);
 }
 
-
-void  february_23_gifts(const int month, const int year) {
+void february_23_gifts(const int month, const int year) {
 	if (month != 2) return;
 	
-	HolidayData hd;
+	Holiday hd;
 	hd.name = "Defender of the Fatherland Day";
 	hd.amount = 0;
 	
@@ -970,14 +875,13 @@ void  february_23_gifts(const int month, const int year) {
 	}
 	
 	hd.description = "Defender of the Fatherland Day gifts";
-	sim_data.holidays.push_back(hd);
+	sim_info.holidays.push_back(hd);
 }
 
-
-void  valentines_day_gifts(const int month, const int year) {
+void valentines_day_gifts(const int month, const int year) {
 	if (month != 2) return;
 	
-	HolidayData hd;
+	Holiday hd;
 	hd.name = "Valentine's Day";
 	hd.amount = 0;
 	
@@ -996,14 +900,13 @@ void  valentines_day_gifts(const int month, const int year) {
 	}
 	
 	hd.description = "Romantic celebration";
-	if (hd.amount > 0) sim_data.holidays.push_back(hd);
+	if (hd.amount > 0) sim_info.holidays.push_back(hd);
 }
 
-
-void  birthday_alice(const int month, const int year) {
+void birthday_alice(const int month, const int year) {
 	if (month != 5) return;
 	
-	HolidayData hd;
+	Holiday hd;
 	hd.name = "Alice's Birthday";
 	hd.amount = 0;
 	
@@ -1025,14 +928,13 @@ void  birthday_alice(const int month, const int year) {
 	}
 	
 	hd.description = "Birthday celebration in May";
-	sim_data.holidays.push_back(hd);
+	sim_info.holidays.push_back(hd);
 }
 
-
-void  birthday_john(const int month, const int year) {
+void birthday_john(const int month, const int year) {
 	if (month != 9) return;
 	
-	HolidayData hd;
+	Holiday hd;
 	hd.name = "John's Birthday";
 	hd.amount = 0;
 	
@@ -1060,17 +962,16 @@ void  birthday_john(const int month, const int year) {
 	}
 	
 	hd.description = "Birthday celebration in September";
-	sim_data.holidays.push_back(hd);
+	sim_info.holidays.push_back(hd);
 }
 
-
-void  anniversary_wedding(const int month, const int year) {
+void anniversary_wedding(const int month, const int year) {
 	if (month != 8) return;
 	
 	int years_married = year - 2026;
 	if (years_married <= 0) return;
 	
-	HolidayData hd;
+	Holiday hd;
 	hd.name = "Wedding Anniversary";
 	hd.amount = 0;
 	
@@ -1094,17 +995,15 @@ void  anniversary_wedding(const int month, const int year) {
 		hd.amount += gift;
 	}
 	
-	char desc[100];
-	sprintf(desc, "%d years of marriage", years_married);
-	hd.description = desc;
-	sim_data.holidays.push_back(hd);
+	printf("  Wedding Anniversary: %d years of marriage\n", years_married);
+	hd.description = "Wedding Anniversary";
+	sim_info.holidays.push_back(hd);
 }
 
-
-void  victory_day(const int month, const int year) {
+void victory_day(const int month, const int year) {
 	if (month != 5) return;
 	
-	HolidayData hd;
+	Holiday hd;
 	hd.name = "Victory Day";
 	hd.amount = 0;
 	
@@ -1125,14 +1024,13 @@ void  victory_day(const int month, const int year) {
 	}
 	
 	hd.description = "May 9 celebration";
-	sim_data.holidays.push_back(hd);
+	sim_info.holidays.push_back(hd);
 }
 
-
-void  halloween(const int month, const int year) {
+void halloween(const int month, const int year) {
 	if (month != 10) return;
 	
-	HolidayData hd;
+	Holiday hd;
 	hd.name = "Halloween";
 	hd.amount = 0;
 	
@@ -1154,14 +1052,13 @@ void  halloween(const int month, const int year) {
 	}
 	
 	hd.description = "Halloween celebration";
-	sim_data.holidays.push_back(hd);
+	sim_info.holidays.push_back(hd);
 }
 
-
-void  easter_celebration(const int month, const int year) {
+void easter_celebration(const int month, const int year) {
 	if (month != 4) return;
 	
-	HolidayData hd;
+	Holiday hd;
 	hd.name = "Easter";
 	hd.amount = 0;
 	
@@ -1196,17 +1093,16 @@ void  easter_celebration(const int month, const int year) {
 		john.vtb.account_rub -= john_part;
 		hd.amount = total_cost;
 		
-		char desc[200];
-		sprintf(desc, "Easter celebration in April: food %lld RUB, gifts %lld RUB, decorations %lld RUB",
-				easter_food, easter_gifts, easter_decorations);
-		hd.description = desc;
+		printf("  Easter: food %lld RUB, gifts %lld RUB, decorations %lld RUB\n",
+			   easter_food, easter_gifts, easter_decorations);
+		hd.description = "Easter celebration in April";
 		
-		sim_data.holidays.push_back(hd);
+		sim_info.holidays.push_back(hd);
 		
-		if (!sim_data.months.empty()) {
+		if (!sim_info.months.empty()) {
 			std::string event_desc = "Пасха (апрель): " + std::to_string(total_cost) + 
 			" RUB (куличи, яйца, подарки, украшения)";
-			sim_data.months.back().events.push_back(event_desc);
+			sim_info.months.back().events.push_back(event_desc);
 		}
 	} else {
 		RUB modest_cost = 3000;
@@ -1218,18 +1114,19 @@ void  easter_celebration(const int month, const int year) {
 			john.vtb.account_rub -= modest_john;
 			hd.amount = modest_cost;
 			hd.description = "Modest Easter celebration in April";
-			sim_data.holidays.push_back(hd);
+			sim_info.holidays.push_back(hd);
 			
-			if (!sim_data.months.empty()) {
+			printf("  Easter (modest): %lld RUB\n", modest_cost);
+			
+			if (!sim_info.months.empty()) {
 				std::string event_desc = "Пасха (апрель, скромно): " + std::to_string(modest_cost) + " RUB";
-				sim_data.months.back().events.push_back(event_desc);
+				sim_info.months.back().events.push_back(event_desc);
 			}
 		}
 	}
 }
 
-
-void  process_all_holidays(const int month, const int year) {
+void process_all_holidays(const int month, const int year) {
 	new_year_gifts(month, year);
 	valentines_day_gifts(month, year);
 	february_23_gifts(month, year);
@@ -1242,11 +1139,10 @@ void  process_all_holidays(const int month, const int year) {
 	easter_celebration(month, year);
 }
 
-
-void  alice_charity_donation(const int month, const int year) {
+void alice_charity_donation(const int month, const int year) {
 	if (month != 12) return;
 	
-	CharityData cd;
+	Charity cd;
 	cd.name = "Alice's Charity";
 	cd.amount = 0;
 	
@@ -1262,14 +1158,13 @@ void  alice_charity_donation(const int month, const int year) {
 		cd.description = "Small charity donation";
 	}
 	
-	if (cd.amount > 0) sim_data.charities.push_back(cd);
+	if (cd.amount > 0) sim_info.charities.push_back(cd);
 }
 
-
-void  john_parents_help(const int month, const int year) {
+void john_parents_help(const int month, const int year) {
 	if (!(month == 2 || month == 5 || month == 8 || month == 11)) return;
 	
-	CharityData cd;
+	Charity cd;
 	cd.name = "John's Parents Help";
 	cd.amount = 0;
 	
@@ -1285,11 +1180,10 @@ void  john_parents_help(const int month, const int year) {
 		cd.description = "Small help to parents";
 	}
 	
-	if (cd.amount > 0) sim_data.charities.push_back(cd);
+	if (cd.amount > 0) sim_info.charities.push_back(cd);
 }
 
-
-void  family_joint_charity(const int month, const int year) {
+void family_joint_charity(const int month, const int year) {
 	if (!((month == 12 || month == 6) && year % 2 == 0)) return;
 	
 	RUB joint_charity = 7000;
@@ -1301,36 +1195,34 @@ void  family_joint_charity(const int month, const int year) {
 	alice.vtb.account_rub -= alice_part;
 	john.vtb.account_rub -= john_part;
 	
-	CharityData cd;
+	Charity cd;
 	cd.name = "Family Charity";
 	cd.amount = joint_charity;
 	cd.description = "Children's hospital donation";
-	sim_data.charities.push_back(cd);
+	sim_info.charities.push_back(cd);
 }
 
-
-void  alice_volunteering(const int month, const int year) {
+void alice_volunteering(const int month, const int year) {
 	if (month == 4 || month == 11) {
-		CharityData cd;
+		Charity cd;
 		cd.name = "Alice's Volunteering";
 		cd.amount = 0;
 		cd.description = (month == 4) ? "Library volunteering" : "Animal shelter volunteering";
-		sim_data.charities.push_back(cd);
+		sim_info.charities.push_back(cd);
 	}
 }
 
-void  john_volunteering(const int month, const int year) {
+void john_volunteering(const int month, const int year) {
 	if (month == 9 || month == 3) {
-		CharityData cd;
+		Charity cd;
 		cd.name = "John's Volunteering";
 		cd.amount = 0;
 		cd.description = (month == 9) ? "Park cleanup" : "Snow removal for elderly";
-		sim_data.charities.push_back(cd);
+		sim_info.charities.push_back(cd);
 	}
 }
 
-
-void  process_all_charity(const int month, const int year) {
+void process_all_charity(const int month, const int year) {
 	alice_charity_donation(month, year);
 	john_parents_help(month, year);
 	family_joint_charity(month, year);
@@ -1338,8 +1230,13 @@ void  process_all_charity(const int month, const int year) {
 	john_volunteering(month, year);
 }
 
-
-void  family_health_and_medicine(const int month, const int year) {
+void family_health_and_medicine(const int month, const int year) {
+	static int alice_health = 100;
+	static int john_health = 100;
+	static RUB medicine_fund = 0;
+	static int doctor_visits_alice = 0;
+	static int doctor_visits_john = 0;
+	
 	int alice_decline = rand() % 5 + 1;
 	int john_decline = rand() % 7 + 2;
 	
@@ -1440,9 +1337,9 @@ void  family_health_and_medicine(const int month, const int year) {
 			john.vtb.account_rub -= medicine_savings/2;
 			medicine_fund += medicine_savings;
 		}
-	}	
+	}    
 	
-	HealthData hd;
+	Health hd;
 	hd.alice_health = alice_health;
 	hd.john_health = john_health;
 	hd.medicine_fund = medicine_fund;
@@ -1450,19 +1347,22 @@ void  family_health_and_medicine(const int month, const int year) {
 	hd.john_visits = doctor_visits_john;
 	hd.spent_on_medicine = medicine_fund;
 	
-	sim_data.health_history.push_back(hd);
+	sim_info.health_history.push_back(hd);
 	
 	int year_index = year - 2026;
 	
 	if (year_index >= 0 && year_index < 4) {
-		sim_data.yearly_doctor_visits_alice[year_index] = doctor_visits_alice;
-		sim_data.yearly_doctor_visits_john[year_index] = doctor_visits_john;
-		sim_data.yearly_medicine_spent[year_index] = medicine_fund;
+		sim_info.yearly_doctor_visits_alice[year_index] = doctor_visits_alice;
+		sim_info.yearly_doctor_visits_john[year_index] = doctor_visits_john;
+		sim_info.yearly_medicine_spent[year_index] = medicine_fund;
 	}
 }
 
-
-void  family_savings_goals(const int month, const int year) {
+void family_savings_goals(const int month, const int year) {
+	static RUB vacation_fund = 0;
+	static RUB emergency_fund = 0;
+	static RUB big_purchase_fund = 0;
+	static RUB education_fund_local = 0;
 	static RUB vacation_goal = 200000;
 	static RUB emergency_goal = 500000;
 	static RUB big_purchase_goal = 150000;
@@ -1508,7 +1408,7 @@ void  family_savings_goals(const int month, const int year) {
 		if (needed > emergency_fund) needed = emergency_fund;
 		emergency_fund -= needed;
 		alice.vtb.account_rub += needed;
-	}	
+	}    
 	
 	if (john.vtb.account_rub < 10000 && emergency_fund > 0) {
 		RUB needed = 20000 - john.vtb.account_rub;
@@ -1517,7 +1417,7 @@ void  family_savings_goals(const int month, const int year) {
 		john.vtb.account_rub += needed;
 	}
 	
-	SavingsData sd;
+	Saving sd;
 	sd.vacation_fund = vacation_fund;
 	sd.emergency_fund = emergency_fund;
 	sd.big_purchase_fund = big_purchase_fund;
@@ -1527,11 +1427,14 @@ void  family_savings_goals(const int month, const int year) {
 	sd.big_purchase_goal = big_purchase_goal;
 	sd.education_goal = education_goal;
 	
-	sim_data.savings_history.push_back(sd);
+	sim_info.savings_history.push_back(sd);
 }
 
-
-void  family_sports(const int month, const int year) {
+void family_sports(const int month, const int year) {
+	static int alice_workouts = 0;
+	static int john_workouts = 0;
+	static RUB sports_spent = 0;
+	
 	if (month == 1 || month == 6) {
 		RUB membership = 4000;
 		RUB total_cost = membership * 6;
@@ -1563,16 +1466,22 @@ void  family_sports(const int month, const int year) {
 		}
 	}
 	
-	SportsData sd;
+	Sport sd;
 	sd.alice_workouts = alice_workouts;
 	sd.john_workouts = john_workouts;
 	sd.spent_on_sports = sports_spent;
 	
-	sim_data.sports_history.push_back(sd);
+	sim_info.sports_history.push_back(sd);
 }
 
-
-void  family_real_estate(const int month, const int year) {
+void family_real_estate(const int month, const int year) {
+	static RUB apartment_value = 8000000;
+	static RUB mortgage_debt = 0;
+	static int months_paid = 0;
+	static bool bought_apartment = false;
+	static int last_valuation_year = 2026;
+	static RUB mortgage_payment = 70000;
+	
 	if (year == 2027 && month == 3 && !bought_apartment) {
 		RUB down_payment = (RUB)(apartment_value * 0.3);
 		RUB alice_part = down_payment / 2;
@@ -1586,8 +1495,6 @@ void  family_real_estate(const int month, const int year) {
 		}
 	}
 	
-	static RUB mortgage_payment = 70000;
-	
 	if (bought_apartment && mortgage_debt > 0) {
 		if (john.vtb.account_rub >= mortgage_payment) {
 			john.vtb.account_rub -= mortgage_payment;
@@ -1599,25 +1506,28 @@ void  family_real_estate(const int month, const int year) {
 		}
 	}
 	
-	static int last_valuation_year = 2026;
 	if (year > last_valuation_year && month == 1) {
 		float appreciation = 1.08;
 		apartment_value = (RUB)(apartment_value * appreciation);
 		last_valuation_year = year;
 	}
 	
-	RealEstateData red;
+	RealEstate red;
 	red.apartment_value = apartment_value;
 	red.mortgage_debt = mortgage_debt;
 	red.mortgage_paid = months_paid * 70000;
 	red.months_paid = months_paid;
 	red.bought = bought_apartment;
 	
-	sim_data.realestate_history.push_back(red);
+	sim_info.realestate_history.push_back(red);
 }
 
-
-void  family_education(const int month, const int year) {
+void family_education(const int month, const int year) {
+	static RUB education_fund_global = 0;
+	static int alice_courses = 0;
+	static int john_courses = 0;
+	static RUB spent_on_education = 0;
+	
 	RUB monthly_education = 5000;
 	RUB alice_part = monthly_education / 2;
 	RUB john_part = monthly_education / 2;
@@ -1639,7 +1549,7 @@ void  family_education(const int month, const int year) {
 				alice.salary += 5000;
 			}
 		}
-	}	
+	}    
 	
 	if (month == 4 || month == 10) {
 		RUB course_cost = 20000;
@@ -1654,21 +1564,24 @@ void  family_education(const int month, const int year) {
 		}
 	}
 	
-	EducationData ed;
+	Education ed;
 	ed.education_fund = education_fund_global;
 	ed.alice_courses = alice_courses;
 	ed.john_courses = john_courses;
 	ed.spent = spent_on_education;
 	
-	sim_data.education_history.push_back(ed);
+	sim_info.education_history.push_back(ed);
 }
 
-
-void  family_travel(const int month, const int year) {
+void family_travel(const int month, const int year) {
+	static RUB travel_fund = 0;
+	static int trips_taken = 0;
+	static RUB spent_on_travel = 0;
+	
 	RUB monthly_income = alice.salary + john.salary;
 	RUB travel_savings = (RUB)(monthly_income * 0.05);
 	RUB alice_part = travel_savings / 2;
-	RUB john_part = travel_savings / 2;	
+	RUB john_part = travel_savings / 2;    
 	
 	if (alice.vtb.account_rub >= alice_part && john.vtb.account_rub >= john_part) {
 		alice.vtb.account_rub -= alice_part;
@@ -1694,39 +1607,41 @@ void  family_travel(const int month, const int year) {
 		}
 	}
 	
-	TravelData td;
+	Travel td;
 	td.travel_fund = travel_fund;
 	td.trips_taken = trips_taken;
 	td.spent = spent_on_travel;
 	
-	sim_data.travel_history.push_back(td);
+	sim_info.travel_history.push_back(td);
 }
 
-
-void  check_goals() {
-	if (vacation_fund >= 200000) {
-		printf("[GOAL ACHIEVED] Vacation fund target reached: %lld RUB\n", vacation_fund);
-	}
-	if (emergency_fund >= 500000) {
-		printf("[GOAL ACHIEVED] Emergency fund target reached: %lld RUB\n", emergency_fund);
-	}
-	if (big_purchase_fund >= 150000) {
-		printf("[GOAL ACHIEVED] Big purchase fund target reached: %lld RUB\n", big_purchase_fund);
-	}
-	if (education_fund_local >= 100000) {
-		printf("[GOAL ACHIEVED] Education fund target reached: %lld RUB\n", education_fund_local);
+void check_goals() {
+	if (!sim_info.savings_history.empty()) {
+		const Saving& last = sim_info.savings_history.back();
+		if (last.vacation_fund >= last.vacation_goal) {
+			printf("[GOAL ACHIEVED] Vacation fund target reached: %lld RUB\n", last.vacation_fund);
+		}
+		if (last.emergency_fund >= last.emergency_goal) {
+			printf("[GOAL ACHIEVED] Emergency fund target reached: %lld RUB\n", last.emergency_fund);
+		}
+		if (last.big_purchase_fund >= last.big_purchase_goal) {
+			printf("[GOAL ACHIEVED] Big purchase fund target reached: %lld RUB\n", last.big_purchase_fund);
+		}
+		if (last.education_fund >= last.education_goal) {
+			printf("[GOAL ACHIEVED] Education fund target reached: %lld RUB\n", last.education_fund);
+		}
 	}
 }
-
 
 void check_milestones(int current_month, int current_year) {
 	static RUB last_alice_milestone = 0;
 	static RUB last_john_milestone = 0;
+	static bool alice_credit_notified = false;
+	static bool john_credit_notified = false;
 	
 	RUB alice_total = alice.vtb.account_rub + alice.vtb.account_usd * 78.76;
 	RUB john_total = john.vtb.account_rub + john.vtb.account_usd * 78.76;
 	
-	// Проверка достижения круглых сумм (каждые 100k RUB)
 	if (alice_total / 100000 > last_alice_milestone / 100000) {
 		printf("[MILESTONE] Alice reached %lld RUB!\n", alice_total);
 		last_alice_milestone = alice_total;
@@ -1736,10 +1651,6 @@ void check_milestones(int current_month, int current_year) {
 		printf("[MILESTONE] John reached %lld RUB!\n", john_total);
 		last_john_milestone = john_total;
 	}
-	
-	// Проверка погашения кредитов
-	static bool alice_credit_notified = false;
-	static bool john_credit_notified = false;
 	
 	if (!alice_credit_notified && alice.credit.debt == 0 && alice.debt_initial > 0) {
 		printf("[MILESTONE] Alice fully paid off her credit!\n");
@@ -1752,8 +1663,7 @@ void check_milestones(int current_month, int current_year) {
 	}
 }
 
-
-void  print_monthly_summary(int current_month, int current_year) {
+void print_monthly_summary(int current_month, int current_year) {
 	printf("\n========== %d/%d SUMMARY ==========\n", current_month, current_year);
 	
 	RUB alice_total = alice.vtb.account_rub + alice.vtb.account_usd * 78.76;
@@ -1770,17 +1680,23 @@ void  print_monthly_summary(int current_month, int current_year) {
 	if (john.credit.debt > 0) {
 		printf("John debt: %lld RUB\n", john.credit.debt);
 	}
-	if (mortgage_debt > 0) {
-		printf("Mortgage debt: %lld RUB\n", mortgage_debt);
+	
+	if (!sim_info.realestate_history.empty()) {
+		const RealEstate& last = sim_info.realestate_history.back();
+		if (last.mortgage_debt > 0) {
+			printf("Mortgage debt: %lld RUB\n", last.mortgage_debt);
+		}
 	}
 	
-	printf("Health: Alice %d%%, John %d%%\n", alice_health, john_health);
+	if (!sim_info.health_history.empty()) {
+		const Health& last = sim_info.health_history.back();
+		printf("Health: Alice %d%%, John %d%%\n", last.alice_health, last.john_health);
+	}
 	printf("==================================\n");
 }
 
-
-void  record_month_data() {
-	MonthData md;
+void record_month() {
+	Month md;
 	md.year = year;
 	md.month = month;
 	
@@ -1805,17 +1721,14 @@ void  record_month_data() {
 	md.john_invest_amount = 0;
 	md.john_invest_result = 0;
 	
-	sim_data.months.push_back(md);
+	sim_info.months.push_back(md);
 }
 
-
-void  simulation() {
+void simulation() {
 	year = 2026;
 	month = 2;
 	
-	record_month_data();
-	
-	int months_passed = 0;
+	record_month();
 	
 	while (!(year == 2029 && month == 2)) {
 		family_utilities(month, year);
@@ -1848,13 +1761,10 @@ void  simulation() {
 		john_invest();
 		john_car_transaction(month, year);
 		
-		record_month_data();
+		record_month();
 		check_milestones(month, year);
 		
-		// Вывод ежемесячного отчёта
 		print_monthly_summary(month, year);
-		
-		months_passed++;
 		
 		++month;
 		if (month == 13) {
@@ -1864,12 +1774,11 @@ void  simulation() {
 	}
 }
 
-
-void  print_final_report() {
+void print_final_report() {
 	printf("\n==================== FINAL REPORT ====================\n");
 	printf("Simulation: 2026-2029\n\n");
 	
-	MonthData& last = sim_data.months.back();
+	Month& last = sim_info.months.back();
 	
 	printf("========== FINAL STATUS ==========\n");
 	printf("\n--- ALICE ---\n");
@@ -1890,20 +1799,20 @@ void  print_final_report() {
 	
 	printf("\n========== YEARLY STATISTICS ==========\n");
 	for (int y = 0; y < 4; y++) {
-		if (sim_data.yearly_utilities[y] > 0) {
+		if (sim_info.yearly_utilities[y] > 0) {
 			printf("\n%d:\n", 2026 + y);
-			printf("  Utilities: %lld RUB\n", sim_data.yearly_utilities[y]);
+			printf("  Utilities: %lld RUB\n", sim_info.yearly_utilities[y]);
 			printf("  Doctor visits: Alice - %d, John - %d\n", 
-				   sim_data.yearly_doctor_visits_alice[y], 
-				   sim_data.yearly_doctor_visits_john[y]);
-			printf("  Spent on medicine: %lld RUB\n", sim_data.yearly_medicine_spent[y]);
+				   sim_info.yearly_doctor_visits_alice[y], 
+				   sim_info.yearly_doctor_visits_john[y]);
+			printf("  Spent on medicine: %lld RUB\n", sim_info.yearly_medicine_spent[y]);
 		}
 	}
 	
 	printf("\n========== HOLIDAYS ==========\n");
 	RUB total_holidays = 0;
 	
-	for (const auto& h : sim_data.holidays) {
+	for (const auto& h : sim_info.holidays) {
 		printf("  %s: %lld RUB - %s\n", h.name.c_str(), h.amount, h.description.c_str());
 		total_holidays += h.amount;
 	}
@@ -1911,7 +1820,7 @@ void  print_final_report() {
 	
 	printf("\n========== CHARITY ==========\n");
 	RUB total_charity = 0;
-	for (const auto& c : sim_data.charities) {
+	for (const auto& c : sim_info.charities) {
 		if (c.amount > 0) {
 			printf("  %s: %lld RUB - %s\n", c.name.c_str(), c.amount, c.description.c_str());
 			total_charity += c.amount;
@@ -1921,16 +1830,16 @@ void  print_final_report() {
 	}
 	printf("  Total donated: %lld RUB\n", total_charity);
 	
-	if (!sim_data.health_history.empty()) {
-		HealthData& last_h = sim_data.health_history.back();
+	if (!sim_info.health_history.empty()) {
+		const Health& last_h = sim_info.health_history.back();
 		printf("\n========== HEALTH ==========\n");
 		printf("  Alice: %d%%\n", last_h.alice_health);
 		printf("  John: %d%%\n", last_h.john_health);
 		printf("  Medicine fund: %lld RUB\n", last_h.medicine_fund);
 	}
 	
-	if (!sim_data.savings_history.empty()) {
-		SavingsData& last_s = sim_data.savings_history.back();
+	if (!sim_info.savings_history.empty()) {
+		const Saving& last_s = sim_info.savings_history.back();
 		printf("\n========== SAVINGS ==========\n");
 		printf("  Vacation fund: %lld / %lld RUB\n", last_s.vacation_fund, last_s.vacation_goal);
 		printf("  Emergency fund: %lld / %lld RUB\n", last_s.emergency_fund, last_s.emergency_goal);
@@ -1938,16 +1847,16 @@ void  print_final_report() {
 		printf("  Education: %lld / %lld RUB\n", last_s.education_fund, last_s.education_goal);
 	}
 	
-	if (!sim_data.sports_history.empty()) {
-		SportsData& last_sp = sim_data.sports_history.back();
+	if (!sim_info.sports_history.empty()) {
+		const Sport& last_sp = sim_info.sports_history.back();
 		printf("\n========== SPORTS ==========\n");
 		printf("  Total workouts: Alice - %d, John - %d\n", 
 			   last_sp.alice_workouts, last_sp.john_workouts);
 		printf("  Spent on sports: %lld RUB\n", last_sp.spent_on_sports);
 	}
 	
-	if (!sim_data.realestate_history.empty()) {
-		RealEstateData& last_re = sim_data.realestate_history.back();
+	if (!sim_info.realestate_history.empty()) {
+		const RealEstate& last_re = sim_info.realestate_history.back();
 		printf("\n========== REAL ESTATE ==========\n");
 		if (last_re.bought) {
 			printf("  Apartment purchased!\n");
@@ -1959,8 +1868,8 @@ void  print_final_report() {
 		}
 	}
 	
-	if (!sim_data.education_history.empty()) {
-		EducationData& last_e = sim_data.education_history.back();
+	if (!sim_info.education_history.empty()) {
+		const Education& last_e = sim_info.education_history.back();
 		printf("\n========== EDUCATION ==========\n");
 		printf("  Courses completed: Alice - %d, John - %d\n", 
 			   last_e.alice_courses, last_e.john_courses);
@@ -1968,20 +1877,19 @@ void  print_final_report() {
 		printf("  Remaining in fund: %lld RUB\n", last_e.education_fund);
 	}
 	
-	if (!sim_data.travel_history.empty()) {
-		TravelData& last_t = sim_data.travel_history.back();
+	if (!sim_info.travel_history.empty()) {
+		const Travel& last_t = sim_info.travel_history.back();
 		printf("\n========== TRAVEL ==========\n");
 		printf("  Total trips: %d\n", last_t.trips_taken);
 		printf("  Spent on travel: %lld RUB\n", last_t.spent);
 		printf("  Remaining in fund: %lld RUB\n", last_t.travel_fund);
 	}
 	
-	
 	printf("\n========== MONTHLY DYNAMICS ==========\n");
-	int total_months = (int)sim_data.months.size();
+	int total_months = (int)sim_info.months.size();
 	printf("\nFirst 3 months:\n");
 	for (int i = 0; i < 3 && i < total_months; i++) {
-		MonthData& m = sim_data.months[i];
+		Month& m = sim_info.months[i];
 		printf("  %d/%d: Family: %lld RUB (Alice: %lld, John: %lld)\n", 
 			   m.month, m.year,
 			   m.alice_account_rub + m.john_account_rub,
@@ -1991,7 +1899,7 @@ void  print_final_report() {
 	printf("\nLast 3 months:\n");
 	for (int i = total_months - 3; i < total_months; i++) {
 		if (i >= 0) {
-			MonthData& m = sim_data.months[i];
+			Month& m = sim_info.months[i];
 			printf("  %d/%d: Family: %lld RUB (Alice: %lld, John: %lld)\n", 
 				   m.month, m.year,
 				   m.alice_account_rub + m.john_account_rub,
@@ -2001,7 +1909,6 @@ void  print_final_report() {
 	
 	printf("\n==================== END OF REPORT ====================\n");
 }
-
 
 int main() {
 	srand((unsigned int)time(NULL));

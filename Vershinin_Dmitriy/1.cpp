@@ -41,7 +41,6 @@ struct Stocks {
     int count;
     RUB cost;
     PERCENT growth;
-    vector<string> tickers;
     map<string, int> portfolio;
     RUB total_invested;
     RUB total_dividends;
