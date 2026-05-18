@@ -91,16 +91,29 @@ private:
     int pin;
     bool is_on;
     bool is_aired_flag;
+    bool is_humidity_flag;
+    bool is_temperature_flag;
     unsigned long previous_millis_aired;
 public:
     Fan(int pin) : pin(pin), is_on(0), previous_millis_aired(0){}; 
     void set_on(bool condition){ is_on = condition; }
     bool get_fan_condition(){ return is_on; }
-    void power(){ digitalWrite(pin, is_on ? HIGH : LOW); }
-    void set_aired(bool condition){ is_aired_flag = condition; }
-    bool is_aired(){ return is_aired_flag; }
+    void set_scheduled_flag(bool condition){ is_aired_flag = condition; }
+    bool is_scheduled(){ return is_aired_flag; }
+    void set_humidity_flag(bool condition){ is_humidity_flag = condition; }
+    bool is_humidity(){ return is_humidity_flag; }
+    void set_temperature_flag(bool condition){ is_temperature_flag = condition; }
+    bool is_temperature(){ return is_temperature_flag; }
     void set_previous_millis_aired(unsigned long previous_millis_aired){ this->previous_millis_aired = previous_millis_aired;}
     unsigned long get_previous_millis_aired(){ return previous_millis_aired;}
+    void power(){ 
+        if (!is_aired_flag || is_humidity_flag || is_temperature_flag || is_on) { 
+            digitalWrite(pin, HIGH); 
+        }
+        else{
+            digitalWrite(pin, LOW); 
+        }
+    }
 };
 
 class Pump {
@@ -168,28 +181,24 @@ int get_current_hour() {
 
 void control_scheduled_air(GigrometerAir& gigrometer_air){
     int current_hour = get_current_hour();
-    if ((current_hour-start_hours) % aired_interval == 0 && !fan.is_aired()){
-        unsigned long current_millis_aired = millis();
+    unsigned long current_millis_aired = millis();
+    if ((current_hour-start_hours) % aired_interval == 0 && !fan.is_scheduled()){
         if (current_millis_aired - fan.get_previous_millis_aired() >= interval_aired) {
-            fan.set_previous_millis_aired(current_millis_aired);
-            fan.set_on(1);
-        }
-        else{
-            fan.set_previous_millis_aired(0);
-            fan.set_aired(1);
+            fan.set_scheduled_flag(1);
         }
     }
     else {
-        fan.set_aired(0);
+        fan.set_previous_millis_aired(current_millis_aired);
+        fan.set_scheduled_flag(0);
     }
 }
 
 void control_humidity_air(GigrometerAir& gigrometer_air){
     if (gigrometer_air.get_humidity()>air_humidity_border){
-        fan.set_on(1);
+        fan.set_humidity_flag(1);
     }
-    else if (fan.is_aired()){
-        fan.set_on(0);
+    else{
+        fan.set_humidity_flag(0);
     }
 }
 void control_temperature(Thermometer& thermometer)
@@ -200,18 +209,18 @@ void control_temperature(Thermometer& thermometer)
     if (thermometer.get_temperature() > heat_sensor_temperature_off) {
         heater.set_on(0);
         if (is_daytime) {
-            fan.set_on(1);
+            fan.set_temperature_flag(1);
         }
     }
-
     if (thermometer.get_temperature() < heat_sensor_temperature_on) {
         heater.set_on(1);
         if (is_daytime) {
-            fan.set_on(1);
+            fan.set_temperature_flag(1);
         }
     }
-    else if (fan.is_aired()){
-        fan.set_on(0);
+    else{
+        fan.set_temperature_flag(0);
+        heater.set_on(0);
     }
 }
 
