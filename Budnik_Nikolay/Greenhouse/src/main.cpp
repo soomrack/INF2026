@@ -177,7 +177,7 @@ public:
         float humidity = dht.readHumidity();
         float temperature = dht.readTemperature();
 
-    // при ошибке DHT возвращает NaN, поэтмоу оставляем прошлое нормальное значение
+        // при ошибке DHT возвращает NaN, поэтмоу оставляем прошлое нормальное значение
         if (!isnan(humidity)) {
             humidity_value = humidity;
             humidity_ready = true;
@@ -294,9 +294,9 @@ AnalogSensor soil(
     }
 );
 
+// у датчика света больше raw значит меньше света
 AnalogSensor light(
     light_pin,
-    // у датчика света больше raw значит меньше света
     {
         .zero_raw = 1023,
         .hundred_raw = 0
