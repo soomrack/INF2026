@@ -1,5 +1,3 @@
-
-
 #include <stdio.h>
 
 using RUB = long long;
@@ -29,6 +27,7 @@ struct Food {
   RUB bread;
   RUB milk;
   RUB eggs;
+  const Percent food_inflation = 0.70;
   RUB meat;
   RUB fish;
   RUB vegetables;
