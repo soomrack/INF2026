@@ -3,9 +3,9 @@
 
 const byte dht_model = DHT11;
 
-const byte dht_pin = 2;
+const byte dht_pin = 8;
 const byte soil_pin = A1;
-const byte light_pin = A0;
+const byte light_pin = A3;
 
 const byte pump_pin = 5;
 const byte fan_pin = 7;
@@ -24,16 +24,14 @@ const unsigned long day_ms = 86400000UL;
 
 const byte initial_hour = 12;
 
-// Границы калибровки нужно определить под конкретную теплицу и конкретный датчик
-const int soil_dry_raw = 0;
-const int soil_wet_raw = 1023;
-
-const int light_dark_raw = 1023;
-const int light_bright_raw = 0;
-
 using Celsius = float;
 using Percent = int;
 using Minutes = unsigned int;
+
+struct SensorCalibration {
+    int zero_raw;
+    int hundred_raw;
+};
 
 struct ClimateSettings {
     const char* name;
@@ -86,14 +84,11 @@ const ClimateSettings cucumber = {
     .ventilation_duration = 5
 };
 
-const ClimateSettings* current_climate = &tomato; // По умолчанию выращиваем помидоры, чтобы не было ошибки или других неожиданностей
+// по умолчанию выращиваем помидоры
+const ClimateSettings* current_climate = &tomato;
 
 void set_climate(const ClimateSettings& climate) {
     current_climate = &climate;
-}
-
-void set_climate(const ClimateSettings* climate) {
-    current_climate = climate;
 }
 
 Percent convert_raw_to_percent(int raw, int zero_raw, int hundred_raw) {
@@ -101,15 +96,15 @@ Percent convert_raw_to_percent(int raw, int zero_raw, int hundred_raw) {
         return 0;
     }
 
-    // zero_raw и hundred_raw могут идти в обратном порядке
+    // zero_raw и hundred_raw могут быть в любом порядке
     long value = (long)(raw - zero_raw) * 100L;
     value = value / (hundred_raw - zero_raw);
 
     return (Percent)constrain(value, 0L, 100L);
 }
 
-// Время виртуальное, поэтому после перезагрузки снова стартует с initial_hour
 byte get_hour() {
+    // время виртуальное, после перезагрузки снова стартует с initial_hour
     byte passed_hours = (millis() % day_ms) / hour_ms;
     return (initial_hour + passed_hours) % 24;
 }
@@ -119,37 +114,30 @@ Minutes get_minute_of_day() {
     return (Minutes)((initial_hour * 60 + passed_minutes) % 1440);
 }
 
-bool is_night_now() {
+bool is_night_now(const ClimateSettings& climate) {
     byte hour = get_hour();
 
-    // Для ночи через полночь нужна отдельная проверка
-    if (current_climate->night_start < current_climate->night_end) {
-        return hour >= current_climate->night_start &&
-               hour < current_climate->night_end;
+    if (climate.night_start < climate.night_end) {
+        return hour >= climate.night_start &&
+               hour < climate.night_end;
     }
 
-    return hour >= current_climate->night_start ||
-           hour < current_climate->night_end;
+    // если ночь проходит через полночь, проверяем через или
+    return hour >= climate.night_start ||
+           hour < climate.night_end;
 }
 
-bool ventilation_time_has_come() {
-    Minutes period = current_climate->ventilation_period;
-    Minutes duration = current_climate->ventilation_duration;
-
-    if (period == 0 || duration == 0) {
+bool ventilation_time_has_come(const ClimateSettings& climate) {
+    if (climate.ventilation_period == 0 ||
+        climate.ventilation_duration == 0) {
         return false;
     }
 
-    return get_minute_of_day() % period < duration;
+    return get_minute_of_day() % climate.ventilation_period <
+           climate.ventilation_duration;
 }
 
-class Sensor {
-public:
-    virtual void begin() = 0;
-    virtual void update() = 0;
-};
-
-class AirSensor : public Sensor {
+class AirSensor {
 private:
     DHT dht;
 
@@ -172,11 +160,11 @@ public:
           was_read(false),
           last_read(0) {}
 
-    void begin() override {
+    void begin() {
         dht.begin();
     }
 
-    void update() override {
+    void update() {
         unsigned long now = millis();
 
         if (was_read && now - last_read < air_sensor_interval) {
@@ -189,7 +177,7 @@ public:
         float humidity = dht.readHumidity();
         float temperature = dht.readTemperature();
 
-        // При ошибке DHT возвращает NaN
+    // при ошибке DHT возвращает NaN, поэтмоу оставляем прошлое нормальное значение
         if (!isnan(humidity)) {
             humidity_value = humidity;
             humidity_ready = true;
@@ -218,30 +206,32 @@ public:
     }
 };
 
-class AnalogSensor : public Sensor {
+class AnalogSensor {
 private:
     byte pin;
     int raw_value;
     Percent percent_value;
-
-    int zero_raw;
-    int hundred_raw;
+    SensorCalibration calibration;
 
 public:
-    AnalogSensor(byte sensor_pin, int zero_value, int hundred_value)
+    AnalogSensor(byte sensor_pin, SensorCalibration sensor_calibration)
         : pin(sensor_pin),
           raw_value(0),
           percent_value(0),
-          zero_raw(zero_value),
-          hundred_raw(hundred_value) {}
+          calibration(sensor_calibration) {}
 
-    void begin() override {
+    void begin() {
         pinMode(pin, INPUT);
     }
 
-    void update() override {
+    void update() {
         raw_value = analogRead(pin);
-        percent_value = convert_raw_to_percent(raw_value, zero_raw, hundred_raw);
+
+        percent_value = convert_raw_to_percent(
+            raw_value,
+            calibration.zero_raw,
+            calibration.hundred_raw
+        );
     }
 
     Percent percent_reading() const {
@@ -256,13 +246,13 @@ public:
 class Actuator {
 private:
     byte pin;
-    bool active_high;
+    bool turns_on_with_high_signal;
     bool turn_on_request;
 
 public:
-    Actuator(byte actuator_pin, bool is_active_high = true)
+    Actuator(byte actuator_pin, bool is_turned_on_by_high_signal = true)
         : pin(actuator_pin),
-          active_high(is_active_high),
+          turns_on_with_high_signal(is_turned_on_by_high_signal),
           turn_on_request(false) {}
 
     void begin() {
@@ -288,104 +278,108 @@ public:
     }
 
     void apply() {
-        bool pin_is_high = active_high == turn_on_request;
+        // применяем после всех регуляторов, потому что один актуатор может быть нужен разным функциям
+        bool pin_is_high = turns_on_with_high_signal == turn_on_request;
         digitalWrite(pin, pin_is_high ? HIGH : LOW);
     }
 };
 
 AirSensor air(dht_pin);
 
-AnalogSensor soil(soil_pin, soil_dry_raw, soil_wet_raw);
-AnalogSensor light(light_pin, light_dark_raw, light_bright_raw);
+AnalogSensor soil(
+    soil_pin,
+    {
+        .zero_raw = 0,
+        .hundred_raw = 1023
+    }
+);
+
+AnalogSensor light(
+    light_pin,
+    // у датчика света больше raw значит меньше света
+    {
+        .zero_raw = 1023,
+        .hundred_raw = 0
+    }
+);
 
 Actuator pump(pump_pin);
 Actuator fan(fan_pin);
 Actuator heater(heater_pin);
 Actuator lamp(lamp_pin);
 
-Sensor* sensors[] = {
-    &air,
-    &soil,
-    &light
-};
-
-Actuator* actuators[] = {
-    &pump,
-    &fan,
-    &heater,
-    &lamp
-};
-
-const byte sensor_count = sizeof(sensors) / sizeof(sensors[0]);
-const byte actuator_count = sizeof(actuators) / sizeof(actuators[0]);
-
 void begin_sensors() {
-    for (byte i = 0; i < sensor_count; i++) {
-        sensors[i]->begin();
-    }
+    air.begin();
+    soil.begin();
+    light.begin();
 }
 
 void begin_actuators() {
-    for (byte i = 0; i < actuator_count; i++) {
-        actuators[i]->begin();
+    pump.begin();
+    fan.begin();
+    heater.begin();
+    lamp.begin();
+}
+
+void read_sensors(AirSensor& air_sensor,
+                  AnalogSensor& soil_sensor,
+                  AnalogSensor& light_sensor) {
+    air_sensor.update();
+    soil_sensor.update();
+    light_sensor.update();
+}
+
+void clear_actuator_requests(Actuator& pump_actuator,
+                             Actuator& fan_actuator,
+                             Actuator& heater_actuator,
+                             Actuator& lamp_actuator) {
+    // каждый регулятор заново просит включить нужные актуаторы
+    pump_actuator.reset();
+    fan_actuator.reset();
+    heater_actuator.reset();
+    lamp_actuator.reset();
+}
+
+bool is_light_low(const AnalogSensor& light_sensor,
+                  const ClimateSettings& climate) {
+    return light_sensor.percent_reading() < climate.min_light;
+}
+
+bool is_soil_dry(const AnalogSensor& soil_sensor,
+                 const ClimateSettings& climate) {
+    return soil_sensor.percent_reading() < climate.min_soil_humidity;
+}
+
+bool is_temperature_high(const AirSensor& air_sensor,
+                         const ClimateSettings& climate) {
+    return air_sensor.has_temperature() &&
+           air_sensor.temperature() > climate.max_temp;
+}
+
+bool is_temperature_low(const AirSensor& air_sensor,
+                        const ClimateSettings& climate) {
+    return air_sensor.has_temperature() &&
+           air_sensor.temperature() < climate.min_temp;
+}
+
+bool is_humidity_high(const AirSensor& air_sensor,
+                      const ClimateSettings& climate) {
+    return air_sensor.has_humidity() &&
+           air_sensor.humidity() > climate.max_air_humidity;
+}
+
+void update_light_request(const AnalogSensor& light_sensor,
+                          Actuator& lamp_actuator,
+                          const ClimateSettings& climate) {
+    if (!is_night_now(climate) &&
+        is_light_low(light_sensor, climate)) {
+        lamp_actuator.on();
     }
 }
 
-void update_sensors() {
-    for (byte i = 0; i < sensor_count; i++) {
-        sensors[i]->update();
-    }
-}
-
-void reset_actuators() {
-    // Регуляторы заново выставляют запросы каждый цикл
-    for (byte i = 0; i < actuator_count; i++) {
-        actuators[i]->reset();
-    }
-}
-
-void apply_actuators() {
-    for (byte i = 0; i < actuator_count; i++) {
-        actuators[i]->apply();
-    }
-}
-
-bool is_light_low() {
-    return light.percent_reading() < current_climate->min_light;
-}
-
-bool is_soil_dry() {
-    return soil.percent_reading() < current_climate->min_soil_humidity;
-}
-
-bool is_temperature_high() {
-    return air.has_temperature() &&
-           air.temperature() > current_climate->max_temp;
-}
-
-bool is_temperature_low() {
-    return air.has_temperature() &&
-           air.temperature() < current_climate->min_temp;
-}
-
-bool is_humidity_high() {
-    return air.has_humidity() &&
-           air.humidity() > current_climate->max_air_humidity;
-}
-
-bool can_ventilate_now() {
-    return !is_night_now() &&
-           !heater.is_on() &&
-           !is_temperature_low();
-}
-
-void control_light() {
-    if (!is_night_now() && is_light_low()) {
-        lamp.on();
-    }
-}
-
-void control_watering() {
+void update_watering_request(const AnalogSensor& soil_sensor,
+                             Actuator& pump_actuator,
+                             const ClimateSettings& climate) {
     static bool watering = false;
     static bool waiting = false;
 
@@ -394,16 +388,16 @@ void control_watering() {
 
     unsigned long now = millis();
 
-    if (!is_soil_dry()) {
+    if (!is_soil_dry(soil_sensor, climate)) {
         watering = false;
         waiting = false;
         return;
     }
 
     if (watering) {
-        // Полив идет импульсами, чтобы вода успевала впитываться
+        // поливаем импульсами, чтобы вода успевала впитываться
         if (now - watering_start < pump_work_time) {
-            pump.on();
+            pump_actuator.on();
         } else {
             watering = false;
             waiting = true;
@@ -423,36 +417,37 @@ void control_watering() {
 
     watering = true;
     watering_start = now;
-    pump.on();
+    pump_actuator.on();
 }
 
-void control_temperature() {
-    if (is_temperature_high()) {
-        fan.on();
+void update_temperature_request(const AirSensor& air_sensor,
+                                Actuator& heater_actuator,
+                                Actuator& fan_actuator,
+                                const ClimateSettings& climate) {
+    if (is_temperature_high(air_sensor, climate)) {
+        fan_actuator.on();
         return;
     }
 
-    // При нагреве вентилятор помогает распределять теплый воздух
-    if (is_temperature_low()) {
-        heater.on();
-        fan.on();
+    if (is_temperature_low(air_sensor, climate)) {
+        // вентилятор помогает распределять теплый воздух
+        heater_actuator.on();
+        fan_actuator.on();
     }
 }
 
-void control_humidity() {
-    if (is_humidity_high() && !heater.is_on()) {
-        fan.on();
+void update_ventilation_request(const AirSensor& air_sensor,
+                                Actuator& fan_actuator,
+                                const ClimateSettings& climate) {
+    // вся вентиляция тут: по влажности и по расписание
+    if (is_humidity_high(air_sensor, climate) ||
+        (!is_night_now(climate) &&
+         ventilation_time_has_come(climate))) {
+        fan_actuator.on();
     }
 }
 
-void control_ventilation() {
-    // Плановое проветривание не включается во время нагрева
-    if (can_ventilate_now() && ventilation_time_has_come()) {
-        fan.on();
-    }
-}
-
-void print_climate_status(){
+void print_general_status() {
     Serial.print(F("Climate: "));
     Serial.println(current_climate->name);
 
@@ -460,8 +455,10 @@ void print_climate_status(){
     Serial.println(get_hour());
 
     Serial.print(F("Night: "));
-    Serial.println(is_night_now() ? F("true") : F("false"));
+    Serial.println(is_night_now(*current_climate) ? F("true") : F("false"));
+}
 
+void print_air_status() {
     Serial.print(F("Temperature: "));
     if (air.has_temperature()) {
         Serial.print(air.temperature());
@@ -469,9 +466,7 @@ void print_climate_status(){
     } else {
         Serial.println(F("N/A"));
     }
-}
 
-void print_air_status(){
     Serial.print(F("Air humidity: "));
     if (air.has_humidity()) {
         Serial.print(air.humidity());
@@ -481,14 +476,14 @@ void print_air_status(){
     }
 }
 
-void print_soil_status(){
+void print_soil_status() {
     Serial.print(F("Soil humidity: "));
     Serial.print(soil.percent_reading());
     Serial.print(F(" %, raw = "));
     Serial.println(soil.raw());
 }
 
-void print_light_status(){
+void print_light_status() {
     Serial.print(F("Light: "));
     Serial.print(light.percent_reading());
     Serial.print(F(" %, raw = "));
@@ -518,7 +513,7 @@ void print_status() {
 
     last_print = millis();
 
-    print_climate_status();
+    print_general_status();
     print_air_status();
     print_soil_status();
     print_light_status();
@@ -530,7 +525,7 @@ void print_status() {
 void setup() {
     Serial.begin(9600);
 
-    set_climate(&tomato);
+    set_climate(tomato);
 
     begin_sensors();
     begin_actuators();
@@ -539,17 +534,18 @@ void setup() {
 }
 
 void loop() {
-    update_sensors();
+    read_sensors(air, soil, light);
+    clear_actuator_requests(pump, fan, heater, lamp);
 
-    reset_actuators();
+    update_light_request(light, lamp, *current_climate);
+    update_watering_request(soil, pump, *current_climate);
+    update_temperature_request(air, heater, fan, *current_climate);
+    update_ventilation_request(air, fan, *current_climate);
 
-    control_light();
-    control_watering();
-    control_temperature();
-    control_humidity();
-    control_ventilation();
-
-    apply_actuators();
+    pump.apply();
+    fan.apply();
+    heater.apply();
+    lamp.apply();
 
     print_status();
 
