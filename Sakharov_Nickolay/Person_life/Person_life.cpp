@@ -2092,7 +2092,7 @@ void print_history(const Person &p)// история баланса
 {
     printf("\n--- %s History ---\n", p.name.c_str());
     printf("Month\tBalance\tDeposit\tNet Worth\n");
-    for (size_t i = 0; i < p.balance_history.size(); ++i)
+    for (int i = 0; i < p.balance_history.size(); ++i)
     {
         printf("%zu\t%lld\t%lld\t%lld\n", i + 1, p.balance_history[i], p.deposit_history[i], p.networth_history[i]);
     }
