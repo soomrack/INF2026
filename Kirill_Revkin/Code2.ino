@@ -3,7 +3,7 @@
 
 const int DHT_PIN = 8;
 const int SOIL_PIN = A1;
-const int LIGHT_PIN = A0;
+const int LIGHT_PIN = A3;
 
 const int FAN_PIN = 7;
 const int HEATER_PIN = 4;
@@ -11,24 +11,24 @@ const int LAMP_PIN = 6;
 const int PUMP_PIN = 5;
 
 
-const int SOIL_RAW_DRY = 1023;  
-const int SOIL_RAW_WET = 0;  
+const int SOIL_RAW_DRY = 1023;
+const int SOIL_RAW_WET = 0;
 
-const int LIGHT_RAW_DARK = 1023;    
-const int LIGHT_RAW_BRIGHT = 0;  
+const int LIGHT_RAW_DARK = 1023;
+const int LIGHT_RAW_BRIGHT = 0;
 
 
 const unsigned long ONE_HOUR = 60UL * 60UL * 1000UL;
 const unsigned long ONE_DAY = 24UL * ONE_HOUR;
 
-const unsigned long VENT_PERIOD = 6UL * ONE_HOUR;   
-const unsigned long VENT_DURATION = 6UL * 60UL * 1000UL;
+const unsigned long VENT_PERIOD = 5UL * ONE_HOUR;
+const unsigned long VENT_DURATION = 5UL * 60UL * 1000UL;
 
 const int DAY_START_HOUR = 6;
 const int NIGHT_START_HOUR = 22;
 
-const unsigned long DHT_READ_PERIOD = 2000UL;
-const unsigned long PRINT_PERIOD = 2000UL;
+const unsigned long DHT_READ_PERIOD = 1000UL;
+const unsigned long PRINT_PERIOD = 2500UL;
 
 
 struct Plant {
@@ -45,20 +45,20 @@ struct Plant {
   int max_light;
 };
 
-Plant tomato;
+Plant tomatoClimate;
 
 void tomato_init() {
-  tomato.min_temperature = 20;
-  tomato.max_temperature = 30;
+  tomatoClimate.min_temperature = 22;
+  tomatoClimate.max_temperature = 28;
 
-  tomato.min_air_humidity = 50;
-  tomato.max_air_humidity = 70;
+  tomatoClimate.min_air_humidity = 50;
+  tomatoClimate.max_air_humidity = 70;
 
-  tomato.min_soil_humidity = 35;
-  tomato.max_soil_humidity = 75;
+  tomatoClimate.min_soil_humidity = 25;
+  tomatoClimate.max_soil_humidity = 75;
 
-  tomato.min_light = 45;
-  tomato.max_light = 90;
+  tomatoClimate.min_light = 40;
+  tomatoClimate.max_light = 80;
 }
 
 
@@ -119,25 +119,18 @@ public:
 
     lastReadTime = millis();
 
-    float newHumidity = dht.readHumidity();
-    float newTemperature = dht.readTemperature();
-
-    if (newHumidity >= 0 && newHumidity <= 100) {
-      humidity = newHumidity;
-    }
-
-    if (newTemperature > -40 && newTemperature < 80) {
-      temperature = newTemperature;
-    }
+    humidity = dht.readHumidity();
+    temperature = dht.readTemperature();  
   }
 };
+
 
 class HygrometerSoil {
 private:
   int pin;
 
 public:
-  int raw;  
+  int raw;
   int humidity;
 
   HygrometerSoil(int sensorPin) {
@@ -152,13 +145,14 @@ public:
   }
 };
 
+
 class LightSensor {
 private:
   int pin;
 
 public:
-  int raw;    
-  int light;  
+  int raw;
+  int light;
 
   LightSensor(int sensorPin) {
     pin = sensorPin;
@@ -199,6 +193,7 @@ public:
   }
 };
 
+
 class Heater {
 private:
   int pin;
@@ -225,6 +220,7 @@ public:
   }
 };
 
+
 class Lamp {
 private:
   int pin;
@@ -250,6 +246,7 @@ public:
     }
   }
 };
+
 
 class Pump {
 private:
@@ -278,8 +275,112 @@ public:
 };
 
 
-AirSensor air(DHT_PIN);
-HygrometerSoil soil(SOIL_PIN);
+class FarmController {
+public:
+  void control_temperature(AirSensor &airSensor, Heater &heater, Fan &fan, Plant &plant) {
+    if (airSensor.temperature < plant.min_temperature) {
+      heater.on_heat = true;
+      fan.on_fan = true;
+    }
+    else if (airSensor.temperature > plant.max_temperature) {
+      heater.on_heat = false;
+      fan.on_fan = true;
+    }
+  }
+
+  void control_air_humidity(AirSensor &airSensor, Fan &fan, Plant &plant) {
+    if (airSensor.humidity > plant.max_air_humidity) {
+      fan.on_fan = true;
+    }
+  }
+
+  void control_soil_humidity(HygrometerSoil &soilHygrometer, Pump &pump, Fan &fan, Plant &plant) {
+    if (soilHygrometer.humidity < plant.min_soil_humidity) {
+      pump.on_pump = true;
+    }
+    else if (soilHygrometer.humidity > plant.max_soil_humidity) {
+      fan.on_fan = true;
+    }
+  }
+
+  void control_light(LightSensor &lightSensor, Lamp &lamp, Plant &plant) {
+    if (lightSensor.light < plant.min_light && !is_night()) {
+      lamp.on_lamp = true;
+    }
+  }
+
+  void scheduled_ventilation(Fan &fan) {
+    if (millis() % VENT_PERIOD < VENT_DURATION) {
+      fan.on_fan = true;
+    }
+  }
+
+  void protect_heater(Heater &heater, Fan &fan) {
+    if (heater.on_heat) {
+      fan.on_fan = true;
+    }
+  }
+
+  void apply_actuators(Fan &fan, Heater &heater, Lamp &lamp, Pump &pump) {
+    fan.power();
+    heater.power();
+    lamp.power();
+    pump.power();
+  }
+
+  void print_status(AirSensor &airSensor, HygrometerSoil &soilHygrometer, LightSensor &lightSensor, Fan &fan, Heater &heater, Lamp &lamp, Pump &pump) {
+    static unsigned long lastPrintTime = 0;
+
+    if (millis() - lastPrintTime < PRINT_PERIOD) {
+      return;
+    }
+
+    lastPrintTime = millis();
+
+    Serial.print("Hour from start: ");
+    Serial.println(get_hour());
+
+    Serial.print("Temperature: ");
+    Serial.print(airSensor.temperature);
+    Serial.println(" C");
+
+    Serial.print("Air humidity: ");
+    Serial.print(airSensor.humidity);
+    Serial.println(" %");
+
+    Serial.print("Soil raw: ");
+    Serial.println(soilHygrometer.raw);
+
+    Serial.print("Soil humidity: ");
+    Serial.print(soilHygrometer.humidity);
+    Serial.println(" %");
+
+    Serial.print("Light raw: ");
+    Serial.println(lightSensor.raw);
+
+    Serial.print("Light: ");
+    Serial.print(lightSensor.light);
+    Serial.println(" %");
+
+    Serial.print("Fan: ");
+    Serial.println(fan.on_fan ? "ON" : "OFF");
+
+    Serial.print("Heater: ");
+    Serial.println(heater.on_heat ? "ON" : "OFF");
+
+    Serial.print("Lamp: ");
+    Serial.println(lamp.on_lamp ? "ON" : "OFF");
+
+    Serial.print("Pump: ");
+    Serial.println(pump.on_pump ? "ON" : "OFF");
+
+    Serial.println();
+  }
+};
+
+
+AirSensor airSensor(DHT_PIN);
+HygrometerSoil soilHygrometer(SOIL_PIN);
 LightSensor lightSensor(LIGHT_PIN);
 
 Fan fan(FAN_PIN);
@@ -288,112 +389,7 @@ Lamp lamp(LAMP_PIN);
 Pump pump(PUMP_PIN);
 
 
-void read_all_sensors() {
-  air.update();
-  soil.update();
-  lightSensor.update();
-}
-
-void reset_actuators() {
-  fan.on_fan = false;
-  heater.on_heat = false;
-  lamp.on_lamp = false;
-  pump.on_pump = false;
-}
-
-void control_temperature() {
-  if (air.temperature < tomato.min_temperature) {
-    heater.on_heat = true;
-    fan.on_fan = true;
-  }
-
-  if (air.temperature > tomato.max_temperature) {
-    heater.on_heat = false;
-    fan.on_fan = true;
-  }
-}
-
-void control_air_humidity() {
-  if (air.humidity > tomato.max_air_humidity) {
-    fan.on_fan = true;
-  }
-}
-
-void control_soil_humidity() {
-  if (soil.humidity < tomato.min_soil_humidity) {
-    pump.on_pump = true;
-  }
-
-  if (soil.humidity > tomato.max_soil_humidity) {
-    fan.on_fan = true;
-  }
-}
-
-void control_light() {
-  if (lightSensor.light < tomato.min_light && !is_night()) {
-    lamp.on_lamp = true;
-  }
-}
-
-void scheduled_ventilation() {
-  if (millis() % VENT_PERIOD < VENT_DURATION) {
-    fan.on_fan = true;
-  }
-}
-
-void apply_actuators() {
-  heater.power();
-  fan.power();
-  lamp.power();
-  pump.power();
-}
-
-void print_status() {
-  static unsigned long lastPrintTime = 0;
-
-  if (millis() - lastPrintTime < PRINT_PERIOD) {
-    return;
-  }
-
-  lastPrintTime = millis();
-
-  Serial.print("Hour from start: ");
-  Serial.println(get_hour());
-
-  Serial.print("Temperature: ");
-  Serial.print(air.temperature);
-  Serial.println(" C");
-
-  Serial.print("Air humidity: ");
-  Serial.print(air.humidity);
-  Serial.println(" %");
-
-  Serial.print("Soil raw: ");
-  Serial.print(soil.raw);
-  Serial.print("Soil humidity: ");
-  Serial.print(soil.humidity);
-  Serial.println(" %");
-
-  Serial.print("Light raw: ");
-  Serial.print(lightSensor.raw);
-  Serial.print("Light: ");
-  Serial.print(lightSensor.light);
-  Serial.println(" %");
-
-  Serial.print("Fan: ");
-  Serial.println(fan.on_fan ? "ON" : "OFF");
-
-  Serial.print("Heater: ");
-  Serial.println(heater.on_heat ? "ON" : "OFF");
-
-  Serial.print("Lamp: ");
-  Serial.println(lamp.on_lamp ? "ON" : "OFF");
-
-  Serial.print("Pump: ");
-  Serial.println(pump.on_pump ? "ON" : "OFF");
-
-  Serial.println();
-}
+FarmController greenhouse;
 
 
 void setup() {
@@ -401,7 +397,7 @@ void setup() {
 
   tomato_init();
 
-  air.begin();
+  airSensor.begin();
   fan.begin();
   heater.begin();
   lamp.begin();
@@ -410,17 +406,28 @@ void setup() {
   Serial.println("Smart Farm Started");
 }
 
+
 void loop() {
-  read_all_sensors();
+  airSensor.update();
+  soilHygrometer.update();
+  lightSensor.update();
 
-  reset_actuators();
+  fan.on_fan = false;
+  heater.on_heat = false;
+  lamp.on_lamp = false;
+  pump.on_pump = false;
 
-  control_temperature();
-  control_air_humidity();
-  control_soil_humidity();
-  control_light();
-  scheduled_ventilation();
+  greenhouse.control_temperature(airSensor, heater, fan, tomatoClimate);
+  greenhouse.control_air_humidity(airSensor, fan, tomatoClimate);
+  greenhouse.control_soil_humidity(soilHygrometer, pump, fan, tomatoClimate);
+  greenhouse.control_light(lightSensor, lamp, tomatoClimate);
+  greenhouse.scheduled_ventilation(fan);
+  greenhouse.protect_heater(heater, fan);
 
-  apply_actuators();
-  print_status();
+  fan.power();
+  heater.power();
+  lamp.power();
+  pump.power();
+
+  greenhouse.print_status(airSensor, soilHygrometer, lightSensor, fan, heater, lamp, pump);
 }
