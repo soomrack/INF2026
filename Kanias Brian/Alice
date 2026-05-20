@@ -402,6 +402,8 @@ void victoria_init()
 	victoria.business.business_active_years = 0;
 }
 
+
+
 // начальные данные Максима
 void maxim_init()
 {
@@ -572,6 +574,10 @@ void maxim_init()
 	maxim.business.business_active_years = 0;
 }
 
+
+
+
+
 // кризис влияет сразу на доходы и базовые расходы
 void victoria_economic_crisis(const int month, const int year)
 {
@@ -588,6 +594,10 @@ void victoria_economic_crisis(const int month, const int year)
 		victoria.salary = victoria.salary * 1.18;
 	}
 }
+
+
+
+
 
 // здесь собраны решения Максима, которые отличаются от Виктории
 void maxim_different_choices(const int month, const int year)
@@ -635,6 +645,9 @@ void maxim_different_choices(const int month, const int year)
 	}
 }
 
+
+
+
 // второй ребенок появляется не сразу, а через отдельное событие
 void victoria_second_pregnancy(const int month, const int year)
 {
@@ -674,6 +687,9 @@ void victoria_second_pregnancy(const int month, const int year)
 	}
 }
 
+
+
+
 // расходы на второго ребенка идут каждый месяц
 void victoria_second_child_expenses(const int month, const int year)
 {
@@ -692,6 +708,9 @@ void victoria_second_child_expenses(const int month, const int year)
 		}
 	}
 }
+
+
+
 
 // кредитная история Виктории немного улучшается или портится
 void victoria_credit_score_impact(const int month, const int /*year*/)
@@ -713,6 +732,9 @@ void victoria_credit_score_impact(const int month, const int /*year*/)
 	}
 }
 
+
+
+
 // консультант немного улучшает доходность, если портфель уже вырос
 void victoria_investment_advisor(const int month, const int year)
 {
@@ -722,6 +744,9 @@ void victoria_investment_advisor(const int month, const int year)
 		}
 	}
 }
+
+
+
 
 // случайные проблемы со здоровьем
 void victoria_health_events(const int month, const int year)
@@ -747,7 +772,11 @@ void victoria_health_events(const int month, const int year)
 			victoria.health.insurance += 3'000;
 		}
 	}
+
 }
+
+
+
 
 // отдельные события на крипторынке
 void victoria_crypto_crash(const int month, const int year)
@@ -763,6 +792,9 @@ void victoria_crypto_crash(const int month, const int year)
 	}
 }
 
+
+
+
 // просадка и восстановление акций
 void victoria_stock_market_crash(const int month, const int year)
 {
@@ -776,6 +808,9 @@ void victoria_stock_market_crash(const int month, const int year)
 		victoria.portfolio.stocks = stock_gain;
 	}
 }
+
+
+
 
 // свадьба сильно меняет расходы и жилье
 void victoria_wedding(const int month, const int year)
@@ -815,6 +850,9 @@ void victoria_wedding(const int month, const int year)
 		victoria.subscriptions = victoria.subscriptions * 1.3;
 	}
 }
+
+
+
 
 // беременность и рождение первого ребенка
 void victoria_pregnancy(const int month, const int year)
@@ -865,6 +903,9 @@ void victoria_pregnancy(const int month, const int year)
 	}
 }
 
+
+
+
 // зарплата мужа учитывается отдельно
 void victoria_husband_salary(const int month, const int year)
 {
@@ -882,6 +923,9 @@ void victoria_husband_salary(const int month, const int year)
 	}
 
 }
+
+
+
 
 // расходы на ребенка зависят от возраста и месяца
 void victoria_child_expenses(const int month, const int year)
@@ -914,6 +958,9 @@ void victoria_child_expenses(const int month, const int year)
 	}
 }
 
+
+
+
 // простая модель вредной привычки
 void victoria_alcohol_addiction()
 {
@@ -939,7 +986,9 @@ void victoria_alcohol_addiction()
 			victoria.alcohol = 15'000;
 		}
 
-		victoria.alcohol += victoria.alcohol * 0.05;
+		if (victoria.alcohol < 40'000) {
+			victoria.alcohol += 2'000;
+		}
 		victoria.health.medications += 2'000;
 
 		if (rand() % 100 < 20) {
@@ -948,6 +997,9 @@ void victoria_alcohol_addiction()
 		}
 	}
 }
+
+
+
 
 // смена профессии у Виктории
 void victoria_career_change(const int month, const int year)
@@ -978,6 +1030,9 @@ void victoria_career_change(const int month, const int year)
 	}
 }
 
+
+
+
 // смена профессии у Максима
 void maxim_career_change(const int month, const int year)
 {
@@ -1007,6 +1062,10 @@ void maxim_career_change(const int month, const int year)
 	}
 }
 
+
+
+
+
 // доход от сдачи наследственной квартиры
 void victoria_rental_income()
 {
@@ -1021,6 +1080,10 @@ void victoria_rental_income()
 		victoria.vtb.account_rub -= repair_cost;
 	}
 }
+
+
+
+
 
 // лотерея оставлена как редкое случайное событие
 void victoria_lottery()
@@ -1038,6 +1101,10 @@ void victoria_lottery()
 	}
 }
 
+
+
+
+
 // у Максима тоже есть лотерея, но расходы меньше
 void maxim_lottery()
 {
@@ -1053,6 +1120,10 @@ void maxim_lottery()
 		printf("\nЙУХУУ! МАКСИМ ВЫИГРАЛ ДЖЕКПОТ %lld РУБЛЕЙ!\n", JACKPOT);
 	}
 }
+
+
+
+
 
 // зарплата Виктории и разовые премии
 void victoria_salary(const int month, const int year)
@@ -1081,6 +1152,10 @@ void victoria_salary(const int month, const int year)
 	}
 }
 
+
+
+
+
 // зарплата Максима, рост другой
 void maxim_salary(const int month, const int year)
 {
@@ -1099,6 +1174,10 @@ void maxim_salary(const int month, const int year)
 		maxim.salary = maxim.salary * indexation;
 	}
 }
+
+
+
+
 
 // фриланс появляется по месяцам, не круглый год
 void victoria_freelance(const int month, const int year)
@@ -1147,6 +1226,10 @@ void victoria_freelance(const int month, const int year)
 	}
 }
 
+
+
+
+
 // бизнес Виктории сейчас почти не используется, но блок оставлен
 void victoria_business_income()
 {
@@ -1160,6 +1243,11 @@ void victoria_business_income()
 		victoria.business.monthly_profit = victoria.business.monthly_profit * 1.15;
 	}
 }
+
+
+
+
+
 
 // бизнес Максима приносит прибыль каждый месяц
 void maxim_business_income()
@@ -1175,6 +1263,11 @@ void maxim_business_income()
 	}
 
 }
+
+
+
+
+
 
 // еда растет из-за инфляции
 void victoria_food(const int month, const int year)
@@ -1208,6 +1301,10 @@ void victoria_food(const int month, const int year)
 	}
 }
 
+
+
+
+
 // еда Максима, отдельная траектория
 void maxim_food(const int month, const int year)
 {
@@ -1227,6 +1324,10 @@ void maxim_food(const int month, const int year)
 		maxim.vtb.account_rub -= 5'000;
 	}
 }
+
+
+
+
 
 // автомобиль Виктории: бензин, парковка, штрафы
 void victoria_car(const int month)
@@ -1253,6 +1354,10 @@ void victoria_car(const int month)
 	}
 }
 
+
+
+
+
 // автомобиль Максима чуть дешевле в обслуживании
 void maxim_car(const int month)
 {
@@ -1277,6 +1382,10 @@ void maxim_car(const int month)
 		maxim.vtb.account_rub -= maxim.car.tax;
 	}
 }
+
+
+
+
 
 // недвижимость Виктории и ежегодный рост стоимости
 void victoria_real_estate(const int month, const int year)
@@ -1304,6 +1413,10 @@ void victoria_real_estate(const int month, const int year)
 	}
 }
 
+
+
+
+
 // кот тоже влияет на бюджет, иногда непредсказуемо
 void victoria_pets(const int month)
 {
@@ -1325,6 +1438,11 @@ void victoria_pets(const int month)
 		victoria.vtb.account_rub -= victoria.animals.cat_sitter;
 	}
 }
+
+
+
+
+
 
 // инвестиции Виктории распределены более спокойно
 void victoria_investments(const int month, const int year)
@@ -1364,6 +1482,10 @@ void victoria_investments(const int month, const int year)
 	}
 }
 
+
+
+
+
 // Максим вкладывает более рискованно
 void maxim_investments(const int /*month*/, const int /*year*/)
 {
@@ -1393,6 +1515,10 @@ void maxim_investments(const int /*month*/, const int /*year*/)
 	}
 }
 
+
+
+
+
 // образование Виктории
 void victoria_education_expenses(const int month, const int year)
 {
@@ -1414,6 +1540,11 @@ void victoria_education_expenses(const int month, const int year)
 		victoria.vtb.account_rub -= victoria.education.conference;
 	}
 }
+
+
+
+
+
 
 // регулярные медицинские расходы
 void victoria_health_expenses(const int month)
@@ -1441,8 +1572,13 @@ void victoria_health_expenses(const int month)
 	if (month == 6 or month == 12) {
 		victoria.health.dentist = (rand() % 10 + 5) * 1000;
 		victoria.vtb.account_rub -= victoria.health.dentist;
+		victoria.health.psychologist = 0;
 	}
 }
+
+
+
+
 
 // развлечения Виктории
 void victoria_entertainment_expenses(const int month, const int year)
@@ -1466,6 +1602,10 @@ void victoria_entertainment_expenses(const int month, const int year)
 	}
 }
 
+
+
+
+
 // пожертвования, не обязательные но учитываются
 void victoria_charity_donations()
 {
@@ -1478,6 +1618,10 @@ void victoria_charity_donations()
 		victoria.vtb.account_rub -= victoria.charity.church;
 	}
 }
+
+
+
+
 
 // крупные поездки по годам
 void victoria_vacation_expenses(const int month, const int year)
@@ -1538,6 +1682,11 @@ void victoria_vacation_expenses(const int month, const int year)
 	}
 }
 
+
+
+
+
+
 // помощь семье каждый месяц
 void victoria_family_expenses(const int month)
 {
@@ -1555,6 +1704,10 @@ void victoria_family_expenses(const int month)
 		victoria.vtb.account_rub -= victoria.family.family_events;
 	}
 }
+
+
+
+
 
 // прочие ежемесячные расходы Виктории
 void victoria_monthly_others(const int month)
@@ -1581,6 +1734,10 @@ void victoria_monthly_others(const int month)
 	}
 }
 
+
+
+
+
 // прочие ежемесячные расходы Максима
 void maxim_monthly_others(const int month)
 {
@@ -1605,6 +1762,10 @@ void maxim_monthly_others(const int month)
 		maxim.vtb.account_rub -= holiday_gifts;
 	}
 }
+
+
+
+
 
 // банковские операции Виктории: проценты, кредитка, вычет
 void victoria_bank_operations(const int month, const int /*year*/)
@@ -1636,6 +1797,10 @@ void victoria_bank_operations(const int month, const int /*year*/)
 	}
 }
 
+
+
+
+
 // банковские операции Максима
 void maxim_bank_operations(const int /*month*/, const int /*year*/)
 {
@@ -1656,6 +1821,10 @@ void maxim_bank_operations(const int /*month*/, const int /*year*/)
 	}
 }
 
+
+
+
+
 // налоговый вычет через инвестиции
 void victoria_tax_optimization(const int month, const int year)
 {
@@ -1671,6 +1840,11 @@ void victoria_tax_optimization(const int month, const int year)
 	}
 }
 
+
+
+
+
+
 // семейные события собраны вместе, так проще читать симуляцию
 void victoria_family_life_events(const int month, const int year)
 {
@@ -1682,6 +1856,37 @@ void victoria_family_life_events(const int month, const int year)
 	victoria_second_child_expenses(month, year);
 }
 
+
+
+
+
+
+void victoria_brok_finger(const int month, const int year)
+{
+	if (year == 2030 and month == 4) {
+		RUB finger = 14'890;
+		victoria.vtb.account_rub -= finger;
+		victoria.salary = victoria.salary * 0.7;
+		printf("\nВиктория потеряла палец в 2030 году в апреле и ее зарплата составила %lld рублей\n", victoria.salary);
+	}
+
+
+}
+
+
+
+void victoria_buy_boat(const int month, const int year)
+{
+	if (year == 2034 and month == 2) {
+		RUB boat = 120'000;
+		victoria.vtb.account_rub -= boat;
+		printf("\n Виктория в феврале 2034 года купила лодку за %lld рублей. \n", boat);
+	}
+}
+
+
+
+
 // прочие жизненные события Виктории
 void victoria_additional_events(const int month, const int year)
 {
@@ -1692,14 +1897,22 @@ void victoria_additional_events(const int month, const int year)
 	victoria_crypto_crash(month, year);
 	victoria_stock_market_crash(month, year);
 	victoria_business_income();
+	victoria_brok_finger(month, year);
+	victoria_buy_boat(month, year);
+	
+
 }
+
+
+
+
 
 // основной цикл идет по месяцам
 void simulation()
 {
 	int year = 2028; // начало моделирования
 	int month = 2; // старт с февраля
-
+	
 	victoria_init();
 	maxim_init();
 
@@ -1749,6 +1962,10 @@ void simulation()
 		}
 	}
 }
+
+
+
+
 
 // итог по Виктории
 void print_victoria_results()
@@ -1806,6 +2023,10 @@ void print_victoria_results()
 	}
 }
 
+
+
+
+
 // итог по Максиму
 void print_maxim_results()
 {
@@ -1847,6 +2068,9 @@ void print_maxim_results()
 		printf("Собственный бизнес (прибыль: %lld руб/мес)\n", maxim.business.monthly_profit);
 	}
 }
+
+
+
 
 // запуск программы
 int main()
