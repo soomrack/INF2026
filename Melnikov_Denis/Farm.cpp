@@ -7,15 +7,15 @@ using Clock_Module_type = RTC_DS1307;
 //============================
 //  Имя             t_min  t_max  rh_air_min  rh_air_max  rh_soil_min  rh_soil_max  lux
 #define CLIMATES \
-    X(JUNGLE,         22,  35,  75,  95,  70,  90,  300) \
-    X(DESERT,         20,  45,  10,  30,  10,  25,  800) \
-    X(SAVANNA,        18,  40,  25,  50,  15,  35,  700) \
-    X(STEPPE,         15,  35,  30,  55,  20,  40,  600) \
-    X(MEDITERRANEAN,  10,  30,  40,  65,  30,  55,  550) \
-    X(TEMPERATE,       5,  25,  60,  80,  50,  70,  400) \
-    X(TAIGA,           0,  20,  70,  90,  60,  80,  200) \
-    X(TUNDRA,        -10,  10,  70,  85,  50,  70,  150) \
-    X(ARCTIC,        -30,   0,  80,  95,  70,  85,  100)
+    X(JUNGLE,         22,  35,  75,  95,  70,  90,  30) \
+    X(DESERT,         20,  45,  10,  30,  10,  25,  80) \
+    X(SAVANNA,        18,  40,  25,  50,  15,  35,  70) \
+    X(STEPPE,         15,  35,  30,  55,  20,  40,  60) \
+    X(MEDITERRANEAN,  10,  30,  40,  65,  30,  55,  55) \
+    X(TEMPERATE,       5,  25,  60,  80,  50,  70,  40) \
+    X(TAIGA,           0,  20,  70,  90,  60,  80,  20) \
+    X(TUNDRA,        -10,  10,  70,  85,  50,  70,  15) \
+    X(ARCTIC,        -30,   0,  80,  95,  70,  85,  10)
 
 #define X(name, ...) name,
 enum Climate { CLIMATES CLIMATE_COUNT };
