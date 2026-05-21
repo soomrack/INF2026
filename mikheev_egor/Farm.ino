@@ -1,6 +1,6 @@
 #include <DHT.h>
 
-// --- НАСТРОЙКИ ---
+// --- НАСТРОЙКИ ВХОДА ---
 #define LIGHT_PIN A0    // Свет
 #define DHTPIN 2        // ДХТ 
 #define DHTTYPE DHT11
@@ -20,57 +20,64 @@ DHT dht(DHTPIN, DHTTYPE);
 unsigned long previousMillis = 0;
 
 void setup() {
-  Serial.begin(9600);
-  dht.begin();
+	Serial.begin(9600);
+	dht.begin();
 
-  pinMode(LED_LIGHT, OUTPUT);
-  pinMode(LED_FAN, OUTPUT);
-  pinMode(LED_HEAT, OUTPUT);
-  pinMode(LED_HUMID, OUTPUT);
+	pinMode(LED_LIGHT, OUTPUT);
+	pinMode(LED_FAN, OUTPUT);
+	pinMode(LED_HEAT, OUTPUT);
+	pinMode(LED_HUMID, OUTPUT);
 
-  digitalWrite(LED_LIGHT, LOW);
-  digitalWrite(LED_FAN, LOW);
-  digitalWrite(LED_HEAT, LOW);
-  digitalWrite(LED_HUMID, LOW);
+	digitalWrite(LED_LIGHT, LOW);
+	digitalWrite(LED_FAN, LOW);
+	digitalWrite(LED_HEAT, LOW);
+	digitalWrite(LED_HUMID, LOW);
 }
 
+void light() {
+	int lightLevel = analogRead(LIGHT_PIN);
+
+	if (lightLevel > 500) {
+		digitalWrite(LED_LIGHT, HIGH);
+	} else {
+		digitalWrite(LED_LIGHT, LOW);
+	}
+}
+
+
+void climate() {
+	if (millis() - previousMillis >= 2000) {
+		previousMillis = millis();
+
+		float t = dht.readTemperature();
+		float h = dht.readHumidity();
+
+		Serial.print("Свет: ");
+		Serial.print(lightLevel);
+		Serial.print(" | Температура: ");
+
+		if (isnan(t) || isnan(h)) {
+			Serial.println("ОШИБКА белого датчика!");
+		} else {
+			Serial.print(t);
+			Serial.print(" *C, Влажность: ");
+			Serial.print(h);
+			Serial.println(" %");
+
+			// Вентилятор
+			digitalWrite(LED_FAN, (t > TEMP_HIGH) ? HIGH : LOW);
+
+			// Обогрев
+			digitalWrite(LED_HEAT, (t < TEMP_LOW) ? HIGH : LOW);
+
+			// Увлажнитель
+			digitalWrite(LED_HUMID, (h < HUM_LOW) ? HIGH : LOW);
+		}
+	}
+}
 void loop() {
-  // 1. ЛОГИКА СВЕТА
-  int lightLevel = analogRead(LIGHT_PIN);
 
-  if (lightLevel > 500) {
-    digitalWrite(LED_LIGHT, HIGH);
-  } else {
-    digitalWrite(LED_LIGHT, LOW);
-  }
+	light()
+	climate()
 
-  // 2. ЛОГИКА КЛИМАТА (раз в 2 секунды)
-  if (millis() - previousMillis >= 2000) {
-    previousMillis = millis();
-
-    float t = dht.readTemperature();
-    float h = dht.readHumidity();
-
-    Serial.print("Свет: ");
-    Serial.print(lightLevel);
-    Serial.print(" | Температура: ");
-
-    if (isnan(t) || isnan(h)) {
-      Serial.println("ОШИБКА белого датчика!");
-    } else {
-      Serial.print(t);
-      Serial.print(" *C, Влажность: ");
-      Serial.print(h);
-      Serial.println(" %");
-
-      // Вентилятор
-      digitalWrite(LED_FAN, (t > TEMP_HIGH) ? HIGH : LOW);
-
-      // Обогрев
-      digitalWrite(LED_HEAT, (t < TEMP_LOW) ? HIGH : LOW);
-
-      // Увлажнитель
-      digitalWrite(LED_HUMID, (h < HUM_LOW) ? HIGH : LOW);
-    }
-  }
 }
