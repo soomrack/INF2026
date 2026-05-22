@@ -4,6 +4,17 @@
 
 using RUB = long long int;
 
+// инфляция
+float get_monthly_rate(float annual_rate) {
+    // Конвертируем годовую инфляцию в месячную
+    // Формула: (1 + annual_rate/100)^(1/12) - 1
+    return pow(1 + annual_rate / 100.0, 1.0 / 12.0) - 1;
+}
+
+RUB apply_inflation(RUB value, float monthly_rate) {
+    return static_cast<RUB>(value * (1 + monthly_rate));
+}
+
 // розовая машинка
 struct Car {
     RUB value;
@@ -14,6 +25,7 @@ struct Car {
     RUB osago;
     RUB casco;
     RUB green_card;
+    float inf_rate;  // инфляция для авто (3% в год)
 
 };
 
@@ -26,6 +38,7 @@ struct Animal {
     RUB treats;
     RUB shampoo;
     RUB grooming;
+    float inf_rate;  // инфляция для товаров для животных (5% в год)
 
 };
 
@@ -40,7 +53,6 @@ struct Bank {
     RUB card_insurance;
 
     float pp;
-    float month_inf;
 };
 
 // инвестиции
@@ -58,12 +70,14 @@ struct Health {
     RUB disease;   // базовая стоимость болезней (умножается на возрастной коэффициент)
     RUB insurance;   // страховка (раз в год)
     RUB med_examination;   // (раз в год)
+    float inf_rate;  // инфляция для медицины (8% в год)
 };
 
 // аренда жилья и бытовая техника
 struct Flat {
     RUB renting;
     RUB appliance;   // замена/ремонт техники (раз в год)
+    float inf_rate;  // инфляция для жилья (4% в год)
 };
 
 // повседневные расходы
@@ -72,6 +86,7 @@ struct Regular {
     RUB cloth;
     RUB gifts;
     RUB subscription;
+    float inf_rate;  // инфляция для повседневных трат (3.5% в год)
 };
 
 // образование
@@ -79,12 +94,14 @@ struct Education {
     RUB courses;   // курсы повышения квалификации
     RUB books;
     RUB hobby;
+    float inf_rate;  // инфляция для образования (6% в год)
 };
 
 // благотворительность
 struct Charity {
     RUB donations;   // ежемесячные пожертвования
     RUB special;   // специальные акции (раз в год)
+    float inf_rate;  // инфляция для благотворительности (2% в год)
 };
 
 // досуг
@@ -92,6 +109,7 @@ struct Leisure {
     RUB entertainment;   // кино, кафе, концерты
     RUB sport;   // спорт (абонемент, инвентарь)
     RUB vacation;
+    float inf_rate;  //инфляция для развлечений (4.5% в год)
 };
 
 // бизнес ALICE'ONE - производство домиков для животных
@@ -114,6 +132,7 @@ struct Business {
     RUB cat_house_price;
     RUB reptile_house_price;
     RUB fish_castle_price;
+    float inf_rate;  // инфляция для бизнеса (3.2% в год)
 };
 
 // питание и РПП 
@@ -124,7 +143,9 @@ struct EatingDisorder {
     float relapse_probability;   // вероятность срыва в текущем месяце
     RUB healthy_food;   // траты на правильное питание
     RUB relapse_food;   // траты на срывы (конфеты, торты, шоколад, быстрые углеводы)
+    float inf_rate;  // инфляция для продуктов (3.8% в год)
 };
+
 
 // усталость от бизнеса / работы
 struct Fatigue {
@@ -146,7 +167,7 @@ struct Job {
     RUB salary;
 };
 
-// ТРАВМЫ
+// травмы
 struct Injury {
     char injury_name[100];
     int recovery_months;
@@ -155,6 +176,7 @@ struct Injury {
 
     RUB treatment_cost;
     RUB surgery_cost;
+    float inf_rate;  // инфляция для лечения травм (7% в год)
 };
 
 // отношения
@@ -174,6 +196,7 @@ struct Relationship {
     RUB shoes_increase;
     RUB jewelry_increase;
     RUB last_gift_amount;
+    float inf_rate;  // инфляция для расходов на отношения (4.2% в год)
 };
 
 
@@ -217,8 +240,9 @@ void passing_of_time() {
 
 // автомобиль
 void alice_car() {
-    Alice.car.maintenance *= Alice.bank.month_inf;
-    Alice.car.gas *= Alice.bank.month_inf;
+    float monthly_rate = get_monthly_rate(Alice.car.inf_rate);
+    Alice.car.maintenance = apply_inflation(Alice.car.maintenance, monthly_rate);
+    Alice.car.gas = apply_inflation(Alice.car.gas, monthly_rate);
 
     Alice.bank.account -= Alice.car.gas;
 
@@ -229,8 +253,9 @@ void alice_car() {
 
 // питомец (джунгарик)
 void alice_humster() {
-    Alice.animal.vet *= Alice.bank.month_inf;
-    Alice.animal.food *= Alice.bank.month_inf;
+    float monthly_rate = get_monthly_rate(Alice.animal.inf_rate);
+    Alice.animal.vet = apply_inflation(Alice.animal.vet, monthly_rate);
+    Alice.animal.food = apply_inflation(Alice.animal.food, monthly_rate);
 
     Alice.bank.account -= Alice.animal.food;
     if (month % 6 == 0) {
@@ -240,7 +265,8 @@ void alice_humster() {
 
 // путешествия (основной бюджет, тратится из депозита раз в год)
 void alice_travel() {
-    Alice.travel *= Alice.bank.month_inf;
+    float monthly_rate = get_monthly_rate(Alice.payments.inf_rate);
+    Alice.travel = apply_inflation(Alice.travel, monthly_rate);
 
     if (month == 8 && Alice.bank.deposit >= 50'000) {
         if (Alice.bank.deposit >= Alice.travel) {
@@ -261,10 +287,12 @@ void alice_salary() {
 
 // регулярные траты: еда, одежда, подарки, подписки
 void alice_regular_payments() {
-    Alice.payments.food *= Alice.bank.month_inf;
-    Alice.payments.cloth *= Alice.bank.month_inf;
-    Alice.payments.gifts *= Alice.bank.month_inf;
-    Alice.payments.subscription *= Alice.bank.month_inf;
+    float monthly_rate = get_monthly_rate(Alice.payments.inf_rate);
+    Alice.payments.food = apply_inflation(Alice.payments.food, monthly_rate);
+    Alice.payments.cloth = apply_inflation(Alice.payments.cloth, monthly_rate);
+    Alice.payments.gifts = apply_inflation(Alice.payments.gifts, monthly_rate);
+    Alice.payments.subscription = apply_inflation(Alice.payments.subscription, monthly_rate);
+
 
     Alice.bank.account -= Alice.payments.food;
     Alice.bank.account -= Alice.payments.cloth;
@@ -275,11 +303,12 @@ void alice_regular_payments() {
 // здоровье
 void alice_health() {
 
-    Alice.health.dentist *= Alice.bank.month_inf;
-    Alice.health.med_chest *= Alice.bank.month_inf;
-    Alice.health.disease *= Alice.bank.month_inf;
-    Alice.health.insurance *= Alice.bank.month_inf;
-    Alice.health.med_examination *= Alice.bank.month_inf;
+    float monthly_rate = get_monthly_rate(Alice.health.inf_rate);
+    Alice.health.dentist = apply_inflation(Alice.health.dentist, monthly_rate);
+    Alice.health.med_chest = apply_inflation(Alice.health.med_chest, monthly_rate);
+    Alice.health.disease = apply_inflation(Alice.health.disease, monthly_rate);
+    Alice.health.insurance = apply_inflation(Alice.health.insurance, monthly_rate);
+    Alice.health.med_examination = apply_inflation(Alice.health.med_examination, monthly_rate);
 
     if (month == 2) {
         Alice.health.age += 1;
@@ -306,8 +335,9 @@ void alice_health() {
 
 // жилье
 void alice_accommodation() {
-    Alice.flat.renting *= Alice.bank.month_inf;
-    Alice.flat.appliance *= Alice.bank.month_inf;
+    float monthly_rate = get_monthly_rate(Alice.flat.inf_rate);
+    Alice.flat.renting = apply_inflation(Alice.flat.renting, monthly_rate);
+    Alice.flat.appliance = apply_inflation(Alice.flat.appliance, monthly_rate);
 
     Alice.bank.account -= Alice.flat.renting;
     // в апреле — замена или ремонт техники (тратится с депозита, как крупная покупка)
@@ -318,9 +348,10 @@ void alice_accommodation() {
 
 // образование
 void alice_education() {
-    Alice.education.courses *= Alice.bank.month_inf;
-    Alice.education.books *= Alice.bank.month_inf;
-    Alice.education.hobby *= Alice.bank.month_inf;
+    float monthly_rate = get_monthly_rate(Alice.education.inf_rate);
+    Alice.education.courses = apply_inflation(Alice.education.courses, monthly_rate);
+    Alice.education.books = apply_inflation(Alice.education.books, monthly_rate);
+    Alice.education.hobby = apply_inflation(Alice.education.hobby, monthly_rate);
 
     Alice.bank.account -= Alice.education.books;
     Alice.bank.account -= Alice.education.hobby;
@@ -332,8 +363,9 @@ void alice_education() {
 
 // благотворительность
 void alice_charity() {
-    Alice.charity.donations *= Alice.bank.month_inf;
-    Alice.charity.special *= Alice.bank.month_inf;
+    float monthly_rate = get_monthly_rate(Alice.charity.inf_rate);
+    Alice.charity.donations = apply_inflation(Alice.charity.donations, monthly_rate);
+    Alice.charity.special = apply_inflation(Alice.charity.special, monthly_rate);
     // ежемесячные пожертвования
     Alice.bank.account -= Alice.charity.donations;
     // в декабре — новогодние благотворительные акции
@@ -344,9 +376,10 @@ void alice_charity() {
 
 // досуг
 void alice_leisure() {
-    Alice.leisure.entertainment *= Alice.bank.month_inf;
-    Alice.leisure.sport *= Alice.bank.month_inf;
-    Alice.leisure.vacation *= Alice.bank.month_inf;
+    float monthly_rate = get_monthly_rate(Alice.leisure.inf_rate);
+    Alice.leisure.entertainment = apply_inflation(Alice.leisure.entertainment, monthly_rate);
+    Alice.leisure.sport = apply_inflation(Alice.leisure.sport, monthly_rate);
+    Alice.leisure.vacation = apply_inflation(Alice.leisure.vacation, monthly_rate);
     // ежемесячные траты на развлечения и спорт
     Alice.bank.account -= Alice.leisure.entertainment;
     Alice.bank.account -= Alice.leisure.sport;
@@ -479,17 +512,16 @@ void alice_business_operations() {
         return;
     }
 
-    // инфляция для расходов бизнеса
-    Alice.business.production_cost *= Alice.bank.month_inf;
-    Alice.business.marketing *= Alice.bank.month_inf;
-    Alice.business.rent *= Alice.bank.month_inf;
-    Alice.business.utilities *= Alice.bank.month_inf;
-    Alice.business.raw_materials *= Alice.bank.month_inf;
-
-    Alice.business.dog_house_price *= Alice.bank.month_inf;
-    Alice.business.cat_house_price *= Alice.bank.month_inf;
-    Alice.business.reptile_house_price *= Alice.bank.month_inf;
-    Alice.business.fish_castle_price *= Alice.bank.month_inf;
+    float monthly_rate = get_monthly_rate(Alice.business.inf_rate);
+    Alice.business.production_cost = apply_inflation(Alice.business.production_cost, monthly_rate);
+    Alice.business.marketing = apply_inflation(Alice.business.marketing, monthly_rate);
+    Alice.business.rent = apply_inflation(Alice.business.rent, monthly_rate);
+    Alice.business.utilities = apply_inflation(Alice.business.utilities, monthly_rate);
+    Alice.business.raw_materials = apply_inflation(Alice.business.raw_materials, monthly_rate);
+    Alice.business.dog_house_price = apply_inflation(Alice.business.dog_house_price, monthly_rate);
+    Alice.business.cat_house_price = apply_inflation(Alice.business.cat_house_price, monthly_rate);
+    Alice.business.reptile_house_price = apply_inflation(Alice.business.reptile_house_price, monthly_rate);
+    Alice.business.fish_castle_price = apply_inflation(Alice.business.fish_castle_price, monthly_rate);
 
     float productivity = Alice.business.team_builder / 100.0;
     int base_sales = Alice.business.employees * 10;
@@ -570,9 +602,9 @@ void alice_business_operations() {
 
 // питание алисы и срывы (случайные события)
 void alice_eating_disorder() {
-    // применяем инфляцию к тратам на питание
-    Alice.eating.healthy_food *= Alice.bank.month_inf;
-    Alice.eating.relapse_food *= Alice.bank.month_inf;
+    float monthly_rate = get_monthly_rate(Alice.eating.inf_rate);
+    Alice.eating.healthy_food = apply_inflation(Alice.eating.healthy_food, monthly_rate);
+    Alice.eating.relapse_food = apply_inflation(Alice.eating.relapse_food, monthly_rate);
 
     // базовые траты на правильное питание (если Алиса старается)
     if (Alice.eating.is_healthy_mode) {
@@ -1843,7 +1875,6 @@ void alice_init() {
     Alice.bank.deposit = 0;
     Alice.bank.account = 0;
     Alice.bank.pp = 9.8;
-    Alice.bank.month_inf = 1.0062;   // ~7.7% инфляции в год
     Alice.bank.monthly_maintenance = 500;
     Alice.bank.sms_notifications = 60;
     Alice.bank.online_banking = 300;
@@ -1857,7 +1888,7 @@ void alice_init() {
     Alice.payments.cloth = 7'000;
     Alice.payments.gifts = 2'000;
     Alice.payments.subscription = 1'500;
-    Alice.payments.month_inf = 1.0062;
+    Alice.payments.inf_rate = 3.5;
 
     // автомобиль
     Alice.car.value = 2'400'000;
@@ -1868,7 +1899,7 @@ void alice_init() {
     Alice.car.osago = 10'000;
     Alice.car.casco = 50'000;
     Alice.car.green_card = 12'000;
-    Alice.car.month_inf = 1.0062;
+    Alice.car.inf_rate = 3.0;
 
     // питомец
     Alice.animal.food = 1'500;
@@ -1878,7 +1909,7 @@ void alice_init() {
     Alice.animal.treats = 1'000;
     Alice.animal.shampoo = 4'000;
     Alice.animal.grooming = 12'000;
-    Alice.animal.mounth_inf = 1.0062;
+    Alice.animal.inf_rate = 5.0;
 
     // Путешествия
     Alice.travel = 50'000;
@@ -1886,7 +1917,7 @@ void alice_init() {
     // жилье
     Alice.flat.renting = 40'000;
     Alice.flat.appliance = 10'000;
-    Alice.flat.month_inf = 1.0062;
+    Alice.flat.inf_rate = 4.0;
 
     // здоровье
     Alice.health.dentist = 4'000;
@@ -1895,7 +1926,7 @@ void alice_init() {
     Alice.health.insurance = 15'000;
     Alice.health.med_examination = 3'000;
     Alice.health.age = 25;
-    Alice.health.mounth_inf = 1.0062;
+    Alice.health.inf_rate = 8.0;
 
     // инвестиции
     Alice.invest.stocks = 0;
@@ -1906,17 +1937,18 @@ void alice_init() {
     Alice.education.courses = 5'000;
     Alice.education.books = 2'000;
     Alice.education.hobby = 3'000;
-    Alice.education.mounth_inf = 1.0062;
+    Alice.education.inf_rate = 6.0;
 
     // благотворительность
     Alice.charity.donations = 1'000;
     Alice.charity.special = 5'000;
+    Alice.charity.inf_rate = 2.0;
 
     // досуг
     Alice.leisure.entertainment = 5'000;
     Alice.leisure.sport = 2'500;
     Alice.leisure.vacation = 15'000;
-    Alice.leisure.mounth_inf = 1.0062;
+    Alice.leisure.inf_rate = 4.5;
 
     // бизнес ALICE'ONE
     Alice.business.company_cash = 500'000;
@@ -1942,6 +1974,8 @@ void alice_init() {
     Alice.business.monthly_sales_reptiles = 0;
     Alice.business.monthly_sales_fish = 0;
 
+    Alice.business.inf_rate = 3.2;
+
     // питание и РПП
     Alice.eating.healthy_food = 15'000;
     Alice.eating.relapse_food = 3'000;   // базовые траты на один срыв
@@ -1949,6 +1983,7 @@ void alice_init() {
     Alice.eating.stress_level = 20;
     Alice.eating.is_healthy_mode = true;   // Алиса старается питаться правильно
     Alice.eating.relapse_probability = 0.15;    // 15% вероятность срыва изначально
+    Alice.eating.inf_rate = 3.8;
 
     // усталость
     Alice.fatigue.level = 0;
@@ -1972,6 +2007,7 @@ void alice_init() {
     Alice.injury.recovery_months = 0;
     Alice.injury.needs_surgery = false;
     Alice.injury.surgery_cost = 0;
+    Alice.injury.inf_rate = 7.0;
 
     // отношения
     Alice.relationship.has_boyfriend = false;
@@ -1988,7 +2024,7 @@ void alice_init() {
     Alice.relationship.boyfriend_pays = true;
     Alice.relationship.last_gift_amount = 0;
     sprintf(Alice.relationship.last_gift_type, "None");
-}
+    Alice.relationship.inf_rate = 4.2;
 }
 
 
