@@ -1958,6 +1958,8 @@ int main() {
 	
 	
 	srand(time(NULL));
+
+	std::system("chcp 1251 > nul");
 	
 	
 	printf("========================================\n");
