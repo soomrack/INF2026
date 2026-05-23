@@ -1,0 +1,2166 @@
+#include <iostream>
+#include <stdio.h>
+#include <stdbool.h>
+#include <math.h>
+#include <time.h>
+using RUB = long long int;
+
+
+//          Структуры
+
+struct Wife
+{
+    RUB salary;         
+    RUB bank_account;        
+    RUB food;           
+    RUB car;            
+    RUB gas;            
+    RUB cloth;          
+    RUB savings;          // накопительный счёт
+    bool has_iphone;    // айфон    has_iphone
+    bool Korea_trip;      //путешествие в корею
+    bool Baikal_trip;     //путешествие на байкал
+    bool has_flat_Moscow;     //квартира в Москве
+    bool has_laptop;      //ноутбук
+    bool has_boat;
+};
+
+
+struct Husband
+{
+    RUB salary;
+    RUB bank_account;
+    RUB food;
+    RUB car;
+    RUB gas;
+    RUB cloth;
+    RUB payment;            //платеж по кредиту
+    RUB credit_debt;      // кредит
+    bool has_new_car;     //машина
+    bool has_garage;      //гараж
+};
+
+struct Family           
+{
+    RUB capital;
+    RUB mortgage_debt;    // ипотека
+    RUB payment;            //платеж ипотеки
+    bool sea_trip;    //путшествие на море
+    bool London_trip; //путешествие в лондон
+    bool have_new_house;   //новый дом
+    bool have_dacha;       //дача
+    bool Paris_trip;  //путешествие в париж
+};
+
+
+// Мечты            
+
+struct Dreams_Alice
+{
+    RUB iphone;
+    RUB Korea_trip;
+    RUB Baikal_trip;
+    RUB flat_Moscow;
+    RUB laptop;
+};
+
+struct Dreams_Stas
+{
+    RUB new_car;
+    RUB garage;
+};
+
+struct Dreams_Family
+{
+    RUB sea_trip;
+    RUB London_trip;
+    RUB new_house;
+    RUB dacha;
+    RUB paris_trip;
+};
+
+
+Wife alice;
+Husband stas;
+Family home;
+Dreams_Alice alice_dreams;
+Dreams_Stas stas_dreams;
+Dreams_Family family_dreams;
+
+
+//   Деньги Алисы 
+
+void alice_init()
+{
+    alice.bank_account = 80'000;
+    alice.savings = 20'000;
+    alice.car = 1'800'000;
+    alice.salary = 150'000;
+    alice.food = 20'000;
+    alice.gas = 18'000;
+    alice.cloth = 25'000;
+    alice_dreams.iphone = 120'000;
+    alice_dreams.Korea_trip = 380'000;
+    alice_dreams.Baikal_trip = 180'000;
+    alice_dreams.flat_Moscow = 21'300'000;
+    alice_dreams.laptop = 95'000;
+
+    alice.has_boat = 200'000;
+    alice.has_boat = false;
+
+    alice.has_iphone = false;
+    alice.Korea_trip = false;
+    alice.Baikal_trip = false;
+    alice.has_flat_Moscow = false;
+    alice.has_laptop = false;
+}
+
+
+//       Деньги Стаса 
+
+void stas_init()
+{
+    stas.bank_account = 200'000;
+    stas.salary = 230'000;
+    stas.car = 2'600'000;
+    stas.food = 25'000;
+    stas.gas = 28'000;
+    stas.cloth = 10'000;
+    stas.credit_debt = 500'000;   // кредит 
+    stas.payment = 30'000;  // обычный платёж
+    stas_dreams.new_car = 4'500'000;
+    stas_dreams.garage = 350'000;
+
+    stas.has_new_car = false;
+    stas.has_garage = false;
+}
+
+
+//      Деньги семьи 
+
+void home_init()
+{
+    home.capital = 250'000;
+    home.mortgage_debt = 8'000'000;   //ипотека
+    home.payment = 80'000;  //платёж ипотеки
+    family_dreams.sea_trip = 360'000;
+    family_dreams.London_trip = 1'000'000;
+    family_dreams.new_house = 12'880'000;
+    family_dreams.dacha = 2'500'000;
+    family_dreams.paris_trip = 550'000;
+
+    home.sea_trip = false;
+    home.London_trip = false;
+    home.have_new_house = false;
+    home.have_dacha = false;
+    home.Paris_trip = false;
+}
+
+
+//      Зарплата Алисы с повышениями и отложение зарплаты в капиталы
+
+void alice_salary(const int year, const int month)
+{
+    if (month == 6 and year == 2026)
+    {
+        alice.salary = alice.salary * 6 / 5;
+    }
+
+    if (month == 6 and year == 2027)
+    {
+        alice.salary = alice.salary * 6 / 5;
+    }
+
+    if (month == 6 and year == 2029)
+    {
+        alice.salary = alice.salary * 11 / 10;
+    }
+
+    if (month == 2 and year == 2032)
+    {
+        alice.salary = alice.salary * 6 / 5;
+    }
+
+    if (month == 2 and year == 2034)
+    {
+        alice.salary = alice.salary * 6 / 5;
+    }
+
+    RUB alice_share = 60 * alice.salary / 100;       // Сначала считаем долю Алисы (60%)
+    RUB home_share = alice.salary - alice_share;     // Всё остальное уходит в дом
+
+    alice.bank_account += alice_share;
+    home.capital += home_share;
+}
+
+
+//  Зарплата Стаса с повышениями и отложение зарплаты в капиталы  
+
+void stas_salary(const int year, const int month)
+{
+    if (month == 2 and year == 2027)
+    {
+        stas.salary = stas.salary * 7 / 5;
+    }
+
+    if (month == 4 and year == 2029)
+    {
+        stas.salary = stas.salary * 6 / 5;
+    }
+
+    if (month == 6 and year == 2030)
+    {
+        stas.salary = stas.salary * 11 / 10;
+    }
+
+    if (month == 3 and year == 2033)
+    {
+        stas.salary = stas.salary * 11 / 10;
+    }
+
+    if (month == 4 and year == 2035)
+    {
+        stas.salary = stas.salary * 3 / 2;
+    }
+
+
+    RUB stas_share = 50 * stas.salary / 100;         // Сначала считаем долю Стаса (50%)
+    RUB home_share = stas.salary - stas_share;      // Всё остальное уходит в дом
+
+    stas.bank_account += stas_share;
+    home.capital += home_share;
+}
+
+
+//  Расходы Алисы 
+
+void alice_food_cost()
+{
+    alice.bank_account -= alice.food;
+}
+
+void alice_gas_cost()
+{
+    alice.bank_account -= alice.gas;
+}
+
+void alice_cloth_cost()
+{
+    alice.bank_account -= alice.cloth;
+}
+
+void alice_savings_add()
+{
+    alice.bank_account -= 5000;          // ежемесячное пополнение накоплений
+    alice.savings += 5000;
+}
+
+
+//  Расходы Стаса 
+
+void stas_food_cost()
+{
+    stas.bank_account -= stas.food;
+}
+
+void stas_cloth_cost()
+{
+    stas.bank_account -= stas.cloth;
+}
+
+void stas_gas_cost()
+{
+    stas.bank_account -= stas.gas;
+}
+
+void stas_credit_payment()          //кредит
+{
+    // Если кредит уже выплачен - ничего не делаем
+    if (stas.credit_debt <= 0)
+    {
+        stas.credit_debt = 0;
+        return;
+    }
+
+    // Если остаток меньше платежа, то закрываем только остаток
+    if (stas.credit_debt < stas.payment)
+    {
+        stas.payment = stas.credit_debt;
+    }
+
+    stas.bank_account -= stas.payment;
+    stas.credit_debt -= stas.payment;
+
+    if (stas.credit_debt < 0)
+    {
+        stas.credit_debt = 0;
+    }
+}
+
+
+// Проценты кредита (1% в месяц)
+
+void stas_credit_interest()
+{
+    stas.credit_debt += stas.credit_debt * 1 / 100;
+}
+
+
+void mortgage_payment()
+{
+    // Аналогично кредиту то же самое
+    if (home.mortgage_debt <= 0)
+    {
+        home.mortgage_debt = 0;
+        return;
+    }
+
+    if (home.mortgage_debt < home.payment)
+    {
+        home.payment = home.mortgage_debt;
+    }
+
+    home.capital -= home.payment;
+    home.mortgage_debt -= home.payment;
+
+    if (home.mortgage_debt < 0)
+    {
+        home.mortgage_debt = 0;
+    }
+}
+
+// страховка жилья
+
+void home_insurance()
+{
+    home.capital -= 10'000;
+}
+
+
+// Проценты ипотеки (0.5% в месяц)
+
+void mortgage_interest()
+{
+    home.mortgage_debt += home.mortgage_debt * 1 / 1000;
+}
+
+
+//  Ежегодные налоги и сборы 
+
+void annual_taxes(const int year, const int month)
+{
+    // Налог на имущество 
+
+    if (month == 4)
+    {
+        if (year == 2026)
+        {
+            home.capital -= 8'500;
+        }
+
+        if (year == 2027)
+        {
+            home.capital -= 9'000;
+        }
+
+        if (year == 2028)
+        {
+            home.capital -= 9'400;
+        }
+
+        if (year == 2029)
+        {
+            home.capital -= 10'200;
+        }
+
+        if (year == 2030)
+        {
+            home.capital -= 11'000;
+        }
+
+        if (year == 2031)
+        {
+            home.capital -= 11'800;
+        }
+
+        if (year == 2032)
+        {
+            home.capital -= 12'500;
+        }
+
+        if (year == 2033)
+        {
+            home.capital -= 13'300;
+        }
+
+        if (year == 2034)
+        {
+            home.capital -= 14'100;
+        }
+
+        if (year == 2035)
+        {
+            home.capital -= 15'000;
+        }
+
+        if (year == 2036)
+        {
+            home.capital -= 15'800;
+        }
+    }
+
+
+    // Транспортный налог 
+
+    if (month == 10)
+    {
+        if (year == 2026)
+        {
+            alice.bank_account -= 6'200;  stas.bank_account -= 8'400;
+        }
+
+        if (year == 2027)
+        {
+            alice.bank_account -= 6'500;  stas.bank_account -= 8'800;
+        }
+
+        if (year == 2028)
+        {
+            alice.bank_account -= 6'800;  stas.bank_account -= 9'200;
+        }
+
+        if (year == 2029)
+        {
+            alice.bank_account -= 7'200;  stas.bank_account -= 9'700;
+        }
+
+        if (year == 2030)
+        {
+            alice.bank_account -= 7'600;  stas.bank_account -= 10'200;
+        }
+
+        if (year == 2031)
+        {
+            alice.bank_account -= 8'000;  stas.bank_account -= 10'800;
+        }
+
+        if (year == 2032)
+        {
+            alice.bank_account -= 8'500;  stas.bank_account -= 11'500;
+        }
+
+        if (year == 2033)
+        {
+            alice.bank_account -= 9'000;  stas.bank_account -= 12'200;
+        }
+
+        if (year == 2034)
+        {
+            alice.bank_account -= 9'600;  stas.bank_account -= 13'000;
+        }
+
+        if (year == 2035)
+        {
+            alice.bank_account -= 10'200; stas.bank_account -= 13'800;
+        }
+
+        if (year == 2036)
+        {
+            alice.bank_account -= 10'800; stas.bank_account -= 14'600;
+        }
+    }
+
+
+    // Земельный налог (если появится дача, после покупки) 
+
+    if (month == 11 and home.have_dacha)
+    {
+        if (year >= 2029)
+        {
+            home.capital -= 3'500;
+        }
+
+        if (year >= 2032)
+        {
+            home.capital -= 4'200;
+        }
+
+        if (year >= 2035)
+        {
+            home.capital -= 5'000;
+        }
+    }
+}
+
+//  Ежемесячный процент на накопительный счёт Алисы
+void alice_monthly_savings_interest(const int year)
+{
+    RUB year_rate = 0; // Годовая ставка
+
+    if (year == 2026)
+    {
+        year_rate = 4;
+    }
+    if (year == 2027)
+    {
+        year_rate = 4;
+    }
+    if (year == 2028)
+        year_rate = 5;
+
+    if (year == 2029)
+    {
+        year_rate = 5;
+    }
+    if (year == 2030)
+    {
+        year_rate = 6;
+    }
+    if (year == 2031)
+    {   
+        year_rate = 7;
+    }
+    if (year == 2032)
+    {
+        year_rate = 8;
+    }
+    if (year == 2033) 
+    {
+        year_rate = 8;
+    }
+    if (year == 2034) 
+    {
+        year_rate = 10;
+    }   
+    if (year == 2035) 
+    {
+        year_rate = 12;
+    }
+    if (year == 2036) 
+    {
+        year_rate = 15;
+    }
+
+    // Ежемесячный процент: годовую ставку делим на 100 и на 12 месяцев
+    alice.savings += alice.savings * year_rate / 100 / 12;
+}
+
+
+//  Годовой доход от инвестиций  
+
+void investment_income(const int year, const int month)
+{
+    if (month != 12) return;
+
+    // Дивиденды от акций 
+
+    if (year == 2026)
+    {
+        home.capital += 4'500;
+    }
+
+    if (year == 2027)
+    {
+        home.capital += 5'200;
+    }
+
+    if (year == 2028)
+    {
+        home.capital += 6'100;
+    }
+
+    if (year == 2029)
+    {
+        home.capital += 7'300;
+    }
+
+    if (year == 2030)
+    {
+        home.capital += 8'500;
+    }
+
+    if (year == 2031)
+    {
+        home.capital += 9'800;
+    }
+
+    if (year == 2032)
+    {
+        home.capital += 11'200;
+    }
+
+    if (year == 2033)
+    {
+        home.capital += 12'600;
+    }
+
+    if (year == 2034)
+    {
+        home.capital += 14'000;
+    }
+
+    if (year == 2035)
+    {
+        home.capital += 15'500;
+    }
+
+    if (year == 2036)
+    {
+        home.capital += 17'000;
+    }
+}
+
+
+//  Инфляция 
+
+void inflation(const int year)
+{
+    RUB food_infl = 8;   // 0.8%  СТАВКА
+    RUB gas_infl = 9;   // 0.9%
+    RUB cloth_infl = 5;  // 0.5%
+
+    if (year >= 2028)
+    {
+        food_infl += 1;  // 0.9%
+        gas_infl += 2;  // 1.1%
+    }
+    if (year >= 2031)
+    {
+        food_infl += 2;  //  1.1%
+        gas_infl += 3;  //  1.4%
+        cloth_infl += 1; // 0.6%
+    }
+    if (year >= 2034)
+    {
+        food_infl += 3;  // 1.4%
+        gas_infl += 4;  // 1.8%
+        cloth_infl += 2; // 0.8%
+    }
+
+    // Применяем инфляцию (цена * (1000 + ставка) / 1000)
+    alice.food = alice.food * (1000 + food_infl) / 1000;
+   
+    alice.gas = alice.gas * (1000 + gas_infl) / 1000;
+    
+    alice.cloth = alice.cloth * (1000 + cloth_infl) / 1000;
+
+
+    
+    stas.food = stas.food * (1000 + food_infl) / 1000;
+    
+    stas.gas = stas.gas * (1000 + gas_infl) / 1000;
+    
+    stas.cloth = stas.cloth * (1000 + cloth_infl) / 1000;
+
+   
+}
+
+//  Летний скачок цен на бензин 
+void summer_gas_spike()
+{
+    alice.gas = alice.gas * 1020 / 1000;  // +2%
+    stas.gas = stas.gas * 1020 / 1000;
+}
+
+//  Зимний скачок цен на еду 
+void winter_food_spike()
+{
+    alice.food = alice.food * 1015 / 1000;  // +1.5%
+    stas.food = stas.food * 1015 / 1000;
+}
+
+
+//  Мечты Алисы 
+
+void alice_dream_check()
+{
+    if (!alice.has_iphone and alice.bank_account >= alice_dreams.iphone)
+    {
+        alice.bank_account -= alice_dreams.iphone;
+        alice.has_iphone = true;
+    }
+
+    if (!alice.Baikal_trip and alice.bank_account >= alice_dreams.Baikal_trip)
+    {
+        alice.bank_account -= alice_dreams.Baikal_trip;
+        alice.Baikal_trip = true;
+    }
+
+    if (!alice.Korea_trip and alice.bank_account >= alice_dreams.Korea_trip)
+    {
+        alice.bank_account -= alice_dreams.Korea_trip;
+        alice.Korea_trip = true;
+    }
+
+    if (!alice.has_flat_Moscow and home.capital   >= alice_dreams.flat_Moscow)
+    {
+        home.capital -= alice_dreams.flat_Moscow;
+        alice.has_flat_Moscow = true;
+    }
+
+    if (!alice.has_laptop and alice.bank_account >= alice_dreams.laptop)
+    {
+        alice.bank_account -= alice_dreams.laptop;
+        alice.has_laptop = true;
+    }
+}
+
+
+//  Мечты Стаса 
+
+void stas_dream_check()
+{
+    if (!stas.has_new_car and stas.bank_account >= stas_dreams.new_car)
+    {
+        stas.bank_account -= stas_dreams.new_car;
+        stas.has_new_car = true;
+    }
+
+    if (!stas.has_garage and stas.bank_account >= stas_dreams.garage)
+    {
+        stas.bank_account -= stas_dreams.garage;
+        stas.has_garage = true;
+    }
+}
+
+
+//  Семейные мечты 
+
+void family_dream_check()
+{
+
+    if (!home.sea_trip and home.capital >= family_dreams.sea_trip)
+    {
+        home.capital -= family_dreams.sea_trip;
+        home.sea_trip = true;
+    }
+
+    if (!home.London_trip and home.capital >= family_dreams.London_trip)
+    {
+        home.capital -= family_dreams.London_trip;
+        home.London_trip = true;
+    }
+
+    if (!home.have_dacha and home.capital >= family_dreams.new_house)
+    {
+        home.capital -= family_dreams.new_house;
+        home.have_dacha = true;
+    }
+
+    if (!home.Paris_trip and home.capital >= family_dreams.paris_trip)
+    {
+        home.capital -= family_dreams.paris_trip;
+        home.Paris_trip = true;
+    }
+
+}
+
+
+//  Дополнительные события 
+
+void monthly_special(const int year, const int month)
+{
+
+    // 2026 год
+
+    if (year == 2026 and month == 2)
+    {
+        alice.bank_account += 4'000;    // подарок на 14 февраля
+        stas.bank_account -= 7'800;     // ужин
+    }
+
+    if (year == 2026 and month == 3)
+    {
+        stas.bank_account -= 6'000;    // техосмотр
+        stas.bank_account -= 4'000;  // 8 марта подарок
+    }
+
+    if (year == 2026 and month == 4)
+    {
+        home.capital -= 5'000;    // коммуналка
+    }
+
+    if (year == 2026 and month == 5)
+    {
+        alice.bank_account += 10'000;  // премия
+    }
+
+    if (year == 2026 and month == 6)
+    {
+        stas.bank_account += 10'000;  // отпускные
+        home.capital -= 30'000;   // отпуск
+    }
+
+    if (year == 2026 and month == 7)
+    {
+        alice.bank_account -= 3'500;  // страховка машины
+        stas.bank_account -= 4'500;
+    }
+
+    if (year == 2026 and month == 8)
+    {
+        alice.bank_account -= 5'000;  // день рождения Стаса (подарок)
+        stas.bank_account += 10'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2026 and month == 9)
+    {
+        home.capital -= 14'000;   // подготовка к зиме
+    }
+
+    if (year == 2026 and month == 10)
+    {
+        stas.bank_account += 3'000;   // подработка
+    }
+
+    if (year == 2026 and month == 11)
+    {
+        alice.bank_account -= 2'800;  // стоматолог
+        stas.bank_account -= 4'000;  // день рождения Алисы (подарок)
+        alice.bank_account += 14'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2026 and month == 12)
+    {
+        alice.bank_account += 25'000; // годовая премия
+        stas.bank_account += 30'000;
+        home.capital -= 55'000;  // Новый год: подарки, ёлка
+    }
+
+
+    // 2027
+
+    if (year == 2027 and month == 1)
+    {
+        home.capital -= 7'500;   // выходные
+    }
+
+    if (year == 2027 and month == 2)
+    {
+        alice.bank_account += 3'000;  // повышение оклада
+        alice.bank_account += 4'500;    // подарок на 14 февраля
+        stas.bank_account -= 6'000;     // ужин
+    }
+
+    if (year == 2027 and month == 3)
+    {
+        stas.bank_account -= 8'000;  // 8 марта подарок
+        home.capital -= 5'000;      //коммуналка
+        stas.bank_account -= 9'000;    // техосмотр
+        alice.bank_account -= 5'500;    // техосмотр
+    }
+
+    if (year == 2027 and month == 4)
+    {
+        stas.bank_account += 7'000;   // премия
+    }
+
+    if (year == 2027 and month == 5)
+    {
+        stas.bank_account -= 4'500;   // шиномонтаж
+    }
+
+    if (year == 2027 and month == 6)
+    {
+        home.capital -= 35'000;  // отпуск 
+    }
+
+    if (year == 2027 and month == 7)
+    {
+        alice.bank_account -= 20'000;     // ремонт машины
+        stas.bank_account -= 25'000;
+    }
+
+    if (year == 2027 and month == 8)
+    {
+        stas.bank_account += 6'000;   // помощь родителей
+        alice.bank_account -= 5'000;  // день рождения Стаса (подарок)
+        stas.bank_account += 14'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2027 and month == 9)
+    {
+        home.capital -= 14'000;   // подготовка к зиме
+    }
+
+    if (year == 2027 and month == 10)
+    {
+        home.capital -= 10'000;  // ремонт кухни
+    }
+
+    if (year == 2027 and month == 11)
+    {
+        alice.bank_account -= 4'200;  // страховка жизни
+        stas.bank_account -= 5'100;
+        stas.bank_account -= 5'000;  // день рождения Алисы (подарок)
+        alice.bank_account += 14'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2027 and month == 12)
+    {
+        stas.bank_account += 28'000;  // премия
+        alice.bank_account += 27'000;
+        home.capital -= 60'000;  // праздники
+    }
+
+
+    // 2028
+
+    if (year == 2028 and month == 1)
+    {
+        home.capital -= 6'000;   // отопление
+    }
+
+    if (year == 2028 and month == 2)
+    {
+        stas.bank_account -= 12'000;  // лечение зубов
+        alice.bank_account += 5'000;    // подарок на 14 февраля
+        stas.bank_account -= 7'000;     // ужин
+    }
+
+    if (year == 2028 and month == 3)
+    {
+        alice.bank_account += 4'500;  // кэшбэк
+        stas.bank_account += 3'800;
+        stas.bank_account -= 4'000;  // 8 марта подарок
+    }
+
+    if (year == 2028 and month == 4)
+    {
+        alice.bank_account -= 9'200;  // налог на машину
+        stas.bank_account -= 11'500;
+    }
+
+    if (year == 2028 and month == 5)
+    {
+        home.capital -= 2'500;   // дератизация
+    }
+
+    if (year == 2028 and month == 6)
+    {
+        alice.bank_account += 15'000; // премия
+        stas.bank_account += 16'000;
+        home.capital -= 40'000;  // отпуск
+    }
+
+    if (year == 2028 and month == 7)
+    {
+        stas.bank_account -= 3'600;   // штраф ГИБДД
+    }
+
+    if (year == 2028 and month == 8)
+    {
+        alice.bank_account -= 5'000;  // день рождения Стаса (подарок)
+        stas.bank_account += 14'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2028 and month == 9)
+    {
+        alice.savings += 3'000;  // проценты
+        stas.credit_debt -= 1'500; // досрочное погашение
+        home.capital -= 14'000;   // подготовка к зиме
+    }
+
+    if (year == 2028 and month == 10)
+    {
+        home.capital -= 8'000;   // подготовка к отопительному сезону
+    }
+
+    if (year == 2028 and month == 11)
+    {
+        stas.bank_account += 5'000;   // временная подработка
+        stas.bank_account -= 5'000;  // день рождения Алисы (подарок)
+        alice.bank_account += 14'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2028 and month == 12)
+    {
+        alice.bank_account += 30'000; // премия
+        stas.bank_account += 35'000;
+        home.capital -= 65'000;
+    }
+
+
+    // 2029
+
+    if (year == 2029 and month == 2)
+    {
+        alice.bank_account -= 4'500;  // стоматолог
+        alice.bank_account += 5'000;    // подарок на 14 февраля
+        stas.bank_account -= 7'000;     // ужин
+    }
+
+    if (year == 2029 and month == 3)
+    {
+        home.capital -= 6'000;   // подарок Алисе
+        stas.bank_account -= 4'000;  // 8 марта подарок
+    }
+
+    if (year == 2029 and month == 4)
+    {
+        stas.bank_account += 12'000;  // годовая премия
+        home.capital -= 3'200;   // страховка имущества
+    }
+
+    if (year == 2029 and month == 5)
+    {
+        alice.bank_account -= 3'000;  // анализы
+        stas.bank_account -= 2'800;
+    }
+
+    if (year == 2029 and month == 6)
+    {
+        home.capital -= 50'000;  // зарубежный отпуск
+    }
+
+    if (year == 2029 and month == 7)
+    {
+        alice.bank_account -= 30'000;     // ремонт машины
+        stas.bank_account -= 35'000;
+    }
+
+    if (year == 2029 and month == 8)
+    {
+        stas.bank_account += 9'000;   // подарок от родственников
+        alice.bank_account -= 5'000;  // день рождения Стаса (подарок)
+        stas.bank_account += 14'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2029 and month == 9)
+    {
+        home.capital -= 14'000;   // подготовка к зиме
+    }
+
+    if (year == 2029 and month == 10)
+    {
+        home.capital -= 4'200;   // уборка подъезда
+    }
+
+    if (year == 2029 and month == 11)
+    {
+        alice.bank_account += 7'500;  // премия
+        stas.bank_account += 8'200;
+        stas.bank_account -= 5'000;  // день рождения Алисы (подарок)
+        alice.bank_account += 14'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2029 and month == 12)
+    {
+        home.capital -= 70'000;  // новогодние расходы
+    }
+
+
+    // 2030
+
+    if (year == 2030 and month == 1)
+    {
+        alice.bank_account -= 5'000;
+    }
+
+    if (year == 2030 and month == 2)
+    {
+        stas.bank_account += 6'000;
+        alice.bank_account += 5'000;    // подарок на 14 февраля
+        stas.bank_account -= 7'000;     // ужин
+    }
+
+    if (year == 2030 and month == 3)
+    {
+        stas.bank_account -= 4'000;  // 8 марта подарок
+    }
+
+    if (year == 2030 and month == 4)
+    {
+        home.capital -= 4'500;   // замена счётчиков
+    }
+
+    if (year == 2030 and month == 5)
+    {
+        alice.bank_account -= 3'600;  // лекарства
+        stas.bank_account -= 2'900;
+    }
+
+    if (year == 2030 and month == 6)
+    {
+        alice.bank_account += 18'000; // премия
+        stas.bank_account += 20'000;
+        home.capital -= 45'000;
+    }
+
+    if (year == 2030 and month == 7)
+    {
+        stas.bank_account -= 5'200;   // штраф
+        alice.bank_account -= 3'100;  // ремонт обуви
+    }
+
+    if (year == 2030 and month == 8)
+    {
+        home.capital -= 4'000;   // замена лампочек 
+        alice.bank_account -= 5'000;  // день рождения Стаса (подарок)
+        stas.bank_account += 14'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2030 and month == 9)
+    {
+        home.capital -= 14'000;   // подготовка к зиме
+    }
+
+    if (year == 2030 and month == 10)
+    {
+        home.capital -= 3'000;       //коммуналка
+    }
+
+    if (year == 2030 and month == 11)
+    {
+        stas.bank_account += 4'000;
+        stas.bank_account -= 5'000;  // день рождения Алисы (подарок)
+        alice.bank_account += 14'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2030 and month == 12)
+    {
+        alice.bank_account += 35'000;    //годовая премия
+        stas.bank_account += 40'000;
+        home.capital -= 75'000;     //нг
+    }
+
+
+    // 2031
+
+    if (year == 2031 and month == 2)
+    {
+        alice.bank_account -= 2'000;
+        stas.bank_account += 3'500;
+        alice.bank_account += 5'000;    // подарок на 14 февраля
+        stas.bank_account -= 7'000;     // ужин
+    }
+
+    if (year == 2031 and month == 3)
+    {
+        stas.bank_account -= 2'000;  // 8 марта подарок
+        home.capital -= 5'000;
+    }
+
+    if (year == 2031 and month == 5)
+    {
+        stas.bank_account += 8'000;    //премия
+    }
+
+    if (year == 2031 and month == 6)
+    {
+        home.capital -= 55'000;    // шашлыки, туса и отпуск
+    }
+
+    if (year == 2031 and month == 7)
+    {
+        alice.bank_account -= 4'100;  //страховка машины
+        stas.bank_account -= 5'300;
+    }
+
+    if (year == 2031 and month == 8)
+    {
+        alice.bank_account -= 6'000;  // день рождения Стаса (подарок)
+        stas.bank_account += 19'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2031 and month == 9)
+    {
+        home.capital -= 14'000;   // подготовка к зиме
+    }
+
+    if (year == 2031 and month == 10)
+    {
+        home.capital -= 8'500;    //утепление дома
+    }
+
+    if (year == 2031 and month == 11)
+    {
+        alice.bank_account += 6'300;    //помощь от родителей
+        stas.bank_account += 7'100;
+        stas.bank_account -= 5'000;  // день рождения Алисы (подарок)
+        alice.bank_account += 14'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2031 and month == 12)
+    {
+        alice.bank_account += 38'000;        //годовая премия
+        stas.bank_account += 42'000;
+        home.capital -= 80'000;             //Нг
+    }
+
+
+    // 2032
+
+    if (year == 2032 and month == 2)
+    {
+        alice.bank_account -= 10'500;          //салон красоты
+        stas.bank_account += 9'000;      //подработка
+        alice.bank_account += 5'000;    // подарок на 14 февраля
+        stas.bank_account -= 7'000;     // ужин
+    }
+
+    if (year == 2032 and month == 3)
+    {
+        home.capital -= 6'800;      //коммуналка
+        stas.bank_account -= 4'000;  // 8 марта подарок
+    }
+
+    if (year == 2032 and month == 4)
+    {
+        alice.bank_account -= 3'200;     //техосмотр
+    }
+
+    if (year == 2032 and month == 5)
+    {
+        stas.bank_account += 11'000;     //победа в конкурсе на работе
+        home.capital -= 2'700;
+    }
+
+    if (year == 2032 and month == 6)
+    {
+        alice.bank_account += 22'000;        //отпускные
+        stas.bank_account += 24'000;
+        home.capital -= 50'000;         //отпуск
+    }
+
+    if (year == 2032 and month == 7)
+    {
+        alice.bank_account -= 4'900;         //страховка
+        stas.bank_account -= 5'600;
+    }
+
+    if (year == 2032 and month == 8)
+    {
+        alice.bank_account -= 5'000;  // день рождения Стаса (подарок)
+        stas.bank_account += 14'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2032 and month == 9)
+    {
+        home.capital -= 14'000;   // подготовка к зиме
+    }
+
+    if (year == 2032 and month == 10)
+    {
+        home.capital -= 9'000;
+    }
+
+    if (year == 2032 and month == 11)
+    {
+        alice.bank_account += 8'000;
+        stas.bank_account += 9'500;
+        stas.bank_account -= 5'000;  // день рождения Алисы (подарок)
+        alice.bank_account += 14'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2032 and month == 12)
+    {
+        alice.bank_account += 42'000;
+        stas.bank_account += 46'000;
+        home.capital -= 85'000;
+    }
+
+
+    // 2033
+
+    if (year == 2033 and month == 1)
+    {
+        alice.bank_account -= 6'000;  // страховка
+        stas.bank_account -= 9'000;
+    }
+
+    if (year == 2033 and month == 2)
+    {
+        stas.bank_account += 4'500;
+        alice.bank_account += 5'000;    // подарок на 14 февраля
+        stas.bank_account -= 7'000;     // ужин
+    }
+
+    if (year == 2033 and month == 3)
+    {
+        home.capital -= 5'500;
+        stas.bank_account -= 4'000;  // 8 марта подарок
+    }
+
+    if (year == 2033 and month == 5)
+    {
+        stas.bank_account += 7'500;
+    }
+
+    if (year == 2033 and month == 6)
+    {
+        alice.bank_account += 19'000;
+        stas.bank_account += 21'000;
+        home.capital -= 48'000;
+    }
+
+    if (year == 2033 and month == 7)
+    {
+        alice.bank_account -= 6'000;    //СТО
+        stas.bank_account -= 7'200;
+    }
+
+    if (year == 2033 and month == 8)
+    {
+        alice.bank_account -= 8'000;  // день рождения Стаса (подарок)
+        stas.bank_account += 9'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2033 and month == 9)
+    {
+        alice.savings += 8'000;
+        home.capital -= 14'000;   // подготовка к зиме
+    }
+
+    if (year == 2033 and month == 10)
+    {
+        home.capital -= 4'500;
+    }
+
+    if (year == 2033 and month == 11)
+    {
+        alice.bank_account += 9'200;
+        stas.bank_account += 10'500;
+        stas.bank_account -= 5'000;  // день рождения Алисы (подарок)
+        alice.bank_account += 18'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2033 and month == 12)
+    {
+        alice.bank_account += 45'000;
+        stas.bank_account += 50'000;
+        home.capital -= 90'000;
+    }
+
+
+    // 2034
+
+    if (year == 2034 and month == 2)
+    {
+        alice.bank_account += 9'000;    // подарок на 14 февраля
+        stas.bank_account -= 12'600;     // ужин
+    }
+
+    if (year == 2034 and month == 3)
+    {
+        home.capital -= 7'200;
+        stas.bank_account -= 4'000;  // 8 марта подарок
+    }
+
+    if (year == 2034 and month == 4)
+    {
+        alice.bank_account -= 5'500;
+    }
+
+    if (year == 2034 and month == 5)
+    {
+        stas.bank_account += 12'000;
+    }
+
+    if (year == 2034 and month == 6)
+    {
+        alice.bank_account += 25'000;
+        stas.bank_account += 27'000;
+        home.capital -= 52'000;
+    }
+
+    if (year == 2034 and month == 7)
+    {
+        alice.bank_account -= 3'800;
+        stas.bank_account -= 4'500;
+    }
+
+    if (year == 2034 and month == 8)
+    {
+        alice.bank_account -= 3'000;  // день рождения Стаса (подарок)
+        stas.bank_account += 13'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2034 and month == 9)
+    {
+        stas.credit_debt -= 4'000;
+        home.capital -= 14'000;   // подготовка к зиме
+    }
+
+    if (year == 2034 and month == 10)
+    {
+        home.capital -= 6'100;
+    }
+
+    if (year == 2034 and month == 11)
+    {
+        stas.bank_account -= 5'000;  // день рождения Алисы (подарок)
+        alice.bank_account += 14'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2034 and month == 12)
+    {
+        alice.bank_account += 48'000;
+        stas.bank_account += 53'000;
+        home.capital -= 95'000;
+    }
+
+
+    // 2035
+
+    if (year == 2035 and month == 1)
+    {
+        alice.bank_account -= 4'200;         //отход от нг
+        stas.bank_account -= 5'600;
+    }
+
+    if (year == 2035 and month == 2)
+    {
+        stas.bank_account += 6'500;
+        alice.bank_account += 1'000;    // подарок на 14 февраля
+        stas.bank_account -= 3'000;     // ужин
+    }
+
+    if (year == 2035 and month == 3)
+    {
+        home.capital -= 6'000;
+        stas.bank_account -= 4'000;  // 8 марта подарок
+    }
+
+    if (year == 2035 and month == 5)
+    {
+        stas.bank_account += 9'000;
+    }
+
+    if (year == 2035 and month == 6)
+    {
+        alice.bank_account += 28'000;
+        stas.bank_account += 30'000;
+        home.capital -= 55'000;
+    }
+
+    if (year == 2035 and month == 7)
+    {
+        alice.bank_account -= 5'200;
+        stas.bank_account -= 6'400;
+    }
+
+    if (year == 2035 and month == 8)
+    {
+        stas.bank_account += 5'500;
+        alice.bank_account -= 9'000;  // день рождения Стаса (подарок)
+        stas.bank_account += 17'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2035 and month == 9)
+    {
+        alice.savings += 10'000;
+        home.capital -= 14'000;   // подготовка к зиме
+    }
+
+    if (year == 2035 and month == 10)
+    {
+        home.capital -= 7'000;
+    }
+
+    if (year == 2035 and month == 11)
+    {
+        alice.bank_account += 12'000;    //помощь от родителей
+        stas.bank_account += 13'500;
+        stas.bank_account -= 5'000;  // день рождения Алисы (подарок)
+        alice.bank_account += 14'000;   // деньги в качестве подарка
+    }
+
+    if (year == 2035 and month == 12)
+    {
+        alice.bank_account += 52'000;    //годовая премия
+        stas.bank_account += 58'000;
+        home.capital -= 100'000;    //новый год
+    }
+
+
+    // 2036 (до марта)
+
+    if (year == 2036 and month == 1)
+    {
+        alice.bank_account -= 4'800;    //новогодний шоппинг
+    }
+
+    if (year == 2036 and month == 2)
+    {
+        stas.bank_account += 11'000;     //подработка
+        home.capital -= 8'000;      //коммуналка
+        alice.bank_account += 5'000;    // подарок на 14 февраля
+        stas.bank_account -= 7'000;     // ужин
+    }
+
+    if (year == 2036 and month == 3)
+    {
+        alice.bank_account += 3'500;
+        stas.bank_account += 8'500;   //премия 
+        home.capital -= 2'500;  // 8 марта подарок
+        stas.bank_account -= 4'000;
+    }
+
+}
+
+
+//  Крупные запланированные покупки 
+
+void large_purchases(const int year, const int month)
+{
+
+
+    // Покупка мебели
+
+    if (year == 2027 and month == 3)
+    {
+        if (home.capital >= 45'000) 
+        { 
+            home.capital -= 45'000;      //диван
+        }
+    }
+
+
+    if (year == 2029 and month == 2)
+    {
+        if (home.capital >= 28'000)
+        {
+            home.capital -= 28'000;      // шкаф
+        }
+    }
+
+
+    if (year == 2031 and month == 5)
+    {
+        if (home.capital >= 38'000)
+        {
+            home.capital -= 38'000;      // кухонный гарнитур
+        }
+    }
+
+
+    if (year == 2033 and month == 8)
+    {
+        if (home.capital >= 52'000)
+        {
+            home.capital -= 52'000;          // спальня
+        }
+    }
+
+
+    if (year == 2035 and month == 4)
+    {
+        if (home.capital >= 34'000)
+        {
+            home.capital -= 34'000;          // столовая
+        }
+    }
+
+
+    // Бытовая техника
+
+    if (year == 2026 and month == 11)
+    {
+        if (home.capital >= 22'000)
+        {
+            home.capital -= 22'000;     // стиральная машина
+        }
+    }
+
+
+    if (year == 2028 and month == 9)
+    {
+        if (home.capital >= 19'000)
+        {
+            home.capital -= 19'000;      // пылесос
+        }
+    }
+
+
+    if (year == 2030 and month == 12)
+    {
+        if (home.capital >= 41'000)
+        {
+            home.capital -= 41'000; // холодильник
+        }
+    }
+
+
+    if (year == 2032 and month == 6)
+    {
+        if (home.capital >= 26'000)
+        {
+            home.capital -= 26'000;     // посудомойка
+        }
+    }
+
+
+    if (year == 2034 and month == 10)
+    {
+        if (home.capital >= 33'000)
+        {
+            home.capital -= 33'000;  // кондиционер
+        }
+    }
+
+
+    // Электроника
+
+    if (year == 2027 and month == 7)
+    {
+        if (alice.bank_account >= 17'000)
+        {
+            alice.bank_account -= 17'000;    // планшет
+        }
+    }
+
+
+    if (year == 2029 and month == 11)
+    {
+        if (stas.bank_account >= 29'000)
+        {
+            stas.bank_account -= 29'000;      // монитор
+        }
+    }
+
+
+    if (year == 2031 and month == 3)
+    {
+        if (home.capital >= 14'000)
+        {
+            home.capital -= 14'000;     // роутер
+        }
+    }
+
+
+    if (year == 2033 and month == 5)
+    {
+        if (alice.bank_account >= 24'000)
+        {
+            alice.bank_account -= 24'000;    // фотоаппарат
+        }
+    }
+
+
+    // Ремонт и строительство (если появилась дача)
+
+    if (home.have_dacha)
+    {
+        if (year == 2030 and month == 7)
+        {
+            if (home.capital >= 60'000)
+            {
+                home.capital -= 60'000; // веранда
+            }
+        }
+
+
+        if (year == 2032 and month == 4)
+        {
+            if (home.capital >= 45'000)
+            {
+                home.capital -= 45'000; // забор
+            }
+        }
+
+
+        if (year == 2034 and month == 6)
+        {
+            if (home.capital >= 75'000)
+            {
+                home.capital -= 75'000;     // баня
+
+            }
+        }
+    }
+}
+
+
+// Различные курсы обучения (чтобы улучшить свои способности, развивать себя)
+
+void education_courses(const int year, const int month)
+{
+
+    // Курсы Алисы
+
+    if (year == 2027 and month == 3)
+    {
+        if (alice.bank_account >= 9'000)
+        {
+            alice.bank_account -= 9'000;   // первый взнос
+        }
+    }
+
+    if (year == 2027 and month == 4)
+    {
+        if (alice.bank_account >= 9'000)
+        {
+            alice.bank_account -= 9'000;   // второй взнос
+        }
+    }
+
+
+    // Онлайн-курс Стаса по программированию 
+
+    if (year == 2028 and month == 9)
+    {
+        if (stas.bank_account >= 12'000)
+        {
+            stas.bank_account -= 12'000;   // оплата первого модуля
+        }
+    }
+
+    if (year == 2028 and month == 10)
+    {
+        if (stas.bank_account >= 12'000)
+        {
+            stas.bank_account -= 12'000;   // оплата второго модуля
+        }
+    }
+
+    if (year == 2028 and month == 11)
+    {
+        if (stas.bank_account >= 12'000)
+        {
+            stas.bank_account -= 12'000;   // оплата третьего модуля
+        }
+    }
+
+
+    // Языковые курсы Алисы 
+
+    if (year == 2030 and month == 2)
+    {
+        if (alice.bank_account >= 8'500)
+        {
+            alice.bank_account -= 8'500;
+        }
+    }
+
+    if (year == 2030 and month == 3)
+    {
+        if (alice.bank_account >= 8'500)
+        {
+            alice.bank_account -= 8'500;
+        }
+    }
+
+    if (year == 2030 and month == 4)
+    {
+        if (alice.bank_account >= 8'500)
+        {
+            alice.bank_account -= 8'500;
+        }
+    }
+
+    if (year == 2030 and month == 5)
+    {
+        if (alice.bank_account >= 8'500)
+        {
+            alice.bank_account -= 8'500;
+        }
+    }
+
+
+    // Профессиональная сертификация Стаса 
+
+    if (year == 2032 and month == 1)
+    {
+        if (stas.bank_account >= 18'000)
+        {
+            stas.bank_account -= 18'000;   //  регистрация
+        }
+    }
+
+    if (year == 2032 and month == 2)
+    {
+        if (stas.bank_account >= 22'000)
+        {
+            stas.bank_account -= 22'000;   // экзамен
+        }
+    }
+
+
+    // Магистратура Алисы 
+
+    if (year == 2033 and month == 9)
+    {
+        if (alice.bank_account >= 25'000)
+        {
+            alice.bank_account -= 25'000;  // первый семестр
+        }
+    }
+
+    if (year == 2033 and month == 10)
+    {
+        if (alice.bank_account >= 10'000)
+        {
+            alice.bank_account -= 10'000;  // учебные материалы
+        }
+    }
+
+    if (year == 2033 and month == 11)
+    {
+        if (alice.bank_account >= 10'000)
+        {
+            alice.bank_account -= 10'000;  // учебные материалы
+        }
+    }
+
+    if (year == 2033 and month == 12)
+    {
+        if (alice.bank_account >= 10'000)
+        {
+            alice.bank_account -= 10'000;  // учебные материалы
+        }
+    }
+
+
+    // Курсы по управлению для Стаса 
+
+    if (year == 2034 and month == 3)
+    {
+        if (stas.bank_account >= 15'000)
+        {
+            stas.bank_account -= 15'000;   // оплата первого блока
+        }
+    }
+
+    if (year == 2034 and month == 4)
+    {
+        if (stas.bank_account >= 15'000)
+        {
+            stas.bank_account -= 15'000;   // оплата второго блока
+        }
+    }
+
+    if (year == 2034 and month == 5)
+    {
+        if (stas.bank_account >= 15'000)
+        {
+            stas.bank_account -= 15'000;   // оплата третьего блока
+        }
+    }
+
+    if (year == 2034 and month == 6)
+    {
+        if (stas.bank_account >= 15'000)
+        {
+            stas.bank_account -= 15'000;   // оплата четвёртого блока
+        }
+    }
+
+
+    // Бизнес-тренинг Алисы 
+
+    if (year == 2035 and month == 10)
+    {
+        if (alice.bank_account >= 28'000)
+        {
+            alice.bank_account -= 28'000;  // оплата курса
+        }
+    }
+
+
+    // Онлайн-курс Стаса по робототехнике 
+
+    if (year == 2036 and month == 1)
+    {
+        if (stas.bank_account >= 14'000)
+        {
+            stas.bank_account -= 14'000;   // теория
+        }
+    }
+
+    if (year == 2036 and month == 2)
+    {
+        if (stas.bank_account >= 16'000)
+        {
+            stas.bank_account -= 16'000;   // практика
+        }
+    }
+}
+void alice_has_boat(const int year, const int month)
+{
+    //Покупка яхты
+    if (year == 2030 and month == 4)
+    {
+        if (alice.bank_account >= alice.has_boat)
+        {
+            alice.bank_account -= alice.has_boat;
+            alice.has_boat = true;
+        }
+    }
+}
+
+//  Симуляция до целевой даты 
+
+void simulate_until(int start_year, int start_month)
+{
+    int year = 2026;
+    int month = 2;
+
+    while (not (year > start_year or (year == start_year and month > start_month)))
+    {
+                //АЛИСА
+        alice_salary(year, month);
+
+        alice_food_cost();
+        alice_gas_cost();
+        alice_cloth_cost();
+        alice_savings_add();
+        alice_monthly_savings_interest(year);
+        alice_dream_check();
+
+        alice_has_boat(year, month);
+
+                //СТАС
+        stas_salary(year, month);
+
+        stas_food_cost();
+        stas_cloth_cost();
+        stas_gas_cost();
+        stas_credit_payment();
+        stas_credit_interest();
+        stas_dream_check();
+
+                //СЕМЬЯ (ДОМ)
+        mortgage_payment();                 //ипотека
+        home_insurance();                   //страховка жилья
+        mortgage_interest();                //проценты ипотеки
+        family_dream_check();
+        large_purchases(year, month);       //мебель в дом
+
+     
+                //ОБЩЕЕ
+        monthly_special(year, month);       //случайные события
+        education_courses(year, month);     //курсы
+        annual_taxes(year, month);          //налоги
+        investment_income(year, month);     //инвестиции и копилка
+       
+        inflation(year);                    //инфляция
+
+        // Сезонные скачки
+        if (month == 6 or month == 7 or month == 8) 
+        {
+            summer_gas_spike();   // летом бензин дороже
+        }
+     
+        if (month == 12 or month == 1 or month == 2)
+        {
+            winter_food_spike();  // зимой еда дороже
+        }
+
+        month++;
+        if (month == 13) 
+        {
+            month = 1;
+            year++;
+        }
+    }
+}
+
+
+//  Вывод состояния  
+
+void print_status(int year, int month)
+{
+
+    setlocale(LC_ALL, "RU");
+
+    std::cout << " СОСТОЯНИЕ НА " << month << "/" << year << " \n\n";
+
+
+    //Алиса вывод
+
+    std::cout << "  Алиса\n";
+
+    std::cout << "   Капитал: " << alice.bank_account << " RUB\n";
+
+    std::cout << "   Сбережения: " << alice.savings << " RUB\n";
+
+    std::cout << "   Зарплата: " << alice.salary << " RUB\n";
+
+    std::cout << "   ---------------------------------------\n";
+
+
+
+    std::cout << "   Исполненные мечты:\n";
+
+    if (alice.has_iphone)
+    {
+        std::cout << "    [+] iPhone\n";
+    }
+
+    else
+    {
+        std::cout << "    [ ] iPhone (" << alice_dreams.iphone << " RUB)\n";
+    }
+
+    if (alice.Korea_trip)
+    {
+        std::cout << "    [+] Поездка в Корею\n";
+    }
+
+    else
+    {
+        std::cout << "    [ ] Поездка в Корею (" << alice_dreams.Korea_trip << " RUB)\n";
+    }
+
+
+    if (alice.Baikal_trip)
+    {
+        std::cout << "    [+] Поездка на Байкал\n";
+    }
+
+    else
+    {
+        std::cout << "    [ ] Поездка на Байкал (" << alice_dreams.Baikal_trip << " RUB)\n";
+    }
+
+    if (alice.has_flat_Moscow)
+    {
+        std::cout << "    [+] Квартира в Москве\n";
+    }
+
+    else
+    {
+        std::cout << "    [ ] Квартира в Москве (" << alice_dreams.flat_Moscow << " RUB)\n";
+    }
+
+    if (alice.has_laptop)
+    {
+        std::cout << "    [+] Новый ноутбук\n";
+    }
+
+    else
+    {
+        std::cout << "    [ ] Новый ноутбук (" << alice_dreams.laptop << " RUB)\n";
+    }
+
+    if (alice.has_boat)
+    {
+        std::cout << "\n    [+] Яхта \n";
+    }
+
+    else
+    {
+        std::cout << "    [ ] Яхта\n";
+    }
+
+
+    //Стас вывод
+
+    std::cout << "\n  Стас\n";
+
+    std::cout << "   Капитал: " << stas.bank_account << " RUB\n";
+
+    std::cout << "   Кредит: " << stas.credit_debt << " RUB\n";
+
+    std::cout << "   Зарплата: " << stas.salary << " RUB\n";
+
+    std::cout << "   ---------------------------\n";
+
+
+    std::cout << "   Исполненные мечты:\n";
+
+    if (stas.has_new_car)
+    {
+        std::cout << "    [+] Новая машина\n";
+    }
+
+    else
+    {
+        std::cout << "    [ ] Новая машина (" << stas_dreams.new_car << " RUB)\n";
+    }
+
+    if (stas.has_garage)
+    {
+        std::cout << "    [+] Гараж\n";
+    }
+
+    else
+    {
+        std::cout << "    [ ] Гараж (" << stas_dreams.garage << " RUB)\n";
+    }
+
+ 
+    //Семья вывод
+
+    std::cout << "\n  Семейный бюджет\n";
+
+    std::cout << "   Капитал: " << home.capital << " RUB\n";
+
+    std::cout << "   Ипотека: " << home.mortgage_debt << " RUB\n";
+
+    std::cout << "   ---------------------------\n";
+
+
+    std::cout << "   Исполненные мечты:\n";
+
+    if (home.sea_trip)
+    {
+        std::cout << "    [+] Поездка на море\n";
+    }
+
+    else
+    {
+        std::cout << "    [ ] Поездка на море (" << family_dreams.sea_trip << " RUB)\n";
+    }
+
+    if (home.London_trip)
+    {
+        std::cout << "    [+] Поездка в Лондон\n";
+    }
+
+    else
+    {
+        std::cout << "    [ ] Поездка в Лондон (" << family_dreams.London_trip << " RUB)\n";
+    }
+
+    if (home.have_dacha)
+    {
+        std::cout << "    [+] Новый дом\n";
+    }
+
+    else
+    {
+        std::cout << "    [ ] Новый дом (" << family_dreams.new_house << " RUB)\n";
+    }
+
+    if (home.have_dacha)
+    {
+        std::cout << "    [+] Дача\n";
+    }
+
+    else
+    {
+        std::cout << "    [ ] Дача (" << family_dreams.dacha << " RUB)\n";
+    }
+
+    if (home.Paris_trip)
+    {
+        std::cout << "    [+] Поездка в Париж\n";
+    }
+
+    else
+    {
+        std::cout << "    [ ] Поездка в Париж (" << family_dreams.paris_trip << " RUB)\n";
+    }
+
+
+    std::cout << "\n-------------------------------------------------------\n";
+
+    //Конец
+}
+
+int main()
+{
+    setlocale(LC_ALL, "RU");
+
+    alice_init();  
+    stas_init();    
+    home_init();    
+
+    simulate_until(2036, 3);  
+
+    print_status(2036, 3);    
+
+    return 0;
+}
