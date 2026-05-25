@@ -1,0 +1,265 @@
+#include <DHT.h>
+
+#define pin_radiator 4
+#define pin_pump 5
+#define pin_lamp 6
+#define pin_ventilator 7
+
+#define pin_dht 3
+#define pin_ground_humidity A0
+#define pin_light A1
+
+DHT dht(pin_dht, DHT11);
+
+float temperature = 0.0;
+float air_humidity = 0.0;
+int ground_humidity = 0;
+int light = 0;
+
+bool dht_data_valid = false;
+
+bool radiator = false;
+bool lamp = false;
+bool pump = false;
+bool ventilator = false;
+
+bool ventilation_by_schedule = false;
+bool ventilator_by_temperature = false;
+bool ventilator_by_humidity = false;
+bool ventilator_by_radiator = false;
+
+unsigned long current_time = 0;
+
+struct climate_settings {
+  float temp_heater_on;
+  float temp_heater_off;
+
+  float temp_fan_on;
+  float temp_fan_off;
+
+  float air_humidity_fan_on;
+  float air_humidity_fan_off;
+
+  int soil_watering_threshold;
+
+  int light_lamp_on;
+  int light_lamp_off;
+};
+
+const climate_settings climate = {
+  26.0, // temp_heater_on
+  28.0, // temp_heater_off
+  30.0, // temp_fan_on
+  28.0, // temp_fan_off
+  80.0, // air_humidity_fan_on
+  70.0, // air_humidity_fan_off
+  819,  // soil_watering_threshold
+  110,  // light_lamp_on
+  150   // light_lamp_off
+};
+
+const unsigned long half_day_interval = 43200000UL; // 12 часов
+unsigned long light_cycle_timer = 0;
+unsigned long half_day_counter = 0;
+
+const unsigned long dht_read_interval = 2000UL;
+unsigned long dht_timer = 0;
+
+const unsigned long pump_work_time = 3000UL;
+const unsigned long pump_pause_time = 5000UL;
+unsigned long pump_timer = 0;
+bool pump_pause = false;
+
+const unsigned long ventilation_interval = 3600000UL;     // 1 час
+const unsigned long ventilation_work_time = 300000UL;     // 5 минут
+unsigned long ventilation_timer = 0;
+
+bool is_soil_dry() {
+  return ground_humidity < climate.soil_watering_threshold;
+}
+
+bool is_light_cycle_day() {
+  return half_day_counter % 2 == 0;
+}
+
+void sensor_initialization(int pin_ground_humidity1, int pin_light1) {
+  pinMode(pin_ground_humidity1, INPUT);
+  pinMode(pin_light1, INPUT);
+}
+
+void actuator_initialization(int pin_radiator1, int pin_pump1, int pin_lamp1, int pin_ventilator1) {
+  pinMode(pin_radiator1, OUTPUT);
+  pinMode(pin_pump1, OUTPUT);
+  pinMode(pin_lamp1, OUTPUT);
+  pinMode(pin_ventilator1, OUTPUT);
+
+  digitalWrite(pin_radiator1, LOW);
+  digitalWrite(pin_pump1, LOW);
+  digitalWrite(pin_lamp1, LOW);
+  digitalWrite(pin_ventilator1, LOW);
+}
+
+void read_sensors(float &temperature1, float &air_humidity1, int &ground_humidity1, int &light1) {
+  if (current_time - dht_timer >= dht_read_interval) {
+    dht_timer = current_time;
+
+    float t = dht.readTemperature();
+    float h = dht.readHumidity();
+
+    if (!isnan(t) && !isnan(h)) {
+      temperature1 = t;
+      air_humidity1 = h;
+      dht_data_valid = true;
+    } else {
+      dht_data_valid = false;
+    }
+  }
+
+  ground_humidity1 = analogRead(pin_ground_humidity);
+  light1 = analogRead(pin_light);
+}
+
+void control_pump(bool &pump1) {
+  if (is_soil_dry()) {
+    if (!pump1 && !pump_pause) {
+      pump1 = true;
+      pump_timer = current_time;
+    }
+
+    if (pump1 && current_time - pump_timer >= pump_work_time) {
+      pump1 = false;
+      pump_pause = true;
+      pump_timer = current_time;
+    }
+
+    if (pump_pause && current_time - pump_timer >= pump_pause_time) {
+      pump_pause = false;
+    }
+  } else {
+    pump1 = false;
+    pump_pause = false;
+    pump_timer = current_time;
+  }
+}
+
+void control_lamp(bool &lamp1) {
+  if (current_time - light_cycle_timer >= half_day_interval) {
+    light_cycle_timer = current_time;
+    half_day_counter++;
+  }
+
+  if (is_light_cycle_day()) {
+    if (light <= climate.light_lamp_on) {
+      lamp1 = true;
+    } else if (light >= climate.light_lamp_off) {
+      lamp1 = false;
+    }
+  } else {
+    lamp1 = false;
+  }
+}
+
+void control_ventilation_schedule(bool &ventilation_by_schedule1) {
+  if (!ventilation_by_schedule1 && current_time - ventilation_timer >= ventilation_interval) {
+    ventilation_by_schedule1 = true;
+    ventilation_timer = current_time;
+  }
+
+  if (ventilation_by_schedule1 && current_time - ventilation_timer >= ventilation_work_time) {
+    ventilation_by_schedule1 = false;
+    ventilation_timer = current_time;
+  }
+}
+
+void control_radiator(bool &radiator1, bool &ventilator_by_radiator1) {
+  if (!dht_data_valid) {
+    radiator1 = false;
+    ventilator_by_radiator1 = false;
+    return;
+  }
+
+  if (temperature <= climate.temp_heater_on) {
+    radiator1 = true;
+    ventilator_by_radiator1 = true;
+  } else if (temperature >= climate.temp_heater_off) {
+    radiator1 = false;
+    ventilator_by_radiator1 = false;
+  }
+}
+
+void control_ventilator_by_temperature(bool &ventilator_by_temperature1, bool &radiator1) {
+  if (!dht_data_valid) {
+    ventilator_by_temperature1 = false;
+    return;
+  }
+
+  if (temperature >= climate.temp_fan_on) {
+    ventilator_by_temperature1 = true;
+    radiator1 = false;
+  } else if (temperature <= climate.temp_fan_off) {
+    ventilator_by_temperature1 = false;
+  }
+}
+
+void control_ventilator_by_humidity(bool &ventilator_by_humidity1) {
+  if (!dht_data_valid) {
+    ventilator_by_humidity1 = false;
+    return;
+  }
+
+  if (air_humidity >= climate.air_humidity_fan_on) {
+    ventilator_by_humidity1 = true;
+  } else if (air_humidity <= climate.air_humidity_fan_off) {
+    ventilator_by_humidity1 = false;
+  }
+}
+
+
+
+void setup() {
+  Serial.begin(9600);
+
+  current_time = millis();
+
+  dht_timer = current_time - dht_read_interval;
+  light_cycle_timer = current_time;
+  ventilation_timer = current_time;
+
+  dht.begin();
+  sensor_initialization(pin_ground_humidity, pin_light);
+  actuator_initialization(pin_radiator, pin_pump, pin_lamp, pin_ventilator);
+
+}
+
+
+void loop() {
+
+  current_time = millis();
+
+  read_sensors(temperature, air_humidity, ground_humidity, light);
+
+  control_pump(pump);
+  control_lamp(lamp);
+
+  control_ventilation_schedule(ventilation_by_schedule);
+  control_radiator(radiator, ventilator_by_radiator);
+  control_ventilator_by_temperature(ventilator_by_temperature, radiator);
+  control_ventilator_by_humidity(ventilator_by_humidity);
+
+  ventilator = ventilator_by_temperature || ventilator_by_humidity || ventilation_by_schedule || ventilator_by_radiator;
+  
+  digitalWrite(pin_pump, pump ? HIGH : LOW);
+  digitalWrite(pin_lamp, lamp ? HIGH : LOW);
+  digitalWrite(pin_radiator, radiator ? HIGH : LOW);
+  digitalWrite(pin_ventilator, ventilator ? HIGH : LOW);
+
+  Serial.print("Temp: "); Serial.print(temperature);
+  Serial.print(" Hum: "); Serial.print(air_humidity);
+  Serial.print(" Soil: "); Serial.print(ground_humidity);
+  Serial.print(" Light: "); Serial.println(light);
+
+
+
+  delay(3000);
+
+}
