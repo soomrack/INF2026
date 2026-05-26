@@ -223,6 +223,7 @@ void alice_car();
 void alice_inflation();
 void alice_education();
 void alice_salary(const int month, const int year);
+void alice_boat(const int month, const int year);
 void alice_init();
 void print_results();
 void alice_tax_report(const int year);
@@ -1543,6 +1544,23 @@ void alice_random_events() {
     Alice.random_expense = 0;
 }
 
+void alice_boat(int month, int year) {
+
+    RUB fishing_equipment = 8000;
+    RUB boat_cost = 20000;
+    int boat_is_fine = 1;
+
+    if ((month == 7) && (year == 2030)) {
+        printf("Алиса поехала на рыбалку; стоимость лодки и снаряжения: %lld RUB\n", boat_cost + fishing_equipment);
+        Alice.capital -= boat_cost + fishing_equipment;
+    }
+
+    if ((month == 8) && (year == 2030)) {
+        printf("лодка сломалась; Алиса больше не рыбачит\n");
+        boat_is_fine = 0;
+    }
+}
+
 void alice_car() {
     Alice.capital -= Alice.car.gas;
     Alice.capital -= Alice.car.maintenance;
@@ -2033,6 +2051,7 @@ void simulation() {
         alice_car();
         alice_education();
         alice_salary(month, year);
+        alice_boat(month, year);
         alice_inflation();
         alice_mortgage_payment();
         alice_charity();
