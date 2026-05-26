@@ -1942,8 +1942,6 @@ int main() {
 	Person Alice;
 	Person Cheshire;
 
-	printf("PRODUCTION MONITOR VER 2.0.1\n");
-
 	PersonConfig alice_cfg = make_alice_config();
 	PersonConfig Cheshire_cfg = make_Cheshire_config();
 
