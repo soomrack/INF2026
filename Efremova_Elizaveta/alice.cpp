@@ -112,6 +112,29 @@ struct Leisure {
     float inf_rate;  //инфляция для развлечений (4.5% в год)
 };
 
+// хеллоуин
+struct Halloween {
+    RUB pumking;
+    RUB cosmetics;
+    RUB costume;
+    RUB party_food;
+    float inf_rate; // инфляция 4% в год
+};
+
+// подвозит пассажиров на своей машине
+struct Carguest {
+    int monthly_rides;
+    RUB price_one_ride;
+    RUB monthly_income;
+    RUB car_damage_cost;
+    RUB total_damage;
+    int rowdy_passengers;
+    int rowdy_count;
+    int total damage;
+
+    float inf_rate; // инфляция 3%
+};
+
 // бизнес ALICE'ONE - производство домиков для животных
 struct Business {
     int employees;   // количество сотрудников (максимум 4)
@@ -213,12 +236,15 @@ struct Person {
     Education education;
     Charity charity;
     Leisure leisure;
+    Halloween halloween;
+    Carguest carguest;
     Business business;
     EatingDisorder eating;
     Fatigue fatigue;
     Job job;
     Injury injury;
     Relationship relationship;
+
 };
 
 struct Person Alice;
@@ -1263,14 +1289,54 @@ void alice_work_experience() {
         printf("Stress decreased by % d points!\n", stress_reduction);
     }
 
+    // инфляция хелоуин
+    void alice.halloween.inflation() {
+        float monthly_rate = get_monthly_rate(Alice.halloween.inf_rate);
+
+    Alice.halloween.pumking = apply_inflation(Alice.halloween.pumking, monthly_rate);
+    Alice.halloween.cosmetics = apply_inflation(Alice.halloween.cosmetics, monthly_rate);
+    Alice.halloween.costume = apply_inflation(Alice.halloween.costume, monthly_rate);
+    Alice.halloween.party_food = apply_inflation(Alice.halloween.party_food, monthly_rate);
+    }
+
+    // хеллоуин
+    void alice_halloween_spending() {
+    if (month !=10) return;
+
+        RUB halloween_cost = Alice.halloween.pumking +
+                             Alice.halloweeen.cosmetics +
+                             Alice.halloween.costume +
+                             Alice.halloweeen.party_food;
+
+        Alice.bank.account -= halloween_cost;
+        printf("\nHalloween expenses %lld RUB\n", halloween_cost);
+    }
+
+    // подвозит кого-то на машине
+        void alice_carguest_inflation() {
+        float monthly_rate = get_monthly_rate(Alice.carguest.inf_rate);
+        Alice.carguest.price_one_ride = apply_inflation(Alice.carguest.price_one_ride, monthly_rate);
+    }
+
+    // количество буйных пассажиров
+        Alice.carguest.monthly_rides = 20;
+        for (int i = 0; i < Alice.carguest.monthly_rides; i++) {
+            int chance = rand() % 100 + 1;
+            if (chance <= 10) {
+                rowdy_count++;
+
+                // cлучайная цена ремонта
+                RUB damage = 500 + (rand() % 14500);
+                total_damage += damage;
+        }
+
+        Alice.carguest.rowdy_passengers = rowdy_count;
+        Alice.carguest.car_damage_cost = total_damage;
+    }
+
     // траты на отношения
     void alice_relationship_spending() {
         if (!Alice.relationship.has_boyfriend) return;
-
-        // увеличение трат на одежду
-        Alice.relationship.clothes_increase *= Alice.bank.month_inf;
-        Alice.relationship.shoes_increase *= Alice.bank.month_inf;
-        Alice.relationship.jewelry_increase *= Alice.bank.month_inf;
 
         // базовое увеличение трат
         RUB extra_clothes = Alice.payments.cloth * (0.3 + (rand() % 30) / 100.0);
@@ -1659,7 +1725,7 @@ void print_status() {
     printf("  Investments: Stocks=%lld Bonds=%lld Liquid=%lld Total=%lld RUB\n",
         Alice.invest.stocks, Alice.invest.bonds, Alice.invest.liquid_funds, total_invest);
     printf("  TOTAL CAPITAL: %lld RUB\n", total_capital);
-    printf("  --- Additional breakdown ---\n");
+    printf("  Additional breakdown \n");
     printf("  Regular expenses: Food=%lld Cloth=%lld Gifts=%lld Subscr=%lld\n",
         Alice.payments.food, Alice.payments.cloth, Alice.payments.gifts, Alice.payments.subscription);
     printf("  Education: Courses=%lld Books=%lld Hobby=%lld\n",
@@ -1668,6 +1734,8 @@ void print_status() {
         Alice.charity.donations, Alice.charity.special);
     printf("  Leisure: Entertain=%lld Sport=%lld Vacation=%lld\n",
         Alice.leisure.entertainment, Alice.leisure.sport, Alice.leisure.vacation);
+    printf("  Halloween: Pumking=%lld Cosmetics=%lld Costume=%lld Party_food=%lld\n");
+    printf("  Carguest: Monthly ride=%lld Price for one ride=%lld\n")
     printf("  --- Business Alice'one ---\n");
     if (Alice.business.is_active) {
         printf("  Business ACTIVE | Team: %d emp | Experience: %d/100\n",
@@ -1818,6 +1886,11 @@ void print_results() {
 
     printf("Final age: %d years\n", Alice.health.age);
     printf("Simulation completed from Feb 2026 to Mar 2057\n");
+    printf("\n Halloween statistics \n");
+    printf("Costume costs % lld RUB\n", Alice.halloween.costume);
+    printf("Pumking costs % lld RUB\n", Alice.halloween.pumking);
+    printf("Cosmetics cost % lld RUB\n", Alice.halloween.cosmetics);
+    printf("Food for Halloween party cost % lld RUB\n", Alice.halloween.party.food);
 }
 
     printf("Final age: %d years\n", Alice.health.age);
@@ -1839,6 +1912,10 @@ void simulation() {
         alice_education();
         alice_charity();
         alice_leisure();
+        alice.halloween.spending();
+        alice.halloween.inflation();
+        alice.carguest();
+        alice.carguest.inflation();
         alice_business_operations();
         alice_eating_disorder();
 
@@ -1949,6 +2026,24 @@ void alice_init() {
     Alice.leisure.sport = 2'500;
     Alice.leisure.vacation = 15'000;
     Alice.leisure.inf_rate = 4.5;
+
+    // хеллоуин
+
+    Alice.halloween.costume = 9'000
+    Alice.halloween.cosmetics = 20'000
+    Alice halloween.pumking = 1'000
+    Alice.halloween.party_food = 14'000
+    Alice.halloween.inf_rate = 4 
+
+    // подвозим кого-то на машине
+    Alice.carguest.monthly_rides = 0;
+    Alice.carguest.price_one_ride = 500;
+    Alice.carguest.monthly_income = 0;
+    Alice.carguest.car_damage_cost = 0;
+    Alice.carguest.rowdy_passengers = 0;
+    Alice.carguest.total_damage = 0;
+    Alice.carguest.rowdy_count = 0;
+    Alice.carguest.inf_rate = 3.0;
 
     // бизнес ALICE'ONE
     Alice.business.company_cash = 500'000;
