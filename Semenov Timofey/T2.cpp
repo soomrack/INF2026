@@ -691,7 +691,7 @@ void earn_revenue(Person& p, int month, int year) {
 void earn_custom_revenue(Person& p, const char* name, int month, int year) {
 	earn_revenue(p, month, year);
 
-	if (name[0] == 'B' && month == 7 && year == 2027) {
+	if (name[0] == 'C' && month == 7 && year == 2027) {
 		p.vault.checking_account += 30000;
 	}
 }
