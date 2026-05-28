@@ -13,13 +13,13 @@
 #define DHTTYPE DHT11
 DHT dhtModule(PIN_DHT_DATA, DHTTYPE);
 
-// ===== 2. ВНУТРЕННИЕ СИСТЕМНЫЕ ЧАСЫ (Software RTC) =====
+// ===== 2. ВНУТРЕННИЕ СИСТЕМНЫЕ ЧАСЫ =====
 int currentHour = 12; 
 int currentMinute = 0;
 unsigned long clockTimer = 0;
 
 void updateClock() {
-  if (millis() - clockTimer >= 1000) { // 1 секунда в реальности = 1 минута в теплице
+  if (millis() - clockTimer >= 1000) {
     clockTimer = millis();
     currentMinute++;
     if (currentMinute >= 60) {
@@ -39,13 +39,12 @@ struct ClimateProfile {
   float humMax;
 };
 
-// Пресеты настроек для мгновенного переключения климата
 const ClimateProfile tomatoPreset = {400, 500, 20.0, 28.0, 70.0};
 const ClimateProfile orchidPreset = {300, 600, 18.0, 25.0, 80.0};
 
-ClimateProfile activeProfile = tomatoPreset; // Текущий рабочий профиль
+ClimateProfile activeProfile = tomatoPreset;
 
-// ===== 4. ОБЪЕКТНАЯ МОДЕЛЬ (Open-Closed Principle) =====
+// ===== 4. ОБЪЕКТНАЯ МОДЕЛЬ =====
 struct CustomSensor {
   String label;
   int pin;
@@ -70,7 +69,7 @@ struct SmartActuator {
   void stop()  { digitalWrite(pin, LOW); }
 };
 
-// ===== 5. ИНИЦИАЛИЗАЦИЯ КОНКРЕТНЫХ УСТРОЙСТВ =====
+// ===== 5. ИНИЦИАЛИЗАЦИЯ УСТРОЙСТВ =====
 CustomSensor photoSensor  = {"Light", PIN_LIGHT_SENS};
 CustomSensor groundSensor = {"Soil", PIN_SOIL_SENS};
 AirSensorDHT tempSensor   = {"Temperature", PIN_DHT_DATA};
@@ -81,7 +80,7 @@ SmartActuator waterPump  = {"Pump", PIN_PUMP};
 SmartActuator airHeater  = {"Heater", PIN_HEATER};
 SmartActuator airFan     = {"Fan", PIN_FAN};
 
-// ===== 6. ФУНКЦИИ АВТОМАТИЗАЦИИ (ЧЕРЕЗ АБСТРАКТНЫЕ ССЫЛКИ) =====
+// ===== 6. ФУНКЦИИ АВТОМАТИЗАЦИИ =====
 
 // Алгоритм освещения
 void regulateLighting(CustomSensor& lightSens, SmartActuator& lamp, const ClimateProfile& profile) {
@@ -93,7 +92,7 @@ void regulateLighting(CustomSensor& lightSens, SmartActuator& lamp, const Climat
   }
 }
 
-// Асинхронный алгоритм полива
+// Алгоритм полива
 unsigned long pumpStartMillis = 0;
 bool isWateringNow = false;
 
@@ -112,7 +111,7 @@ void regulateSoilMoisture(CustomSensor& soilSens, SmartActuator& pump, const Cli
   }
 }
 
-// Алгоритм управления воздушным климатом + защита от оплавления
+// Алгоритм управления воздушным климатом
 void regulateAirClimate(CustomSensor& tSens, CustomSensor& hSens, SmartActuator& heater, SmartActuator& fan, const ClimateProfile& profile) {
   float currentTemp = tSens.readFloat();
   float currentHum  = hSens.readFloat();
@@ -130,18 +129,17 @@ void regulateAirClimate(CustomSensor& tSens, CustomSensor& hSens, SmartActuator&
     turnOnHeater = true; 
   }
 
-  // Расписание проветривания (первые 5 минут часа, кроме ночи)
+  // Расписание проветривания
   bool isNightTime = (currentHour >= 22 || currentHour < 6);
   if (!isNightTime && currentMinute < 5) turnOnFan = true;
 
-  // ЗАЩИТНОЕ КРИТИЧЕСКОЕ ПРАВИЛО: Вентилятор обязан работать в паре с нагревателем
   if (turnOnHeater) turnOnFan = true; 
 
   if (turnOnHeater) heater.start(); else heater.stop();
   if (turnOnFan) fan.start(); else fan.stop();
 }
 
-// ===== 7. SETUP НАСТРОЙКА =====
+// ===== 7. НАЧАЛЬНАЯ НАСТРОЙКА =====
 void setup() {
   Serial.begin(9600);
   dhtModule.begin();
