@@ -13,24 +13,7 @@
 #define DHTTYPE DHT11
 DHT dhtModule(PIN_DHT_DATA, DHTTYPE);
 
-// ===== 2. ВНУТРЕННИЕ СИСТЕМНЫЕ ЧАСЫ =====
-int currentHour = 12; 
-int currentMinute = 0;
-unsigned long clockTimer = 0;
-
-void updateClock() {
-  if (millis() - clockTimer >= 1000) {
-    clockTimer = millis();
-    currentMinute++;
-    if (currentMinute >= 60) {
-      currentMinute = 0;
-      currentHour++;
-      if (currentHour >= 24) currentHour = 0;
-    }
-  }
-}
-
-// ===== 3. СТРУКТУРА КЛИМАТИЧЕСКОГО ПРОФИЛЯ =====
+// ===== 2. СТРУКТУРЫ И ОБЪЕКТНАЯ МОДЕЛЬ (ПЕРЕНЕСЕНО НАВЕРХ) =====
 struct ClimateProfile {
   int lightThreshold;
   int soilDryThreshold;
@@ -39,15 +22,12 @@ struct ClimateProfile {
   float humMax;
 };
 
-const ClimateProfile tomatoPreset = {400, 500, 20.0, 28.0, 70.0};
-const ClimateProfile orchidPreset = {300, 600, 18.0, 25.0, 80.0};
-
-ClimateProfile activeProfile = tomatoPreset;
-
-// ===== 4. ОБЪЕКТНАЯ МОДЕЛЬ =====
 struct CustomSensor {
   String label;
   int pin;
+  
+  CustomSensor(String lbl, int p) : label(lbl), pin(p) {}
+
   virtual int readAnalog() { return analogRead(pin); }
   virtual float readFloat() { return 0.0; }
   virtual ~CustomSensor() {} 
@@ -55,6 +35,9 @@ struct CustomSensor {
 
 // Наследник для цифрового датчика воздуха
 struct AirSensorDHT : public CustomSensor {
+
+  AirSensorDHT(String lbl, int p) : CustomSensor(lbl, p) {}
+
   float readFloat() override { 
     if (label == "Temperature") return dhtModule.readTemperature();
     if (label == "Humidity") return dhtModule.readHumidity();
@@ -69,7 +52,17 @@ struct SmartActuator {
   void stop()  { digitalWrite(pin, LOW); }
 };
 
-// ===== 5. ИНИЦИАЛИЗАЦИЯ УСТРОЙСТВ =====
+// ===== 3. ВНУТРЕННИЕ СИСТЕМНЫЕ ЧАСЫ И ПЕРЕМЕННЫЕ =====
+int currentHour = 12; 
+int currentMinute = 0;
+unsigned long clockTimer = 0;
+
+const ClimateProfile tomatoPreset = {400, 500, 20.0, 28.0, 70.0};
+const ClimateProfile orchidPreset = {300, 600, 18.0, 25.0, 80.0};
+
+ClimateProfile activeProfile = tomatoPreset;
+
+// ===== 4. ИНИЦИАЛИЗАЦИЯ УСТРОЙСТВ =====
 CustomSensor photoSensor  = {"Light", PIN_LIGHT_SENS};
 CustomSensor groundSensor = {"Soil", PIN_SOIL_SENS};
 AirSensorDHT tempSensor   = {"Temperature", PIN_DHT_DATA};
@@ -80,7 +73,21 @@ SmartActuator waterPump  = {"Pump", PIN_PUMP};
 SmartActuator airHeater  = {"Heater", PIN_HEATER};
 SmartActuator airFan     = {"Fan", PIN_FAN};
 
-// ===== 6. ФУНКЦИИ АВТОМАТИЗАЦИИ =====
+unsigned long pumpStartMillis = 0;
+bool isWateringNow = false;
+
+// ===== 5. ФУНКЦИИ И АЛГОРИТМЫ АВТОМАТИЗАЦИИ =====
+void updateClock() {
+  if (millis() - clockTimer >= 1000) {
+    clockTimer = millis();
+    currentMinute++;
+    if (currentMinute >= 60) {
+      currentMinute = 0;
+      currentHour++;
+      if (currentHour >= 24) currentHour = 0;
+    }
+  }
+}
 
 // Алгоритм освещения
 void regulateLighting(CustomSensor& lightSens, SmartActuator& lamp, const ClimateProfile& profile) {
@@ -93,9 +100,6 @@ void regulateLighting(CustomSensor& lightSens, SmartActuator& lamp, const Climat
 }
 
 // Алгоритм полива
-unsigned long pumpStartMillis = 0;
-bool isWateringNow = false;
-
 void regulateSoilMoisture(CustomSensor& soilSens, SmartActuator& pump, const ClimateProfile& profile) {
   if (isWateringNow) {
     if (millis() - pumpStartMillis >= 3000) { 
@@ -139,7 +143,7 @@ void regulateAirClimate(CustomSensor& tSens, CustomSensor& hSens, SmartActuator&
   if (turnOnFan) fan.start(); else fan.stop();
 }
 
-// ===== 7. НАЧАЛЬНАЯ НАСТРОЙКА =====
+// ===== 6. НАЧАЛЬНАЯ НАСТРОЙКА =====
 void setup() {
   Serial.begin(9600);
   dhtModule.begin();
@@ -158,7 +162,7 @@ void setup() {
   pinMode(groundSensor.pin, INPUT);
 }
 
-// ===== 8. ГЛАВНЫЙ ИСПОЛНИТЕЛЬНЫЙ ЦИКЛ =====
+// ===== 7. ГЛАВНЫЙ ИСПОЛНИТЕЛЬНЫЙ ЦИКЛ =====
 void loop() {
   updateClock(); 
   
