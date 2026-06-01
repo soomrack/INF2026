@@ -1,0 +1,290 @@
+#include <DHT.h> 
+#include <stdio.h>
+
+#define FAN_PIN 4
+#define LED_PIN 5
+#define PUMP_PIN 6
+#define HEATER_PIN 7
+const int LIGHT_SENSOR_PIN = A0;
+const int HUMIDITY_SENSOR_PIN = A1;
+#define TEMP_SENSOR_PIN 8
+#define DHTTYPE DHT11
+
+DHT dht(TEMP_SENSOR_PIN, DHTTYPE);
+
+unsigned long startSeconds = 0;
+unsigned long currentHours;
+unsigned long currentMinutes;
+int h;
+int m;
+
+class Temper {
+public:    
+    float temperature; 
+    void get_temperature();
+};
+
+class Humidity_air {
+public:
+    int humidity_air;
+    void get_humidity();
+};
+
+class Heater {
+public:
+    bool on_temperature = false;
+    bool on_humidity = false;
+    void power();
+};
+
+class Fen {
+public:
+    bool on_temperature = false;
+    bool on_humidity = false;
+    void power();
+};
+
+
+class Led {
+public:
+    bool on_light = false;
+    void power();
+};
+
+
+class Light_sensor {
+private:
+    const int pin;
+public:
+    int light;
+    Light_sensor(int p) : pin(p) { pinMode(pin, INPUT); }
+    void get_light();
+};
+
+
+class Humidity_sensor {
+private:
+    const int pin;
+public:
+    int humidity;
+    Humidity_sensor(const int p) : pin(p) { pinMode(pin, INPUT); }
+    void get_humidity();
+};
+
+class Pump {
+public:
+    bool on_humidity = false;
+    int ONtime = 0;
+    int OFFtime = 0;
+    bool last_value;
+    void power();
+};
+
+Light_sensor light_sensor(LIGHT_SENSOR_PIN);
+Temper temper;
+Humidity_air humidity_air;
+Humidity_sensor humidity_sensor(HUMIDITY_SENSOR_PIN);
+Led led;
+Pump pump;
+Heater heater;
+Fen fen;
+
+void Temper::get_temperature() {
+    temperature = dht.readTemperature();
+}
+
+void Humidity_air::get_humidity() {
+    humidity_air = dht.readHumidity();
+}
+
+void DHTread(Temper &temp, Humidity_air &hum_air) {
+    temp.get_temperature();
+    hum_air.get_humidity();
+}
+
+
+void control_time(){
+
+  if (Serial.available()) {
+    h = Serial.parseInt();
+    m = Serial.parseInt();
+    Serial.print("h="); Serial.print(h);
+    Serial.print(", m="); Serial.println(m);
+
+  while (Serial.available()) Serial.read();
+}
+  unsigned long nowSec = (millis() / 1000) + startSeconds;
+  currentHours   = h;
+  currentMinutes = m + nowSec/60;
+  if(currentMinutes == 60){
+    currentMinutes = 0;
+    h++;
+    if(currentHours == 23){
+      currentHours = 0;
+    }
+    else{
+      currentHours++;
+    }
+  }
+ 
+  Serial.println(currentHours);
+  Serial.println(currentMinutes);
+}
+
+
+void Heater::power() {
+    if (on_temperature || on_humidity) {
+        digitalWrite(HEATER_PIN, HIGH);
+    } else {
+        digitalWrite(HEATER_PIN, LOW);
+    }
+}
+
+void Fen::power() {
+    if (on_temperature || on_humidity) {
+        digitalWrite(FAN_PIN, HIGH);
+    } else {
+        digitalWrite(FAN_PIN, LOW);
+    }
+}
+
+void Light_sensor::get_light() {
+    light = analogRead(pin);
+}
+
+void Led::power() {
+    if (on_light) {
+        digitalWrite(LED_PIN, HIGH);
+    } else {
+        digitalWrite(LED_PIN, LOW);
+    }
+}
+
+void Humidity_sensor::get_humidity() {
+    humidity = analogRead(pin);
+}
+
+void Pump::power() {
+    if (on_humidity){
+        digitalWrite(PUMP_PIN, HIGH);
+    } else {
+        digitalWrite(PUMP_PIN, LOW);
+    }
+}
+
+void control_temperature(const Temper& term, Heater& htr, Fen& fn) {
+    if (term.temperature > 29) {
+        htr.on_temperature = false; 
+        fn.on_temperature = true;   
+    } 
+    else if (term.temperature < 28) {
+        htr.on_temperature = true; 
+        fn.on_temperature = true;
+    } 
+    else {
+        htr.on_temperature = false;
+    }
+}
+
+void control_light(const Light_sensor& lg, Led& led, int currentHours) {
+    if ((lg.light > 500)&&(currentHours<22)&&(currentHours>=10)) {
+        led.on_light = true;
+    } else {
+        led.on_light = false;
+    }
+}
+
+void control_humidity_air(const Humidity_air& huma, Heater& htr, Fen& fen) {
+    if (huma.humidity_air > 60) {
+        htr.on_humidity = true;
+        fen.on_humidity = true;
+    } else {
+        htr.on_humidity = false;
+        fen.on_humidity = false;
+    }
+}
+
+void control_humidity(const Humidity_sensor& hum, Pump& pmp, int currentHours) {
+    static unsigned long last_switch_time = 0; 
+    static bool is_watering_cycle = false;
+    unsigned long current_time = millis();
+
+    if ((hum.humidity <= 500) || (currentHours>22) || (currentHours<=10)) { 
+        pmp.on_humidity = false;
+        is_watering_cycle = false; 
+        return;
+    }
+if (!is_watering_cycle) {
+        pmp.on_humidity = true;
+        is_watering_cycle = true;
+        last_switch_time = current_time;
+        Serial.println(F("Dry soil detected! Start watering..."));
+    } 
+    else {
+        if (pmp.on_humidity) {
+            if (current_time - last_switch_time >= 2000) {
+                pmp.on_humidity = false;
+                last_switch_time = current_time;
+                Serial.println(F("Interval: Pump OFF (resting)"));
+            }
+        } else {
+            if (current_time - last_switch_time >= 4000) {
+                pmp.on_humidity = true;
+                last_switch_time = current_time;
+                Serial.println(F("Interval: Pump ON (watering)"));
+            }
+        }
+    }
+}
+
+
+void fen_time (Fen& fn, int currentHours, int currentMinutes){
+    if ((currentHours ==12) or (currentHours  == 16) or (currentHours == 20)){
+        fn.on_temperature = true;
+    }
+    else if (currentMinutes == 15){
+        fn.on_temperature = false;
+    }
+}
+
+
+void setup() {
+  pinMode(FAN_PIN, OUTPUT); 
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(PUMP_PIN, OUTPUT);
+  pinMode(HEATER_PIN, OUTPUT);
+  dht.begin();
+  delay(1000);
+
+  Serial.begin(9600);
+}
+
+void loop() {
+    DHTread(temper, humidity_air);
+    humidity_sensor.get_humidity(); 
+    light_sensor.get_light();
+
+    control_time();
+    fen_time(fen, currentHours, currentMinutes);
+    control_temperature(temper, heater, fen);
+    control_humidity(humidity_sensor, pump,currentHours);
+    control_humidity_air(humidity_air, heater, fen);
+    control_light(light_sensor, led, currentHours);
+
+    heater.power();
+    led.power();
+    pump.power();
+    fen.power();
+
+    Serial.print(F(" Temperature: "));
+    Serial.print(temper.temperature);
+    Serial.print(F(" Humidity Soil: "));
+    Serial.print(humidity_sensor.humidity);
+    Serial.print(F(" Light: "));
+    Serial.print(light_sensor.light);
+    Serial.print(F(" Humidity Air: "));
+    Serial.println(humidity_air.humidity_air);
+
+
+    delay(2000);
+}
