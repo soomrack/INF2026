@@ -220,14 +220,13 @@ void alice_repair_property();
 void alice_entertainment();
 void alice_random_events();
 void alice_car();
-void alice_inflation();
 void alice_education();
 void alice_salary(const int month, const int year);
 void alice_boat(const int month, const int year);
 void alice_init();
 void print_results();
 void alice_tax_report(const int year);
-void add_happiness(int delta);
+void add_happiness(const int delta);
 void simulation();
 
 void alice_charity() {
@@ -1037,6 +1036,14 @@ void alice_update_diet() {
 }
 
 void alice_food() {
+    static int food_months = 0;
+    food_months++;
+    if (food_months >= 12) {
+        Alice.food += Alice.food * (sberbank.inflation_rate * 12 / 100.0);
+        food_months = 0;
+        printf("индексация расходов на питание: +%.1f%%\n", sberbank.inflation_rate * 12);
+    }
+    
     RUB base_food_cost = Alice.food;
     RUB actual_food_cost = base_food_cost;
     
@@ -1104,6 +1111,8 @@ void alice_food() {
 }
 
 void alice_health() {
+    Alice.health.gym_membership += Alice.health.gym_membership * (sberbank.inflation_rate / 100.0);
+
     if (Alice.capital > 1'000'000) {
         add_happiness(2);
     }
@@ -1144,6 +1153,11 @@ void alice_mortgage_payment() {
 }
 
 void alice_real_estate() {
+    Alice.realty.utilities_electricity += Alice.realty.utilities_electricity * (sberbank.inflation_rate / 100.0);
+    Alice.realty.utilities_water += Alice.realty.utilities_water * (sberbank.inflation_rate / 100.0);
+    Alice.realty.utilities_gas += Alice.realty.utilities_gas * (sberbank.inflation_rate / 100.0);
+    Alice.realty.utilities_internet += Alice.realty.utilities_internet * (sberbank.inflation_rate / 100.0);
+
     RUB apartment_tax_total = Alice.realty.apartment_tax;
     
     if (Alice.realty.has_cottage) {
@@ -1363,6 +1377,11 @@ void alice_repair_property() {
 }
 
 void alice_entertainment() {
+    Alice.fun.cinema += Alice.fun.cinema * (sberbank.inflation_rate / 100.0);
+    Alice.fun.restaurants += Alice.fun.restaurants * (sberbank.inflation_rate / 100.0);
+    Alice.fun.travel_budget += Alice.fun.travel_budget * (sberbank.inflation_rate / 100.0);
+    Alice.fun.hobbies += Alice.fun.hobbies * (sberbank.inflation_rate / 100.0);
+
     Alice.capital -= Alice.fun.cinema;
     Alice.capital -= Alice.fun.restaurants;
     Alice.capital -= Alice.fun.travel_budget;
@@ -1544,7 +1563,7 @@ void alice_random_events() {
     Alice.random_expense = 0;
 }
 
-void alice_boat(int month, int year) {
+void alice_boat(const int month, const int year) {
 
     RUB fishing_equipment = 8000;
     RUB boat_cost = 20000;
@@ -1562,6 +1581,8 @@ void alice_boat(int month, int year) {
 }
 
 void alice_car() {
+    Alice.car.gas += Alice.car.gas * (sberbank.inflation_rate / 100.0);
+
     Alice.capital -= Alice.car.gas;
     Alice.capital -= Alice.car.maintenance;
     Alice.capital -= Alice.car.fine;
@@ -1586,27 +1607,6 @@ void alice_car() {
     }
 }
 
-void alice_inflation() {
-    static int months_passed = 0;
-    months_passed++;
-    
-    if (months_passed % 12 == 0) {
-        RUB old_salary = Alice.salary;
-        Alice.salary += Alice.salary * (sberbank.inflation_rate * 12 / 100.0);
-        printf("индексация зарплаты");
-        printf("\nбыло %lld RUB", old_salary);
-        printf("\nстало %lld RUB (+%.1f%%)\n\n", Alice.salary, sberbank.inflation_rate * 12);
-    }
-    
-    Alice.food += Alice.food * (sberbank.inflation_rate / 100.0);
-    Alice.fun.cinema += Alice.fun.cinema * (sberbank.inflation_rate / 100.0);
-    Alice.fun.restaurants += Alice.fun.restaurants * (sberbank.inflation_rate / 100.0);
-    Alice.fun.travel_budget += Alice.fun.travel_budget * (sberbank.inflation_rate / 100.0);
-    Alice.fun.hobbies += Alice.fun.hobbies * (sberbank.inflation_rate / 100.0);
-    Alice.health.gym_membership += Alice.health.gym_membership * (sberbank.inflation_rate / 100.0);
-    Alice.car.gas += Alice.car.gas * (sberbank.inflation_rate / 100.0);
-}
-
 void alice_education() {
     if (Alice.education > 0) {
         Alice.capital -= Alice.education;
@@ -1623,7 +1623,17 @@ void alice_education() {
     }
 }
 
-void alice_salary(int month, int year) {
+void alice_salary(const int month, const int year) {
+    static int salary_months = 0;
+    salary_months++;
+    if (salary_months >= 12) {
+        RUB old_salary = Alice.salary;
+        Alice.salary += Alice.salary * (sberbank.inflation_rate * 12 / 100.0);
+        printf("индексация зарплаты: %lld RUB -> %lld RUB (+%.1f%%)\n", 
+               old_salary, Alice.salary, sberbank.inflation_rate * 12);
+        salary_months = 0;
+    }
+
     if ((month == 8) && (year == 2026)) {
         Alice.salary *= 1.5;
         printf("\nповышение зарплаты: новая зарплата %lld RUB (+50%%)\n", Alice.salary);
@@ -1972,7 +1982,52 @@ void print_results() {
     printf("\n");
 }
 
-void alice_tax_report(int year) {
+void alice_yearly_report(const int year, const int years_total, const RUB last_year_capital, const RUB last_year_apartment, const RUB last_year_car, const int last_year_happiness) {
+    
+    printf("\n");
+    printf("ГОДОВОЙ ОТЧЁТ %d\n", years_total);
+    printf("\n");
+    
+    printf("СОСТОЯНИЕ НА КОНЕЦ ГОДА:\n");
+    printf("  Капитал: %lld RUB\n", Alice.capital);
+    printf("  Стоимость квартиры: %lld RUB\n", Alice.realty.apartment_value);
+    printf("  Стоимость машины: %lld RUB\n", Alice.car.value);
+    printf("  Уровень счастья: %d / 100\n", Alice.health.happiness);
+    
+    printf("\nДИНАМИКА ЗА ГОД:\n");
+    
+    RUB capital_growth = Alice.capital - last_year_capital;
+    printf("  Рост капитала: %+lld RUB\n", capital_growth);
+    
+    RUB apartment_growth = Alice.realty.apartment_value - last_year_apartment;
+    printf("  Рост стоимости квартиры: %+lld RUB\n", apartment_growth);
+    
+    RUB car_growth = Alice.car.value - last_year_car;
+    printf("  Рост стоимости машины: %+lld RUB\n", car_growth);
+    
+    int happiness_change = Alice.health.happiness - last_year_happiness;
+    printf("  Изменение счастья: %+d\n", happiness_change);
+    
+    printf("\nДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ:\n");
+    if (Alice.mortgage.has_mortgage) {
+        printf("  Остаток по ипотеке: %lld RUB\n", Alice.mortgage.remaining_balance);
+    } else {
+        printf("  Ипотека: ПОГАШЕНА\n");
+    }
+    
+    RUB total_assets = Alice.capital + Alice.realty.apartment_value + 
+                       Alice.car.value + Alice.invest.stocks + Alice.invest.bonds;
+    printf("  Всего активов: %lld RUB\n", total_assets);
+    
+    if (last_year_capital > 0 && capital_growth != 0) {
+        double growth_percent = ((double)Alice.capital / last_year_capital - 1.0) * 100.0;
+        printf("  Рост капитала (%%): %+.2f %%\n", growth_percent);
+    }
+    
+    printf("\n");
+}
+
+void alice_tax_report(const int year) {
     printf("\n");
     printf("НАЛОГОВЫЙ ОТЧЕТ ЗА %d ГОД\n", year);
     printf("\n");
@@ -2007,7 +2062,7 @@ void alice_tax_report(int year) {
     printf("\n");
 }
 
-void add_happiness(int delta) {
+void add_happiness(const int delta) {
     Alice.health.happiness += delta;
     
     if (Alice.health.happiness > 100) {
@@ -2052,7 +2107,6 @@ void simulation() {
         alice_education();
         alice_salary(month, year);
         alice_boat(month, year);
-        alice_inflation();
         alice_mortgage_payment();
         alice_charity();
         alice_bank_interest();
@@ -2071,19 +2125,8 @@ void simulation() {
             month = 1;
             ++year;
             years_total++;
-            
-            printf("\n\nГОДОВОЙ ОТЧЁТ %d ", years_total);
-            printf("\nкапитал на конец года %lld RUB", Alice.capital);
-            printf("\nстоимость квартиры %lld RUB", Alice.realty.apartment_value);
-            printf("\nстоимость машины %lld RUB", Alice.car.value);
-            printf("\nсчастье %d/100\n", Alice.health.happiness);
 
-            printf("\n");
-            printf("ИТОГИ ГОДА %d\n", year);
-            printf("рост капитала за год: %lld RUB\n", Alice.capital - last_year_capital);
-            printf("рост стоимости квартиры: %lld RUB\n",Alice.realty.apartment_value - last_year_apartment);
-            printf("рост стоимости машины: %lld RUB\n",Alice.car.value - last_year_car);
-            printf("изменение счастья: %d\n",Alice.health.happiness - last_year_happiness);
+            alice_yearly_report(year, years_total, last_year_capital, last_year_apartment, last_year_car, last_year_happiness);
             
             last_year_capital = Alice.capital;
             last_year_apartment = Alice.realty.apartment_value;
