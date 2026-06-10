@@ -660,121 +660,6 @@ RUB total_mobility(const MobilitySystem& m) {
 		total_aviation(m.aviation);
 }
 
-void inflate_dietary(DietaryBasket& d, double k);
-void inflate_licenses(DigitalLicenses& d, double k);
-void inflate_leisure(SocialLeisure& s, double k);
-void inflate_estate(ResidentialEstate& r, double k);
-void inflate_medical(MedicalCare& m, double k);
-void inflate_wardrobe(WardrobeCollection& w, double k);
-void inflate_growth(IntellectualGrowth& i, double k);
-void inflate_offerings(TributeOfferings& t, double k);
-void inflate_hygiene(BodyHygiene& b, double k);
-void inflate_passions(AmateurPassions& a, double k);
-void inflate_vehicle(PersonalVehicle& p, double k);
-void inflate_shuttle(PublicShuttle& p, double k);
-void inflate_cycle(EcoCycle& e, double k);
-void inflate_subway(SubwayTransit& s, double k);
-void inflate_tramway(ElectricTramway& e, double k);
-void inflate_aviation(AviationTravel& a, double k);
-void inflate_canine(CanineCompanion& c, double k);
-void inflate_feline(FelineCompanion& f, double k);
-void inflate_avian(AvianPet& a, double k);
-void inflate_aquatic(AquaticPet& a, double k);
-
-void earn_revenue(Person& p, int month, int year) {
-	if (month == 12 && year == 2026) {
-		p.monthly_income = p.monthly_income * 3 / 2;
-	}
-	p.vault.checking_account += p.monthly_income;
-}
-
-void earn_custom_revenue(Person& p, const char* name, int month, int year) {
-	earn_revenue(p, month, year);
-
-	if (name[0] == 'C' && month == 7 && year == 2027) {
-		p.vault.checking_account += 30000;
-	}
-}
-
-void clear_dietary(Person& p, double annual_rate) {
-	inflate_dietary(p.dietary, monthly_factor(annual_rate));
-	p.vault.checking_account -= total_dietary(p.dietary);
-}
-
-void clear_licenses(Person& p, double annual_rate) {
-	inflate_licenses(p.licenses, monthly_factor(annual_rate));
-	p.vault.checking_account -= total_licenses(p.licenses);
-}
-
-void clear_leisure(Person& p, double annual_rate) {
-	inflate_leisure(p.leisure, monthly_factor(annual_rate));
-	p.vault.checking_account -= total_leisure(p.leisure);
-}
-
-void clear_mobility(Person& p, double annual_rate) {
-	double k = monthly_factor(annual_rate);
-	inflate_vehicle(p.mobility.vehicle, k);
-	inflate_shuttle(p.mobility.shuttle, k);
-	inflate_cycle(p.mobility.cycle, k);
-	inflate_subway(p.mobility.subway, k);
-	inflate_tramway(p.mobility.tramway, k);
-	inflate_aviation(p.mobility.aviation, k);
-	p.vault.checking_account -= total_mobility(p.mobility);
-}
-
-void clear_estate(Person& p, double annual_rate) {
-	inflate_estate(p.estate, monthly_factor(annual_rate));
-	p.vault.checking_account -= total_estate(p.estate);
-}
-
-void clear_medical(Person& p, double annual_rate) {
-	inflate_medical(p.medical, monthly_factor(annual_rate));
-	p.vault.checking_account -= total_medical(p.medical);
-}
-
-void clear_wardrobe(Person& p, double annual_rate) {
-	inflate_wardrobe(p.wardrobe, monthly_factor(annual_rate));
-	p.vault.checking_account -= total_wardrobe(p.wardrobe);
-}
-
-void clear_growth(Person& p, double annual_rate) {
-	inflate_growth(p.growth, monthly_factor(annual_rate));
-	p.vault.checking_account -= total_growth(p.growth);
-}
-
-void clear_offerings(Person& p, double annual_rate) {
-	inflate_offerings(p.offerings, monthly_factor(annual_rate));
-	p.vault.checking_account -= total_offerings(p.offerings);
-}
-
-void clear_hygiene(Person& p, double annual_rate) {
-	inflate_hygiene(p.hygiene, monthly_factor(annual_rate));
-	p.vault.checking_account -= total_hygiene(p.hygiene);
-}
-
-void clear_passions(Person& p, double annual_rate) {
-	inflate_passions(p.passions, monthly_factor(annual_rate));
-	p.vault.checking_account -= total_passions(p.passions);
-}
-
-void clear_all_animals(Person& p, double annual_rate) {
-	double k = monthly_factor(annual_rate);
-	inflate_canine(p.canine, k);
-	inflate_feline(p.feline, k);
-	inflate_avian(p.avian, k);
-	inflate_aquatic(p.aquatic, k);
-	p.vault.checking_account -= total_animals(p);
-}
-
-void send_to_vault(Person& p, RUB cash) {
-	p.vault.checking_account -= cash;
-	p.vault.deposit_account += cash;
-}
-
-void accrue_yield(Person& p, double yield) {
-	p.vault.deposit_account += (RUB)(p.vault.deposit_account * (yield / 12.0 / 100.0));
-}
-
 void inflate_dietary(DietaryBasket& d, double k) {
 	d.espresso_beans = (RUB)(d.espresso_beans * k);
 	d.organic_milk = (RUB)(d.organic_milk * k);
@@ -1079,6 +964,100 @@ void apply_inflation(Person& p, double rate) {
 	inflate_aquatic(p.aquatic, k);
 }
 
+void earn_revenue(Person& p, int month, int year) {
+	if (month == 12 && year == 2026) {
+		p.monthly_income = p.monthly_income * 3 / 2;
+	}
+	p.vault.checking_account += p.monthly_income;
+}
+
+void earn_custom_revenue(Person& p, const char* name, int month, int year) {
+	earn_revenue(p, month, year);
+
+	if (name[0] == 'C' && month == 7 && year == 2027) {
+		p.vault.checking_account += 30000;
+	}
+}
+
+void clear_dietary(Person& p, double annual_rate) {
+	inflate_dietary(p.dietary, monthly_factor(annual_rate));
+	p.vault.checking_account -= total_dietary(p.dietary);
+}
+
+void clear_licenses(Person& p, double annual_rate) {
+	inflate_licenses(p.licenses, monthly_factor(annual_rate));
+	p.vault.checking_account -= total_licenses(p.licenses);
+}
+
+void clear_leisure(Person& p, double annual_rate) {
+	inflate_leisure(p.leisure, monthly_factor(annual_rate));
+	p.vault.checking_account -= total_leisure(p.leisure);
+}
+
+void clear_mobility(Person& p, double annual_rate) {
+	double k = monthly_factor(annual_rate);
+	inflate_vehicle(p.mobility.vehicle, k);
+	inflate_shuttle(p.mobility.shuttle, k);
+	inflate_cycle(p.mobility.cycle, k);
+	inflate_subway(p.mobility.subway, k);
+	inflate_tramway(p.mobility.tramway, k);
+	inflate_aviation(p.mobility.aviation, k);
+	p.vault.checking_account -= total_mobility(p.mobility);
+}
+
+void clear_estate(Person& p, double annual_rate) {
+	inflate_estate(p.estate, monthly_factor(annual_rate));
+	p.vault.checking_account -= total_estate(p.estate);
+}
+
+void clear_medical(Person& p, double annual_rate) {
+	inflate_medical(p.medical, monthly_factor(annual_rate));
+	p.vault.checking_account -= total_medical(p.medical);
+}
+
+void clear_wardrobe(Person& p, double annual_rate) {
+	inflate_wardrobe(p.wardrobe, monthly_factor(annual_rate));
+	p.vault.checking_account -= total_wardrobe(p.wardrobe);
+}
+
+void clear_growth(Person& p, double annual_rate) {
+	inflate_growth(p.growth, monthly_factor(annual_rate));
+	p.vault.checking_account -= total_growth(p.growth);
+}
+
+void clear_offerings(Person& p, double annual_rate) {
+	inflate_offerings(p.offerings, monthly_factor(annual_rate));
+	p.vault.checking_account -= total_offerings(p.offerings);
+}
+
+void clear_hygiene(Person& p, double annual_rate) {
+	inflate_hygiene(p.hygiene, monthly_factor(annual_rate));
+	p.vault.checking_account -= total_hygiene(p.hygiene);
+}
+
+void clear_passions(Person& p, double annual_rate) {
+	inflate_passions(p.passions, monthly_factor(annual_rate));
+	p.vault.checking_account -= total_passions(p.passions);
+}
+
+void clear_all_animals(Person& p, double annual_rate) {
+	double k = monthly_factor(annual_rate);
+	inflate_canine(p.canine, k);
+	inflate_feline(p.feline, k);
+	inflate_avian(p.avian, k);
+	inflate_aquatic(p.aquatic, k);
+	p.vault.checking_account -= total_animals(p);
+}
+
+void send_to_vault(Person& p, RUB cash) {
+	p.vault.checking_account -= cash;
+	p.vault.deposit_account += cash;
+}
+
+void accrue_yield(Person& p, double yield) {
+	p.vault.deposit_account += (RUB)(p.vault.deposit_account * (yield / 12.0 / 100.0));
+}
+
 void print_dietary(const DietaryBasket& d) {
 	printf("dietary total=%lld\n", total_dietary(d));
 	printf("dietary:\n");
@@ -1353,7 +1332,6 @@ void simulation(Person& p, const char* name) {
 
 	while (!(month == 11 && year == 2027)) {
 		process_month(&p, name, month, year);
-
 		++month;
 		if (month == 13) {
 			month = 1;
