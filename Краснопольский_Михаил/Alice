@@ -1864,7 +1864,7 @@ void simulation()
     int month = 2;
     int year  = 2026;
 
-    while (!(month == 2 && year == 2028)) {
+    while (!(month == 2 && year == 2041)) {
 
 
         alice_salary(month, year);
