@@ -158,8 +158,8 @@ void control_time(){
   unsigned long nowSec = (millis() / 1000) + startSeconds;
   currentHours   = h;
   currentMinutes = m + nowSec/60;
-  if(currentMinutes == 60){
-    currentMinutes = 0;
+  if(currentMinutes >= 60){
+    currentMinutes -= 60;
     h++;
     if(currentHours == 23){
       currentHours = 0;
@@ -188,7 +188,7 @@ void control_temperature(const Thermometer& term, Heater& htr, Fan& fn) {
 }
 void control_illumination(Light_sensor& ls1, Light_sensor& ls2, Light_sensor& ls3, Led& l, int currentHours) {
     average_illumination = (ls1.illumination + ls2.illumination + ls3.illumination)/3;
-    if ((average_illumination > 500) &&(currentHours<22) && (currentHours>=10)) {
+    if ((average_illumination < 500) &&(currentHours<22) && (currentHours>=10)) {
         l.on_illumination = true;
     } else {
         l.on_illumination = false;
@@ -210,7 +210,7 @@ void control_humidity_soil(const Gigrometer_Soil& gigro, Pump& pmp, int currentH
     static bool is_watering_cycle = false;
     unsigned long current_time = millis();
 
-    if ((gigro.humidity_soil <= 100) && (currentHours>22) && (currentHours<=10)) { 
+    if ((gigro.humidity_soil <= 100) && ((currentHours>22) || (currentHours<=10))) { 
         pmp.on_humidity = false;
         is_watering_cycle = false; 
         return;
