@@ -106,7 +106,7 @@ void DHTread(Thermometer &term, Gigrometer_Air &gigr_air) {
 }
 
 void Heater::power() {
-    if (on_temperature && on_humidity) {
+    if (on_temperature || on_humidity) {
         digitalWrite(HEATER_PIN, HIGH);
     } else {
         digitalWrite(HEATER_PIN, LOW);
@@ -114,7 +114,7 @@ void Heater::power() {
 }
 
 void Fan::power() {
-    if (on_temperature && on_humidity) {
+    if (on_temperature || on_humidity) {
         digitalWrite(FAN_PIN, HIGH);
     } else {
         digitalWrite(FAN_PIN, LOW);
