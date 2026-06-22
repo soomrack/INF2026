@@ -106,7 +106,7 @@ void DHTread(Thermometer &term, Gigrometer_Air &gigr_air) {
 }
 
 void Heater::power() {
-    if (on_temperature  on_humidity) {
+    if (on_temperature && on_humidity) {
         digitalWrite(HEATER_PIN, HIGH);
     } else {
         digitalWrite(HEATER_PIN, LOW);
@@ -114,7 +114,7 @@ void Heater::power() {
 }
 
 void Fan::power() {
-    if (on_temperature  on_humidity) {
+    if (on_temperature && on_humidity) {
         digitalWrite(FAN_PIN, HIGH);
     } else {
         digitalWrite(FAN_PIN, LOW);
@@ -210,7 +210,7 @@ void control_humidity_soil(const Gigrometer_Soil& gigro, Pump& pmp, int currentH
     static bool is_watering_cycle = false;
     unsigned long current_time = millis();
 
-    if ((gigro.humidity_soil <= 100)  (currentHours>22)  (currentHours<=10)) { 
+    if ((gigro.humidity_soil <= 100) && (currentHours>22) && (currentHours<=10)) { 
         pmp.on_humidity = false;
         is_watering_cycle = false; 
         return;
