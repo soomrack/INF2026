@@ -7,18 +7,11 @@
 #define PUMP_PIN 6
 #define HEATER_PIN 7
 const int LIGHT_SENSOR_PIN_1 = A0;
-const int LIGHT_SENSOR_PIN_2 = A2;
-const int LIGHT_SENSOR_PIN_3 = A3;
 const int HUMIDITY_SENSOR_PIN = A1;
 #define TEMP_SENSOR_PIN 3
 #define DHTTYPE DHT11
 
-unsigned long startSeconds = 0;
-unsigned long currentHours;
-unsigned long currentMinutes;
-int h;
-int m;
-int average_illumination;
+
 
 DHT dht(TEMP_SENSOR_PIN, DHTTYPE);
 
@@ -82,8 +75,6 @@ public:
 };
 
 Light_sensor light_sensor_1(LIGHT_SENSOR_PIN_1);
-Light_sensor light_sensor_2(LIGHT_SENSOR_PIN_2);
-Light_sensor light_sensor_3(LIGHT_SENSOR_PIN_3);
 Thermometer thermometer;
 Gigrometer_Air gigrometer_air;
 Gigrometer_Soil gigrometer_soil(HUMIDITY_SENSOR_PIN);
@@ -101,8 +92,10 @@ void Gigrometer_Air::get_humidity() {
 }
 
 void DHTread(Thermometer &term, Gigrometer_Air &gigr_air) {
-    term.get_temperature();
-    gigr_air.get_humidity();
+    float t = dht.readTemperature();
+    float hum = dht.readHumidity();
+    if (!isnan(t)) term.temperature = t;   // иначе оставить предыдущее значение
+    if (!isnan(hum)) gigr_air.humidity_air = hum;
 }
 
 void Heater::power() {
@@ -145,32 +138,28 @@ void Pump::power() {
     }
 }
 
-void control_time(){
+unsigned long previousMillis = 0;
+int currentHours = 0;
+int currentMinutes = 0;
 
-  if (Serial.available()) {
-    h = Serial.parseInt();
-    m = Serial.parseInt();
-    Serial.print("h="); Serial.print(h);
-    Serial.print(", m="); Serial.println(m);
-
-  while (Serial.available()) Serial.read();
-}
-  unsigned long nowSec = (millis() / 1000) + startSeconds;
-  currentHours   = h;
-  currentMinutes = m + nowSec/60;
-  if(currentMinutes >= 60){
-    currentMinutes -= 60;
-    h++;
-    if(currentHours == 23){
-      currentHours = 0;
+void control_time() {
+    unsigned long now = millis();
+    // Обновляем раз в 60 секунд
+    if (now - previousMillis >= 60000) {
+        previousMillis = now;
+        currentMinutes++;
+        if (currentMinutes >= 60) {
+            currentMinutes = 0;
+            currentHours++;
+            if (currentHours > 23) {
+                currentHours = 0;
+            }
+        }
     }
-    else{
-      currentHours++;
-    }
-  }
- 
-  Serial.println(currentHours);
-  Serial.println(currentMinutes);
+    // Для отладки выводим время
+    Serial.print(currentHours);
+    Serial.print(":");
+    Serial.println(currentMinutes);
 }
 
 void control_temperature(const Thermometer& term, Heater& htr, Fan& fn) {
@@ -180,15 +169,15 @@ void control_temperature(const Thermometer& term, Heater& htr, Fan& fn) {
     } 
     else if (term.temperature < 28) {
         htr.on_temperature = true; 
-        fn.on_temperature = true;
+        fn.on_temperature = false;
     } 
     else {
         htr.on_temperature = false;
+        fn.on_temperature = false;
     }
 }
-void control_illumination(Light_sensor& ls1, Light_sensor& ls2, Light_sensor& ls3, Led& l, int currentHours) {
-    average_illumination = (ls1.illumination + ls2.illumination + ls3.illumination)/3;
-    if ((average_illumination < 500) &&(currentHours<22) && (currentHours>=10)) {
+void control_illumination(Light_sensor& ls1, Led& l, int currentHours) {
+    if ((ls1.illumination < 500) &&(currentHours<22) && (currentHours>=10)) {
         l.on_illumination = true;
     } else {
         l.on_illumination = false;
@@ -239,11 +228,10 @@ void control_humidity_soil(const Gigrometer_Soil& gigro, Pump& pmp, int currentH
     }
 }
 
-void control_ventilation (Fan& fn, int currentHours, int currentMinutes){
-    if ((currentHours ==12) or (currentHours  == 16) or (currentHours == 20)){
-        fn.on_temperature = true;
-    }
-    else if (currentMinutes == 15){
+void control_ventilation(Fan& fn, int currentHours, int currentMinutes) {
+    if ((currentHours == 12 || currentHours == 16 || currentHours == 20) && currentMinutes < 15) {
+        fn.on_temperature = true;   // включаем на первые 15 минут часа
+    } else {
         fn.on_temperature = false;
     }
 }
@@ -259,21 +247,21 @@ void setup() {
   delay(1000);
 
   Serial.begin(9600);
+  thermometer.temperature = 25.0;
+  gigrometer_air.humidity_air = 50;
 }
 
 void loop() {
     DHTread(thermometer, gigrometer_air);
     gigrometer_soil.get_humidity();
     light_sensor_1.get_illumination();
-    light_sensor_2.get_illumination();
-    light_sensor_3.get_illumination();
 
     control_time();
     control_ventilation(fan, currentHours, currentMinutes);
     control_temperature(thermometer, heater, fan);
     control_humidity_soil(gigrometer_soil, pump, currentHours);
     control_humidity_air(gigrometer_air, heater, fan);
-    control_illumination(light_sensor_1, light_sensor_2, light_sensor_3, led, currentHours);
+    control_illumination(light_sensor_1, led, currentHours);
 
 
     led.power();
@@ -287,7 +275,7 @@ void loop() {
     Serial.print(F(" Humidity: "));
     Serial.print(gigrometer_soil.humidity_soil);
     Serial.print(F(" Illumination: "));
-    Serial.print(average_illumination);
+    Serial.print(light_sensor_1.illumination);
     Serial.print(F(" Humidity Air: "));
     Serial.println(gigrometer_air.humidity_air);
 
