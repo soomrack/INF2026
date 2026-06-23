@@ -19,7 +19,13 @@ bool dhtSensorOK = true;
 bool soilSensorOK = true;
 bool lightSensorOK = true;
 unsigned long sensorErrorTime = 0;
-const unsigned long SENSOR_RETRY_INTERVAL = 5000; // 5 секунд между попытками переподключения
+const unsigned long SENSOR_RETRY_INTERVAL = 5000;
+
+// Флаги для принудительной вентиляции
+bool heaterVentForced = false;
+unsigned long heaterVentStartTime = 0;
+const unsigned long HEATER_VENT_DURATION = 20000;
+bool heaterPrevState = false;
 
 struct PlantProfile {
     float tempHigh;
@@ -225,6 +231,7 @@ public:
     bool needVentByTemp;
     bool needVentByHum;
     bool needVentByTime;
+    bool needVentByHeater;
 
     MultiVent(int pinNum) {
         pin = pinNum;
@@ -236,6 +243,7 @@ public:
         needVentByTemp = false;
         needVentByHum = false;
         needVentByTime = false;
+        needVentByHeater = false;
         pinMode(pin, OUTPUT);
         digitalWrite(pin, LOW);
     }
@@ -259,7 +267,7 @@ public:
 
         unsigned long elapsed = now - cycleStartTime;
         unsigned long activeDuration = (cycleDuration * targetVentsCount) / maxVents;
-        bool hasGlobalRequest = needVentByTemp || needVentByHum || needVentByTime;
+        bool hasGlobalRequest = needVentByTemp || needVentByHum || needVentByTime || needVentByHeater;
 
         if (isNightTime || !hasGlobalRequest) {
             if (activeState) {
@@ -296,32 +304,42 @@ public:
         if (!activeState) return 0;
         return targetVentsCount;
     }
+
+    void forceVentilation(bool enable) {
+        needVentByHeater = enable;
+        if (enable) {
+            Serial.println(F("Vent: FORCED ON by heater"));
+        } else {
+            Serial.println(F("Vent: FORCED OFF by heater"));
+        }
+    }
 };
+
 
 class Heater {
 private:
     int pin;
-    MultiVent* linkedVent;
     bool activeState;
 public:
     bool needHeatByTemp;
     bool needHeatByHum;
 
-    Heater(int pinNum, MultiVent* ventPtr) {
+    Heater(int pinNum) {
         pin = pinNum;
-        linkedVent = ventPtr;
         activeState = false;
         needHeatByTemp = false;
         needHeatByHum = false;
         pinMode(pin, OUTPUT);
         digitalWrite(pin, LOW);
-
     }
 
-    void power() {
+    //forceOff + power
+    void power(bool forcedOffState = false) {
         bool prev = activeState;
         bool demandsFlag = needHeatByTemp || needHeatByHum;
-        bool shouldHeat = demandsFlag && linkedVent->isOn();
+        
+        
+        bool shouldHeat = demandsFlag && !forcedOffState;
 
         if (shouldHeat) {
             digitalWrite(pin, HIGH);
@@ -331,8 +349,12 @@ public:
 
         activeState = shouldHeat;
         if (activeState != prev) {
-            Serial.print(F("Heater:"));
-            Serial.println(activeState ? F("ON") : F("OFF"));
+            if (forcedOffState) {
+                Serial.println(F("Heater: OFF (forced by priority)"));
+            } else {
+                Serial.print(F("Heater:"));
+                Serial.println(activeState ? F("ON") : F("OFF"));
+            }
         }
     }
 
@@ -340,6 +362,7 @@ public:
         return activeState;
     }
 };
+
 
 class Lamp {
 private:
@@ -413,12 +436,16 @@ public:
 
     void power() {
         unsigned long now = millis();
+        bool prevState = isRunning;
 
         if (isRunning && (now - startTime >= maxDuration)) {
             digitalWrite(pin, LOW);
             isRunning = false;
             lastStopTime = now;
             activeState = false;
+            if (prevState != isRunning) {
+                Serial.println(F("Pump: OFF (time limit)"));
+            }
         }
 
         if (!needPump && isRunning) {
@@ -426,6 +453,9 @@ public:
             isRunning = false;
             lastStopTime = now;
             activeState = false;
+            if (prevState != isRunning) {
+                Serial.println(F("Pump: OFF (no need)"));
+            }
         }
 
         if (needPump && !isRunning && (now - lastStopTime >= restDuration)) {
@@ -433,6 +463,9 @@ public:
             isRunning = true;
             startTime = now;
             activeState = true;
+            if (prevState != isRunning) {
+                Serial.println(F("Pump: ON"));
+            }
         }
     }
 
@@ -440,6 +473,34 @@ public:
         return activeState;
     }
 };
+
+// Управление принудительной вентиляцией при изменении состояния нагревателя
+void control_heater_ventilation(Heater& heater, MultiVent& vent) {
+    unsigned long currentTime = millis();
+    bool currentHeaterState = heater.isOn();
+    
+    if (currentHeaterState != heaterPrevState) {
+        heaterVentForced = true;
+        heaterVentStartTime = currentTime;
+        vent.forceVentilation(true);
+        
+        if (currentHeaterState) {
+            Serial.println(F("Heater turned ON -> forced ventilation started"));
+        } else {
+            Serial.println(F("Heater turned OFF -> forced ventilation started"));
+        }
+        
+        heaterPrevState = currentHeaterState;
+    }
+    
+    if (heaterVentForced) {
+        if (currentTime - heaterVentStartTime >= HEATER_VENT_DURATION) {
+            heaterVentForced = false;
+            vent.forceVentilation(false);
+            Serial.println(F("Forced ventilation finished"));
+        }
+    }
+}
 
 int calculateVentsByTemperature(float temperature, const PlantProfile& activeProfile) {
     if (isnan(temperature)) return 0;
@@ -513,7 +574,7 @@ void control_soilmoisture(int moisture, Pump& pump, const PlantProfile& activePr
         }
     }
 
-    if (moisture > activeProfile.soilHigh) {
+    if (moisture < activeProfile.soilLow) {  
         if (!pumpDelayActive) {
             if (!pump.needPump) {
                 Serial.println(F("Soil: dry -> pump ON"));
@@ -527,7 +588,7 @@ void control_soilmoisture(int moisture, Pump& pump, const PlantProfile& activePr
                 pumpLastWorkTime = now;
             }
         }
-    } else if (moisture < activeProfile.soilLow) {
+    } else if (moisture > activeProfile.soilHigh) {  
         if (pump.needPump) {
             Serial.println(F("Soil: wet -> pump OFF"));
         }
@@ -593,9 +654,9 @@ DHTReader mainDht(PIN_DHT);
 SoilMoistureSensor soilSensor(PIN_SOIL);
 LightSensor lightSensor(PIN_LIGHT);
 MultiVent vent(PIN_FAN);
-Heater heater(PIN_HEATER, &vent);
-Lamp lamp(PIN_LAMP);
 Pump pump(PIN_PUMP);
+Heater heater(PIN_HEATER);
+Lamp lamp(PIN_LAMP);
 
 void setup() {
     Serial.begin(9600);
@@ -604,7 +665,6 @@ void setup() {
     pump.setDuration(profiles[0].pumpDuration);
     pump.setRestDuration(profiles[0].pumpRest);
     
-    // Проверка датчиков при старте
     Serial.println(F("Checking sensors..."));
     delay(2000);
     mainDht.update();
@@ -620,6 +680,8 @@ void setup() {
     if (!lightSensorOK) {
         Serial.println(F("WARNING: Light sensor failed initial test - using defaults"));
     }
+    
+    heaterPrevState = heater.isOn();
 }
 
 void loop() {
@@ -636,7 +698,6 @@ void loop() {
     
     mainDht.update();
 
-    // Получаем значения с заглушками
     float temperature = mainDht.getTemperature();
     float humidity = mainDht.getHumidity();
     
@@ -646,7 +707,6 @@ void loop() {
     int soilMoisture = soilSensor.getMoisture();
     int lightLevel = lightSensor.getLightLevel();
 
-    // Вывод статуса датчиков
     Serial.print(F("DHT: "));
     Serial.print(dhtSensorOK ? F("OK") : F("FAULT (using defaults)"));
     Serial.print(F("  Soil: "));
@@ -666,7 +726,6 @@ void loop() {
     Serial.print(F("Night: "));
     Serial.println(isNightTime ? F("yes") : F("no"));
 
-    // Автоматическое восстановление датчиков
     if (!dhtSensorOK && millis() - sensorErrorTime > SENSOR_RETRY_INTERVAL) {
         mainDht.update();
         if (mainDht.isDataValid()) {
@@ -685,22 +744,34 @@ void loop() {
     control_soilmoisture(soilMoisture, pump, currentProfile);
     control_light(lightLevel, lamp, currentProfile);
     control_ventilation(vent, currentProfile);
+    
+    //новая логика вентилятора
+    control_heater_ventilation(heater, vent);
 
     if (vent.needVentByTime && requiredVentsCount < 1) {
         requiredVentsCount = 1;
     }
+    
+    if (vent.needVentByHeater) {
+        requiredVentsCount = 3;
+    }
 
     vent.setVentsCount(requiredVentsCount);
-    vent.power();
-    heater.power();
-    lamp.power();
+    
+    
     pump.power();
+    heater.power(pump.isOn());
+    vent.power();
+    lamp.power();
 
     Serial.print(F("Status: vent="));
     if (vent.isOn()) {
         Serial.print(F("ON ("));
         Serial.print(vent.getCurrentVentsCount());
         Serial.print(F(")"));
+        if (vent.needVentByHeater) {
+            Serial.print(F(" [FORCED]"));
+        }
     } else {
         Serial.print(F("OFF"));
     }
@@ -715,4 +786,4 @@ void loop() {
     Serial.println(pump.isOn() ? F("ON") : F("OFF"));
 
     delay(2000);
-} 
+}
