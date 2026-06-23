@@ -13,6 +13,11 @@ class Field;
 class Storage;
 class Random;
 
+enum Month {
+    January, February, March, April, May, June,
+    July, August, September, October, November, December
+};
+
 /*=======================CЛУЧАЙНОСТИ НЕ СЛУЧАЙНЫ======================*/
 
 class Random {
@@ -63,9 +68,8 @@ enum  ResourceID {
     Oats, Barley, Rye, Wheat,
     Cow_milk, Goat_milk, Sheep_wool, Chicken_eggs,
     Cow_meat, Sheep_meat, Goat_meat, Chicken_meat, Pig_meat,
+    NO_RESOURCE
 };
-
-const int NO_RESOURCE = -1;
 
 struct Resource {
     std::string name;
@@ -74,10 +78,10 @@ struct Resource {
 };
 
 std::vector<Resource> resources {
-    {"Oats", 8, Oats},
-    { "Barley", 9, Barley},
-    { "Rye", 12, Rye},
-    { "Wheat", 14, Wheat},
+    {"Oats", 8, Oats },
+    { "Barley", 9, Barley },
+    { "Rye", 12, Rye },
+    { "Wheat", 14, Wheat },
 
     { "Cow_milk", 30, Cow_milk },
     { "Goat_milk", 6, Goat_milk },
@@ -95,7 +99,7 @@ std::vector<Resource> resources {
 /*=====================================СКЛАД======================================*/
 
 struct Storage_Stack {
-    int resource_id;
+    ResourceID resource_id;
     int amount;
 };
 
@@ -103,9 +107,9 @@ class Storage {
 public:
     std::vector<Storage_Stack> items;
 
-    void add(int resource_id, int amount);
-    bool remove(int resource_id, int amount);
-    int get_amount(int resource_id);
+    void add(ResourceID resource_id, int amount);
+    bool remove(ResourceID resource_id, int amount);
+    int get_amount(ResourceID resource_id);
 };
 
 Storage storage = {
@@ -114,13 +118,11 @@ Storage storage = {
         {Barley, 1500}, // ячмень
         {Rye, 1400},  // рожь
         {Wheat, 1600}  // пшеница
-        // {"milk", 100}
-        // в будущем добавить сюда молоко, мясо и т.д. для животных
     }
 };
 
 
-void Storage::add(int resource_id, int amount) {
+void Storage::add(ResourceID resource_id, int amount) {
     for (auto& item : items) {
         if (item.resource_id == resource_id) {
             item.amount += amount;
@@ -130,7 +132,7 @@ void Storage::add(int resource_id, int amount) {
     items.push_back({ resource_id, amount });
 }
 
-bool Storage::remove(int resource_id, int amount) {
+bool Storage::remove(ResourceID resource_id, int amount) {
     for (auto& item : items) {
         if (item.resource_id == resource_id) {
             if (item.amount < amount) return false; // недостаточно ресурса для удаления
@@ -144,7 +146,7 @@ bool Storage::remove(int resource_id, int amount) {
     return false;
 }
 
-int Storage::get_amount(int resource_id) {
+int Storage::get_amount(ResourceID resource_id) {
     for (auto& item : items) {
         if (item.resource_id == resource_id) {
             return item.amount;
@@ -167,14 +169,15 @@ public:
 Ivan ivan;
 
 void Ivan::expenses() {
-    money -= 150;
+    money -= 200;
 }
 
 /* =============================БАРИН============================ */
 class Barin {
 public:
     double percent_obrok = 0.3;
-    int forced_crop;
+    int forced_winter_crop;
+    int forced_summer_crop;
     int how_many_years;
 
     void random_barin_order();
@@ -184,40 +187,56 @@ Barin barin;
 
 void Barin::random_barin_order() {
 
-    forced_crop = Random::random_int(0, 3);
+    forced_summer_crop = Random::random_int(0, 1);
+    forced_winter_crop = Random::random_int(2, 3);
     how_many_years = Random::random_int(1, 5);
 
     std::cout << "Barin ordered to plant "
-        << resources[forced_crop].name
+        << resources[forced_summer_crop].name << " and " << 
+        resources[forced_winter_crop].name
         << " for " << how_many_years
         << " years\n";
 }
 
 /* =============================ЗЕРНО И ПОЛЕ============================ */
-
 struct Grain {
 
+    ResourceID resource_id;
     int kg_for_desyatina;
+	bool is_winter_crop; // озимое?
+	int sow_month; //месяц посева
+	int harvest_month; //месяц сбора урожая
+
+};  
+
+std::vector<Grain> grains {
+    {Oats, 150, false, April, August }, 
+    {Barley, 140, false, April, August  },
+    {Rye, 180, true, September, July  },
+    {Wheat, 160, true, September, July  },
+
 };
 
-std::array<Grain, 4> grains;
-
-void grains_init() {
-    grains[0] = { 95 };
-    grains[1] = { 75 }; // ячмень
-    grains[2] = { 70 };
-    grains[3] = { 80 };
-}
+enum Type_of_field {
+    Summer_type, Winter_type, Chill_type
+};
 
 struct Field {
-    int crop_index; // индекс культуры, которая будет посеяна
-    double area;    // площадь в десятинах
+    int field_number;
+	Type_of_field type;
+    double area;            
+    bool is_planted;
     int planted_kg;
+    ResourceID current_grain;
+    double current_random_harvest_coeff;
 };
 
-enum Season { Spring, Summer, Autumn, Winter };
+std::array<Field, 3> fields{{
+    {0, Summer_type, 10.0, false, 0, NO_RESOURCE, 0.0},
+    {1, Winter_type, 10.0, true, 1500, Rye, 0.0},
+    {2, Chill_type, 10.0, false, 0, NO_RESOURCE, 0.0}
+}};
 
-Field field;
 std::vector< std::pair<double, int>> harvest_chance{
   {0.1, 1},
   {0.7, 2},
@@ -230,8 +249,417 @@ std::vector< std::pair<double, int>> harvest_chance{
   {5.0, 1}
 };
 
-void field_init() {
-    field.area = 20.0; // площадь поля
-    field.crop_index = -1; // пока ничего не посеяно
+/*============================УРОЖАЙ=========================*/
+
+// Весна: посадка культуры
+void plant_crop(Month month) {
+
+    if (month != April and month != September) return;
+
+    if (barin.how_many_years == 0) {
+        barin.random_barin_order();
+    }
+
+    if (month == April) {
+        for (auto& field : fields) {
+            if (field.type == Summer_type) {
+
+                ResourceID grain_to_plant = ResourceID(barin.forced_summer_crop);
+
+                int grain_index = static_cast<int>(grain_to_plant);
+
+                int max_needed = field.area * grains[grain_index].kg_for_desyatina;
+
+                int available = storage.get_amount(grain_to_plant);
+
+                int planted = std::min(max_needed, available);
+
+                if (planted == 0) {
+                    std::cout << "Not enough " << resources[grain_to_plant].name << "\n";
+                    break;
+                }
+
+                storage.remove(grain_to_plant, planted);
+
+                std::cout << "April: Planted summer_culture " << planted << " kg of "
+                    << resources[grain_to_plant].name << "\n";
+
+                field.current_grain = grain_to_plant;
+                field.planted_kg = planted;
+                field.is_planted = true;
+            }
+        }
+    }
+
+    if (month == September) {
+        for (auto& field : fields) {
+            if (field.type == Winter_type) {
+
+                ResourceID grain_to_plant = ResourceID(barin.forced_winter_crop);
+
+                int grain_index = static_cast<int>(grain_to_plant);
+
+                int max_needed = field.area * grains[grain_index].kg_for_desyatina;
+
+                int available = storage.get_amount(grain_to_plant);
+
+                int planted = std::min(max_needed, available);
+
+                if (planted == 0) {
+                    std::cout << "Not enough " << resources[grain_to_plant].name << "\n";
+                    break;
+                }
+
+                storage.remove(grain_to_plant, planted);
+
+                std::cout << "September: Planted summer_culture " << planted << " kg of "
+                    << resources[grain_to_plant].name << "\n";
+
+                field.current_grain = grain_to_plant;
+                field.planted_kg = planted;
+                field.is_planted = true;
+            }
+        }
+    }
+}
+// Лето: сбор урожая
+void harvest_crop(Month month) {
+
+    if (month == January) {
+        double random_harvest_coeff = Random::weighted(harvest_chance);
+        std::cout << random_harvest_coeff << "\n";
+        
+        for (auto& field : fields) {
+            field.current_random_harvest_coeff = random_harvest_coeff;
+        }
+    }
+
+    if (month != July and month != August) return;
+
+    if (month == July) {
+        for (auto& field : fields) {
+            if (field.type == Winter_type and field.is_planted == true) {
+
+                int grown_harvest = field.planted_kg * field.current_random_harvest_coeff;
+
+                int obrok = grown_harvest * barin.percent_obrok;
+
+                int ivan_part = grown_harvest - obrok;
+
+                storage.add(field.current_grain, ivan_part);
+
+                std::cout << "July: Croped winter_culture " << grown_harvest << " kg of "
+                    << resources[field.current_grain].name << "\n";
+                std::cout << "Ivan take his part " << ivan_part << " kg of "
+                    << resources[field.current_grain].name << "\n";
+
+                field.type = Summer_type;
+
+                field.is_planted = false;
+                field.planted_kg = 0;
+
+                field.current_grain = NO_RESOURCE;
+
+            }
+        }
+    }
+    if (month == August) {
+        for (auto& field : fields) {
+            if (field.type == Chill_type) {
+                field.type = Winter_type;
+            }
+
+            if (field.type == Summer_type and field.is_planted == true) {
+
+                int grown_harvest = field.planted_kg * field.current_random_harvest_coeff;
+
+                int obrok = grown_harvest * barin.percent_obrok;
+                int ivan_part = grown_harvest - obrok;
+
+                storage.add(field.current_grain, ivan_part);
+
+                std::cout << "August: Croped summer_culture " << grown_harvest << " kg of "
+                    << resources[field.current_grain].name << "\n";
+                std::cout << "Ivan take his part " << ivan_part << " kg of "
+                    << resources[field.current_grain].name << "\n";
+
+                field.type = Chill_type;
+
+                field.is_planted = false;
+                field.planted_kg = 0;
+
+                field.current_grain = NO_RESOURCE;
+            }
+        }
+    }
+    /*for (auto& field : fields) {
+        std::cout << field.field_number << " " << field.type << "\n";
+    }*/
 }
 
+// Основная функция обработки сезона
+void process_cropping(Month month) {
+    plant_crop(month);
+    harvest_crop(month);
+
+}
+
+
+/*==============================ЖИВОТНЫЕ===========================*/
+/*
+struct Production {
+
+    int product_resource_id;
+    int amount_of_product;
+    int production_interval;
+};
+
+struct Meat {
+
+    int meat_resource_id;
+    int amount_of_meat;
+};
+
+struct Animal_type {
+
+    std::string title_of_animal;
+    int max_age;
+
+    Production production;
+    Meat meat;
+
+
+};
+
+struct Animal {
+
+    Animal_type type;
+
+    int current_age;
+
+    bool is_alive = true;
+
+    std::string name;
+
+
+};
+
+int count_of_animals = 0;
+
+std::vector<Animal> animals;
+
+void animals_init() {
+
+}
+
+
+Animal_type Cow{
+    "Cow", 10,
+    { Cow_milk, 12, 1 },
+    { Cow_meat, 180 }
+};
+
+Animal_type Bull{
+    "Bull", 12,
+    { NO_RESOURCE, 0, 0 },
+    { Cow_meat, 300 }
+};
+
+Animal_type Goat_girl{
+    "Goat_girl",8,
+    { Goat_milk, 6, 1 },
+    { Goat_meat, 18 }
+};
+
+Animal_type Goat_man{
+    "Goat-man", 8,
+    { NO_RESOURCE, 0, 0 },
+    { Goat_meat, 18 }
+};
+
+Animal_type Sheep{
+    "Sheep", 10,
+    { Sheep_wool, 2, 52 },
+    { Sheep_meat, 20 }
+};
+
+Animal_type Chicken{
+    "Chicken", 3,
+    { Chicken_eggs, 5, 1 },
+    { Chicken_meat, 1 }
+};
+
+Animal_type Roaster{
+    "Rooster", 3,
+    { NO_RESOURCE, 0, 0 },
+    { Chicken_meat, 85 }
+};
+
+Animal_type Pig{
+    "Pig", 2,
+    { NO_RESOURCE, 0, 0 },
+    { Pig_meat, 85 }
+};
+
+void add_animals() {
+
+    int cow_count = Random::random_int(1, 3);
+    std::vector<std::string> cow_names = { "Murka", "Burenka", "Matilda", "Snezhka", "Nochka", "Maйka", "Marta", };
+
+    for (int i = 0; i < cow_count; i++) {
+
+        animals.push_back({
+            Cow, 0, true, cow_names[Random::random_int(0, cow_names.size() - 1)]);
+        count_of_animals++;
+    }
+}
+
+void product_add(int week) {
+    for (auto& animal : animals) {
+        if (animal.type.production.product_resource_id == NO_RESOURCE) continue;
+        if (week % animal.type.production.production_interval != 0) continue;
+
+        storage.add(animal.type.production.product_resource_id,
+            animal.type.production.amount_of_product * animal.count);
+    }
+}
+
+void slaughter() {
+    for (auto& animal : animals) {
+        if (animal.count > 0 and animal.current_age >= animal.type.max_age) {
+
+            storage.add(animal.type.meat.meat_resource_id,
+                animal.type.meat.amount_of_meat * animal.count); // исправить после добавления разного возраста животных
+            std::cout << "Ivan kill " << animal.name << " and get " <<
+                animal.type.meat.amount_of_meat * animal.count << " kg of " <<
+                (resources[animal.type.meat.meat_resource_id].name) << " rrrrrrrrrrrrrrrrrrrr\n";
+
+            animal.count = 0;
+        }
+    }
+}
+
+std::string type_of_resources(std::string name) {
+
+    if (name == "Cow_milk" or name == "Goat_milk") {
+        return "litres";
+    }
+    if (name == "Chicken_eggs") return "shtuk";
+    return "kg";
+
+}
+
+void sell_animal_resources() {
+
+    for (auto& item : storage.items) {
+
+        if (resources[item.resource_id].grain_data_id != -1) continue;
+
+        ivan.money += resources[item.resource_id].price_for_unit * item.amount;
+
+        std::string type = type_of_resources(resources[item.resource_id].name);
+
+        if (item.amount != 0) {
+            std::cout << "Sold " << item.amount << " of " << type << " "
+                << resources[item.resource_id].name << "\n";
+            item.amount = 0;
+        }
+    }
+}
+
+void reproduction() {
+    for (auto& animal : animals) {
+        if (animal.count >= 1 and Random::chance(0.2)) {
+            animal.count++;
+            std::cout << "We have a new " << animal.name << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << "\n";
+        }
+    }
+}
+
+void sudden_death() {
+    for (auto& animal : animals) {
+        if (animal.count >= 1 and Random::chance(0.2)) {
+            animal.count--;
+            std::cout << "We have a death " << animal.name << "(((((((((((" << "\n";
+        }
+    }
+} */
+/* ======================ВСПОМОГАТЕЛЬНЫЕ КОМАНДЫ======================= */
+
+/*void process_week(Season season) {
+    for (int week = 1; week <= 12; week++) {
+
+        product_add(week);
+
+
+    }
+} */
+
+void oldering(int year) {
+
+    ivan.age++;
+
+    /*for (auto& animal : animals) {
+        animal.current_age++;
+    }*/
+}
+void years_simulation() {
+
+    int year = Random::random_int(1820, 1856);
+
+
+    int start_year = year;
+    Month current_month = January;
+    std::cout << "Start year: " << year << "\n";
+
+    while (year < 1861) {
+
+        //process_week(current_season);
+        process_cropping(current_month);
+
+        ivan.expenses();
+
+
+        //slaughter();
+        //sell_animal_resources();
+
+        current_month = static_cast<Month>((current_month + 1) % 12);
+        if (current_month == January) {
+
+            std::cout << "Oats " << storage.get_amount(Oats) << "\n";
+            std::cout << "Barley " << storage.get_amount(Barley) << "\n";
+            std::cout << "Rye " << storage.get_amount(Rye) << "\n";
+            std::cout << "Wheat " << storage.get_amount(Wheat) << "\n";
+
+            year++;
+            oldering(year);
+            barin.how_many_years--;
+            //reproduction();
+            //sudden_death();
+        }
+    }
+
+    std::cout << "After " << year - start_year << " years, Ivan has " << ivan.money / 1000 << " RUB and "
+        << ivan.money % 1000 << " DAR \n";
+    std::cout << "Ivan's age = " << ivan.age;
+}
+
+void start_initialization() {
+
+    Random::init();
+    //start_init_animals();
+    //family_init(); // если нужно, можно добавить семью и расходы на нее
+    //pets_init(); // если нужно, можно добавить животных и расходы на них,
+}
+
+/*=================================ГЛАВНАЯ ЧАСТЬ==============================*/
+
+int main() {
+
+    start_initialization();
+    
+    years_simulation();
+
+    // after 1861 будет совсем другая история, которую мы обязательно продолжим
+
+}
