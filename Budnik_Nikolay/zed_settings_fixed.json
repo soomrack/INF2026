@@ -1,0 +1,32 @@
+{
+  "theme": {
+    "mode": "dark",
+    "light": "Vesper Blur",
+    "dark": "Vesper Blur"
+  },
+  "experimental.theme_overrides": {
+    "editor.syntax": {
+      "comment": {
+        "color": "#9ca3af"
+      },
+      "string": {
+        "color": "#8ee6d1"
+      },
+      "number": {
+        "color": "#c7d2fe"
+      },
+      "constant": {
+        "color": "#c7d2fe"
+      },
+      "keyword": {
+        "color": "#67e8f9"
+      },
+      "function": {
+        "color": "#93c5fd"
+      },
+      "type": {
+        "color": "#a7f3d0"
+      }
+    }
+  }
+}
