@@ -370,7 +370,7 @@ void check_crisis(const int year, const int month) {
         alice.crisis.months_left--;
         
         if (alice.crisis.months_left <= 0) {
-            printf("\n🌈 КРИЗИС ЗАКОНЧИЛСЯ! Экономика восстанавливается.\n");
+            printf("\nКРИЗИС ЗАКОНЧИЛСЯ! Экономика восстанавливается.\n");
             printf("Зарплаты возвращаются к нормальному уровню, цены снижаются.\n\n");
             
             alice.crisis.active = false;
@@ -419,7 +419,7 @@ void check_crisis(const int year, const int month) {
                 break;
         }
         
-        printf("\n⚠️⚠️⚠️ ВНИМАНИЕ! КРИЗИС В СТРАНЕ! ⚠️⚠️⚠️\n");
+        printf("\n КРИЗИС В СТРАНЕ!\n");
         printf("Тип кризиса: %s\n", alice.crisis.description);
         printf("Длительность: %d месяцев\n", alice.crisis.duration);
         printf("Зарплаты уменьшатся на %d%%\n", 100 - alice.crisis.salary_multiplier);
@@ -487,17 +487,12 @@ void alice_buy_electronics(const int year, const int month) {
                 alice.capital -= cost;
                 *has_items[choice] = true;
                 
-                printf("\n📱 АЛИСА ПОКУПАЕТ %s за %lld руб.\n", items[choice], cost);
+                printf("\n Покупка %s за %lld руб.\n", items[choice], cost);
                 printf("   Капитал после покупки: %lld руб.\n", alice.capital);
                 
                 alice.electronics.last_purchase_month = month;
                 alice.electronics.last_purchase_year = year;
                 
-                // Особые сообщения для разных покупок
-                if (choice == 0) printf("   Теперь можно делать классные фото!\n");
-                if (choice == 1) printf("   Новый ноутбук для работы и учебы!\n");
-                if (choice == 4) printf("   Теперь музыка звучит лучше!\n");
-                if (choice == 6) printf("   Можно играть в новые игры!\n");
             }
         }
     }
@@ -525,13 +520,13 @@ void alice_repair_electronics(const int month, const int year) {
                 
                 if (alice.crisis.active) cost = cost * 120 / 100; // +20%
                 
-                printf("\n🔧 СЛОМАЛСЯ %s! Ремонт: %lld руб.\n", items[i], cost);
+                printf("\n Сломался %s! Ремонт: %lld руб.\n", items[i], cost);
                 
                 if (alice.capital >= cost) {
                     alice.capital -= cost;
-                    printf("   Отремонтировано. Капитал: %lld руб.\n", alice.capital);
+                    printf("Отремонтировано. Капитал: %lld руб.\n", alice.capital);
                 } else {
-                    printf("   Нет денег на ремонт! Придется покупать новый.\n");
+                    printf("Нет денег на ремонт!\n");
                     *has_items[i] = false;
                 }
                 break;
@@ -559,7 +554,7 @@ void alice_open_business(const int year, const int month) {
     if (rand() % 100 < 5 && alice.capital >= 100'000) {
         RUB invest = 200'000 + (rand() % 200'000); // Вложения 200-400к
         
-        printf("\n🌟🌟🌟 АЛИСА ОТКРЫВАЕТ БИЗНЕС! 🌟🌟🌟\n");
+        printf("\n АЛИСА ОТКРЫВАЕТ БИЗНЕС \n");
         printf("Вложено в бизнес: %lld руб.\n", invest);
         
         alice.capital -= invest;
@@ -570,7 +565,7 @@ void alice_open_business(const int year, const int month) {
         if (alice.crisis.active) {
             alice.business.monthly_income = 30'000 + (rand() % 100'000);
             alice.business.monthly_cost = 30'000 + (rand() % 80'000);
-            printf("⚠️ Открытие во время кризиса - бизнес будет менее прибыльным\n");
+            printf(" Открытие во время кризиса - бизнес будет менее прибыльным\n");
         } else {
             alice.business.monthly_income = 50'000 + (rand() % 150'000);
             alice.business.monthly_cost = 20'000 + (rand() % 80'000);
@@ -606,22 +601,22 @@ void alice_run_business(const int year, const int month) {
 
     printf("\n--- БИЗНЕС: МЕСЯЦ %d ---\n", alice.business.months);
     if (profit >= 0) {
-        printf("✅ Прибыль: +%lld руб.\n", profit);
+        printf(" Прибыль: +%lld руб.\n", profit);
     } else {
-        printf("❌ Убыток: %lld руб.\n", profit);
+        printf(" Убыток: %lld руб.\n", profit);
     }
     printf("Текущий капитал: %lld руб.\n", alice.capital);
     
     // Бизнес может прогореть при больших убытках
     if (alice.business.months > 6 && profit < -50000) {
-        printf("\n💔 БИЗНЕС ПРОГОРЕЛ из-за больших убытков!\n");
+        printf("\n БИЗНЕС ПРОГОРЕЛ из-за больших убытков!\n");
         alice.business.exists = false;
     }
     
     // Успешный бизнес может расти
     if (profit > 100000 && alice.business.months % 12 == 0) {
         alice.business.monthly_income *= 1.1; // +10% к доходу
-        printf("📈 БИЗНЕС РАСШИРЯЕТСЯ! Доход увеличен до %lld руб.\n", 
+        printf(" БИЗНЕС РАСШИРЯЕТСЯ! Доход увеличен до %lld руб.\n", 
                alice.business.monthly_income);
     }
 }
@@ -636,14 +631,14 @@ void alice_sell_business(const int year, const int month) {
         // Стоимость продажи = вложения + прибыль за последний год
         RUB sell_price = alice.business.invested * 1.5 + (rand() % 200'000);
         
-        printf("\n💰💰💰 ПРЕДЛОЖЕНИЕ О ПОКУПКЕ БИЗНЕСА! 💰💰💰\n");
+        printf("\n ПРЕДЛОЖЕНИЕ О ПОКУПКЕ БИЗНЕСА! \n");
         printf("Цена продажи: %lld руб.\n", sell_price);
         printf("Изначально вложено: %lld руб.\n", alice.business.invested);
         
         alice.capital += sell_price;
         alice.business.exists = false;
         
-        printf("✅ БИЗНЕС ПРОДАН! Капитал: %lld руб.\n\n", alice.capital);
+        printf(" БИЗНЕС ПРОДАН! Капитал: %lld руб.\n\n", alice.capital);
     }
 }
 
@@ -769,12 +764,12 @@ void process_loan_payment(const int year, const int month)
             alice.capital_control.active_loan.amount -= principal_part;
             alice.capital_control.total_interest_paid += interest_part;
             
-            printf("  ✅ Платеж успешно обработан\n");
+            printf("   Платеж успешно обработан\n");
             printf("  Основной долг уменьшен на: %lld руб.\n", principal_part);
         }
         
         alice.capital_control.active_loan.months_left--;
-        printf("  📊 После платежа: капитал = %lld руб., сбережения = %lld руб.\n", alice.capital, alice.savings);
+        printf("   После платежа: капитал = %lld руб., сбережения = %lld руб.\n", alice.capital, alice.savings);
         printf("  Остаток долга: %lld руб., осталось месяцев: %d\n", alice.capital_control.active_loan.amount, alice.capital_control.active_loan.months_left);
         
         // Если кредит выплачен
@@ -1061,7 +1056,7 @@ void alice_investments(const int month, const int year)
         int market_change = (rand() % 21) - 10; // -10% до +10%
         RUB change = alice.investments.stocks * market_change / 100;
         alice.investments.stocks += change;
-        printf("Месяц %d: 📈 Изменение стоимости акций: %+lld руб. (всего: %lld руб.)\n", month, change, alice.investments.stocks);
+        printf("Месяц %d:  Изменение стоимости акций: %+lld руб. (всего: %lld руб.)\n", month, change, alice.investments.stocks);
     }
     
 
@@ -1079,7 +1074,7 @@ void alice_investments(const int month, const int year)
         int crypto_change = (rand() % 41) - 20; // -20% до +20%
         RUB change = alice.investments.crypto * crypto_change / 100;
         alice.investments.crypto += change;
-        printf("Месяц %d: 📊 Изменение стоимости криптовалюты: %+lld руб. (всего: %lld руб.)\n", month, change, alice.investments.crypto);
+        printf("Месяц %d:  Изменение стоимости криптовалюты: %+lld руб. (всего: %lld руб.)\n", month, change, alice.investments.crypto);
 
     }
 
@@ -1100,7 +1095,7 @@ void alice_investments(const int month, const int year)
         int items_change = (rand() % 21) - 10;
         RUB change = alice.investments.steam_marketplace * items_change / 100;
         alice.investments.steam_marketplace += change;
-        printf("Месяц %d: 📊 Изменение стоимости предмета: %+lld руб. (всего: %lld руб.)\n", month, change, alice.investments.steam_marketplace);
+        printf("Месяц %d:  Изменение стоимости предмета: %+lld руб. (всего: %lld руб.)\n", month, change, alice.investments.steam_marketplace);
     }
 }
 
@@ -1140,7 +1135,7 @@ void alice_salary(const int year, const int month)
     // Ежегодная индексация (во время кризиса ее может не быть)
     if (month == 1 && year > 2026) {
         if (alice.crisis.active && rand() % 100 < 60) {
-            printf("⚠️ Индексации зарплаты нет из-за кризиса\n");
+            printf(" Индексации зарплаты нет из-за кризиса\n");
         } else {
             alice.salary *= 1.05;
             printf("Индексация зарплаты! Новая зарплата: %lld руб.\n", alice.salary);
@@ -1374,7 +1369,7 @@ void alice_trip(const int year, const int month)
         trip_savings = 0;
         check_and_take_loan(year, month);
     } else if (trip_savings >= 200'000) {
-        printf("⚠️ Путешествие откладывается из-за кризиса\n");
+        printf(" Путешествие откладывается из-за кризиса\n");
     }
 }
 
@@ -1429,8 +1424,8 @@ void alice_simulation()
         
         check_crisis(year, month);
               if (alice.crisis.active) {
-                  printf("⚠️ КРИЗИС: %s (осталось %d мес.)\n", alice.crisis.description, alice.crisis.months_left);
-                  printf("   Зарплаты: %d%%, Цены: %d%%\n", alice.crisis.salary_multiplier, alice.crisis.price_multiplier);
+                  printf(" КРИЗИС: %s (осталось %d мес.)\n", alice.crisis.description, alice.crisis.months_left);
+                  printf(" Зарплаты: %d%%, Цены: %d%%\n", alice.crisis.salary_multiplier, alice.crisis.price_multiplier);
         }
 
         // ДОХОДЫ
@@ -1544,32 +1539,32 @@ void print_spending_summary()
 
         printf("\n========== ИТОГИ БИЗНЕСА ==========\n");
     if (alice.business.exists) {
-        printf("✅ Бизнес активен\n");
+        printf(" Бизнес активен\n");
         printf("Вложено всего: %'lld руб.\n", alice.business.invested);
         printf("Месяцев работы: %d\n", alice.business.months);
         printf("Текущий доход/мес: %'lld руб.\n", alice.business.monthly_income);
         printf("Текущие расходы/мес: %'lld руб.\n", alice.business.monthly_cost);
     } else if (alice.business.invested > 0) {
 
-        printf("❌ Бизнес был закрыт или продан\n");
+        printf(" Бизнес был закрыт или продан\n");
         printf("Всего было вложено: %'lld руб.\n", alice.business.invested);
         printf("Бизнес проработал: %d месяцев\n", alice.business.months);
     } else {
-        printf("❌ Бизнес не открывался\n");
+        printf(" Бизнес не открывался\n");
     }
 
 
 
     printf("\n========== ЭЛЕКТРОНИКА И ТЕХНИКА ==========\n");
-    printf("📱 Телефон: %s\n", alice.electronics.has_phone ? "✅ есть" : "❌ нет");
-    printf("💻 Ноутбук: %s\n", alice.electronics.has_laptop ? "✅ есть" : "❌ нет");
-    printf("📟 Планшет: %s\n", alice.electronics.has_tablet ? "✅ есть" : "❌ нет");
-    printf("📺 Телевизор: %s\n", alice.electronics.has_tv ? "✅ есть" : "❌ нет");
-    printf("🎧 Наушники: %s\n", alice.electronics.has_headphones ? "✅ есть" : "❌ нет");
-    printf("⌚ Умные часы: %s\n", alice.electronics.has_smartwatch ? "✅ есть" : "❌ нет");
-    printf("🎮 Игровая консоль: %s\n", alice.electronics.has_game_console ? "✅ есть" : "❌ нет");
-    printf("📷 Фотоаппарат: %s\n", alice.electronics.has_camera ? "✅ есть" : "❌ нет");
-    printf("🏠 Умный дом: %s\n", alice.electronics.has_smart_home ? "✅ есть" : "❌ нет");
+    printf(" Телефон: %s\n", alice.electronics.has_phone ? "есть" : "нет");
+    printf(" Ноутбук: %s\n", alice.electronics.has_laptop ? "есть" : "нет");
+    printf(" Планшет: %s\n", alice.electronics.has_tablet ? "есть" : "нет");
+    printf(" Телевизор: %s\n", alice.electronics.has_tv ? "есть" : "нет");
+    printf(" Наушники: %s\n", alice.electronics.has_headphones ? "есть" : "нет");
+    printf(" Умные часы: %s\n", alice.electronics.has_smartwatch ? "есть" : "нет");
+    printf(" Игровая консоль: %s\n", alice.electronics.has_game_console ? " есть" : "нет");
+    printf(" Фотоаппарат: %s\n", alice.electronics.has_camera ? "есть" : "нет");
+    printf(" Умный дом: %s\n", alice.electronics.has_smart_home ? "есть" : "нет");
 
 
 
